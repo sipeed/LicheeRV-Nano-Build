@@ -555,10 +555,42 @@ define raw2cimg
 	${Q}python3 $(COMMON_TOOLS_PATH)/image_tool/raw2cimg.py $(OUTPUT_DIR)/rawimages/${1} $(OUTPUT_DIR) $(FLASH_PARTITION_XML)
 endef
 
+
+# BR_OVERLAY_DIR
+# BR_ROOTFS_RAWIMAGE
+br-rootfs-prepare:export CROSS_COMPILE_KERNEL=$(patsubst "%",%,$(CONFIG_CROSS_COMPILE_KERNEL))
+br-rootfs-prepare:export CROSS_COMPILE_SDK=$(patsubst "%",%,$(CONFIG_CROSS_COMPILE_SDK))
+br-rootfs-prepare:
+	$(call print_target)
+	# copy ko and mmf libs
+	${Q}mkdir -p $(BR_OVERLAY_DIR)/mnt/system
+	${Q}cp -arf ${SYSTEM_OUT_DIR}/* $(BR_OVERLAY_DIR)/mnt/system/
+	# strip
+	${Q}find $(BR_OVERLAY_DIR) -name "*.ko" -type f -printf 'striping %p\n' -exec $(CROSS_COMPILE_KERNEL)strip --strip-unneeded {} \;
+	${Q}find $(BR_OVERLAY_DIR) -name "*.so*" -type f -printf 'striping %p\n' -exec $(CROSS_COMPILE_KERNEL)strip --strip-all {} \;
+	${Q}find $(BR_OVERLAY_DIR) -executable -type f ! -name "*.sh" ! -path "*etc*" ! -path "*.ko" -printf 'striping %p\n' -exec $(CROSS_COMPILE_SDK)strip --strip-all {} 2>/dev/null \;
+
+br-rootfs-pack:export TARGET_OUTPUT_DIR=$(BR_DIR)/output/$(BR_BOARD)
+br-rootfs-pack:
+	$(call print_target)
+	${Q}$(MAKE) -C $(BR_DIR) $(BR_DEFCONFIG) BR2_TOOLCHAIN_EXTERNAL_PATH=$(CROSS_COMPILE_PATH)
+	${Q}$(MAKE) -j${NPROC} -C $(BR_DIR)
+	# ${Q}rm -rf $(BR_ROOTFS_DIR)/*
+	# copy rootfs to rawimg dir
+	${Q}cp $(TARGET_OUTPUT_DIR)/images/rootfs.ext4 $(OUTPUT_DIR)/rawimages/rootfs_ext4.$(STORAGE_TYPE)
+	$(call raw2cimg ,rootfs_ext4.$(STORAGE_TYPE))
+
+ifeq ($(CONFIG_BUILDROOT_FS),y)
+rootfs:br-rootfs-prepare
+rootfs:br-rootfs-pack
+else
 rootfs:rootfs-pack
 rootfs:
 	$(call print_target)
+ifneq ($(STORAGE_TYPE), sd)
 	$(call raw2cimg ,rootfs.$(STORAGE_TYPE))
+endif
+endif
 
 jffs2:
 	$(call print_target)

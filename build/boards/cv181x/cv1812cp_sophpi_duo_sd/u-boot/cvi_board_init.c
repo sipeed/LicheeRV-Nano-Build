@@ -1,0 +1,10 @@
+int cvi_board_init(void)
+{
+	// sensor i2c1 reset mclk
+	PINMUX_CONFIG(PAD_MIPI_TXP0, CAM_MCLK0); 	// MCLK0
+	PINMUX_CONFIG(PAD_MIPI_TXM1, IIC2_SDA); 	// I2C2 SDA
+	PINMUX_CONFIG(PAD_MIPI_TXP1, IIC2_SCL);		// I2C2 SCL
+	PINMUX_CONFIG(PAD_MIPI_TXP2, XGPIOC_17);	// reset
+
+	return 0;
+}
