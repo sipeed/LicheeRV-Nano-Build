@@ -70,6 +70,7 @@ sensor-$(CONFIG_SENSOR_GCORE_GC2083)         += gcore_gc2083
 sensor-$(CONFIG_SENSOR_GCORE_GC2145)         += gcore_gc2145
 sensor-$(CONFIG_SENSOR_GCORE_GC4023)         += gcore_gc4023
 sensor-$(CONFIG_SENSOR_GCORE_GC4653)         += gcore_gc4653
+sensor-$(CONFIG_SENSOR_GCORE_GC4653_SLAVE)   += gcore_gc4653_slave
 sensor-$(CONFIG_SENSOR_IMGDS_MIS2008)        += imgds_mis2008
 sensor-$(CONFIG_SENSOR_IMGDS_MIS2008_1L)     += imgds_mis2008_1L
 sensor-$(CONFIG_SENSOR_NEXTCHIP_N5)          += nextchip_n5

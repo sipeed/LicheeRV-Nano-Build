@@ -74,6 +74,9 @@ gcore_gc4023:
 gcore_gc4653:
 	$(call MAKE_SENSOR, ${@})
 
+gcore_gc4653_slave:
+	$(call MAKE_SENSOR, ${@})
+
 imgds_mis2008:
 	$(call MAKE_SENSOR, ${@})
 
