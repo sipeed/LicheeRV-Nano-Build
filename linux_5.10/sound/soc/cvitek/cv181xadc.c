@@ -436,6 +436,12 @@ static int cv181xadc_prepare(struct snd_pcm_substream *substream,
 	val = adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0);
 	adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0, val);
 	cv181xadc_on(adc);
+#ifdef CONFIG_CVI_ADC_OV_MOD
+	// chang overflow mode to bypass
+	val = adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_CTRL1);
+	val &= ~AUDIO_PHY_REG_RXADC_DCB_OPT_MASK;
+	adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_CTRL1, val);
+#endif
 	return 0;
 }
 

@@ -489,16 +489,18 @@ static int cvsnfc_dev_ready(struct nand_chip *chip)
 	unsigned int regval;
 	struct cvsnfc_host *host = chip->priv;
 	unsigned long start_time = jiffies;
-	/* 4ms */
-	unsigned long max_erase_time = 4 * 3;
+	/* 100ms */
+	unsigned long max_erase_time = 100;
 
 	do {
 		spi_feature_op(host, GET_OP, STATUS_ADDR, &regval);
-		if (!(regval & STATUS_OIP_MASK))
+		if (!(regval & STATUS_OIP_MASK)) {
 			return 1;
+		}
 	} while (jiffies_to_msecs(jiffies - start_time) < max_erase_time);
 
-	pr_err("%s timeout.\n", __func__);
+	pr_err("{%s: %d] warning: wait OIP timeout. regval=0x%x\n", __func__, __LINE__, regval);
+	dump_stack();
 
 	return 0;
 }

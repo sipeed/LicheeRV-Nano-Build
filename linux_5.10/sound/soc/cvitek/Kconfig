@@ -120,6 +120,13 @@ config SND_SOC_CV182XAADC
 	 MICs.
 	 Say N, if not support
 
+config CVI_ADC_OV_MOD
+	bool "select the overflow format of ADC (16 bitwigth)"
+	depends on SND_SOC_CV182XAADC
+	help
+		Say y means keep the max or min value of signed 16 bit data.
+		Say n means data will overflow.
+
 config SND_SOC_CV1835DAC
     tristate "CVITEK CV1835 DAC device driver"
 	depends on SND
