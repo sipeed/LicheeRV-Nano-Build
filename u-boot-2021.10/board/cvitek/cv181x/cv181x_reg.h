@@ -5,6 +5,7 @@
 #define PINMUX_BASE     (TOP_BASE + 0x1000)
 #define WATCHDOG_BASE   (TOP_BASE + 0x00010000)
 #define RTC_BASE   0x05026000
+#define CLOCK_GEN_BASE     (TOP_BASE + 0x2000)
 
 /*
  * RTC info registers
@@ -76,6 +77,16 @@
 
 #define REG_TOP_USB_ECO			(TOP_BASE + 0xB4)
 #define BIT_TOP_USB_ECO_RX_FLUSH	0x80
+
+/* CLK_DIV CRG */
+#define DIV_CLK_CAM0_200        (CLOCK_GEN_BASE + 0x0a8)
+#define BIT_DIV_RESET_CONT           BIT(0)
+#define BIT_SELT_DIV_REG             BIT(3)
+#define BIT_CLK_SRC                  BIT(8)
+//Clock Divider Factor[20:16],actual frequency = 1188M / Clock Divider Factor
+#define BIT_CLK_DIV_FACT_16          BIT(16)
+#define BIT_CLK_DIV_FACT_17          BIT(17)
+
 /* rst */
 #define REG_TOP_SOFT_RST        0x3000
 #define BIT_TOP_SOFT_RST_USB    BIT(11)
