@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_OPENSSH
+	bool "Target openssh"
+	default n
+	help
+	  target openssh

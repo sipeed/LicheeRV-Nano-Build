@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_AIC8800_FW
+	bool "Target aic8800-fw"
+	default n
+	help
+	  target aic8800-fw

@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_BINUTILS
+	bool "Target binutils"
+	default n
+	help
+	  target binutils

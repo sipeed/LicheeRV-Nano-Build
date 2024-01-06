@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_CACHE_CALIBRATOR
+	bool "Target cache-calibrator"
+	default n
+	help
+	  target cache-calibrator

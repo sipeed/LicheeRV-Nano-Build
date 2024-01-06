@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_P7ZIP),y)
+TARGET_PACKAGES += p7zip
+endif

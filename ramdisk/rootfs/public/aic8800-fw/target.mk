@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_AIC8800_FW),y)
+TARGET_PACKAGES += aic8800-fw
+endif

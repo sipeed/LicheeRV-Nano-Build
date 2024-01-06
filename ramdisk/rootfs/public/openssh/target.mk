@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_OPENSSH),y)
+TARGET_PACKAGES += openssh
+endif

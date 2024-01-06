@@ -213,7 +213,7 @@
 	#elif defined(CONFIG_SD_BOOT)
 		#define ROOTARGS "root=" ROOTFS_DEV " rootwait rw"
 	#else
-		#define ROOTARGS "rootfstype=squashfs rootwait ro root=" ROOTFS_DEV
+		#define ROOTARGS "rootwait rw root=" ROOTFS_DEV
 	#endif
 
 	/* BOOTARGS */

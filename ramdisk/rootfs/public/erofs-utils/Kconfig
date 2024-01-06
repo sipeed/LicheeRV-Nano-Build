@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_EROFS_UTILS
+	bool "Target erofs-utils"
+	default n
+	help
+	  target erofs-utils

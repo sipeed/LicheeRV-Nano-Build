@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_EMPTY
+	bool "Target empty"
+	default n
+	help
+	  target empty

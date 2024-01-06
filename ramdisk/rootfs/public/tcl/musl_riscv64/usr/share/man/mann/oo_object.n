@@ -1,0 +1,394 @@
+'\"
+'\" Copyright (c) 2007-2008 Donal K. Fellows
+'\"
+'\" See the file "license.terms" for information on usage and redistribution
+'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+'\"
+.TH object n 0.1 TclOO "TclOO Commands"
+.\" The -*- nroff -*- definitions below are for supplemental macros used
+.\" in Tcl/Tk manual entries.
+.\"
+.\" .AP type name in/out ?indent?
+.\"	Start paragraph describing an argument to a library procedure.
+.\"	type is type of argument (int, etc.), in/out is either "in", "out",
+.\"	or "in/out" to describe whether procedure reads or modifies arg,
+.\"	and indent is equivalent to second arg of .IP (shouldn't ever be
+.\"	needed;  use .AS below instead)
+.\"
+.\" .AS ?type? ?name?
+.\"	Give maximum sizes of arguments for setting tab stops.  Type and
+.\"	name are examples of largest possible arguments that will be passed
+.\"	to .AP later.  If args are omitted, default tab stops are used.
+.\"
+.\" .BS
+.\"	Start box enclosure.  From here until next .BE, everything will be
+.\"	enclosed in one large box.
+.\"
+.\" .BE
+.\"	End of box enclosure.
+.\"
+.\" .CS
+.\"	Begin code excerpt.
+.\"
+.\" .CE
+.\"	End code excerpt.
+.\"
+.\" .VS ?version? ?br?
+.\"	Begin vertical sidebar, for use in marking newly-changed parts
+.\"	of man pages.  The first argument is ignored and used for recording
+.\"	the version when the .VS was added, so that the sidebars can be
+.\"	found and removed when they reach a certain age.  If another argument
+.\"	is present, then a line break is forced before starting the sidebar.
+.\"
+.\" .VE
+.\"	End of vertical sidebar.
+.\"
+.\" .DS
+.\"	Begin an indented unfilled display.
+.\"
+.\" .DE
+.\"	End of indented unfilled display.
+.\"
+.\" .SO ?manpage?
+.\"	Start of list of standard options for a Tk widget. The manpage
+.\"	argument defines where to look up the standard options; if
+.\"	omitted, defaults to "options". The options follow on successive
+.\"	lines, in three columns separated by tabs.
+.\"
+.\" .SE
+.\"	End of list of standard options for a Tk widget.
+.\"
+.\" .OP cmdName dbName dbClass
+.\"	Start of description of a specific option.  cmdName gives the
+.\"	option's name as specified in the class command, dbName gives
+.\"	the option's name in the option database, and dbClass gives
+.\"	the option's class in the option database.
+.\"
+.\" .UL arg1 arg2
+.\"	Print arg1 underlined, then print arg2 normally.
+.\"
+.\" .QW arg1 ?arg2?
+.\"	Print arg1 in quotes, then arg2 normally (for trailing punctuation).
+.\"
+.\" .PQ arg1 ?arg2?
+.\"	Print an open parenthesis, arg1 in quotes, then arg2 normally
+.\"	(for trailing punctuation) and then a closing parenthesis.
+.\"
+.\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
+.if t .wh -1.3i ^B
+.nr ^l \n(.l
+.ad b
+.\"	# Start an argument description
+.de AP
+.ie !"\\$4"" .TP \\$4
+.el \{\
+.   ie !"\\$2"" .TP \\n()Cu
+.   el          .TP 15
+.\}
+.ta \\n()Au \\n()Bu
+.ie !"\\$3"" \{\
+\&\\$1 \\fI\\$2\\fP (\\$3)
+.\".b
+.\}
+.el \{\
+.br
+.ie !"\\$2"" \{\
+\&\\$1	\\fI\\$2\\fP
+.\}
+.el \{\
+\&\\fI\\$1\\fP
+.\}
+.\}
+..
+.\"	# define tabbing values for .AP
+.de AS
+.nr )A 10n
+.if !"\\$1"" .nr )A \\w'\\$1'u+3n
+.nr )B \\n()Au+15n
+.\"
+.if !"\\$2"" .nr )B \\w'\\$2'u+\\n()Au+3n
+.nr )C \\n()Bu+\\w'(in/out)'u+2n
+..
+.AS Tcl_Interp Tcl_CreateInterp in/out
+.\"	# BS - start boxed text
+.\"	# ^y = starting y location
+.\"	# ^b = 1
+.de BS
+.br
+.mk ^y
+.nr ^b 1u
+.if n .nf
+.if n .ti 0
+.if n \l'\\n(.lu\(ul'
+.if n .fi
+..
+.\"	# BE - end boxed text (draw box now)
+.de BE
+.nf
+.ti 0
+.mk ^t
+.ie n \l'\\n(^lu\(ul'
+.el \{\
+.\"	Draw four-sided box normally, but don't draw top of
+.\"	box if the box started on an earlier page.
+.ie !\\n(^b-1 \{\
+\h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.el \}\
+\h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.\}
+.fi
+.br
+.nr ^b 0
+..
+.\"	# VS - start vertical sidebar
+.\"	# ^Y = starting y location
+.\"	# ^v = 1 (for troff;  for nroff this doesn't matter)
+.de VS
+.if !"\\$2"" .br
+.mk ^Y
+.ie n 'mc \s12\(br\s0
+.el .nr ^v 1u
+..
+.\"	# VE - end of vertical sidebar
+.de VE
+.ie n 'mc
+.el \{\
+.ev 2
+.nf
+.ti 0
+.mk ^t
+\h'|\\n(^lu+3n'\L'|\\n(^Yu-1v\(bv'\v'\\n(^tu+1v-\\n(^Yu'\h'-|\\n(^lu+3n'
+.sp -1
+.fi
+.ev
+.\}
+.nr ^v 0
+..
+.\"	# Special macro to handle page bottom:  finish off current
+.\"	# box/sidebar if in box/sidebar mode, then invoked standard
+.\"	# page bottom macro.
+.de ^B
+.ev 2
+'ti 0
+'nf
+.mk ^t
+.if \\n(^b \{\
+.\"	Draw three-sided box if this is the box's first page,
+.\"	draw two sides but no top otherwise.
+.ie !\\n(^b-1 \h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.el \h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.\}
+.if \\n(^v \{\
+.nr ^x \\n(^tu+1v-\\n(^Yu
+\kx\h'-\\nxu'\h'|\\n(^lu+3n'\ky\L'-\\n(^xu'\v'\\n(^xu'\h'|0u'\c
+.\}
+.bp
+'fi
+.ev
+.if \\n(^b \{\
+.mk ^y
+.nr ^b 2
+.\}
+.if \\n(^v \{\
+.mk ^Y
+.\}
+..
+.\"	# DS - begin display
+.de DS
+.RS
+.nf
+.sp
+..
+.\"	# DE - end display
+.de DE
+.fi
+.RE
+.sp
+..
+.\"	# SO - start of list of standard options
+.de SO
+'ie '\\$1'' .ds So \\fBoptions\\fR
+'el .ds So \\fB\\$1\\fR
+.SH "STANDARD OPTIONS"
+.LP
+.nf
+.ta 5.5c 11c
+.ft B
+..
+.\"	# SE - end of list of standard options
+.de SE
+.fi
+.ft R
+.LP
+See the \\*(So manual entry for details on the standard options.
+..
+.\"	# OP - start of full description for a single option
+.de OP
+.LP
+.nf
+.ta 4c
+Command-Line Name:	\\fB\\$1\\fR
+Database Name:	\\fB\\$2\\fR
+Database Class:	\\fB\\$3\\fR
+.fi
+.IP
+..
+.\"	# CS - begin code excerpt
+.de CS
+.RS
+.nf
+.ta .25i .5i .75i 1i
+..
+.\"	# CE - end code excerpt
+.de CE
+.fi
+.RE
+..
+.\"	# UL - underline word
+.de UL
+\\$1\l'|0\(ul'\\$2
+..
+.\"	# QW - apply quotation marks to word
+.de QW
+.ie '\\*(lq'"' ``\\$1''\\$2
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\$2
+..
+.\"	# PQ - apply parens and quotation marks to word
+.de PQ
+.ie '\\*(lq'"' (``\\$1''\\$2)\\$3
+.\"" fix emacs highlighting
+.el (\\*(lq\\$1\\*(rq\\$2)\\$3
+..
+.\"	# QR - quoted range
+.de QR
+.ie '\\*(lq'"' ``\\$1''\\-``\\$2''\\$3
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\-\\*(lq\\$2\\*(rq\\$3
+..
+.\"	# MT - "empty" string
+.de MT
+.QW ""
+..
+.BS
+'\" Note:  do not modify the .SH NAME line immediately below!
+.SH NAME
+oo::object \- root class of the class hierarchy
+.SH SYNOPSIS
+.nf
+package require TclOO
+
+\fBoo::object\fI method \fR?\fIarg ...\fR?
+.fi
+.SH "CLASS HIERARCHY"
+.nf
+\fBoo::object\fR
+.fi
+.BE
+.SH DESCRIPTION
+.PP
+The \fBoo::object\fR class is the root class of the object hierarchy; every
+object is an instance of this class. Since classes are themselves objects,
+they are instances of this class too. Objects are always referred to by their
+name, and may be \fBrename\fRd while maintaining their identity.
+.PP
+Instances of objects may be made with either the \fBcreate\fR or \fBnew\fR
+methods of the \fBoo::object\fR object itself, or by invoking those methods on
+any of the subclass objects; see \fBoo::class\fR for more details. The
+configuration of individual objects (i.e., instance-specific methods, mixed-in
+classes, etc.) may be controlled with the \fBoo::objdefine\fR command.
+.PP
+Each object has a unique namespace associated with it, the instance namespace.
+This namespace holds all the instance variables of the object, and will be the
+current namespace whenever a method of the object is invoked (including a
+method of the class of the object). When the object is destroyed, its instance
+namespace is deleted. The instance namespace contains the object's \fBmy\fR
+command, which may be used to invoke non-exported methods of the object or to
+create a reference to the object for the purpose of invocation which persists
+across renamings of the object.
+.SS CONSTRUCTOR
+The \fBoo::object\fR class does not define an explicit constructor.
+.SS DESTRUCTOR
+The \fBoo::object\fR class does not define an explicit destructor.
+.SS "EXPORTED METHODS"
+The \fBoo::object\fR class supports the following exported methods:
+.TP
+\fIobj \fBdestroy\fR
+.
+This method destroys the object, \fIobj\fR, that it is invoked upon, invoking
+any destructors on the object's class in the process. It is equivalent to
+using \fBrename\fR to delete the object command. The result of this method is
+always the empty string.
+.SS "NON-EXPORTED METHODS"
+.PP
+The \fBoo::object\fR class supports the following non-exported methods:
+.TP
+\fIobj \fBeval\fR ?\fIarg ...\fR?
+.
+This method concatenates the arguments, \fIarg\fR, as if with \fBconcat\fR,
+and then evaluates the resulting script in the namespace that is uniquely
+associated with \fIobj\fR, returning the result of the evaluation.
+.TP
+\fIobj \fBunknown ?\fImethodName\fR? ?\fIarg ...\fR?
+.
+This method is called when an attempt to invoke the method \fImethodName\fR on
+object \fIobj\fR fails. The arguments that the user supplied to the method are
+given as \fIarg\fR arguments.
+.VS
+If \fImethodName\fR is absent, the object was invoked with no method name at
+all (or any other arguments).
+.VE
+The default implementation (i.e., the one defined by the \fBoo::object\fR
+class) generates a suitable error, detailing what methods the object supports
+given whether the object was invoked by its public name or through the
+\fBmy\fR command.
+.TP
+\fIobj \fBvariable \fR?\fIvarName ...\fR?
+.
+This method arranges for each variable called \fIvarName\fR to be linked from
+the object \fIobj\fR's unique namespace into the caller's context. Thus, if it
+is invoked from inside a procedure then the namespace variable in the object
+is linked to the local variable in the procedure. Each \fIvarName\fR argument
+must not have any namespace separators in it. The result is the empty string.
+.TP
+\fIobj \fBvarname \fIvarName\fR
+.
+This method returns the globally qualified name of the variable \fIvarName\fR
+in the unique namespace for the object \fIobj\fR.
+.TP
+\fIobj \fB<cloned> \fIsourceObjectName\fR
+.VS
+This method is used by the \fBoo::object\fR command to copy the state of one
+object to another. It is responsible for copying the procedures and variables
+of the namespace of the source object (\fIsourceObjectName\fR) to the current
+object. It does not copy any other types of commands or any traces on the
+variables; that can be added if desired by overriding this method in a
+subclass.
+.VE
+.SH EXAMPLES
+.PP
+This example demonstrates basic use of an object.
+.PP
+.CS
+set obj [\fBoo::object\fR new]
+$obj foo             \fI\(-> error "unknown method foo"\fR
+oo::objdefine $obj method foo {} {
+    my \fBvariable\fR count
+    puts "bar[incr count]"
+}
+$obj foo             \fI\(-> prints "bar1"\fR
+$obj foo             \fI\(-> prints "bar2"\fR
+$obj variable count  \fI\(-> error "unknown method variable"\fR
+$obj \fBdestroy\fR
+$obj foo             \fI\(-> error "unknown command obj"\fR
+.CE
+.SH "SEE ALSO"
+my(n), oo::class(n)
+.SH KEYWORDS
+base class, class, object, root class
+.\" Local variables:
+.\" mode: nroff
+.\" fill-column: 78
+.\" End:

@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_LZ4
+	bool "Target lz4"
+	default n
+	help
+	  target lz4

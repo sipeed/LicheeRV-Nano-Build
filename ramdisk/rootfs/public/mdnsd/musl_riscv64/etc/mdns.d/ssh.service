@@ -1,0 +1,3 @@
+# mDNS-SD advertisement of SSH service
+type _ssh._tcp
+port 22

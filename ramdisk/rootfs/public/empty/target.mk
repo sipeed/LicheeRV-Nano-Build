@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_EMPTY),y)
+TARGET_PACKAGES += empty
+endif

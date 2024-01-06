@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_TCPDUMP),y)
+TARGET_PACKAGES += tcpdump
+endif

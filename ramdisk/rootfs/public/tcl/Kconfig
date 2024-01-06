@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_TCL
+	bool "Target tcl"
+	default n
+	help
+	  target tcl

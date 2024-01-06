@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_SFTP_SERVER
+	bool "Target sftp-server"
+	default n
+	help
+	  target sftp-server

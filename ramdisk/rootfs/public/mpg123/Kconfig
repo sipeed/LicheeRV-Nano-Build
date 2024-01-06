@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_MPG123
+	bool "Target mpg123"
+	default n
+	help
+	  target mpg123

@@ -1,0 +1,89 @@
+/dts-v1/;
+#include "cv181x_base_riscv.dtsi"
+#include "cv181x_asic_qfn.dtsi"
+#include "cv181x_asic_sd.dtsi"
+#include "cv181x_default_memmap.dtsi"
+
+/ {
+	wifisd:wifi-sd@4320000 {
+                compatible = "cvitek,cv181x-sdio";
+                bus-width = <4>;
+                reg = <0x0 0x4320000 0x0 0x1000>;
+                reg_names = "core_mem";
+                src-frequency = <375000000>;
+                min-frequency = <400000>; // 400Khz
+		max-frequency = <50000000>; // 50Mhz
+		//max-frequency = <45000000>; // 45Mhz
+		//max-frequency = <40000000>; // 40Mhz
+		//max-frequency = <35000000>; // 35Mhz
+		//max-frequency = <30000000>; // 30Mhz
+		//max-frequency = <25000000>; // 25Mhz
+		//max-frequency = <20000000>; // 20Mhz
+		//max-frequency = <15000000>; // 15Mhz
+		//max-frequency = <10000000>; // 10Mhz
+		//max-frequency = <5000000>; // 5Mhz
+                64_addressing;
+                reset_tx_rx_phy;
+                non-removable;
+                pll_index = <0x7>;
+                pll_reg = <0x300207C>;
+                no-mmc;
+                no-sd;
+                status = "okay";
+		interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-parent = <&plic0>;
+        };
+
+	backlight: pwm-backlight@0 {
+		compatible = "pwm-backlight";
+		pwms = <&pwm0 0 50000>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <7>;
+		status = "okay";
+	};
+};
+
+&sd {
+	min-frequency = <400000>; // 400Khz
+	//max-frequency = <50000000>; // 50Mhz
+	max-frequency = <25000000>; // 25Mhz
+	//max-frequency = <10000000>; // 10Mhz
+	//max-frequency = <5000000>; // 5Mhz
+};
+
+&mipi_tx {
+	/delete-property/ pwm-gpio;
+	reset-gpio = <&porte 0 1>;
+	/delete-property/ power-ct-gpio;
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&pwm0 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
+};
+
+
+&i2c4 {
+	status = "okay";
+};
+
+&dac{
+	status = "okay";
+	/delete-property/ mute-gpio-r;
+};
+
+&mipi_rx {
+        snsr-reset = <&portc 2 GPIO_ACTIVE_LOW>;
+};

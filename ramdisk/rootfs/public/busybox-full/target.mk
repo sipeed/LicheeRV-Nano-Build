@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_BUSYBOX_FULL),y)
+TARGET_PACKAGES += busybox-full
+endif

@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_VMTOUCH
+	bool "Target vmtouch"
+	default n
+	help
+	  target vmtouch

@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_LZ4),y)
+TARGET_PACKAGES += lz4
+endif

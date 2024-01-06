@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_MMC_UTILS
+	bool "Target mmc-utils"
+	default n
+	help
+	  target mmc-utils

@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_EROFS_UTILS),y)
+TARGET_PACKAGES += erofs-utils
+endif

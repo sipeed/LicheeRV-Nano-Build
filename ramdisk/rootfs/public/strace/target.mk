@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_STRACE),y)
+TARGET_PACKAGES += strace
+endif

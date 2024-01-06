@@ -1,0 +1,502 @@
+.\"
+.\" Copyright (c) 2008 by Kevin B. Kenny.
+.\" Copyright (c) 2018 by Nathan Coulter. 
+.\"
+'\" See the file "license.terms" for information on usage and redistribution
+'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+'\"
+.TH NRE 3 8.6 Tcl "Tcl Library Procedures"
+.\" The -*- nroff -*- definitions below are for supplemental macros used
+.\" in Tcl/Tk manual entries.
+.\"
+.\" .AP type name in/out ?indent?
+.\"	Start paragraph describing an argument to a library procedure.
+.\"	type is type of argument (int, etc.), in/out is either "in", "out",
+.\"	or "in/out" to describe whether procedure reads or modifies arg,
+.\"	and indent is equivalent to second arg of .IP (shouldn't ever be
+.\"	needed;  use .AS below instead)
+.\"
+.\" .AS ?type? ?name?
+.\"	Give maximum sizes of arguments for setting tab stops.  Type and
+.\"	name are examples of largest possible arguments that will be passed
+.\"	to .AP later.  If args are omitted, default tab stops are used.
+.\"
+.\" .BS
+.\"	Start box enclosure.  From here until next .BE, everything will be
+.\"	enclosed in one large box.
+.\"
+.\" .BE
+.\"	End of box enclosure.
+.\"
+.\" .CS
+.\"	Begin code excerpt.
+.\"
+.\" .CE
+.\"	End code excerpt.
+.\"
+.\" .VS ?version? ?br?
+.\"	Begin vertical sidebar, for use in marking newly-changed parts
+.\"	of man pages.  The first argument is ignored and used for recording
+.\"	the version when the .VS was added, so that the sidebars can be
+.\"	found and removed when they reach a certain age.  If another argument
+.\"	is present, then a line break is forced before starting the sidebar.
+.\"
+.\" .VE
+.\"	End of vertical sidebar.
+.\"
+.\" .DS
+.\"	Begin an indented unfilled display.
+.\"
+.\" .DE
+.\"	End of indented unfilled display.
+.\"
+.\" .SO ?manpage?
+.\"	Start of list of standard options for a Tk widget. The manpage
+.\"	argument defines where to look up the standard options; if
+.\"	omitted, defaults to "options". The options follow on successive
+.\"	lines, in three columns separated by tabs.
+.\"
+.\" .SE
+.\"	End of list of standard options for a Tk widget.
+.\"
+.\" .OP cmdName dbName dbClass
+.\"	Start of description of a specific option.  cmdName gives the
+.\"	option's name as specified in the class command, dbName gives
+.\"	the option's name in the option database, and dbClass gives
+.\"	the option's class in the option database.
+.\"
+.\" .UL arg1 arg2
+.\"	Print arg1 underlined, then print arg2 normally.
+.\"
+.\" .QW arg1 ?arg2?
+.\"	Print arg1 in quotes, then arg2 normally (for trailing punctuation).
+.\"
+.\" .PQ arg1 ?arg2?
+.\"	Print an open parenthesis, arg1 in quotes, then arg2 normally
+.\"	(for trailing punctuation) and then a closing parenthesis.
+.\"
+.\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
+.if t .wh -1.3i ^B
+.nr ^l \n(.l
+.ad b
+.\"	# Start an argument description
+.de AP
+.ie !"\\$4"" .TP \\$4
+.el \{\
+.   ie !"\\$2"" .TP \\n()Cu
+.   el          .TP 15
+.\}
+.ta \\n()Au \\n()Bu
+.ie !"\\$3"" \{\
+\&\\$1 \\fI\\$2\\fP (\\$3)
+.\".b
+.\}
+.el \{\
+.br
+.ie !"\\$2"" \{\
+\&\\$1	\\fI\\$2\\fP
+.\}
+.el \{\
+\&\\fI\\$1\\fP
+.\}
+.\}
+..
+.\"	# define tabbing values for .AP
+.de AS
+.nr )A 10n
+.if !"\\$1"" .nr )A \\w'\\$1'u+3n
+.nr )B \\n()Au+15n
+.\"
+.if !"\\$2"" .nr )B \\w'\\$2'u+\\n()Au+3n
+.nr )C \\n()Bu+\\w'(in/out)'u+2n
+..
+.AS Tcl_Interp Tcl_CreateInterp in/out
+.\"	# BS - start boxed text
+.\"	# ^y = starting y location
+.\"	# ^b = 1
+.de BS
+.br
+.mk ^y
+.nr ^b 1u
+.if n .nf
+.if n .ti 0
+.if n \l'\\n(.lu\(ul'
+.if n .fi
+..
+.\"	# BE - end boxed text (draw box now)
+.de BE
+.nf
+.ti 0
+.mk ^t
+.ie n \l'\\n(^lu\(ul'
+.el \{\
+.\"	Draw four-sided box normally, but don't draw top of
+.\"	box if the box started on an earlier page.
+.ie !\\n(^b-1 \{\
+\h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.el \}\
+\h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.\}
+.fi
+.br
+.nr ^b 0
+..
+.\"	# VS - start vertical sidebar
+.\"	# ^Y = starting y location
+.\"	# ^v = 1 (for troff;  for nroff this doesn't matter)
+.de VS
+.if !"\\$2"" .br
+.mk ^Y
+.ie n 'mc \s12\(br\s0
+.el .nr ^v 1u
+..
+.\"	# VE - end of vertical sidebar
+.de VE
+.ie n 'mc
+.el \{\
+.ev 2
+.nf
+.ti 0
+.mk ^t
+\h'|\\n(^lu+3n'\L'|\\n(^Yu-1v\(bv'\v'\\n(^tu+1v-\\n(^Yu'\h'-|\\n(^lu+3n'
+.sp -1
+.fi
+.ev
+.\}
+.nr ^v 0
+..
+.\"	# Special macro to handle page bottom:  finish off current
+.\"	# box/sidebar if in box/sidebar mode, then invoked standard
+.\"	# page bottom macro.
+.de ^B
+.ev 2
+'ti 0
+'nf
+.mk ^t
+.if \\n(^b \{\
+.\"	Draw three-sided box if this is the box's first page,
+.\"	draw two sides but no top otherwise.
+.ie !\\n(^b-1 \h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.el \h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.\}
+.if \\n(^v \{\
+.nr ^x \\n(^tu+1v-\\n(^Yu
+\kx\h'-\\nxu'\h'|\\n(^lu+3n'\ky\L'-\\n(^xu'\v'\\n(^xu'\h'|0u'\c
+.\}
+.bp
+'fi
+.ev
+.if \\n(^b \{\
+.mk ^y
+.nr ^b 2
+.\}
+.if \\n(^v \{\
+.mk ^Y
+.\}
+..
+.\"	# DS - begin display
+.de DS
+.RS
+.nf
+.sp
+..
+.\"	# DE - end display
+.de DE
+.fi
+.RE
+.sp
+..
+.\"	# SO - start of list of standard options
+.de SO
+'ie '\\$1'' .ds So \\fBoptions\\fR
+'el .ds So \\fB\\$1\\fR
+.SH "STANDARD OPTIONS"
+.LP
+.nf
+.ta 5.5c 11c
+.ft B
+..
+.\"	# SE - end of list of standard options
+.de SE
+.fi
+.ft R
+.LP
+See the \\*(So manual entry for details on the standard options.
+..
+.\"	# OP - start of full description for a single option
+.de OP
+.LP
+.nf
+.ta 4c
+Command-Line Name:	\\fB\\$1\\fR
+Database Name:	\\fB\\$2\\fR
+Database Class:	\\fB\\$3\\fR
+.fi
+.IP
+..
+.\"	# CS - begin code excerpt
+.de CS
+.RS
+.nf
+.ta .25i .5i .75i 1i
+..
+.\"	# CE - end code excerpt
+.de CE
+.fi
+.RE
+..
+.\"	# UL - underline word
+.de UL
+\\$1\l'|0\(ul'\\$2
+..
+.\"	# QW - apply quotation marks to word
+.de QW
+.ie '\\*(lq'"' ``\\$1''\\$2
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\$2
+..
+.\"	# PQ - apply parens and quotation marks to word
+.de PQ
+.ie '\\*(lq'"' (``\\$1''\\$2)\\$3
+.\"" fix emacs highlighting
+.el (\\*(lq\\$1\\*(rq\\$2)\\$3
+..
+.\"	# QR - quoted range
+.de QR
+.ie '\\*(lq'"' ``\\$1''\\-``\\$2''\\$3
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\-\\*(lq\\$2\\*(rq\\$3
+..
+.\"	# MT - "empty" string
+.de MT
+.QW ""
+..
+.BS
+.SH NAME
+Tcl_NRCreateCommand, Tcl_NRCallObjProc, Tcl_NREvalObj, Tcl_NREvalObjv, Tcl_NRCmdSwap, Tcl_NRExprObj, Tcl_NRAddCallback \- Non-Recursive (stackless) evaluation of Tcl scripts.
+.SH SYNOPSIS
+.nf
+\fB#include <tcl.h>\fR
+.sp
+Tcl_Command
+\fBTcl_NRCreateCommand\fR(\fIinterp, cmdName, proc, nreProc, clientData,
+                    deleteProc\fR)
+.sp
+int
+\fBTcl_NRCallObjProc\fR(\fIinterp, nreProc, clientData, objc, objv\fR)
+.sp
+int
+\fBTcl_NREvalObj\fR(\fIinterp, objPtr, flags\fR)
+.sp
+int
+\fBTcl_NREvalObjv\fR(\fIinterp, objc, objv, flags\fR)
+.sp
+int
+\fBTcl_NRCmdSwap\fR(\fIinterp, cmd, objc, objv, flags\fR)
+.sp
+int
+\fBTcl_NRExprObj\fR(\fIinterp, objPtr, resultPtr\fR)
+.sp
+void
+\fBTcl_NRAddCallback\fR(\fIinterp, postProcPtr, data0, data1, data2, data3\fR)
+.fi
+.SH ARGUMENTS
+.AS Tcl_CmdDeleteProc *interp in
+.AP Tcl_Interp *interp in
+The relevant Interpreter.
+.AP char *cmdName in
+Name of the command to create.
+.AP Tcl_ObjCmdProc *proc in
+Called in order to evaluate a command.  Is often just a small wrapper that uses
+\fBTcl_NRCallObjProc\fR to call \fInreProc\fR using a new trampoline.  Behaves
+in the same way as the \fIproc\fR argument to \fBTcl_CreateObjCommand\fR(3)
+(\fIq.v.\fR).
+.AP Tcl_ObjCmdProc *nreProc in
+Called instead of \fIproc\fR when a trampoline is already in use.
+.AP ClientData clientData in
+Arbitrary one-word value passed to \fIproc\fR, \fInreProc\fR, \fIdeleteProc\fR
+and \fIobjProc\fR.
+.AP Tcl_CmdDeleteProc *deleteProc in/out
+Called before \fIcmdName\fR is deleted from the interpreter, allowing for
+command-specific cleanup. May be NULL.
+.AP int objc in
+Number of items in \fIobjv\fR.
+.AP Tcl_Obj **objv in
+Words in the command.
+.AP Tcl_Obj *objPtr in
+A script or expression to evaluate.
+.AP int flags in
+As described for \fITcl_EvalObjv\fR.
+.PP
+.AP Tcl_Command cmd in
+Token to use instead of one derived from the first word of \fIobjv\fR in order
+to evaluate a command.
+.AP Tcl_Obj *resultPtr out
+Pointer to an unshared Tcl_Obj where the result of the evaluation is stored if
+the return code is TCL_OK.
+.AP Tcl_NRPostProc *postProcPtr in
+A function to push.
+.AP ClientData data0 in
+.AP ClientData data1 in
+.AP ClientData data2 in
+.AP ClientData data3 in
+\fIdata0\fR through \fIdata3\fR are four one-word values that will be passed
+to the function designated by \fIpostProcPtr\fR when it is invoked.
+.BE
+.SH DESCRIPTION
+.PP
+These functions provide an interface to the function stack that an interpreter
+iterates through to evaluate commands.  The routine behind a command is
+implemented by an initial function and any additional functions that the
+routine pushes onto the stack as it progresses.  The interpreter itself pushes
+functions onto the stack to react to the end of a routine and to exercise other
+forms of control such as switching between in-progress stacks and the
+evaluation of other scripts at additional levels without adding frames to the C
+stack.  To execute a routine, the initial function for the routine is called
+and then a small bit of code called a \fItrampoline\fR iteratively takes
+functions off the stack and calls them, using the value of the last call as the
+value of the routine.
+.PP
+\fBTcl_NRCallObjProc\fR calls \fInreProc\fR using a new trampoline.
+.PP
+\fBTcl_NRCreateCommand\fR, an alternative to \fBTcl_CreateObjCommand\fR,
+resolves \fIcmdName\fR, which may contain namespace qualifiers, relative to the
+current namespace, creates a command by that name, and returns a token for the
+command which may be used in subsequent calls to \fBTcl_GetCommandName\fR.
+Except for a few cases noted below any existing command by the same name is
+first deleted.  If \fIinterp\fR is in the process of being deleted
+\fBTcl_NRCreateCommand\fR does not create any command, does not delete any
+command, and returns NULL.
+.PP
+\fBTcl_NREvalObj\fR pushes a function that is like \fBTcl_EvalObjEx\fR but
+consumes no space on the C stack.
+.PP
+\fBTcl_NREvalObjv\fR pushes a function that is like \fBTcl_EvalObjv\fR but
+consumes no space on the C stack.
+.PP
+\fBTcl_NRCmdSwap\fR is like \fBTcl_NREvalObjv\fR, but uses \fIcmd\fR, a token
+previously returned by \fBTcl_CreateObjCommand\fR or
+\fBTcl_GetCommandFromObj\fR, instead of resolving the first word of \fIobjv\fR.
+.  The name of this command must be the same as \fIobjv[0]\fR.
+.PP
+\fBTcl_NRExprObj\fR pushes a function that evaluates \fIobjPtr\fR as an
+expression in the same manner as \fBTcl_ExprObj\fR but without consuming space
+on the C stack.
+.PP
+All of the functions return \fBTCL_OK\fR if the evaluation of the script,
+command, or expression has been scheduled successfully.  Otherwise (for example
+if the command name cannot be resolved), they return \fBTCL_ERROR\fR and store
+a message as the interpreter's result.
+.PP
+\fBTcl_NRAddCallback\fR pushes \fIpostProcPtr\fR.  The signature for
+\fBTcl_NRPostProc\fR is:
+.PP
+.CS
+typedef int
+\fBTcl_NRPostProc\fR(
+        \fBClientData\fR \fIdata\fR[],
+        \fBTcl_Interp\fR *\fIinterp\fR,
+        int \fIresult\fR);
+.CE
+.PP
+\fIdata\fR is a pointer to an array containing \fIdata0\fR through \fIdata3\fR.
+\fIresult\fR is the value returned by the previous function implementing part
+the routine.
+.SH EXAMPLE
+.PP
+The following command uses \fBTcl_EvalObjEx\fR, which consumes space on the C
+stack, to evalute a script:
+.PP
+.CS
+int
+\fITheCmdOldObjProc\fR(
+    ClientData clientData,
+    Tcl_Interp *interp,
+    int objc,
+    Tcl_Obj *const objv[])
+{
+    int result;
+    Tcl_Obj *objPtr;
+
+    \fI... preparation ...\fR
+
+    result = \fBTcl_EvalObjEx\fR(interp, objPtr, 0);
+
+    \fI... postprocessing ...\fR
+
+    return result;
+}
+\fBTcl_CreateObjCommand\fR(interp, "theCommand",
+        \fITheCmdOldObjProc\fR, clientData, TheCmdDeleteProc);
+.CE
+.PP
+To avoid consuming space on the C stack, \fITheCmdOldObjProc\fR is renamed to
+\fITheCmdNRObjProc\fR and the postprocessing step is split into a separate
+function, \fITheCmdPostProc\fR, which is pushed onto the function stack.
+\fITcl_EvalObjEx\fR is replaced with \fITcl_NREvalObj\fR, which uses a
+trampoline instead of consuming space on the C stack.  A new version of
+\fITheCmdOldObjProc\fR is just a a wrapper that uses \fBTcl_NRCallObjProc\fR to
+call \fITheCmdNRObjProc\fR:
+.PP
+.CS
+int
+\fITheCmdOldObjProc\fR(
+    ClientData clientData,
+    Tcl_Interp *interp,
+    int objc,
+    Tcl_Obj *const objv[])
+{
+    return \fBTcl_NRCallObjProc\fR(interp, \fITheCmdNRObjProc\fR,
+            clientData, objc, objv);
+}
+.CE
+.PP
+.CS
+int
+\fITheCmdNRObjProc\fR
+    ClientData clientData,
+    Tcl_Interp *interp,
+    int objc,
+    Tcl_Obj *const objv[])
+{
+    Tcl_Obj *objPtr;
+
+    \fI... preparation ...\fR
+
+    \fBTcl_NRAddCallback\fR(interp, \fITheCmdPostProc\fR,
+            data0, data1, data2, data3);
+    /* \fIdata0 .. data3\fR are up to four one-word items to
+     * pass to the postprocessing procedure */
+
+    return \fBTcl_NREvalObj\fR(interp, objPtr, 0);
+}
+.CE
+.PP
+.CS
+int
+\fITheCmdNRPostProc\fR(
+    ClientData data[],
+    Tcl_Interp *interp,
+    int result)
+{
+    /* \fIdata[0] .. data[3]\fR are the four words of data
+     * passed to \fBTcl_NRAddCallback\fR */
+
+    \fI... postprocessing ...\fR
+
+    return result;
+}
+.CE
+.PP
+Any function comprising a routine can push other functions, making it possible
+implement looping and sequencing constructs using the function stack.
+.PP
+.SH "SEE ALSO"
+Tcl_CreateCommand(3), Tcl_CreateObjCommand(3), Tcl_EvalObjEx(3), Tcl_GetCommandFromObj(3), Tcl_ExprObj(3)
+.SH KEYWORDS
+stackless, nonrecursive, execute, command, global, value, result, script
+.SH COPYRIGHT
+Copyright (c) 2008 by Kevin B. Kenny.
+Copyright (c) 2018 by Nathan Coulter.

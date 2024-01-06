@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_BUSYBOX_FULL
+	bool "Target busybox-full"
+	default n
+	help
+	  target busybox-full

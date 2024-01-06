@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_BINUTILS),y)
+TARGET_PACKAGES += binutils
+endif

@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_UNRAR),y)
+TARGET_PACKAGES += unrar
+endif

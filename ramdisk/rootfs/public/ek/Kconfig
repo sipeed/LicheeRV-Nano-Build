@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_EK
+	bool "Target ek"
+	default n
+	help
+	  target ek

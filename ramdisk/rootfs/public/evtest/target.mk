@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_EVTEST),y)
+TARGET_PACKAGES += evtest
+endif

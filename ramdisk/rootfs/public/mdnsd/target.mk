@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_MDNSD),y)
+TARGET_PACKAGES += mdnsd
+endif

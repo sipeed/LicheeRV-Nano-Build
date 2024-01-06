@@ -1,0 +1,22 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "mount: "
+    mount -t tmpfs tmpfs /tmp/
+    mount -t tmpfs tmpfs /run/
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+    ;;
+  stop)
+    printf "nop"
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?

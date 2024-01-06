@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_UDPCAST),y)
+TARGET_PACKAGES += udpcast
+endif

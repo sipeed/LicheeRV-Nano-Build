@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_LYNX
+	bool "Target lynx"
+	default n
+	help
+	  target lynx

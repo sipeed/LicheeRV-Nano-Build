@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_MEMTESTER
+	bool "Target memtester"
+	default n
+	help
+	  target memtester

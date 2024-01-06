@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_RAMSPEED),y)
+TARGET_PACKAGES += ramspeed
+endif

@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_LYNX),y)
+TARGET_PACKAGES += lynx
+endif

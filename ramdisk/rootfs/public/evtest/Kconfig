@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_EVTEST
+	bool "Target evtest"
+	default n
+	help
+	  target evtest

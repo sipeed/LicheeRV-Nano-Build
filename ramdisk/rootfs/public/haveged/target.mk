@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_HAVEGED),y)
+TARGET_PACKAGES += haveged
+endif

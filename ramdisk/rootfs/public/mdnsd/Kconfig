@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_MDNSD
+	bool "Target mdnsd"
+	default n
+	help
+	  target mdnsd

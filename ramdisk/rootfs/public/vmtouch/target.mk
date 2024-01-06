@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_VMTOUCH),y)
+TARGET_PACKAGES += vmtouch
+endif

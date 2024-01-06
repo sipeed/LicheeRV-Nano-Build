@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_LINKS),y)
+TARGET_PACKAGES += links
+endif

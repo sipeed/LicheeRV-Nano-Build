@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_CACHE_CALIBRATOR),y)
+TARGET_PACKAGES += cache-calibrator
+endif

@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_TCL),y)
+TARGET_PACKAGES += tcl
+endif

@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_HAVEGED
+	bool "Target haveged"
+	default n
+	help
+	  target haveged

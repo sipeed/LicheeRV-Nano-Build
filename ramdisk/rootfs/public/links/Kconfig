@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_LINKS
+	bool "Target links"
+	default n
+	help
+	  target links

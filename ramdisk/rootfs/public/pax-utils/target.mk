@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_PAX_UTILS),y)
+TARGET_PACKAGES += pax-utils
+endif

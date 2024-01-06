@@ -1,0 +1,464 @@
+'\"
+'\" Copyright (c) 2008 Donal K. Fellows
+'\"
+'\" See the file "license.terms" for information on usage and redistribution
+'\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+'\" 
+.TH Tcl_ParseArgsObjv 3 8.6 Tcl "Tcl Library Procedures"
+.\" The -*- nroff -*- definitions below are for supplemental macros used
+.\" in Tcl/Tk manual entries.
+.\"
+.\" .AP type name in/out ?indent?
+.\"	Start paragraph describing an argument to a library procedure.
+.\"	type is type of argument (int, etc.), in/out is either "in", "out",
+.\"	or "in/out" to describe whether procedure reads or modifies arg,
+.\"	and indent is equivalent to second arg of .IP (shouldn't ever be
+.\"	needed;  use .AS below instead)
+.\"
+.\" .AS ?type? ?name?
+.\"	Give maximum sizes of arguments for setting tab stops.  Type and
+.\"	name are examples of largest possible arguments that will be passed
+.\"	to .AP later.  If args are omitted, default tab stops are used.
+.\"
+.\" .BS
+.\"	Start box enclosure.  From here until next .BE, everything will be
+.\"	enclosed in one large box.
+.\"
+.\" .BE
+.\"	End of box enclosure.
+.\"
+.\" .CS
+.\"	Begin code excerpt.
+.\"
+.\" .CE
+.\"	End code excerpt.
+.\"
+.\" .VS ?version? ?br?
+.\"	Begin vertical sidebar, for use in marking newly-changed parts
+.\"	of man pages.  The first argument is ignored and used for recording
+.\"	the version when the .VS was added, so that the sidebars can be
+.\"	found and removed when they reach a certain age.  If another argument
+.\"	is present, then a line break is forced before starting the sidebar.
+.\"
+.\" .VE
+.\"	End of vertical sidebar.
+.\"
+.\" .DS
+.\"	Begin an indented unfilled display.
+.\"
+.\" .DE
+.\"	End of indented unfilled display.
+.\"
+.\" .SO ?manpage?
+.\"	Start of list of standard options for a Tk widget. The manpage
+.\"	argument defines where to look up the standard options; if
+.\"	omitted, defaults to "options". The options follow on successive
+.\"	lines, in three columns separated by tabs.
+.\"
+.\" .SE
+.\"	End of list of standard options for a Tk widget.
+.\"
+.\" .OP cmdName dbName dbClass
+.\"	Start of description of a specific option.  cmdName gives the
+.\"	option's name as specified in the class command, dbName gives
+.\"	the option's name in the option database, and dbClass gives
+.\"	the option's class in the option database.
+.\"
+.\" .UL arg1 arg2
+.\"	Print arg1 underlined, then print arg2 normally.
+.\"
+.\" .QW arg1 ?arg2?
+.\"	Print arg1 in quotes, then arg2 normally (for trailing punctuation).
+.\"
+.\" .PQ arg1 ?arg2?
+.\"	Print an open parenthesis, arg1 in quotes, then arg2 normally
+.\"	(for trailing punctuation) and then a closing parenthesis.
+.\"
+.\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
+.if t .wh -1.3i ^B
+.nr ^l \n(.l
+.ad b
+.\"	# Start an argument description
+.de AP
+.ie !"\\$4"" .TP \\$4
+.el \{\
+.   ie !"\\$2"" .TP \\n()Cu
+.   el          .TP 15
+.\}
+.ta \\n()Au \\n()Bu
+.ie !"\\$3"" \{\
+\&\\$1 \\fI\\$2\\fP (\\$3)
+.\".b
+.\}
+.el \{\
+.br
+.ie !"\\$2"" \{\
+\&\\$1	\\fI\\$2\\fP
+.\}
+.el \{\
+\&\\fI\\$1\\fP
+.\}
+.\}
+..
+.\"	# define tabbing values for .AP
+.de AS
+.nr )A 10n
+.if !"\\$1"" .nr )A \\w'\\$1'u+3n
+.nr )B \\n()Au+15n
+.\"
+.if !"\\$2"" .nr )B \\w'\\$2'u+\\n()Au+3n
+.nr )C \\n()Bu+\\w'(in/out)'u+2n
+..
+.AS Tcl_Interp Tcl_CreateInterp in/out
+.\"	# BS - start boxed text
+.\"	# ^y = starting y location
+.\"	# ^b = 1
+.de BS
+.br
+.mk ^y
+.nr ^b 1u
+.if n .nf
+.if n .ti 0
+.if n \l'\\n(.lu\(ul'
+.if n .fi
+..
+.\"	# BE - end boxed text (draw box now)
+.de BE
+.nf
+.ti 0
+.mk ^t
+.ie n \l'\\n(^lu\(ul'
+.el \{\
+.\"	Draw four-sided box normally, but don't draw top of
+.\"	box if the box started on an earlier page.
+.ie !\\n(^b-1 \{\
+\h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.el \}\
+\h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.\}
+.fi
+.br
+.nr ^b 0
+..
+.\"	# VS - start vertical sidebar
+.\"	# ^Y = starting y location
+.\"	# ^v = 1 (for troff;  for nroff this doesn't matter)
+.de VS
+.if !"\\$2"" .br
+.mk ^Y
+.ie n 'mc \s12\(br\s0
+.el .nr ^v 1u
+..
+.\"	# VE - end of vertical sidebar
+.de VE
+.ie n 'mc
+.el \{\
+.ev 2
+.nf
+.ti 0
+.mk ^t
+\h'|\\n(^lu+3n'\L'|\\n(^Yu-1v\(bv'\v'\\n(^tu+1v-\\n(^Yu'\h'-|\\n(^lu+3n'
+.sp -1
+.fi
+.ev
+.\}
+.nr ^v 0
+..
+.\"	# Special macro to handle page bottom:  finish off current
+.\"	# box/sidebar if in box/sidebar mode, then invoked standard
+.\"	# page bottom macro.
+.de ^B
+.ev 2
+'ti 0
+'nf
+.mk ^t
+.if \\n(^b \{\
+.\"	Draw three-sided box if this is the box's first page,
+.\"	draw two sides but no top otherwise.
+.ie !\\n(^b-1 \h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.el \h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.\}
+.if \\n(^v \{\
+.nr ^x \\n(^tu+1v-\\n(^Yu
+\kx\h'-\\nxu'\h'|\\n(^lu+3n'\ky\L'-\\n(^xu'\v'\\n(^xu'\h'|0u'\c
+.\}
+.bp
+'fi
+.ev
+.if \\n(^b \{\
+.mk ^y
+.nr ^b 2
+.\}
+.if \\n(^v \{\
+.mk ^Y
+.\}
+..
+.\"	# DS - begin display
+.de DS
+.RS
+.nf
+.sp
+..
+.\"	# DE - end display
+.de DE
+.fi
+.RE
+.sp
+..
+.\"	# SO - start of list of standard options
+.de SO
+'ie '\\$1'' .ds So \\fBoptions\\fR
+'el .ds So \\fB\\$1\\fR
+.SH "STANDARD OPTIONS"
+.LP
+.nf
+.ta 5.5c 11c
+.ft B
+..
+.\"	# SE - end of list of standard options
+.de SE
+.fi
+.ft R
+.LP
+See the \\*(So manual entry for details on the standard options.
+..
+.\"	# OP - start of full description for a single option
+.de OP
+.LP
+.nf
+.ta 4c
+Command-Line Name:	\\fB\\$1\\fR
+Database Name:	\\fB\\$2\\fR
+Database Class:	\\fB\\$3\\fR
+.fi
+.IP
+..
+.\"	# CS - begin code excerpt
+.de CS
+.RS
+.nf
+.ta .25i .5i .75i 1i
+..
+.\"	# CE - end code excerpt
+.de CE
+.fi
+.RE
+..
+.\"	# UL - underline word
+.de UL
+\\$1\l'|0\(ul'\\$2
+..
+.\"	# QW - apply quotation marks to word
+.de QW
+.ie '\\*(lq'"' ``\\$1''\\$2
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\$2
+..
+.\"	# PQ - apply parens and quotation marks to word
+.de PQ
+.ie '\\*(lq'"' (``\\$1''\\$2)\\$3
+.\"" fix emacs highlighting
+.el (\\*(lq\\$1\\*(rq\\$2)\\$3
+..
+.\"	# QR - quoted range
+.de QR
+.ie '\\*(lq'"' ``\\$1''\\-``\\$2''\\$3
+.\"" fix emacs highlighting
+.el \\*(lq\\$1\\*(rq\\-\\*(lq\\$2\\*(rq\\$3
+..
+.\"	# MT - "empty" string
+.de MT
+.QW ""
+..
+.BS
+.SH NAME
+Tcl_ParseArgsObjv \- parse arguments according to a tabular description
+.SH SYNOPSIS
+.nf
+\fB#include <tcl.h>\fR
+.sp
+int
+\fBTcl_ParseArgsObjv\fR(\fIinterp, argTable, objcPtr, objv, remObjv\fR)
+.SH ARGUMENTS
+.AS "const Tcl_ArgvInfo" ***remObjv in/out
+.AP Tcl_Interp *interp out
+Where to store error messages.
+.AP "const Tcl_ArgvInfo" *argTable in
+Pointer to array of option descriptors.
+.AP int *objcPtr in/out
+A pointer to variable holding number of arguments in \fIobjv\fR. Will be
+modified to hold number of arguments left in the unprocessed argument list
+stored in \fIremObjv\fR.
+.AP "Tcl_Obj *const" *objv in
+The array of arguments to be parsed.
+.AP Tcl_Obj ***remObjv out
+Pointer to a variable that will hold the array of unprocessed arguments.
+Should be NULL if no return of unprocessed arguments is required. If
+\fIobjcPtr\fR is updated to a non-zero value, the array returned through this
+must be deallocated using \fBckfree\fR.
+.BE
+.SH DESCRIPTION
+.PP
+The \fBTcl_ParseArgsObjv\fR function provides a system for parsing argument
+lists of the form
+.QW "\fB\-someName \fIsomeValue\fR ..." .
+Such argument lists are commonly found both in the arguments to a program and
+in the arguments to an individual Tcl command. This parser assumes that the
+order of the arguments does not matter, other than in so far as later copies
+of a duplicated option overriding earlier ones.
+.PP
+The argument array is described by the \fIobjcPtr\fR and \fIobjv\fR
+parameters, and an array of unprocessed arguments is returned through the
+\fIobjcPtr\fR and \fIremObjv\fR parameters; if no return of unprocessed
+arguments is desired, the \fIremObjv\fR parameter should be NULL. If any
+problems happen, including if the
+.QW "generate help"
+option is selected, an error message is left in the interpreter result and
+TCL_ERROR is returned. Otherwise, the interpreter result is left unchanged and
+TCL_OK is returned.
+.PP
+The collection of arguments to be parsed is described by the \fIargTable\fR
+parameter. This points to a table of descriptor structures that is terminated
+by an entry with the \fItype\fR field set to TCL_ARGV_END. As convenience, the
+following prototypical entries are provided:
+.TP
+\fBTCL_ARGV_AUTO_HELP\fR
+.
+Enables the argument processor to provide help when passed the argument
+.QW \fB\-help\fR .
+.TP
+\fBTCL_ARGV_AUTO_REST\fR
+.
+Instructs the argument processor that arguments after
+.QW \fB\-\-\fR
+are to be unprocessed.
+.TP
+\fBTCL_ARGV_TABLE_END\fR
+.
+Marks the end of the table of argument descriptors.
+.SS "ARGUMENT DESCRIPTOR ENTRIES"
+.PP
+Each entry of the argument descriptor table must be a structure of type
+\fBTcl_ArgvInfo\fR. The structure is defined as this:
+.PP
+.CS
+typedef struct {
+    int \fItype\fR;
+    const char *\fIkeyStr\fR;
+    void *\fIsrcPtr\fR;
+    void *\fIdstPtr\fR;
+    const char *\fIhelpStr\fR;
+    ClientData \fIclientData\fR;
+} \fBTcl_ArgvInfo\fR;
+.CE
+.PP
+The \fIkeyStr\fR field contains the name of the option; by convention, this
+will normally begin with a
+.QW \fB\-\fR
+character. The \fItype\fR, \fIsrcPtr\fR, \fIdstPtr\fR and \fIclientData\fR
+fields describe the interpretation of the value of the argument, as described
+below. The \fIhelpStr\fR field gives some text that is used to provide help to
+users when they request it.
+.PP
+As noted above, the \fItype\fR field is used to describe the interpretation of
+the argument's value. The following values are acceptable values for
+\fItype\fR:
+.TP
+\fBTCL_ARGV_CONSTANT\fR
+.
+The argument does not take any following value argument. If this argument is
+present, the int pointed to by the \fIsrcPtr\fR field is copied to the
+\fIdstPtr\fR field. The \fIclientData\fR field is ignored.
+.TP
+\fBTCL_ARGV_END\fR
+.
+This value marks the end of all option descriptors in the table. All other
+fields are ignored.
+.TP
+\fBTCL_ARGV_FLOAT\fR
+.
+This argument takes a following floating point value argument. The value (once
+parsed by \fBTcl_GetDoubleFromObj\fR) will be stored as a double-precision
+value in the variable pointed to by the \fIdstPtr\fR field. The \fIsrcPtr\fR
+and \fIclientData\fR fields are ignored.
+.TP
+\fBTCL_ARGV_FUNC\fR
+.
+This argument optionally takes a following value argument; it is up to the
+handler callback function passed in \fIsrcPtr\fR to decide. That function will
+have the following signature:
+.RS
+.PP
+.CS
+typedef int (\fBTcl_ArgvFuncProc\fR)(
+        ClientData \fIclientData\fR,
+        Tcl_Obj *\fIobjPtr\fR,
+        void *\fIdstPtr\fR);
+.CE
+.PP
+The result is a boolean value indicating whether to consume the following
+argument. The \fIclientData\fR is the value from the table entry, the
+\fIobjPtr\fR is the value that represents the following argument or NULL if
+there are no following arguments at all, and the \fIdstPtr\fR argument to the
+\fBTcl_ArgvFuncProc\fR is the location to write the parsed value to.
+.RE
+.TP
+\fBTCL_ARGV_GENFUNC\fR
+.
+This argument takes zero or more following arguments; the handler callback
+function passed in \fIsrcPtr\fR returns how many (or a negative number to
+signal an error, in which case it should also set the interpreter result). The
+function will have the following signature:
+.RS
+.PP
+.CS
+typedef int (\fBTcl_ArgvGenFuncProc\fR)(
+        ClientData \fIclientData\fR,
+        Tcl_Interp *\fIinterp\fR,
+        int \fIobjc\fR,
+        Tcl_Obj *const *\fIobjv\fR,
+        void *\fIdstPtr\fR);
+.CE
+.PP
+The \fIclientData\fR is the value from the table entry, the \fIinterp\fR is
+where to store any error messages, the \fIkeyStr\fR is the name of the
+argument, \fIobjc\fR and \fIobjv\fR describe an array of all the remaining
+arguments, and \fIdstPtr\fR argument to the \fBTcl_ArgvGenFuncProc\fR is the
+location to write the parsed value (or values) to.
+.RE
+.TP
+\fBTCL_ARGV_HELP\fR
+.
+This special argument does not take any following value argument, but instead
+causes \fBTcl_ParseArgsObjv\fR to generate an error message describing the
+arguments supported. All other fields except the \fIhelpStr\fR field are
+ignored.
+.TP
+\fBTCL_ARGV_INT\fR
+.
+This argument takes a following integer value argument. The value (once parsed
+by \fBTcl_GetIntFromObj\fR) will be stored as an int in the variable pointed
+to by the \fIdstPtr\fR field. The \fIsrcPtr\fR field is ignored.
+.TP
+\fBTCL_ARGV_REST\fR
+.
+This special argument does not take any following value argument, but instead
+marks all following arguments to be left unprocessed. The \fIsrcPtr\fR,
+\fIdstPtr\fR and \fIclientData\fR fields are ignored.
+.TP
+\fBTCL_ARGV_STRING\fR
+.
+This argument takes a following string value argument. A pointer to the string
+will be stored at \fIdstPtr\fR; the string inside will have a lifetime linked
+to the lifetime of the string representation of the argument value that it
+came from, and so should be copied if it needs to be retained. The
+\fIsrcPtr\fR and \fIclientData\fR fields are ignored.
+.SH "SEE ALSO"
+Tcl_GetIndexFromObj(3), Tcl_Main(3), Tcl_CreateObjCommand(3)
+.SH KEYWORDS
+argument, parse
+'\" Local Variables:
+'\" fill-column: 78
+'\" End:

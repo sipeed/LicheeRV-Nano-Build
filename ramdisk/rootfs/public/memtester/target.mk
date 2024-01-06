@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_MEMTESTER),y)
+TARGET_PACKAGES += memtester
+endif

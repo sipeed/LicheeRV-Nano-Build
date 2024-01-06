@@ -1,0 +1,35 @@
+#!/bin/sh
+
+hex2mac() {
+        MAC=""
+        seq 2 2 12 | while read i
+        do
+                echo -n ${1} | head -c $i | tail -c 2
+                if [ $i != 12 ]
+                then
+                        echo -n ':'
+                fi
+        done | tr '[:upper:]' '[:lower:]'
+}
+
+
+name="licheervnanobad0"
+ethmac="$(cat /sys/class/net/eth0/address)"
+
+if [ -e /sys/class/cvi-base ]
+then
+	name="licheervnano$(cat /sys/class/cvi-base/base_uid | tr -d ':' | tail -c 5)"
+	ethmac="$(hex2mac 48da356f$(cat /sys/class/cvi-base/base_uid | tr -d '_' | tail -c 5))"
+fi
+
+hostname $name
+if [ "$(cat /etc/hostname)" = "${name}" ]
+then
+	# nop
+	echo ${name} > /dev/null
+else
+	echo ${name} > /etc/hostname
+fi
+ifconfig eth0 down
+ip link set eth0 address ${ethmac}
+ifconfig eth0 up

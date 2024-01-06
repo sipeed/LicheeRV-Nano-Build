@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_UDPCAST
+	bool "Target udpcast"
+	default n
+	help
+	  target udpcast

@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -x
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export PATH
+
+fallback() {
+	exec /sbin/init
+}
+
+# if your kernel haven't mount devtmpfs at bootup you need uncomment this:
+# mount -t devtmpfs devtmpfs /dev
+# this program need get cmdline from /proc
+# program mount use /proc to detect filesystem type
+mount -t proc proc /proc
+
+cmdline() {
+	cmdline_list=$(cat /proc/cmdline)
+	for i in ${cmdline_list}; do
+		key="$(echo "${i}" | cut -d'=' -f1)"
+		if [ "${1}" = "${key}" ]; then
+			echo "${i}" | cut -d'=' -f2-
+		fi
+	done
+}
+
+timeout=$(cmdline overlay_timeout)
+device=$(cmdline overlay_device)
+
+if [ -z "${device}" ]; then
+	device=/dev/mmcblk0p3
+fi
+
+if [ -z "${timeout}" ]; then
+	timeout=30
+fi
+
+while [ "${timeout}" -gt 0 ]
+do
+	if [ "${timeout}" -eq 0 ]; then
+		fallback
+	fi
+	if mount "${device}" /mnt/data ; then
+		break;
+	fi
+	sleep 1
+	timeout=$((timeout - 1))
+done
+
+mkdir  /mnt/data/upper
+rm -rf /mnt/data/work # make directory empty
+mkdir  /mnt/data/work
+mkdir  /mnt/data/new
+mount -t overlay overlay \
+	-o lowerdir=/,upperdir=/mnt/data/upper,workdir=/mnt/data/work /mnt/data/new || fallback
+mount -t devtmpfs devtmpfs /mnt/data/new/dev || fallback
+exec chroot /mnt/data/new/ /sbin/init || fallback

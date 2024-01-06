@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_P7ZIP
+	bool "Target p7zip"
+	default n
+	help
+	  target p7zip

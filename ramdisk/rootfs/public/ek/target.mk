@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_EK),y)
+TARGET_PACKAGES += ek
+endif
