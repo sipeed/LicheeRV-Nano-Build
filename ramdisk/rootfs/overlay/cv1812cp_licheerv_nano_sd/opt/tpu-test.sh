@@ -6,7 +6,7 @@ then
 	exit 1
 fi
 
-seq 0 $1 | while read line
+seq 1 $1 | while read line
 do
 	cvi_tpu_demo2 1 2023 2023
 done
