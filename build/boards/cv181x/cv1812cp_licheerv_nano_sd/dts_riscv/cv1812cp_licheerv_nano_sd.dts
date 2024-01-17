@@ -66,6 +66,10 @@
 	status = "okay";
 };
 
+&pwm1 {
+      status = "okay";
+};
+
 &i2c2 {
 	status = "disabled";
         /delete-property/ scl-pinmux;

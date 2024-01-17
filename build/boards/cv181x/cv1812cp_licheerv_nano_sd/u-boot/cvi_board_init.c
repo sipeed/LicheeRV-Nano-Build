@@ -62,6 +62,9 @@ int cvi_board_init(void)
 	mmio_write_32(0x03001068, 0x4); // GPIOA 18 UART1 CTS
 	mmio_write_32(0x03001064, 0x4); // GPIOA 19 UART1 RTS
 
+	// PWM
+	//mmio_write_32(0x03001068, 0x2); // GPIOA 18 PWM 6
+
 	// lcd reset
 	mmio_write_32(0x030010A4, 0x0); // PWRGPIO 0 GPIO_MODE
 
