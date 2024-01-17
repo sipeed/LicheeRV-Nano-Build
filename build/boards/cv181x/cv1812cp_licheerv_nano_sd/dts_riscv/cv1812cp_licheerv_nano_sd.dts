@@ -85,5 +85,5 @@
 };
 
 &mipi_rx {
-        snsr-reset = <&portc 2 GPIO_ACTIVE_LOW>;
+        snsr-reset = <&porte 1 GPIO_ACTIVE_LOW>;
 };

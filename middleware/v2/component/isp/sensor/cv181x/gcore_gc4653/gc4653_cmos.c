@@ -475,9 +475,35 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg)
 
 static CVI_S32 cmos_set_wdr_mode(VI_PIPE ViPipe, CVI_U8 u8Mode)
 {
-	UNUSED(ViPipe);
-	UNUSED(u8Mode);
-	CVI_TRACE_SNS(CVI_DBG_ERR, "Unsupport sensor mode!\n");
+	//UNUSED(ViPipe);
+	//UNUSED(u8Mode);
+
+	ISP_SNS_STATE_S *pstSnsState = CVI_NULL;
+	
+	GC4653_SENSOR_GET_CTX(ViPipe, pstSnsState);
+	CMOS_CHECK_POINTER(pstSnsState);
+
+	pstSnsState->bSyncInit = CVI_FALSE;
+
+	switch (u8Mode) {
+	case WDR_MODE_NONE:
+		pstSnsState->u8ImgMode = GC4653_MODE_2560X1440P30;
+		pstSnsState->enWDRMode = WDR_MODE_NONE;
+		pstSnsState->u32FLStd = g_astGc4653_mode[pstSnsState->u8ImgMode].u32VtsDef;
+		syslog(LOG_INFO, "WDR_MODE_NONE\n");
+		break;
+
+	case WDR_MODE_2To1_LINE:
+	default:
+		CVI_TRACE_SNS(CVI_DBG_ERR, "Unsupport sensor mode!\n");
+		return CVI_FAILURE;
+	}
+
+	pstSnsState->au32FL[0] = pstSnsState->u32FLStd;
+	pstSnsState->au32FL[1] = pstSnsState->au32FL[0];
+	memset(pstSnsState->au32WDRIntTime, 0, sizeof(pstSnsState->au32WDRIntTime));
+
+	//CVI_TRACE_SNS(CVI_DBG_ERR, "Unsupport sensor mode!\n");
 	return CVI_SUCCESS;
 }
 

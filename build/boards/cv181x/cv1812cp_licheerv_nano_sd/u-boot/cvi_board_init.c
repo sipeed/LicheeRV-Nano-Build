@@ -69,7 +69,10 @@ int cvi_board_init(void)
 	//mmio_write_32(0x030010EC, 0x0); // GPIOB 0 PWM0_BUCK
 	mmio_write_32(0x030010EC, 0x3); // GPIOB 0 GPIO_MODE
 
-	// camera i2c
+	// camera function
+	mmio_write_32(0x0300116C, 0x5); // RX4N CAM_MCLK0
+
+	// camera/tp i2c
 	mmio_write_32(0x03001090, 0x5); // PWR_GPIO6 IIC4_SCL
 	mmio_write_32(0x03001098, 0x5); // PWR_GPIO8 IIC4_SDA
 
