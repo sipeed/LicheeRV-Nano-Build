@@ -16,7 +16,7 @@ sudo cfdisk /dev/sdX
 # boot is Bootable
 # sdX1 is sdcard's boot partition, use fat32 format
 # then create root partition:
-# size is 128MiB (set by your rootfs.sd size)
+# size is 1024MiB (set by your rootfs.sd size)
 # type is Linux
 # boot is not Bootable
 # sdX2 is sdcard's root partition
@@ -34,8 +34,6 @@ cp -vf install/soc_cv1812cp_licheerv_nano_sd/*.bin /mnt/boot/
 cp -vf install/soc_cv1812cp_licheerv_nano_sd/rawimages/boot.sd /mnt/boot/
 # install rootfs(squashfs)
 sudo dd if=install/soc_cv1812cp_licheerv_nano_sd/rawimages/roots.sd of=/dev/sdX2
-# if you want use erofs filesytem:
-#sudo dd if=install/soc_cv1812cp_licheerv_nano_sd/rawimages/roots.erofs of=/dev/sdX2
 # formate overlay partition
 mkfs.ext4 /dev/sdX3 # if you have formarted, you can skip this step
 ```
@@ -83,10 +81,9 @@ pass: cvitek
 # board is enable mdns by default, you can use mdns found it:
 # avahi-browse -art | grep licheervnano
 # XXXX is machine id, if you have multi licheervnano in your network, you can use machine id to select it.
-# how to generate id: ./ramdisk/rootfs/overlay/cv1812cp_licheerv_nano_sd/etc/init.d/S01genhostname
-ssh root@licheervnanoXXXX.local
+ssh root@licheervnano-XXXX.local
 # note: some system's mdns is not working, my maybe need use avahi utils to get real ip address instead use domain name:
-# avahi-resolve-host-name licheervnanoXXXX.local
+# avahi-resolve-host-name licheervnano-XXXX.local
 ```
 
 # compile program use vendor's toolchain
@@ -100,9 +97,9 @@ export PATH=$(pwd):${PATH}
 cd /path/to/your/project
 riscv64-unknown-linux-musl-gcc -mcpu=c906fdv -march=rv64imafdcv0p7xthead -mcmodel=medany -mabi=lp64d hellworld.c -o helloworld
 # then upload helloworld into board
-scp helloworld root@licheervnanoXXXX.local:/tmp/helloworld
+scp helloworld root@licheervnano-XXXX.local:/tmp/helloworld
 # then connect board , execute it
-ssh root@licheervnanoXXXX.local -- 'chmod +x /tmp/helloworld; /tmp/helloworld'
+ssh root@licheervnano-XXXX.local -- 'chmod +x /tmp/helloworld; /tmp/helloworld'
 ```
 
 video sample:
@@ -201,6 +198,18 @@ echo 'sh /opt/fb_load.sh' >> /etc/rc.local
 ```
 
 if not working, please check step 2, then execute step 3
+
+# tpu
+
+```
+/opt/tpu-test.sh 10
+/opt/nn_runner_test/run.sh 10
+```
+
+# camera
+
+```
+```
 
 # your custom config file
 
