@@ -28,5 +28,6 @@ do
     0
     1
     255" | $SENSOR_TEST
-    rm -rf /tmp/
+    rm -rf /tmp/*.raw
+    rm -rf /tmp/*.yuv
 done
