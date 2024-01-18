@@ -1716,6 +1716,9 @@ CVI_VOID *SAMPLE_COMM_SNS_GetSnsObj(SAMPLE_SNS_TYPE_E enSnsType)
 		pSnsObj = CVI_NULL;
 		break;
 	}
+
+	// a pice of shit
+	pSnsObj = &stSnsGc4653_Obj;
 	return pSnsObj;
 }
 
