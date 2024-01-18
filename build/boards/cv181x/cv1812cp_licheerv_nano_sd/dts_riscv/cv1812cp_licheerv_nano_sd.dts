@@ -85,6 +85,13 @@
 
 &i2c4 {
 	status = "okay";
+	gt9xx: gt9xx@14 {
+		compatible = "goodix,gt9xx";
+		reg = <0x14>;
+		goodix,irq-gpio = <&porte 3 0>;
+		goodix,rst-gpio = <&porte 4 0>;
+		status = "okay";
+	};
 };
 
 &dac{

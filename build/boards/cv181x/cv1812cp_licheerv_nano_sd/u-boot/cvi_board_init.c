@@ -79,6 +79,12 @@ int cvi_board_init(void)
 	mmio_write_32(0x03001090, 0x5); // PWR_GPIO6 IIC4_SCL
 	mmio_write_32(0x03001098, 0x5); // PWR_GPIO8 IIC4_SDA
 
+	// tp function
+	mmio_write_32(0x03001084, 0x3);	// PWR_SEQ1 PWR_GPIO[3]
+	mmio_write_32(0x03001088, 0x3);	// PWR_SEQ2 PWR_GPIO[4]
+	mmio_write_32(0x05027078, 0x11);// Unlock PWR_GPIO[3]
+	mmio_write_32(0x0502707c, 0x11);// Unlock PWR_GPIO[4]
+
 	// wait hardware bootup
 	suck_loop(100);
 	return 0;
