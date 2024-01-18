@@ -13,12 +13,12 @@ hex2mac() {
 }
 
 
-name="licheervnanobad0"
+name="lpirvnano-bad0"
 ethmac="$(cat /sys/class/net/eth0/address)"
 
 if [ -e /sys/class/cvi-base ]
 then
-	name="licheervnano$(cat /sys/class/cvi-base/base_uid | tr -d ':' | tail -c 5)"
+	name="lpirvnano-$(cat /sys/class/cvi-base/base_uid | tr -d ':' | tail -c 5)"
 	ethmac="$(hex2mac 48da356f$(cat /sys/class/cvi-base/base_uid | tr -d '_' | tail -c 5))"
 fi
 
