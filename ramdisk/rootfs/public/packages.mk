@@ -65,3 +65,4 @@ include $(TOP_DIR)/ramdisk/rootfs/public/p7zip/target.mk
 include $(TOP_DIR)/ramdisk/rootfs/public/ramspeed/target.mk
 include $(TOP_DIR)/ramdisk/rootfs/public/udpcast/target.mk
 include $(TOP_DIR)/ramdisk/rootfs/public/unrar/target.mk
+include $(TOP_DIR)/ramdisk/rootfs/public/alsa/target.mk

@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_ALSA
+	bool "Target alsa"
+	default n
+	help
+	  target alsa

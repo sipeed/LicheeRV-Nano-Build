@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_ALSA),y)
+TARGET_PACKAGES += alsa
+endif
