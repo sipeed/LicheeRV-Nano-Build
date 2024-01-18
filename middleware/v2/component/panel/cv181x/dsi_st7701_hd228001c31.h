@@ -30,7 +30,7 @@
 */
 
 #define HD22_PIXEL_CLK(x) ((x##_VACT + x##_VSA + x##_VBP + x##_VFP) \
-	* (x##_HACT + x##_HSA + x##_HBP + x##_HFP) * 60 / 1000)
+	* (x##_HACT + x##_HSA + x##_HBP + x##_HFP) * 75 / 1000)
 
 struct combo_dev_cfg_s dev_cfg_st7701_368x552 = {
 	.devno = 0,
