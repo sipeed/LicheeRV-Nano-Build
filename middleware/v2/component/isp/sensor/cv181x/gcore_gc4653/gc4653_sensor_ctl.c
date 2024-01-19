@@ -38,6 +38,7 @@ int gc4653_i2c_init(VI_PIPE ViPipe)
 	int ret;
 
 	u8DevNum = g_aunGc4653_BusInfo[ViPipe].s8I2cDev;
+	u8DevNum = 0; // some shit
 	snprintf(acDevFile, sizeof(acDevFile),  "/dev/i2c-%u", u8DevNum);
 
 	g_fd[ViPipe] = open(acDevFile, O_RDWR, 0600);

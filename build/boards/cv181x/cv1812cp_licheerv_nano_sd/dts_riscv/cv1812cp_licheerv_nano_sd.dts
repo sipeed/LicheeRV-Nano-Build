@@ -5,6 +5,8 @@
 #include "cv181x_default_memmap.dtsi"
 
 / {
+	/delete-node/ i2c@04040000;
+
 	wifisd:wifi-sd@4320000 {
                 compatible = "cvitek,cv181x-sdio";
                 bus-width = <4>;
@@ -41,6 +43,41 @@
 		default-brightness-level = <7>;
 		status = "okay";
 	};
+
+	i2c4: i2c4@04040000 {
+		compatible = "snps,designware-i2c";
+		clocks = <&clk CV181X_CLK_I2C>;
+		reg = <0x0 0x04040000 0x0 0x1000>;
+		resets = <&rst RST_I2C4>;
+		reset-names = "i2c4";
+		clock-frequency = <100000>;
+		interrupts = <53 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-parent = <&plic0>;
+		status = "okay";
+		gt9xx: gt9xx@14 {
+			compatible = "goodix,gt9xx";
+			reg = <0x14>;
+			goodix,irq-gpio = <&porte 3 0>;
+			goodix,rst-gpio = <&porte 4 0>;
+			status = "okay";
+		};
+	};
+};
+
+&i2c0 {
+	status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
+};
+
+&i2c1 {
+	status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
 };
 
 &sd {
@@ -82,16 +119,12 @@
         /delete-property/ sda-gpios;
 };
 
-
-&i2c4 {
-	status = "okay";
-	gt9xx: gt9xx@14 {
-		compatible = "goodix,gt9xx";
-		reg = <0x14>;
-		goodix,irq-gpio = <&porte 3 0>;
-		goodix,rst-gpio = <&porte 4 0>;
-		status = "okay";
-	};
+&i2c3 {
+	status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
 };
 
 &dac{

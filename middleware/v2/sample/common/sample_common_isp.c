@@ -455,7 +455,8 @@ CVI_S32 SAMPLE_COMM_ISP_Sensor_Regiter_callback(ISP_DEV IspDev, CVI_U32 u32SnsId
 	const ISP_SNS_OBJ_S *pstSnsObj;
 	ISP_INIT_ATTR_S *pstInitAttr = &gstInitAttr[u32SnsId];
 	ISP_SNS_COMMBUS_U unSnsrBusInfo = {
-		.s8I2cDev = 3,
+		// some shit
+		.s8I2cDev = 0,
 	};
 
 	#define SNSBUS_VLD(x)		(x >= 0)
