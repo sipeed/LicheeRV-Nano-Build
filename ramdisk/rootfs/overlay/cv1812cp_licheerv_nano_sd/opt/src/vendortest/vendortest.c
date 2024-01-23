@@ -171,7 +171,7 @@ int main(void) {
   memset(fb, 0, fb_finfo.smem_len);
 
   int touchfd = -1;
-  touchfd = open("/dev/input/event0", O_RDONLY);
+  touchfd = open("/dev/input/event1", O_RDONLY);
 
   // fb_vinfo.xres // screen x max
   // fb_vinfo.yres // screen y max
@@ -299,13 +299,15 @@ int main(void) {
     exit(EXIT_FAILURE);
   }
 
+  int buttonfd;
+  buttonfd = open("/dev/input/event0", O_RDONLY);
 
   struct {
     struct timeval time;
     unsigned short type;
     unsigned short code;
     unsigned int val;
-  } touchdata;
+  } inputevdata;
 
   if (touchfd >= 0) {
     switch(fork()) {
@@ -314,17 +316,17 @@ int main(void) {
       exit(EXIT_FAILURE);
     case 0:
       while(1) {
-	if (read(touchfd, &touchdata, sizeof(touchdata))
-	    == sizeof(touchdata)) {
-	  switch(touchdata.code) {
+	if (read(touchfd, &inputevdata, sizeof(inputevdata))
+	    == sizeof(inputevdata)) {
+	  switch(inputevdata.code) {
 	  case 53:
-	    touch_xmove = touchdata.val;
+	    touch_xmove = inputevdata.val;
 	    break;
 	  case 54:
-	    touch_ymove = touchdata.val;
+	    touch_ymove = inputevdata.val;
 	    break;
 	  case 330:
-	    touch_btn = touchdata.val;
+	    touch_btn = inputevdata.val;
 	    break;
 	  }
 	}
@@ -381,6 +383,35 @@ int main(void) {
       }
     }
   }
+
+  if (buttonfd >= 0) {
+    switch(fork()) {
+    case -1:
+      perror("fork");
+      exit(EXIT_FAILURE);
+    case 0:
+      while(1) {
+	if (read(buttonfd, &inputevdata, sizeof(inputevdata))
+	    == sizeof(inputevdata)) {
+	  switch(inputevdata.code) {
+	  case 431:
+	    if (inputevdata.val == 1) {
+	      draw_solid(fb_vinfo.xres - 40, fb_vinfo.yres - 40,
+			fb_vinfo.xres - 1, fb_vinfo.yres - 1,
+			GREEN | AFULL);
+	    } else {
+	      draw_solid(fb_vinfo.xres - 40, fb_vinfo.yres - 40,
+			fb_vinfo.xres - 1, fb_vinfo.yres - 1,
+			0);
+	    }
+	    break;
+	  }
+	}
+      }
+    }
+  }
+
+  
 
   time_t start_time;
   start_time = time(NULL);

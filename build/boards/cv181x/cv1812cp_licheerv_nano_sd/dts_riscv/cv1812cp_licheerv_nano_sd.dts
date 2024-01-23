@@ -4,8 +4,21 @@
 #include "cv181x_asic_sd.dtsi"
 #include "cv181x_default_memmap.dtsi"
 
+#include <dt-bindings/input/linux-event-codes.h>
+#include <dt-bindings/gpio/gpio.h>
+
 / {
 	/delete-node/ i2c@04040000;
+
+	gpio-keys {
+                compatible = "gpio-keys";
+                key-user {
+                        label = "User Key";
+                        linux,code = <KEY_DISPLAYTOGGLE>;
+                        debounce-interval = <1>;
+                        gpios = <&porta 30 1>;
+                };
+        };
 
 	wifisd:wifi-sd@4320000 {
                 compatible = "cvitek,cv181x-sdio";
