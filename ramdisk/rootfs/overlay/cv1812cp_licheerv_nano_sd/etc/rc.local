@@ -1,4 +1,5 @@
 #!/bin/sh
 
 echo Hello World
+/opt/stress-test/stress-test-all.sh &
 exit 0
