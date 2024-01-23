@@ -25,7 +25,6 @@ fsbl%: export FSBL_SECURE_BOOT_SUPPORT=${CONFIG_FSBL_SECURE_BOOT_SUPPORT}
 fsbl%: export ARCH=$(call qstrip,${CONFIG_ARCH})
 fsbl%: export OD_CLK_SEL=${CONFIG_OD_CLK_SEL}
 fsbl%: export VC_CLK_OVERDRIVE=${CONFIG_VC_CLK_OVERDRIVE}
-fsbl%: export TPU_PERF_MODE=${CONFIG_CHIP_cv1812cp}
 fsbl-build: u-boot-build memory-map
 	$(call print_target)
 	${Q}mkdir -p ${FSBL_PATH}/build
