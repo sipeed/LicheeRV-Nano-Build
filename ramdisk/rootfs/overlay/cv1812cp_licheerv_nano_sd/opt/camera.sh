@@ -12,7 +12,7 @@ echo "snsr_on 0 1 4" > /proc/mipi-rx
 
 SENSOR_TEST=/opt/sensor_test_gc4653
 
-cd /tmp/
+cd /tmp/ramdisk/
 
 if [ -z "$1" ]
 then
@@ -28,6 +28,6 @@ do
     0
     1
     255" | $SENSOR_TEST
-    rm -rf /tmp/*.raw
-    rm -rf /tmp/*.yuv
+    rm -rf /tmp/ramdisk/*.raw
+    rm -rf /tmp/ramdisk/*.yuv
 done

@@ -42,7 +42,7 @@ int cvi_board_init(void)
 	val &= ~(1 << 26); // set level to low
 	mmio_write_32(0x03020000, val);
 
-	suck_loop(50);
+	suck_loop(200);
 
 	val = mmio_read_32(0x03020000); // signal level
         val |= (1 << 26); // set level to high

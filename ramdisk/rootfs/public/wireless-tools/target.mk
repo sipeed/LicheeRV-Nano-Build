@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_TARGET_PACKAGE_WIRELESS_TOOLS),y)
+TARGET_PACKAGES += wireless-tools
+endif

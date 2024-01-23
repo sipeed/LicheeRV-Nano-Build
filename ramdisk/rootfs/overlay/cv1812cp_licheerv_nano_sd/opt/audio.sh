@@ -1,8 +1,16 @@
 #!/bin/sh
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/system/lib
+if [ -z "$1" ]
+then
+	echo "usage: $0 count"
+	exit 1
+fi
 
-# because audio en pin also use for lcd
-/opt/fb_load.sh
+seq 1 $1 | while read line
+do
+	echo "Now record sound"
+	arecord -Dhw:0,0 -d 5 -r 48000 -f S16_LE -t wav /tmp/ramdisk/test.wav
 
-
+	echo "Now play sound"
+	aplay -D hw:1,0 -f S16_LE /tmp/ramdisk/test.wav
+done

@@ -209,6 +209,8 @@ if not working, please check step 2, then execute step 3
 # camera
 
 ```
+/opt/camera.sh 1 # initial sensor
+/opt/camera2lcd.sh
 ```
 
 # your custom config file

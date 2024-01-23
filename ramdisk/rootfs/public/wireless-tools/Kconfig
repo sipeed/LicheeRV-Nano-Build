@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_WIRELESS_TOOLS
+	bool "Target wireless-tools"
+	default n
+	help
+	  target wireless-tools
