@@ -4,6 +4,8 @@
 #include <linux/vo_mipi_tx.h>
 #include <linux/cvi_comm_mipi_tx.h>
 
+// vendor 1
+/*
 #define ZCT1429V1_VACT	1280
 #define ZCT1429V1_VSA	2
 #define ZCT1429V1_VBP	16
@@ -13,6 +15,19 @@
 #define ZCT1429V1_HSA	10
 #define ZCT1429V1_HBP	45
 #define ZCT1429V1_HFP	45
+*/
+
+// vendor 2
+#define ZCT1429V1_VACT	1280
+#define ZCT1429V1_VSA	4
+#define ZCT1429V1_VBP	6
+#define ZCT1429V1_VFP	8
+
+#define ZCT1429V1_HACT	800
+#define ZCT1429V1_HSA	20
+#define ZCT1429V1_HBP	20
+#define ZCT1429V1_HFP	32
+
 
 #define ZCT1429_PIXEL_CLK(x) ((x##_VACT + x##_VSA + x##_VBP + x##_VFP) \
 	* (x##_HACT + x##_HSA + x##_HBP + x##_HFP) * 60 / 1000)
