@@ -35,6 +35,7 @@
 #define I2C2 "i2c@04020000"
 #define I2C3 "i2c@04030000"
 #define I2C4 "i2c@04040000"
+#define I2C5 "i2c-gpio-a24-a23"
 #endif
 
 /*
@@ -680,6 +681,9 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
 		adap->i2c_idx = 3;
 	if (!strcmp(adap->dev.of_node->full_name, I2C4))
 		adap->i2c_idx = 4;
+	// some shit
+	if (!strcmp(adap->dev.of_node->full_name, I2C5))
+		adap->i2c_idx = 5;
 
 	dev_set_name(&i2c_dev->dev, "i2c-%d", adap->i2c_idx);
 #else

@@ -75,6 +75,15 @@
 			status = "okay";
 		};
 	};
+
+	// for maixcam
+	i2c5: i2c-gpio-a24-a23 {
+                compatible = "i2c-gpio";
+                scl-gpios = <&porta 24 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+                sda-gpios = <&porta 23 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+                i2c-gpio,delay-us = <5>;
+                status = "disabled";
+        };
 };
 
 &i2c0 {
