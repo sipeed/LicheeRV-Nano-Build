@@ -61,6 +61,7 @@ typedef enum
 	DSI_PANEL_ST7789V,
 	DSI_PANEL_ST7785M,
 	DSI_PANEL_ZCT2133V1,
+	DSI_PANEL_ZCT1429V1,
 	DSI_PANEL_MAX,
 } DSI_PANEL_MODEL;
 
@@ -127,6 +128,7 @@ static const char* s_panel_model_type_arr[] = {
 	"ST7789V",
 	"ST7785M",
 	"ZCT2133V1",
+	"ZCT1429V1",
 };
 
 int dsi_init(int devno, const struct dsc_instr *cmds, int size)
@@ -489,6 +491,13 @@ void SAMPLE_MIPI_SET_PANEL_DESC()
                         g_panel_desc.hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280;
                         g_panel_desc.dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280;
                         g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280);
+                        break;
+	case DSI_PANEL_ZCT1429V1:
+			g_panel_desc.panel_name = "ZCT1429V1-800x1280_60";
+                        g_panel_desc.dev_cfg = &dev_cfg_zct1429v1_800x1280;
+                        g_panel_desc.hs_timing_cfg = &hs_timing_cfg_zct1429v1_800x1280;
+                        g_panel_desc.dsi_init_cmds = dsi_init_cmds_zct1429v1_800x1280;
+                        g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct1429v1_800x1280);
                         break;
 		case DSI_PANEL_HX8394_EVB:
 		default:

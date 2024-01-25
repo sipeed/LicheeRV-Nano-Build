@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# 10inch
+#sample_dsi --panel=ZCT1429V1
 # 7inch
 sample_dsi --panel=ZCT2133V1
 # 5inch
