@@ -643,7 +643,9 @@ void SAMPLE_DSI_CONTROLE()
 
 int main(int argc, char *argv[])
 {
+  printf("program start\n");
 	if(argc == 1) {
+	  printf("line %d\n", __LINE__);
 		SAMPLE_MIPI_TX_ENABLE();
 		return CVI_SUCCESS;
 	}
@@ -651,6 +653,7 @@ int main(int argc, char *argv[])
 	struct option long_options[MAX_DSI_OPTIONS + 1];
 	CVI_S32 ch, idx, ret;
 
+	printf("line %d\n", __LINE__);
 	memset((void *)long_options, 0, sizeof(long_options));
 
 	for (idx = 0; idx < MAX_DSI_OPTIONS; idx++) {
@@ -661,11 +664,12 @@ int main(int argc, char *argv[])
 			CVI_TRACE_LOG(CVI_DBG_ERR, "too many options\n");
 			return -1;
 		}
-
+		printf("line %d\n", __LINE__);
 		memcpy(&long_options[idx], &long_option_ext[idx].opt, sizeof(struct option));
 	}
 
 	optind = 0;
+	printf("line %d\n", __LINE__);
 	while ((ch = getopt_long(argc, argv, "dh", long_options, &idx)) != -1) {
 		switch (ch) {
 		case 'l':
@@ -694,12 +698,14 @@ int main(int argc, char *argv[])
 				CVI_TRACE_LOG(CVI_DBG_ERR, "usage:%s -d. -d can't use in the same time with other command\n", argv[0]);
 				return CVI_FAILURE;
 			}
+				  printf("line %d\n", __LINE__);
 			SAMPLE_DSI_CONTROLE();
 			break;
 		case 'h':
 			printDsiHelp(argv);
 			return CVI_SUCCESS;
 		default:
+		  	  printf("line %d\n", __LINE__);
 			SAMPLE_PRT("ch = %c\n", ch);
 			printDsiHelp(argv);
 			break;
@@ -710,7 +716,10 @@ int main(int argc, char *argv[])
 		printDsiHelp(argv);
 	}
 
+	printf("line %d\n", __LINE__);
 	SAMPLE_MIPI_SET_PANEL_DESC();
+	printf("line %d\n", __LINE__);
 	SAMPLE_MIPI_TX_ENABLE();
+	printf("line %d\n", __LINE__);
 	return CVI_SUCCESS;
 }

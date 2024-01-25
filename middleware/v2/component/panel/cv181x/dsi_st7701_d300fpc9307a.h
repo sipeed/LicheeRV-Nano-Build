@@ -6,13 +6,13 @@
 
 #define ST7701_D300FPC9307A_VACT	854
 #define ST7701_D300FPC9307A_VSA		10
-#define ST7701_D300FPC9307A_VBP		42
-#define ST7701_D300FPC9307A_VFP		4
+#define ST7701_D300FPC9307A_VBP		12
+#define ST7701_D300FPC9307A_VFP		3
 
 #define ST7701_D300FPC9307A_HACT	480
-#define ST7701_D300FPC9307A_HSA		2
-#define ST7701_D300FPC9307A_HBP		43
-#define ST7701_D300FPC9307A_HFP		8
+#define ST7701_D300FPC9307A_HSA		32
+#define ST7701_D300FPC9307A_HBP		80
+#define ST7701_D300FPC9307A_HFP		48
 
 #define PIXEL_CLK(x) ((x##_VACT + x##_VSA + x##_VBP + x##_VFP) \
 	* (x##_HACT + x##_HSA + x##_HBP + x##_HFP) * 60 / 1000)
@@ -33,13 +33,16 @@ struct combo_dev_cfg_s dev_cfg_st7701_480x854 = {
 		.vid_vbp_lines = ST7701_D300FPC9307A_VBP,
 		.vid_vfp_lines = ST7701_D300FPC9307A_VFP,
 		.vid_active_lines = ST7701_D300FPC9307A_VACT,
-		.vid_vsa_pos_polarity = false,
+		.vid_vsa_pos_polarity = true,
 		.vid_hsa_pos_polarity = false,
 	},
 	.pixel_clk = PIXEL_CLK(ST7701_D300FPC9307A),
 };
 
 const struct hs_settle_s hs_timing_cfg_st7701_480x854 = { .prepare = 6, .zero = 32, .trail = 1 };
+
+
+
 
 static CVI_U8 data_st7701_d300fpc9307a_0[] = {0x11, 0x00 }; // turn off sleep mode
         //{REGFLAG_DELAY, 60, {} }, 
