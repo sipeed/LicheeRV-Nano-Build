@@ -79,11 +79,11 @@ pass: cvitek
 # connect device's usb port to your PC
 # then PC will set new usb rndis interface IP address by ipv4 link local or dhcp
 # board is enable mdns by default, you can use mdns found it:
-# avahi-browse -art | grep licheervnano
-# XXXX is machine id, if you have multi licheervnano in your network, you can use machine id to select it.
-ssh root@licheervnano-XXXX.local
+# avahi-browse -art | grep lpirvnano
+# XXXX is machine id, if you have multi lpirvnano in your network, you can use machine id to select it.
+ssh root@lpirvnano-XXXX.local
 # note: some system's mdns is not working, my maybe need use avahi utils to get real ip address instead use domain name:
-# avahi-resolve-host-name licheervnano-XXXX.local
+# avahi-resolve-host-name lpirvnano-XXXX.local
 ```
 
 # compile program use vendor's toolchain
@@ -97,12 +97,19 @@ export PATH=$(pwd):${PATH}
 cd /path/to/your/project
 riscv64-unknown-linux-musl-gcc -mcpu=c906fdv -march=rv64imafdcv0p7xthead -mcmodel=medany -mabi=lp64d hellworld.c -o helloworld
 # then upload helloworld into board
-scp helloworld root@licheervnano-XXXX.local:/tmp/helloworld
+scp helloworld root@lpirvnano-XXXX.local:/tmp/helloworld
 # then connect board , execute it
-ssh root@licheervnano-XXXX.local -- 'chmod +x /tmp/helloworld; /tmp/helloworld'
+ssh root@lpirvnano-XXXX.local -- 'chmod +x /tmp/helloworld; /tmp/helloworld'
 ```
 
 video sample:
+
+# disable test program on bootup
+
+```
+# make file empty
+> /etc/rc.local
+```
 
 # wifi
 
@@ -134,29 +141,6 @@ network={
 
 ```
 echo 'sh /opt/wifi.sh' >> /etc/rc.local
-```
-
-if not working, please check step 1, then execute step 2
-
-# bluetooth
-
-if you want use bluetooth on licheervnano:
-
-1. execute command to load bluetooth drvier:
-
-```
-/opt/wifi.sh
-```
-
-2. scan
-
-```
-```
-
-3. if your bluetooth is working please:
-
-```
-echo 'sh /opt/bluetooth.sh' >> /etc/rc.local
 ```
 
 if not working, please check step 1, then execute step 2
