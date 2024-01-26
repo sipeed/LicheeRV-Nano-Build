@@ -1,0 +1,91 @@
+name: licheervnano-host-linux-amd64-cvi-mmf-sdk-ci
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mktoolchain:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          max-size: "20G"
+          create-symlink: true
+          key: ${{matrix.os }}-${{ matrix.type }}
+
+      - name: Create Timestamp
+        run: |
+              echo "BUILD_ID=$(date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
+              echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+
+      - name: Install Software
+        run: |
+              sudo apt update && \
+              sudo apt install -y build-essential autoconf automake autotools-dev ninja-build make help2man \
+                                  libncurses-dev gawk flex bison openssl libssl-dev tree wget curl cmake ccache \
+                                  libtool-bin bc bzr ca-certificates cmake cpio cvs file git locales mercurial \
+                                  openssh-server python3 python3-flake8 python3-magic python3-nose2 python3-pexpect \
+                                  python3-pytest rsync shellcheck subversion unzip pkg-config libssl-dev slib \
+                                  squashfs-tools android-sdk-libsparse-utils rsync jq cmake python3-distutils \
+                                  tclsh scons parallel ssh-client tree python3-dev python3-pip device-tree-compiler \
+                                  libssl-dev ssh cpio squashfs-tools fakeroot libncurses5-dev flex bison mmdebstrap \
+                                  android-libext4-utils bdebstrap proot fakeroot fakechroot python3 python3-flake8 \
+                                  python3-nose2 python3-pexpect subversion unzip ccache picolibc-riscv64-unknown-elf\
+                                  crossbuild-essential-riscv64 binutils-riscv64-unknown-elf\
+                                  cpp-riscv64-linux-gnu g++-riscv64-linux-gnu gcc-riscv64-linux-gnu\
+                                  libc6-dbg-riscv64-cross libatomic1-riscv64-cross libasan8-riscv64-cross\
+                                  libc6-dev-riscv64-cross gcc-riscv64-unknown-elf gawk diffstat texinfo\
+                                  chrpath socat python3-pip python3-pexpect xz-utils debianutils \
+                                  iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
+                                  python3-subunit mesa-common-dev zstd liblz4-tool libacl1 parted erofs-utils \
+                                  genext2fs mtools fatcat ckermit neovim cscope asciinema avahi-utils\
+                                  libnss-mdns mdns-scan
+
+
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+            path: 'cvi_mmf_sdk'  # TODO: make this name a global variable
+
+      - name: Download Toolchain
+        run: |
+              export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+              pushd cvi_mmf_sdk
+                wget https://sophon-file.sophon.cn/sophon-prod-s3/drive/23/03/07/16/host-tools.tar.gz
+                tar xf host-tools.tar.gz
+                sudo mkdir -pv /usr/local/lib/
+                sudo cp docker/*.so* /usr/local/lib/
+              popd
+
+      - name: Make System
+        run: |
+              export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+              pushd cvi_mmf_sdk
+                source build/cvisetup.sh
+                build_all
+                sh install_middleware.sh
+                clean_all
+                build_all
+                tar cf middleware.tar middleware
+                xz -z -v -9 middlware.tar
+                pushd install/soc_cv1812cp_licheerv_nano_sd/rootfs/
+                  tar cf ../mnt.tar mnt
+                popd
+                xz -z -v -9 install/soc_cv1812cp_licheerv_nano_sd/mnt.tar
+              popd
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 30
+          name: licheervnano-cvi-mmf-sdk-output-${{ env.BUILD_ID }}
+          path: |
+                  cvi_mmf_sdk/middleware.tar.xz
+                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/mnt.tar.xz
+                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/*.bin
+                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/rawimages/*.sd
