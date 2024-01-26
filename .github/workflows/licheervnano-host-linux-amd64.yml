@@ -68,6 +68,7 @@ jobs:
               export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
               pushd cvi_mmf_sdk
                 source build/cvisetup.sh
+                defconfig cv1812cp_licheerv_nano_sd
                 build_all
                 sh install_middleware.sh
                 clean_all
@@ -90,3 +91,5 @@ jobs:
                   cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/mnt.tar.xz
                   cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/*.bin
                   cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/rawimages/*.sd
+                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/rootfs/lib/ld-musl-riscv64v0p7_xthead.so.1
+                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/rootfs/lib/ld-musl-riscv64v_xthead.so.1
