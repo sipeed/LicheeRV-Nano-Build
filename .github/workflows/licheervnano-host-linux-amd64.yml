@@ -73,8 +73,8 @@ jobs:
                 sh install_middleware.sh
                 clean_all
                 build_all
-                tar cf middleware.tar middleware
-                xz -z -v -9 middlware.tar
+                tar cvf middleware.tar middleware
+                xz -z -v -9 middleware.tar
                 pushd install/soc_cv1812cp_licheerv_nano_sd/rootfs/
                   tar cf ../mnt.tar mnt
                 popd
