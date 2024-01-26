@@ -17,6 +17,7 @@
 
 #include "sample_comm.h"
 
+// thank lxowalle
 
 #define NONE	"\033[m"
 #define RED	"\033[0;32;31m"
@@ -45,6 +46,63 @@ typedef struct _SAMPLE_VPSS_CONFIG_S {
 	pthread_t vpss_thread;
 	SAMPLE_VPSS_PARAM_S astVpssParam[4];
 } SAMPLE_VPSS_CONFIG_S;
+
+
+SAMPLE_VO_CONFIG_S g_stVoConfig;
+CVI_S32 SAMPLE_PLAT_VO_INIT2(void)
+{
+	SAMPLE_VO_CONFIG_S stVoConfig;
+	RECT_S stDefDispRect  = {0, 0, 720, 1280};
+	SIZE_S stDefImageSize = {720, 1280};
+	CVI_S32 s32Ret = CVI_SUCCESS;
+
+	CVI_U32 panel_init = false;
+	VO_PUB_ATTR_S stVoPubAttr;
+
+	CVI_VO_Get_Panel_Status(0, 0, &panel_init);
+	if (panel_init) {
+		CVI_VO_GetPubAttr(0, &stVoPubAttr);
+		CVI_TRACE_LOG(CVI_DBG_NOTICE, "Panel w=%d, h=%d.\n",\
+				stVoPubAttr.stSyncInfo.u16Hact, stVoPubAttr.stSyncInfo.u16Vact);
+		stDefDispRect.u32Width = stVoPubAttr.stSyncInfo.u16Hact;
+		stDefDispRect.u32Height = stVoPubAttr.stSyncInfo.u16Vact;
+		stDefImageSize.u32Width = stVoPubAttr.stSyncInfo.u16Hact;
+		stDefImageSize.u32Height = stVoPubAttr.stSyncInfo.u16Vact;
+	}
+
+	s32Ret = SAMPLE_COMM_VO_GetDefConfig(&stVoConfig);
+	if (s32Ret != CVI_SUCCESS) {
+		CVI_TRACE_LOG(CVI_DBG_ERR, "SAMPLE_COMM_VO_GetDefConfig failed with %#x\n", s32Ret);
+		goto error;
+	}
+
+	stVoConfig.VoDev	 = 0;
+	stVoConfig.stVoPubAttr.enIntfType  = VO_INTF_MIPI;
+	stVoConfig.stVoPubAttr.enIntfSync  = VO_OUTPUT_720x1280_60;
+	stVoConfig.stDispRect	 = stDefDispRect;
+	stVoConfig.stImageSize	 = stDefImageSize;
+	stVoConfig.enPixFormat	 = SAMPLE_PIXEL_FORMAT;
+	stVoConfig.enVoMode	 = VO_MODE_1MUX;
+
+	memcpy(&g_stVoConfig, &stVoConfig, sizeof(SAMPLE_VO_CONFIG_S));
+	s32Ret = SAMPLE_COMM_VO_StartVO(&stVoConfig);
+	if (s32Ret != CVI_SUCCESS) {
+		SAMPLE_PRT("SAMPLE_COMM_VO_StartVO failed with %#x\n", s32Ret);
+		goto error;
+	}
+
+	return s32Ret;
+error:
+	// _SAMPLE_PLAT_ERR_Exit();
+	return s32Ret;
+}
+
+CVI_S32 SAMPLE_PLAT_VO_DEINIT2(void)
+{
+	CVI_S32 s32Ret = CVI_SUCCESS;
+	SAMPLE_COMM_VO_StopVO(&g_stVoConfig);
+	return s32Ret;
+}
 
 #ifdef ARCH_CV182X
 CVI_S32 SAMPLE_IMX307_ONTHEFLY_ONLINE_SC_TEST(void)
@@ -3710,13 +3768,27 @@ CVI_S32 SAMPLE_VIO_TWO_DEV_VO(void)
 	s32Ret = SAMPLE_PLAT_VPSS_INIT(0, stSizeIn, stSizeOut);
 	if (s32Ret != CVI_SUCCESS) {
 		SAMPLE_PRT("vpss init failed. s32Ret: 0x%x !\n", s32Ret);
-		return s32Ret;
+		CVI_BOOL  abChnEnable[VPSS_MAX_PHY_CHN_NUM] = {0};
+		abChnEnable[0] = CVI_TRUE;
+		SAMPLE_COMM_VPSS_Stop(0, abChnEnable);
+		s32Ret = SAMPLE_PLAT_VPSS_INIT(0, stSizeIn, stSizeOut);
+		if (s32Ret != CVI_SUCCESS) {
+			SAMPLE_PRT("vpss init failed. s32Ret: 0x%x !\n", s32Ret);
+			return s32Ret;
+		}
 	}
 
 	s32Ret = SAMPLE_PLAT_VPSS_INIT(1, stSizeIn, stSizeOut);
 	if (s32Ret != CVI_SUCCESS) {
 		SAMPLE_PRT("vpss init failed. s32Ret: 0x%x !\n", s32Ret);
-		return s32Ret;
+		CVI_BOOL  abChnEnable[VPSS_MAX_PHY_CHN_NUM] = {0};
+		abChnEnable[0] = CVI_TRUE;
+		SAMPLE_COMM_VPSS_Stop(1, abChnEnable);
+		s32Ret = SAMPLE_PLAT_VPSS_INIT(1, stSizeIn, stSizeOut);
+		if (s32Ret != CVI_SUCCESS) {
+			SAMPLE_PRT("vpss init failed. s32Ret: 0x%x !\n", s32Ret);
+			return s32Ret;
+		}
 	}
 
 	s32Ret = SAMPLE_COMM_VI_Bind_VPSS(0, 0, 0);
@@ -3731,7 +3803,7 @@ CVI_S32 SAMPLE_VIO_TWO_DEV_VO(void)
 		return s32Ret;
 	}
 
-	s32Ret = SAMPLE_PLAT_VO_INIT();
+	s32Ret = SAMPLE_PLAT_VO_INIT2();
 	if (s32Ret != CVI_SUCCESS) {
 		SAMPLE_PRT("vo init failed. s32Ret: 0x%x !\n", s32Ret);
 		return s32Ret;
@@ -3767,6 +3839,16 @@ CVI_S32 SAMPLE_VIO_TWO_DEV_VO(void)
 			}
 		}
 	} while (chnID != 255);
+
+	SAMPLE_COMM_VPSS_UnBind_VO(0, 0, 0, 0);
+	SAMPLE_PLAT_VO_DEINIT2();
+
+	{
+		CVI_BOOL  abChnEnable[VPSS_MAX_PHY_CHN_NUM] = {0};
+		abChnEnable[0] = CVI_TRUE;
+		SAMPLE_COMM_VPSS_Stop(0, abChnEnable);
+		SAMPLE_COMM_VPSS_Stop(1, abChnEnable);
+	}
 
 	SAMPLE_COMM_VI_DestroyIsp(&stViConfig);
 
