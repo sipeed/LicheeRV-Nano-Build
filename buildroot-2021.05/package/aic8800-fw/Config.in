@@ -1,0 +1,4 @@
+config BR2_PACKAGE_AIC8800_FW
+        bool "aic8800 firmware"
+        help
+	  some blob use for aic8800 wifi and bluetooth

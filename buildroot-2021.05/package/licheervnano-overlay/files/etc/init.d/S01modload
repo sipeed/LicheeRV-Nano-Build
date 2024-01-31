@@ -1,0 +1,24 @@
+#!/bin/sh
+case "$1" in
+  start)
+    printf "modload: "
+    cd /mnt/system/ko/
+    sh loadsystemko.sh
+    insmod cvi_fb.ko
+    insmod 3rd/aic8800_bsp.ko
+    insmod 3rd/aic8800_fdrv.ko
+    echo "OK"
+    ;;
+  stop)
+    printf "nop"
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?

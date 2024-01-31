@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LICHEERVNANO_OVERLAY
+        bool "licheervnano extra file"
+        help
+	  some file use for licheervnano

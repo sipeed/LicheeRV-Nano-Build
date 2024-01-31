@@ -2524,4 +2524,9 @@ menu "Text editors and viewers"
 	source "package/vim/Config.in"
 endmenu
 
+menu "Sipeed"
+	source "package/aic8800-fw/Config.in"
+	source "package/licheervnano-overlay/Config.in"
+endmenu
+
 endmenu
