@@ -122,6 +122,15 @@ static struct panel_desc_s panel_desc = {
 	.dsi_init_cmds = dsi_init_cmds_st7785m_240x320,
 	.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7785m_240x320)
 };
+#elif defined(MIPI_PANEL_ZCT2133V1)
+#include "dsi_zct2133v1.h"
+static struct panel_desc_s panel_desc = {
+	.panel_name = "zct2133v1-800x1280",
+	.dev_cfg = &dev_cfg_zct2133v1_800x1280,
+	.hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280,
+	.dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280,
+	.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280)
+};
 #elif defined(I80_PANEL_ST7789V)
 #include "i80_st7789v.h"
 static struct panel_desc_s panel_desc = {

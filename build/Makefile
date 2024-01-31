@@ -112,7 +112,8 @@ endif
 ifeq (${ENABLE_BOOTLOGO},1)
 uboot_bootlogo_action := ${Q}sed -i "s/CONFIG_BOOTLOGO=n/CONFIG_BOOTLOGO=y/g" ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/.config
 else
-uboot_bootlogo_action := ${Q}sed -i "s/CONFIG_BOOTLOGO=y/CONFIG_BOOTLOGO=n/g" ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/.config
+# suck code
+#uboot_bootlogo_action := ${Q}sed -i "s/CONFIG_BOOTLOGO=y/CONFIG_BOOTLOGO=n/g" ${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/.config
 endif
 
 # Set CONFIG_USE_4K_ERASE_SIZE_FOR_JFFS2 config in defconfig

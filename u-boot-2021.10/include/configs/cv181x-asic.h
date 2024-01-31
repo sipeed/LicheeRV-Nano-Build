@@ -281,7 +281,9 @@
 		#else
 			#define LOAD_LOGO "mmc dev 0;mmc read " LOGO_READ_ADDR " ${MISC_PART_OFFSET} ${MISC_PART_SIZE};"
 		#endif
-		#define SHOWLOGOCOMMAND LOAD_LOGO CVI_JPEG START_VO START_VL SET_VO_BG
+		// startvl will borken lcd screen, so only initial mipitx param & timing in uboot
+		//#define SHOWLOGOCOMMAND LOAD_LOGO CVI_JPEG START_VO START_VL SET_VO_BG
+		#define SHOWLOGOCOMMAND LOAD_LOGO START_VO SET_VO_BG
 	#else
 		#define SHOWLOGOCMD
 	#endif

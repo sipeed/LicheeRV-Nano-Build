@@ -31,9 +31,16 @@
 	//max-frequency = <5000000>; // 5Mhz
 };
 
+&cvi_vo {
+	reset-gpio = <&porte 0 1>;
+	/delete-property/ pwm-gpio;
+	/delete-property/ power-ct-gpio;
+
+};
+
 &mipi_tx {
 	/delete-property/ pwm-gpio;
-	reset-gpio = <&porte 0 1>;
+	/delete-property/ reset-gpio;
 	/delete-property/ power-ct-gpio;
 	status = "okay";
 };
@@ -86,9 +93,17 @@
 	/delete-property/ mute-gpio-r;
 };
 
+&fb_reserved {
+	status = "okay";
+};
+
+&cvi_fb {
+	status = "okay";
+};
+
 / {
 	model = "LicheeRv Nano";
-	
+
 	gpio-keys {
                 compatible = "gpio-keys";
                 key-user {

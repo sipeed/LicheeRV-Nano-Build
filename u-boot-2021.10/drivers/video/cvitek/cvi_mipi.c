@@ -152,19 +152,25 @@ int mipi_tx_set_combo_dev_cfg(const struct combo_dev_cfg_s *dev_cfg)
 				ctrl_gpios.disp_power_ct_gpio.flags & GPIOD_ACTIVE_LOW ? 0 : 1);
 	if (ret < 0) {
 		printf("dm_gpio_set_value(disp_power_ct_gpio, deassert) failed: %d", ret);
-		return ret;
+		//return ret;
+	} else {
+		printf("set lcd power ct gpio\n\r");
 	}
 	ret = dm_gpio_set_value(&ctrl_gpios.disp_pwm_gpio,
 				ctrl_gpios.disp_pwm_gpio.flags & GPIOD_ACTIVE_LOW ? 0 : 1);
 	if (ret < 0) {
 		printf("dm_gpio_set_value(disp_pwm_gpio, deassert) failed: %d", ret);
-		return ret;
+		//return ret;
+	} else {
+		printf("set lcd pwm gpio\n\r");
 	}
 	ret = dm_gpio_set_value(&ctrl_gpios.disp_reset_gpio,
 				ctrl_gpios.disp_reset_gpio.flags & GPIOD_ACTIVE_LOW ? 0 : 1);
 	if (ret < 0) {
 		printf("dm_gpio_set_value(disp_reset_gpio, deassert) failed: %d", ret);
 		return ret;
+	} else {
+		printf("set lcd reset gpio high\n\r");
 	}
 	mdelay(10);
 	ret = dm_gpio_set_value(&ctrl_gpios.disp_reset_gpio,
@@ -172,6 +178,8 @@ int mipi_tx_set_combo_dev_cfg(const struct combo_dev_cfg_s *dev_cfg)
 	if (ret < 0) {
 		printf("dm_gpio_set_value(disp_reset_gpio, deassert) failed: %d", ret);
 		return ret;
+	} else {
+		printf("set lcd reset gpio low\n\r");
 	}
 	mdelay(10);
 	ret = dm_gpio_set_value(&ctrl_gpios.disp_reset_gpio,
@@ -179,6 +187,8 @@ int mipi_tx_set_combo_dev_cfg(const struct combo_dev_cfg_s *dev_cfg)
 	if (ret < 0) {
 		printf("dm_gpio_set_value(disp_reset_gpio, deassert) failed: %d", ret);
 		return ret;
+	} else {
+		printf("set lcd reset gpio high\n\r");
 	}
 	mdelay(100);
 

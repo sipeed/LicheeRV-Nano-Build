@@ -71,6 +71,12 @@ int cvi_board_init(void)
         // lcd backlight
         //mmio_write_32(0x030010EC, 0x0); // GPIOB 0 PWM0_BUCK
         mmio_write_32(0x030010EC, 0x3); // GPIOB 0 GPIO_MODE
+        val = mmio_read_32(0x03021004); // GPIOB DIR
+        val |= (1 << 0); // output
+        mmio_write_32(0x03021004, val);
+        val = mmio_read_32(0x03021000); // signal level
+        val |= (1 << 0); // set level to high
+        mmio_write_32(0x03021000, val);
 
         // camera function
         mmio_write_32(0x0300116C, 0x5); // RX4N CAM_MCLK0
