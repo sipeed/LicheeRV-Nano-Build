@@ -22,7 +22,11 @@ docker build -t cvi_mmf_sdk .
 - 以 `cv1812cp_licheerv_nano_sd`为例
 
 ```
-docker run --rm --name cvi_mmf_sdk -v /path/to/cvi_mmf_sdk -it cvi_mmf_sdk /bin/bash
+# 进入Docker环境
+docker run --rm --name cvi_mmf_sdk -v /path/to/cvi_mmf_sdk:/path/to/cvi_mmf_sdk -it cvi_mmf_sdk /bin/bash
+```
+
+```
 # 以下命令在docker环境里面执行
 cd /path/to/cvi_mmf_sdk
 # 设置环境
