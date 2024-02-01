@@ -20,7 +20,7 @@ case "$1" in
 	    echo "FAIL"
 	    exit 1
     fi
-    ethmac="$(hex2mac 48da356f$(cat /sys/class/cvi-base/base_uid | tr -d '_' | tail -c 5))"
+    ethmac="$(hex2mac 48da356f$(cat /sys/class/cvi-base/base_uid | md5sum | head -c 4))"
     ifconfig eth0 down
     ip link set eth0 address ${ethmac}
     ifconfig eth0 up

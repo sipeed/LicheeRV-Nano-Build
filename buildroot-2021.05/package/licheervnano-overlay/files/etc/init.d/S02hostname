@@ -7,7 +7,7 @@ case "$1" in
 	    echo "FAIL"
 	    exit 1
     fi
-    name="licheervnano-$(cat /sys/class/cvi-base/base_uid | tr -d ':' | tail -c 5)"
+    name="licheervnano-$(cat /sys/class/cvi-base/base_uid | md5sum | head -c 4)"
     if [ "$(hostname)" != "${name}" ]
     then
 	    hostname $name

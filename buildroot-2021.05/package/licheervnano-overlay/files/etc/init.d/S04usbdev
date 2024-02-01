@@ -20,7 +20,7 @@ case "$1" in
 	    echo "FAIL"
 	    exit 1
     fi
-    rndismac="$(hex2mac 48da356e$(cat /sys/class/cvi-base/base_uid | tr -d '_' | tail -c 5))"
+    rndismac="$(hex2mac 48da356e$(cat /sys/class/cvi-base/base_uid | md5sum | head -c 4))"
     /etc/uhubon.sh device
     /etc/run_usb.sh probe acm
     /etc/run_usb.sh probe rndis
