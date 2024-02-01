@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LICHEERVNANO_OVERLAY_VERSION = 2024-02-01-rev7
+LICHEERVNANO_OVERLAY_VERSION = 2024-02-01-rev8
 LICHEERVNANO_OVERLAY_SITE = "$(TOPDIR)/package/licheervnano-overlay/files/"
 LICHEERVNANO_OVERLAY_SITE_METHOD = local
 # these package must install before licheervnano-overlay

@@ -1,0 +1,32 @@
+#!/bin/sh
+
+export LD_LIBRARY_PATH=/mnt/system/lib/
+
+usage() {
+	echo "Usage: $0 {record|play} value"
+	exit 1
+}
+
+if [ -z $2 ]
+then
+	usage
+fi
+
+case "$1" in
+	record)
+		echo "0
+$2
+1
+" | /mnt/system/usr/bin/sample_audio 6
+		;;
+	play)
+		echo "0
+$2
+0
+" | /mnt/system/usr/bin/sample_audio 6
+		;;
+	*)
+		usage
+esac
+
+exit $?
