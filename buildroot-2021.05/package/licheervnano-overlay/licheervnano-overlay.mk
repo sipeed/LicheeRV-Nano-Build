@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LICHEERVNANO_OVERLAY_VERSION = 2024-01-31
+LICHEERVNANO_OVERLAY_VERSION = 2024-02-01-1
 LICHEERVNANO_OVERLAY_SITE = "$(TOPDIR)/package/licheervnano-overlay/files/"
 LICHEERVNANO_OVERLAY_SITE_METHOD = local
 

@@ -101,6 +101,10 @@
 	status = "okay";
 };
 
+&mipi_rx {
+        snsr-reset = <&porte 1 GPIO_ACTIVE_LOW>;
+};
+
 / {
 	model = "LicheeRv Nano";
 
