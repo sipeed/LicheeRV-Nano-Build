@@ -1,0 +1,41 @@
+#!/bin/sh
+
+hex2mac() {
+        MAC=""
+        seq 2 2 12 | while read i
+        do
+                echo -n ${1} | head -c $i | tail -c 2
+                if [ $i != 12 ]
+                then
+                        echo -n ':'
+                fi
+        done | tr '[:upper:]' '[:lower:]'
+}
+
+case "$1" in
+  start)
+    printf "make ethernet mac address by chip uid: "
+    if [ ! -e /sys/class/cvi-base/base_uid ]
+    then
+	    echo "FAIL"
+	    exit 1
+    fi
+    ethmac="$(hex2mac 48da356f$(cat /sys/class/cvi-base/base_uid | tr -d '_' | tail -c 5))"
+    ifconfig eth0 down
+    ip link set eth0 address ${ethmac}
+    ifconfig eth0 up
+    echo "OK"
+    ;;
+  stop)
+    printf "nop"
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?

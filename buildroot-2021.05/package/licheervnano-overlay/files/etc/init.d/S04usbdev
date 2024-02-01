@@ -1,0 +1,71 @@
+#!/bin/sh
+
+hex2mac() {
+        MAC=""
+        seq 2 2 12 | while read i
+        do
+                echo -n ${1} | head -c $i | tail -c 2
+                if [ $i != 12 ]
+                then
+                        echo -n ':'
+                fi
+        done | tr '[:upper:]' '[:lower:]'
+}
+
+case "$1" in
+  start)
+    printf "usbdev start: "
+    if [ ! -e /sys/class/cvi-base/base_uid ]
+    then
+	    echo "FAIL"
+	    exit 1
+    fi
+    rndismac="$(hex2mac 48da356e$(cat /sys/class/cvi-base/base_uid | tr -d '_' | tail -c 5))"
+    /etc/uhubon.sh device
+    /etc/run_usb.sh probe acm
+    /etc/run_usb.sh probe rndis
+    echo 'SIPEED' > /tmp/usb/usb_gadget/cvitek/strings/0x409/manufacturer
+    echo 'LICEERVNANO' > /tmp/usb/usb_gadget/cvitek/strings/0x409/product
+    cat /sys/class/net/eth0/address > /tmp/usb/usb_gadget/cvitek/strings/0x409/serialnumber
+    /etc/run_usb.sh start
+    ifconfig usb0 down
+    ip link set usb0 address ${rndismac}
+    ifconfig usb0 up
+    cp -fv /etc/examples/udhcpd.usb0.conf /tmp/udhcpd.usb0.conf
+    id=$(hostname | tail -c 5)
+    idh=$(printf "%d" 0x$(echo "$id" | head -c 2))
+    idl=$(printf "%d" 0x$(echo "$id" | tail -c 3))
+    if [ "$idh" -eq 0 ]
+    then
+        idh="254"
+    fi
+    if [ "$idl" -eq 0 ]
+    then
+        idl="254"
+    fi
+    if [ $idh -ge 254 ]
+    then
+        export idh="254"
+    fi
+    if [ $idl -ge 254 ]
+    then
+        export idl="254"
+    fi
+    sed -i -e "s/10.0.0/10.$idh.$idl/g" /tmp/udhcpd.usb0.conf
+    ip addr add 10.$idh.$idl.1/24 dev usb0
+    busybox udhcpd -S -I 10.$idh.$idl.1 /tmp/udhcpd.usb0.conf
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+    ;;
+  stop)
+    printf "nop"
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?

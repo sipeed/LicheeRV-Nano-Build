@@ -1,0 +1,30 @@
+#!/bin/sh
+case "$1" in
+  start)
+    printf "make hostname by chip uid: "
+    if [ ! -e /sys/class/cvi-base/base_uid ]
+    then
+	    echo "FAIL"
+	    exit 1
+    fi
+    name="licheervnano-$(cat /sys/class/cvi-base/base_uid | tr -d ':' | tail -c 5)"
+    if [ "$(hostname)" != "${name}" ]
+    then
+	    hostname $name
+	    echo $name > /etc/hostname
+    fi
+    echo "OK"
+    ;;
+  stop)
+    printf "nop"
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
