@@ -63,3 +63,27 @@ if=install/soc_cv1812cp_licheerv_nano_sd/images/sophpi-duo-DATE-TIME.img of=/dev
 ```
 /mnt/system/usr/bin/sample_vio 6
 ```
+
+## wifi连接
+
+```
+wpa_passphrase ssid password >> /etc/wpa_supplicant.conf
+wpa_supplicant -i wlan0 -c /etc/wpa_supplicant.conf -B
+udhcpc -i wlan0
+```
+
+## 音频播放
+
+```
+volume play 15 # 设置播放音量
+aplay 1.wav  # 播放指定wav文件
+```
+
+## 录制音频
+
+```
+volume record 20 # 设置录制音量
+arecord -Dhw:0,0 -f S16_LE 1.wav
+```
+
+
