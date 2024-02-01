@@ -55,3 +55,11 @@ if=install/soc_cv1812cp_licheerv_nano_sd/images/sophpi-duo-DATE-TIME.img of=/dev
 # 安装位置
 /mnt/system/usr/bin
 ```
+
+## 摄像头DEMO
+
+将摄像头内容显示到屏幕上:
+
+```
+/mnt/system/usr/bin/sample_vio 6
+```
