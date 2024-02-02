@@ -169,11 +169,11 @@
  */
 
 #ifdef CONFIG_USB_GADGET
-#define CONFIG_USB_FUNCTION_FASTBOOT
-#define CONFIG_USB_GADGET_DOWNLOAD
-#define CONFIG_G_DNL_MANUFACTURER "Cvitek"
-#define CONFIG_G_DNL_VENDOR_NUM   0x18d1
-#define CONFIG_G_DNL_PRODUCT_NUM 0x4ee0
+//#define CONFIG_USB_FUNCTION_FASTBOOT
+//#define CONFIG_USB_GADGET_DOWNLOAD
+//#define CONFIG_G_DNL_MANUFACTURER "Cvitek"
+//#define CONFIG_G_DNL_VENDOR_NUM   0x18d1
+//#define CONFIG_G_DNL_PRODUCT_NUM 0x4ee0
 #endif
 
 #define CONFIG_IPADDR			192.168.0.3
@@ -306,7 +306,7 @@
 			#define CONFIG_BOOTCOMMAND	SHOWLOGOCMD "cvi_update || run norboot || run nandboot ||run emmcboot"
 		#endif
 	#else
-		#define CONFIG_BOOTCOMMAND	SHOWLOGOCMD "run sdboot"
+		#define CONFIG_BOOTCOMMAND	SHOWLOGOCMD "run sdboot || cvi_update"
 	#endif
 
 	#if defined(CONFIG_NAND_SUPPORT)

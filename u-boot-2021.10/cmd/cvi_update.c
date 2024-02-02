@@ -411,6 +411,7 @@ static int do_cvi_update(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret = 1;
 	uint32_t usb_pid = 0;
 
+	/*
 	if (argc == 1) {
 		update_magic = readl((unsigned int *)BOOT_SOURCE_FLAG_ADDR);
 		if (update_magic == UART_UPDATE_MAGIC) {
@@ -427,6 +428,19 @@ static int do_cvi_update(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	} else {
 		printf("Usage:\n%s\n", cmdtp->usage);
+	}
+	*/
+	run_command("env default -a", 0);
+	usb_pid = in_be32(UBOOT_PID_SRAM_ADDR);
+	usb_pid = bcd2hex4(usb_pid);
+	ret = _usb_update(usb_pid);
+	if (ret < 0) {
+		run_command("env default -a", 0);
+		ret = _uart_update();
+		if (ret < 0) {
+			run_command("env default -a", 0);
+			ret = _storage_update(sd_dl);
+		}
 	}
 
 	return ret;

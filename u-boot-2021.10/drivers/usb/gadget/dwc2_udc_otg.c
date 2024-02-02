@@ -40,6 +40,7 @@
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <asm/io.h>
+#include <asm/bitops.h>
 
 #include <asm/mach-types.h>
 
@@ -455,7 +456,8 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 {
 	/* 2. Soft-reset OTG Core and then unreset again. */
 	int i;
-	unsigned int uTemp = writel(CORE_SOFT_RESET, &reg->grstctl);
+	unsigned int uTemp;
+	writel(CORE_SOFT_RESET, &reg->grstctl);
 	uint32_t dflt_gusbcfg;
 	uint32_t rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
 	u32 max_hw_ep;
