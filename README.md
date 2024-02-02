@@ -46,7 +46,7 @@ build_all
 ```
 # 在Docker环境之外
 # 将 DATE TIME sdX 替换为实际的字符串
-if=install/soc_cv1812cp_licheerv_nano_sd/images/sophpi-duo-DATE-TIME.img of=/dev/sdX status=progress
+if=install/soc_cv1812cp_licheerv_nano_sd/images/licheervnano-DATE-TIME.img of=/dev/sdX status=progress
 ```
 
 ## middleware

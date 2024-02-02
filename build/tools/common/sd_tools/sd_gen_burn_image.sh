@@ -21,7 +21,7 @@ ext4_label="rootfs"
 
 output_dir=$1
 # gen a empty image
-image=sophpi-duo-`date +%Y%m%d-%H%M`.img
+image=licheervnano-`date +%Y%m%d-%H%M`.img
 
 echo ${output_dir}
 # rootless image generate
