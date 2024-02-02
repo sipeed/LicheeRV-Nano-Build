@@ -43,15 +43,14 @@ jobs:
                                   chrpath socat python3-pip python3-pexpect xz-utils debianutils \
                                   iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
                                   python3-subunit mesa-common-dev zstd liblz4-tool libacl1 parted erofs-utils \
-                                  genext2fs mtools fatcat ckermit neovim cscope asciinema avahi-utils\
-                                  libnss-mdns mdns-scan
+                                  genext2fs mtools fatcat ckermit neovim cscope asciinema libconfuse-dev
 
 
       - name: Checkout Repo
         uses: actions/checkout@v3
         with:
             path: 'cvi_mmf_sdk'  # TODO: make this name a global variable
-            ref: 'v4.1.0'
+            ref: 'v4.1.0-licheervnano'
 
       - name: Download Toolchain
         run: |
@@ -70,15 +69,7 @@ jobs:
                 source build/cvisetup.sh
                 defconfig cv1812cp_licheerv_nano_sd
                 build_all
-                sh install_middleware.sh
-                clean_all
-                build_all
-                tar cvf middleware.tar middleware
-                xz -z -v -9 middleware.tar
-                pushd install/soc_cv1812cp_licheerv_nano_sd/rootfs/
-                  tar cf ../mnt.tar mnt
-                popd
-                xz -z -v -9 install/soc_cv1812cp_licheerv_nano_sd/mnt.tar
+                ./build/tools/common/sd_tools/sd_gen_burn_image.sh install/soc_cv1812cp_licheerv_nano_sd/
               popd
 
       - name: 'Upload Artifact'
@@ -87,9 +78,4 @@ jobs:
           retention-days: 30
           name: licheervnano-cvi-mmf-sdk-output-${{ env.BUILD_ID }}
           path: |
-                  cvi_mmf_sdk/middleware.tar.xz
-                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/mnt.tar.xz
-                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/*.bin
-                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/rawimages/*.sd
-                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/rootfs/lib/ld-musl-riscv64v0p7_xthead.so.1
-                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/rootfs/lib/ld-musl-riscv64v_xthead.so.1
+                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/images/*
