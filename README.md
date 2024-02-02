@@ -86,4 +86,19 @@ volume record 20 # 设置录制音量
 arecord -Dhw:0,0 -f S16_LE 1.wav
 ```
 
+## 更换屏幕
 
+mipi默认使用7inch zct2133v1屏幕
+
+如果需要使用其他屏幕，请在menuconfig里面自行勾选
+
+屏幕初始化序列发送和时序设置在uboot内进行，通常编译完成后只需要替换sd卡boot分区的fip.bin即可切换屏幕。
+
+## 屏幕示例程序
+
+```
+/opt/lcd/fbpattern # 屏幕时序测试工具
+/opt/lcd/fbbar     # 在屏幕上打印一行字符串
+```
+
+可以使用lvgl, qtlinuxfb, sdl1.2进行开发
