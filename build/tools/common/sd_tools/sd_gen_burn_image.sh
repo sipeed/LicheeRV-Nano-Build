@@ -24,26 +24,24 @@ output_dir=$1
 image=sophpi-duo-`date +%Y%m%d-%H%M`.img
 
 echo ${output_dir}
-# docker environment haven't sudo command
-if [ -z `which sudo` ]
-then
-	echo "haven't root permission, use genimage"
-	set -eu
-	THISDIR=$(dirname $(realpath $0))
-	mkdir -pv ${output_dir}/tmp/
-	mkdir -pv ${output_dir}/root/
-	mkdir -pv ${output_dir}/input/
-	mkdir -pv ${output_dir}/input/rawimages/
-	cp -fv ${output_dir}/fip.bin ${output_dir}/input/
-	cp -fv ${output_dir}/rawimages/boot.sd ${output_dir}/input/rawimages/
-	cp -fv ${output_dir}/rawimages/rootfs_ext4.sd ${output_dir}/input/
-	cp -fv ${THISDIR}/genimage_buildroot.cfg ${output_dir}/genimage.cfg
-	sed -i -e "s/sophpi-duo.img/${image}/g" ${output_dir}/genimage.cfg
-	cd ${output_dir}/
-	${THISDIR}/genimage
-	exit $?
-fi
+# rootless image generate
+set -eu
+THISDIR=$(dirname $(realpath $0))
+mkdir -pv ${output_dir}/tmp/
+mkdir -pv ${output_dir}/root/
+mkdir -pv ${output_dir}/input/
+mkdir -pv ${output_dir}/input/rawimages/
+cp -fv ${output_dir}/fip.bin ${output_dir}/input/
+cp -fv ${output_dir}/rawimages/boot.sd ${output_dir}/input/rawimages/
+cp -fv ${output_dir}/rawimages/rootfs_ext4.sd ${output_dir}/input/
+cp -fv ${THISDIR}/genimage_buildroot.cfg ${output_dir}/genimage.cfg
+sed -i -e "s/sophpi-duo.img/${image}/g" ${output_dir}/genimage.cfg
+cd ${output_dir}/
+${THISDIR}/genimage
+exit $?
 
+
+# not used
 
 pushd ${output_dir}
 echo ${image}
