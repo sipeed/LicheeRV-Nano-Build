@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LICHEERVNANO_FB
+	bool "licheervnano framebuffer software"
+	help
+	  some framebuffer program for licheervnano

@@ -2527,6 +2527,7 @@ endmenu
 menu "Sipeed"
 	source "package/aic8800-fw/Config.in"
 	source "package/licheervnano-overlay/Config.in"
+	source "package/licheervnano-fb/Config.in"
 endmenu
 
 endmenu
