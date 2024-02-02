@@ -289,3 +289,10 @@ CONFIG_PPP_ASYNC=y
 CONFIG_PPP_SYNC_TTY=y
 CONFIG_SLIP=y
 CONFIG_SND_PROC_FS=y
+
+# these driver broken tpu driver
+# CONFIG_CIFS is not set
+# CONFIG_CIFS_DEBUG is not set
+# CONFIG_FUSE_FS is not set
+# CONFIG_CUSE is no set
+# CONFIG_OVERLAY_FS is not set
