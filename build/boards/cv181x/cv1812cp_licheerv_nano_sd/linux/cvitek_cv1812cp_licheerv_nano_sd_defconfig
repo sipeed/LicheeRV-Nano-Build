@@ -301,6 +301,7 @@ CONFIG_BT_HCIUART=y
 CONFIG_BT_HCIUART_BCSP=y
 CONFIG_SERIAL_DEV_BUS=y
 CONFIG_SERIAL_DEV_CTRL_TTYPORT=y
+CONFIG_SWAP=y
 
 # these driver broken tpu driver
 # CONFIG_CIFS is not set
@@ -308,3 +309,19 @@ CONFIG_SERIAL_DEV_CTRL_TTYPORT=y
 # CONFIG_FUSE_FS is not set
 # CONFIG_CUSE is no set
 # CONFIG_OVERLAY_FS is not set
+# CONFIG_NAMESPACES is not set
+# CONFIG_UTS_NS is not set
+# CONFIG_IPC_NS is not set
+# CONFIG_USER_NS is not set
+# CONFIG_PID_NS is not set
+# CONFIG_NET_NS is not set
+# CONFIG_CGROUPS is not set
+# CONFIG_MEMCG is not set
+# CONFIG_BLK_CGROUP is not set
+# CONFIG_CGROUP_SCHED is not set
+# CONFIG_FAIR_GROUP_SCHED is not set
+# CONFIG_CFS_BANDWIDTH is not set
+# CONFIG_RT_GROUP_SCHED is not set
+# CONFIG_CGROUP_PIDS is not set
+# CONFIG_CGROUP_DEVICE is not set
+# CONFIG_CHECKPOINT_RESTORE is not set
