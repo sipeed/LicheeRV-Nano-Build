@@ -16,7 +16,19 @@
 #define ST7701_D300FPC9307A_HBP		80
 #define ST7701_D300FPC9307A_HFP		48
 
-#define PIXEL_CLK(x) ((x##_VACT + x##_VSA + x##_VBP + x##_VFP) \
+/*
+#define ST7701_D300FPC9307A_VACT        854
+#define ST7701_D300FPC9307A_VSA         10
+#define ST7701_D300FPC9307A_VBP         42
+#define ST7701_D300FPC9307A_VFP         4
+
+#define ST7701_D300FPC9307A_HACT        480
+#define ST7701_D300FPC9307A_HSA         2
+#define ST7701_D300FPC9307A_HBP         43
+#define ST7701_D300FPC9307A_HFP         8
+*/
+
+#define D300_PIXEL_CLK(x) ((x##_VACT + x##_VSA + x##_VBP + x##_VFP) \
 	* (x##_HACT + x##_HSA + x##_HBP + x##_HFP) * 60 / 1000)
 
 struct combo_dev_cfg_s dev_cfg_st7701_480x854 = {
@@ -38,7 +50,7 @@ struct combo_dev_cfg_s dev_cfg_st7701_480x854 = {
 		.vid_vsa_pos_polarity = true,
 		.vid_hsa_pos_polarity = false,
 	},
-	.pixel_clk = PIXEL_CLK(ST7701_D300FPC9307A),
+	.pixel_clk = D300_PIXEL_CLK(ST7701_D300FPC9307A),
 };
 
 const struct hs_settle_s hs_timing_cfg_st7701_480x854 = { .prepare = 6, .zero = 32, .trail = 1 };
