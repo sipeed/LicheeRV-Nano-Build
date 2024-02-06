@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-AIC8800_FW_VERSION = 2024-01-24
+AIC8800_FW_VERSION = 2024-02-06
 AIC8800_FW_SITE = "$(TOPDIR)/package/aic8800-fw/blobs/"
 AIC8800_FW_SITE_METHOD = local
 
