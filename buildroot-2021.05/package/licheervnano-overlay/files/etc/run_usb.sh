@@ -44,6 +44,9 @@ case "$2" in
 	PID=$RNDIS_PID
 	PRODUCT=$PRODUCT_RNDIS
 	;;
+  eem)
+	CLASS=eem
+	;;
   uvc)
 	CLASS=uvc
 	PID=$UVC_PID
@@ -62,7 +65,7 @@ case "$2" in
 	;;
   *)
 	if [ "$1" = "probe" ] ; then
-	  echo "Usage: $0 probe {acm|msc|cvg|rndis|uvc|uac1|adb}"
+	  echo "Usage: $0 probe {acm|msc|cvg|rndis|eem|uvc|uac1|adb}"
 	  exit 1
 	fi
 esac
@@ -87,6 +90,11 @@ res_check() {
   EP_OUT=$(($EP_OUT+$TMP_NUM))
   INTF_NUM=$(($INTF_NUM+$TMP_NUM))
   TMP_NUM=$(find $CVI_GADGET/functions/ -name "rndis*" | wc -l)
+  EP_OUT=$(($EP_OUT+$TMP_NUM))
+  TMP_NUM=$(($TMP_NUM * 2))
+  EP_IN=$(($EP_IN+$TMP_NUM))
+  INTF_NUM=$(($INTF_NUM+$TMP_NUM))
+  TMP_NUM=$(find $CVI_GADGET/functions/ -name "eem*" | wc -l)
   EP_OUT=$(($EP_OUT+$TMP_NUM))
   TMP_NUM=$(($TMP_NUM * 2))
   EP_IN=$(($EP_IN+$TMP_NUM))
@@ -118,6 +126,10 @@ res_check() {
     EP_OUT=$(($EP_OUT+1))
   fi
   if [ "$CLASS" = "rndis" ] ; then
+    EP_IN=$(($EP_IN+2))
+    EP_OUT=$(($EP_OUT+1))
+  fi
+  if [ "$CLASS" = "eem" ] ; then
     EP_IN=$(($EP_IN+2))
     EP_OUT=$(($EP_OUT+1))
   fi
@@ -215,6 +227,11 @@ probe() {
     echo 1 >$CVI_FUNC/rndis.usb$FUNC_NUM/os_desc/interface.rndis/Label/type
     echo "XYZ Device" >$CVI_FUNC/rndis.usb$FUNC_NUM/os_desc/interface.rndis/Label/data
   fi
+  if [ "$CLASS" = "eem" ] ; then
+    echo "nop"
+  fi
+
+
 
 }
 
@@ -285,7 +302,7 @@ case "$1" in
   echo ${UDC} >$CVI_GADGET/UDC
 	;;
   *)
-	echo "Usage: $0 probe {acm|msc|cvg|uvc|uac1} {file (msc)}"
+	echo "Usage: $0 probe {acm|rndis|eem|msc|cvg|uvc|uac1} {file (msc)}"
 	echo "Usage: $0 start"
 	echo "Usage: $0 stop"
 	exit 1

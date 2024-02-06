@@ -1,0 +1,22 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "udhcpc start: "
+    udhcpc -i eth0 -b &
+    udhcpc -i wlan0 -b &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+    ;;
+  stop)
+    killall udhcpc
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
