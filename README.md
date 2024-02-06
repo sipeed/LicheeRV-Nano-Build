@@ -154,15 +154,226 @@ eject /dev/sdX
 ```
 10. 连接串口或SSH，进行系统配置
 
+#### Alpine rootfs
+
+1. 准备镜像，将编译出的cvi_mmf_sdk镜像拷贝:
+
+```
+cp ./install/soc_cv1812cp_licheerv_nano_sd/images/licheervnano-DATE-TIME.img licheervnano-alpine-DATE-TIME.img
+```
+
+2. 扩展镜像
+
+```
+dd if=/dev/zero bs=1M count=512 >> licheervnano-alpine-DATE-TIME.img
+```
+
+然后使用parted工具修改分区表:
+
+```
+parted licheervnano-alpine-DATE-TIME.img
+# 进入parted环境
+resizepart 2 -1 # 将剩余空间追加到第二分区
+```
+
+2. 使用parted工具确定第二个分区的offset
+
+
+```
+parted licheervnano-alpine-DATE-TIME.img
+# 进入parted环境
+unit b
+print
+# 然后记下第二分区的Start Offset，示例:
+
+Number  Start      End         Size        Type     File system  Flags
+ 1      512B       16777727B   16777216B   primary  fat16        boot, lba
+ 2      16777728B  254853631B  238075904B  primary  ext4
+```
+
+
+3. 使用losetup和mount挂载镜像的第二个分区
+
+```
+# 这里的offset填写第二分区的Start
+losetup -o OFFSET /dev/loop15 licheervnano-alpine-DATE-TIME.img
+```
+
+4. 扩展分区大小
+
+```
+e2fsck -f /dev/loop15
+resize2fs /dev/loop15
+```
+
+5. 挂载分区
+
+
+```
+mkdir /mnt/chroot
+mount /dev/loop15 /mnt/chroot
+```
+
+6. 将mnt和lib/firmware以及开机脚本拷贝出来
+
+```
+cd /mnt/chroot
+cp -r ./lib/firmware ../
+cp -r ./mnt ../
+```
+
+7. 删除分区内的旧rootfs
+
+```
+rm -rfv /mnt/chroot/*
+```
+
+8. 下载alpine riscv64 rootfs
+
+下载地址:
+
+https://mirrors.ustc.edu.cn/alpine/edge/releases/riscv64/
+
+```
+cd /mnt/chroot
+wget https://mirrors.tuna.tsinghua.edu.cn/alpine/edge/releases/riscv64/alpine-minirootfs-20231219-riscv64.tar.gz -O alpine.tar.gz
+```
+
+9. 解压alpine riscv64 rootfs到第二分区
+
+```
+cd /mnt/chroot
+tar xvpf alpine.tar.gz -C ./
+```
+
+10. 拷贝firmware,mnt和开机脚本
+
+```
+cd /mnt/chroot
+cp -arv ../mnt/* ./mnt/
+mkdir -pv ./lib/firmware/
+cp -arv ../firmware/* ./lib/firmware/
+```
+
+11. 修改配置文件
+
+在 ./etc/inittab 加上:
+
+```
+ttyS0::respawn:/sbin/getty -L ttyS0 115200 vt100 # UART0
+ttyGS0::respawn:/sbin/getty -L ttyGS0 115200 vt100 # CDC ACM
+```
+
+创建 ./etc/resolv.conf :
+
+```
+nameserver 8.8.8.8
+```
+
+创建 ./etc/network/interfaces:
+
+```
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+
+auto wlan0
+iface wlan0 inet dhcp
+```
+
+创建 ./etc/local.d/aaa_boot_setup.start (需要chmod +x)
+
+```
+#!/bin/sh
+
+set -x
+ 
+rm -vf /mnt/etc/inittab
+cp -arv /mnt/etc/* /etc/
+/etc/init.d/S01modload start # 加载内核模块
+/etc/init.d/S04usbdev start  # 启用usb rndis
+```
+
+12. 进入chroot环境
+
+```
+cd /mnt/chroot
+cp -fv /usr/bin/qemu-riscv64 ./usr/bin/
+mount -t devtmpfs devtmpfs ./dev
+mount -t proc proc ./proc
+mount -t sysfs sysfs ./sys
+chroot /mnt/chroot /bin/ash
+```
+
+13. 设置root账户密码
+
+```
+passwd root
+```
+
+14. 安装软件包
+
+```
+apk update
+apk add alpine-base dropbear haveged tmux ckermit neofetch wpa_supplicant
+```
+
+15. 设置开机服务
+
+```
+rc-update add bootmisc boot
+rc-update add devfs sysinit
+rc-update add dmesg sysinit
+rc-update add hostname boot
+rc-update add swclock boot
+rc-update add killprocs shutdown
+rc-update add mdev sysinit
+rc-update add mount-ro shutdown
+rc-update add savecache shutdown
+rc-update add syslog boot
+rc-update add dropbear default
+rc-update add dropbear nonetwork
+rc-update add ntpd default
+rc-update add networking default
+rc-update add wpa_supplicant boot
+rc-update add local boot
+rc-update add haveged sysinit
+```
+
+16. 退出chroot环境，卸载分区
+
+```
+exit
+umount /mnt/chroot/*
+umount /mnt/chroot/
+losetup -d /dev/loop15
+```
+
+18. 修复镜像
+
+分区未对齐会导致文件系统挂载失败，镜像末尾需要预留一些空白空间用于调整
+
+```
+dd if=/dev/zero bs=10M >> licheervnano-alpine-DATE-TIME.img
+cfdisk licheervnano-alpine-DATE-TIME.img
+# 将第二个分区扩展
+```
+
+17. 烧写镜像
+
+```
+dd if=licheervnano-alpine-DATE-TIME.img of=/dev/sdX
+```
+
 #### Gentoo rootfs
+
+安装方法类似alpine linux
 
 https://mirrors.ustc.edu.cn/gentoo/releases/riscv/autobuilds/current-stage3-rv64_lp64_musl/
 
 https://mirrors.ustc.edu.cn/gentoo/releases/riscv/autobuilds/current-stage3-rv64_lp64d-openrc/
-
-#### Alpine rootfs
-
-https://mirrors.ustc.edu.cn/alpine/edge/releases/riscv64/
 
 ### Systemd发行
 
