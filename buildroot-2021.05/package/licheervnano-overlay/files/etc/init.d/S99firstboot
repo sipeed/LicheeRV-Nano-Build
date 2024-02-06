@@ -6,6 +6,9 @@ case "$1" in
     parted -s /dev/mmcblk0 "resizepart 2 -0"
     # resize root filesystem
     resize2fs /dev/mmcblk0p2
+    cp -arv /mnt/etc/* /etc/
+    mkdir -pv /usr/local/bin
+    cp -arv /mnt/scripts/* /usr/local/bin/
     chmod -x /etc/init.d/S99firstboot
     mv /etc/init.d/S99firstboot /opt/S99firstboot.done
     reboot
