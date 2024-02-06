@@ -102,3 +102,74 @@ mipi默认使用7inch zct2133v1屏幕
 ```
 
 可以使用lvgl, qtlinuxfb, sdl1.2进行开发
+
+## 运行Linux发行版
+
+### 非systemd发行
+
+1. 先在SD卡上烧录好cvimmfsdk的镜像(此repo生成的)
+2. 然后挂载sd卡的第二个分区，将mnt拷贝出来
+
+```
+mount /dev/sdX2 /mnt/root
+cp -arv /mnt/root/mnt /tmp/mnt
+```
+
+3. 格式化SD卡的第二分区并挂载，将刚才的mnt放进去
+
+```
+mkfs.ext4 /dev/sdX2
+mount /dev/sdX2 /mnt/root
+cp -arv /tmp/mnt /mnt/root/
+```
+
+4. 下载发行提供的rootfs，然后解压到第二分区
+
+```
+tar xpvf xxx-rootfs.tar.xx -C /mnt/root
+```
+
+5. 编辑刚解压的rootfs里面的etc/inittab，加上串口的getty，注意波特率
+
+```
+s0:12345:respawn:/sbin/agetty -L 115200 ttyS0 vt100
+gs0:12345:respawn:/sbin/agetty -L 115200 ttyGS0 vt100
+```
+
+6. 更改系统的root密码，用于第一次登录
+
+```
+cp /usr/bin/qemu-riscv64 /mnt/root/usr/bin/
+echo 'root:root' | chroot /mnt/root /bin/chpasswd
+```
+
+7. (可选) 编辑启动脚本，用于加载mnt下面的内核模块
+8. (可选) 启用SSH服务
+9. 卸载内存卡，安装到开发板
+
+```
+sync
+umount /dev/sdX2
+eject /dev/sdX
+```
+10. 连接串口或SSH，进行系统配置
+
+#### Gentoo rootfs
+
+https://mirrors.ustc.edu.cn/gentoo/releases/riscv/autobuilds/current-stage3-rv64_lp64_musl/
+
+https://mirrors.ustc.edu.cn/gentoo/releases/riscv/autobuilds/current-stage3-rv64_lp64d-openrc/
+
+#### Alpine rootfs
+
+https://mirrors.ustc.edu.cn/alpine/edge/releases/riscv64/
+
+### Systemd发行
+
+由于vendor提供的BSP内核的多媒体驱动和ns,cgroup等内核特性冲突，如果想要用基于systemd的发行，则需要放弃多媒体驱动。
+
+需要在内核里面勾选:
+
+```
+
+```
