@@ -1,0 +1,35 @@
+From 359d24b156e308af2322fd8d4fa8a60151a2953e Mon Sep 17 00:00:00 2001
+From: Lu <gravitydiv10@protonmail.com>
+Date: Mon, 19 Feb 2024 21:46:10 +0800
+Subject: [PATCH 14/14] cvisetup.sh: enable uboot lcd init by default
+
+---
+ envsetup_soc.sh | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/envsetup_soc.sh b/envsetup_soc.sh
+index bbee779..0ff5987 100644
+--- a/envsetup_soc.sh
++++ b/envsetup_soc.sh
+@@ -1,4 +1,10 @@
+ #!/bin/bash
++
++if [ -z "${ENABLE_BOOTLOGO}" ]
++then
++    export ENABLE_BOOTLOGO=1 # enable uboot lcd init
++fi
++
+ function _build_default_env()
+ {
+   # Please keep these default value!!!
+@@ -11,7 +17,6 @@ function _build_default_env()
+   COMPRESSOR=${COMPRESSOR:-xz}
+   COMPRESSOR_UBOOT=${COMPRESSOR_UBOOT:-lzma} # or none to disable
+   MULTI_PROCESS_SUPPORT=${MULTI_PROCESS_SUPPORT:-0}
+-  ENABLE_BOOTLOGO=${ENABLE_BOOTLOGO:-0}
+   TPU_REL=${TPU_REL:-0} # TPU release build
+   SENSOR=${SENSOR:-sony_imx327}
+ }
+-- 
+2.35.8
+

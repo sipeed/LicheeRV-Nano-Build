@@ -88,6 +88,9 @@ git am ../patches/build/0012-panels-panel_list.json-add-dsi_st7701_hd228001c31.p
 # select default mipi panel for uboot
 git am ../patches/build/0013-boards-sg200x-sg2002_licheervnano_sd-select-MIPI_PAN.patch
 
+# default enable uboot lcd init
+git am ../patches/build/0014-cvisetup.sh-enable-uboot-lcd-init-by-default.patch
+
 cd ..
 
 
