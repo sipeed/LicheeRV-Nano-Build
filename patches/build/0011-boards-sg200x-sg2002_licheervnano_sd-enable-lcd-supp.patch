@@ -1,0 +1,36 @@
+From 2d7d1c118b412150fe5091ba807bb0a046bd166b Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 18:57:27 +0800
+Subject: [PATCH 11/13] boards: sg200x: sg2002_licheervnano_sd: enable lcd
+ support in uboot
+
+---
+ .../u-boot/sg2002_licheervnano_sd_defconfig       | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/u-boot/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/u-boot/sg2002_licheervnano_sd_defconfig
+index 9869a1c..9362991 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/u-boot/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/u-boot/sg2002_licheervnano_sd_defconfig
+@@ -48,3 +48,18 @@ CONFIG_FASTBOOT_FLASH=y
+ CONFIG_FASTBOOT_BUF_ADDR=0x81800000
+ CONFIG_FASTBOOT_BUF_SIZE=0x1000000
+ CONFIG_FASTBOOT_FLASH_MMC_DEV=0
++CONFIG_DISPLAY=y
++CONFIG_DM_VIDEO=y
++CONFIG_DM_GPIO=y
++CONFIG_DWAPB_GPIO=y
++CONFIG_CMD_VIDCONSOLE=y
++CONFIG_VIDEO_BPP16=y
++CONFIG_VIDEO_BPP32=y
++CONFIG_VIDEO_CVITEK=y
++CONFIG_DISPLAY_CVITEK_MIPI=y
++CONFIG_BMP_16BPP=y
++CONFIG_BMP_24BPP=y
++CONFIG_BMP_32BPP=y
++CONFIG_BOOTLOGO=y
++CONFIG_CMD_CVI_VO=y
++CONFIG_CMD_GPIO=y
+-- 
+2.40.1
+

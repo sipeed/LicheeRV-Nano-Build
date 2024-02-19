@@ -1,0 +1,63 @@
+From e833ebc674b7828d18d0709a49a6539d3c7d5401 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 13:55:14 +0800
+Subject: [PATCH 1/2] drivers: net: wireless: add config aic8800
+
+---
+ drivers/net/wireless/Kconfig          | 1 +
+ drivers/net/wireless/Makefile         | 1 +
+ drivers/net/wireless/aic8800/Kconfig  | 7 +++++++
+ drivers/net/wireless/aic8800/Makefile | 3 +++
+ 4 files changed, 12 insertions(+)
+ create mode 100644 drivers/net/wireless/aic8800/Kconfig
+ create mode 100644 drivers/net/wireless/aic8800/Makefile
+
+diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
+index 5f84d6d0c80a..9d42ac034c3a 100644
+--- a/drivers/net/wireless/Kconfig
++++ b/drivers/net/wireless/Kconfig
+@@ -32,6 +32,7 @@ config WIRELESS_WDS
+ 	  necessary, give up on our plan of removing it).
+ 
+ source "drivers/net/wireless/admtek/Kconfig"
++source "drivers/net/wireless/aic8800/Kconfig"
+ source "drivers/net/wireless/ath/Kconfig"
+ source "drivers/net/wireless/atmel/Kconfig"
+ source "drivers/net/wireless/broadcom/Kconfig"
+diff --git a/drivers/net/wireless/Makefile b/drivers/net/wireless/Makefile
+index 1c4537d62a9f..d82254aabc69 100644
+--- a/drivers/net/wireless/Makefile
++++ b/drivers/net/wireless/Makefile
+@@ -4,6 +4,7 @@
+ #
+ 
+ obj-$(CONFIG_WLAN_VENDOR_ADMTEK) += admtek/
++obj-$(CONFIG_AIC_WLAN_SUPPORT) += aic8800/
+ obj-$(CONFIG_WLAN_VENDOR_ATH) += ath/
+ obj-$(CONFIG_WLAN_VENDOR_ATMEL) += atmel/
+ obj-$(CONFIG_WLAN_VENDOR_BROADCOM) += broadcom/
+diff --git a/drivers/net/wireless/aic8800/Kconfig b/drivers/net/wireless/aic8800/Kconfig
+new file mode 100644
+index 000000000000..2b1c3b3b3258
+--- /dev/null
++++ b/drivers/net/wireless/aic8800/Kconfig
+@@ -0,0 +1,7 @@
++# SPDX-License-Identifier: GPL-2.0-only
++config AIC_WLAN_SUPPORT
++        bool "AIC wireless Support"
++        default n
++        help
++          This is support for aic wireless chip.
++
+diff --git a/drivers/net/wireless/aic8800/Makefile b/drivers/net/wireless/aic8800/Makefile
+new file mode 100644
+index 000000000000..ec172495039f
+--- /dev/null
++++ b/drivers/net/wireless/aic8800/Makefile
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0-only
++#
++
+-- 
+2.40.1
+

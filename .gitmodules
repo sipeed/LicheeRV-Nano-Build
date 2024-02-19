@@ -1,0 +1,39 @@
+[submodule "fsbl"]
+	path = fsbl
+	url = https://github.com/sophgo/fsbl
+	branch = sg200x-dev
+[submodule "build"]
+	path = build
+	url = https://github.com/sophgo/build
+	branch = sg200x-dev
+[submodule "linux_5.10"]
+	path = linux_5.10
+	url = https://github.com/sophgo/linux_5.10
+	branch = sg200x-dev
+[submodule "isp_tuning"]
+	path = isp_tuning
+	url = https://github.com/sophgo/isp_tuning
+	branch = sg200x-dev
+[submodule "middleware"]
+	path = middleware
+	url = https://github.com/sophgo/middleware
+	branch = sg200x-dev
+[submodule "opensbi"]
+	path = opensbi
+	url = https://github.com/sophgo/opensbi
+	branch = sg200x-dev
+[submodule "osdrv"]
+	path = osdrv
+	url = https://github.com/sophgo/osdrv
+	branch = sg200x-dev
+[submodule "u-boot-2021.10"]
+	path = u-boot-2021.10
+	url = https://github.com/sophgo/u-boot-2021.10
+	branch = sg200x-dev
+[submodule "ramdisk"]
+	path = ramdisk
+	url = https://github.com/sophgo/ramdisk
+	branch = sg200x-dev
+[submodule "oss"]
+	path = oss
+	url = https://github.com/sophgo/oss

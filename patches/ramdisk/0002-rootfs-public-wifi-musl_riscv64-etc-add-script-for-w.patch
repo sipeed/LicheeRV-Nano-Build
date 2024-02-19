@@ -1,0 +1,37 @@
+From 925e5a54dfff70e55ebffa997d8343c2d3ed3dea Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 16:34:27 +0800
+Subject: [PATCH 2/4] rootfs: public: wifi: musl_riscv64: etc: add script for
+ wifi module load
+
+---
+ .../wifi/musl_riscv64/etc/init.d/S05wifimod     | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+ create mode 100755 rootfs/public/wifi/musl_riscv64/etc/init.d/S05wifimod
+
+diff --git a/rootfs/public/wifi/musl_riscv64/etc/init.d/S05wifimod b/rootfs/public/wifi/musl_riscv64/etc/init.d/S05wifimod
+new file mode 100755
+index 0000000..629ab51
+--- /dev/null
++++ b/rootfs/public/wifi/musl_riscv64/etc/init.d/S05wifimod
+@@ -0,0 +1,17 @@
++#! /bin/sh
++
++case $1 in
++  start)
++    echo "loading wifi driver..."
++    cd /mnt/system/ko
++    insmod cfg80211.ko
++    insmod 3rd/aic8800_bsp.ko
++    insmod 3rd/aic8800_fdrv.ko
++    if [ $? -eq 0 ]
++    then
++	    echo "OK"
++    else
++	    echo "FAIL"
++    fi
++    ;;
++esac
+-- 
+2.40.1
+

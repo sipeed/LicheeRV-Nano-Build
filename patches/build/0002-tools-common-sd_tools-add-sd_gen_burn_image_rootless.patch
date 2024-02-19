@@ -1,0 +1,88 @@
+From d4b27497375018d8182330d71d67051ba65f1a2e Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 14:52:49 +0800
+Subject: [PATCH 02/13] tools: common: sd_tools: add
+ sd_gen_burn_image_rootless.sh
+
+---
+ tools/common/sd_tools/genimage_rootless.cfg   | 27 +++++++++++++++
+ .../sd_tools/sd_gen_burn_image_rootless.sh    | 33 +++++++++++++++++++
+ 2 files changed, 60 insertions(+)
+ create mode 100644 tools/common/sd_tools/genimage_rootless.cfg
+ create mode 100755 tools/common/sd_tools/sd_gen_burn_image_rootless.sh
+
+diff --git a/tools/common/sd_tools/genimage_rootless.cfg b/tools/common/sd_tools/genimage_rootless.cfg
+new file mode 100644
+index 0000000..6751188
+--- /dev/null
++++ b/tools/common/sd_tools/genimage_rootless.cfg
+@@ -0,0 +1,27 @@
++image boot.vfat {
++        vfat {
++                label = "boot"
++                files = {
++                        "fip.bin",
++                        "rawimages/boot.sd",
++                }
++        }
++        size = 16M 
++}
++
++image duo.img {
++        hdimage {
++        }
++
++        partition boot {
++                partition-type = 0x0C
++                bootable = "true"
++                image = "boot.vfat"
++        }
++
++        partition rootfs {
++                partition-type = 0x83
++                image = "rootfs.sd"
++        }
++}
++
+diff --git a/tools/common/sd_tools/sd_gen_burn_image_rootless.sh b/tools/common/sd_tools/sd_gen_burn_image_rootless.sh
+new file mode 100755
+index 0000000..f03253b
+--- /dev/null
++++ b/tools/common/sd_tools/sd_gen_burn_image_rootless.sh
+@@ -0,0 +1,33 @@
++#!/usr/bin/env sh
++# a sd image generator
++# usage
++if [ "$#" -ne "1" ]
++then
++	echo "usage: sudo ./sd_gen_burn_image_rootless.sh OUTPUT_DIR"
++	echo ""
++	echo "       The script is used to create a sdcard image with two partitions, "
++	echo "       one is fat32 with 16MB, the other is decide by your rootfs.sd."
++	echo ""
++	echo "Note:  Please backup you sdcard files before using this image!"
++
++	exit
++fi
++
++output_dir=$1
++echo ${output_dir}
++pushd ${output_dir}
++set -eu
++image=`date +%Y%m%d-%H%M`.img
++THISDIR=$(dirname $(realpath $0))
++mkdir -pv ${output_dir}/tmp/
++mkdir -pv ${output_dir}/root/
++mkdir -pv ${output_dir}/input/
++mkdir -pv ${output_dir}/input/rawimages/
++cp -fv ${output_dir}/fip.bin ${output_dir}/input/
++cp -fv ${output_dir}/rawimages/boot.sd ${output_dir}/input/rawimages/
++cp -fv ${output_dir}/rawimages/rootfs.sd ${output_dir}/input/
++cp -fv ${THISDIR}/genimage_rootless.cfg ${output_dir}/genimage.cfg
++sed -i -e "s/duo.img/${image}/g" ${output_dir}/genimage.cfg
++cd ${output_dir}/
++${THISDIR}/genimage
++exit $?
+-- 
+2.40.1
+

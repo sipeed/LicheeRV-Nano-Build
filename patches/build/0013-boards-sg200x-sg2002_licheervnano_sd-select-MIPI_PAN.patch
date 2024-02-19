@@ -1,0 +1,25 @@
+From fdc23fc14a4d888f8a1432242a4eed83c1b86a32 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 19:03:50 +0800
+Subject: [PATCH 13/13] boards: sg200x: sg2002_licheervnano_sd: select
+ MIPI_PANEL_ST7701_HD228001C31 for default mipi panel(uboot)
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig      | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index 082f147..16c36c9 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -12,6 +12,7 @@ CONFIG_BOOT_IMAGE_SINGLE_DTB=y
+ # CONFIG_FLASH_SIZE_SHRINK is not set
+ CONFIG_CP_EXT_WIRELESS=y
+ CONFIG_STORAGE_TYPE_sd=y
++CONFIG_MIPI_PANEL_ST7701_HD228001C31=y
+ CONFIG_SENSOR_GCORE_GC4653=y
+ CONFIG_UBOOT_2021_10=y
+ CONFIG_KERNEL_SRC_5.10=y
+-- 
+2.40.1
+

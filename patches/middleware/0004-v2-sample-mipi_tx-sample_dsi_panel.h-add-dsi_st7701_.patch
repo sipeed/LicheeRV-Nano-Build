@@ -1,0 +1,25 @@
+From 3f11a7bd3d21fb986cda2f707ce8748d67c26ff6 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 19:01:26 +0800
+Subject: [PATCH 4/5] v2: sample: mipi_tx/sample_dsi_panel.h: add
+ dsi_st7701_hd228001c31
+
+---
+ v2/sample/mipi_tx/sample_dsi_panel.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/v2/sample/mipi_tx/sample_dsi_panel.h b/v2/sample/mipi_tx/sample_dsi_panel.h
+index 3a40ace..c15cd97 100644
+--- a/v2/sample/mipi_tx/sample_dsi_panel.h
++++ b/v2/sample/mipi_tx/sample_dsi_panel.h
+@@ -24,6 +24,7 @@ extern "C" {
+ #include "dsi_icn9707.h"
+ #include "dsi_3aml069lp01g.h"
+ #include "dsi_st7701.h"
++#include "dsi_st7701_hd228001c31.h"
+ #include "dsi_hx8399_1080p.h"
+ #include "dsi_gm8775c.h"
+ #include "dsi_lt9611.h"
+-- 
+2.40.1
+

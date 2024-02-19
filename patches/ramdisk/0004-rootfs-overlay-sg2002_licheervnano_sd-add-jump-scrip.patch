@@ -1,0 +1,56 @@
+From 64601b977d01b2b01092ac81dfd7e9678547b089 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 19:24:29 +0800
+Subject: [PATCH 4/4] rootfs: overlay: sg2002_licheervnano_sd: add jump script
+ for alt rootfs
+
+---
+ rootfs/overlay/sg2002_licheervnano_sd/jump | 36 ++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100755 rootfs/overlay/sg2002_licheervnano_sd/jump
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/jump b/rootfs/overlay/sg2002_licheervnano_sd/jump
+new file mode 100755
+index 0000000..244712d
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/jump
+@@ -0,0 +1,36 @@
++#!/bin/sh
++
++set -ux
++
++export PATH=/mnt/system/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
++
++ls /dev/mmcblk0* | cat
++mount -t proc proc /proc
++mount -t sysfs sysfs /sys
++mount /dev/mmcblk0p3 /mnt/data/ || exec /sbin/init
++if [ -e /mnt/data/sbin/init ]
++then
++	echo "use vendor's system setup driver"
++	mdev -s
++	mkdir -pv /dev/pts
++	mkdir -pv /dev/shm
++	mount -a
++	/etc/init.d/rcS
++	/etc/init.d/rcP
++	echo "kill all userspace process, exclude pid 1"
++	ps | grep -v -- '\[' | grep -v PID | awk '{print $1}' | sort -n | while read line
++	do
++		if [ "$line" -eq 1 ]
++		then
++			continue
++		fi
++		kill $line
++	done
++	echo "switch to new root"
++	mount -t devtmpfs devtmpfs /mnt/data/dev
++	mount -t sysfs sysfs /mnt/data/sys
++	mount -t proc proc /mnt/data/proc
++	switch_root /mnt/data /sbin/init
++fi
++
++exec /sbin/init
+-- 
+2.40.1
+

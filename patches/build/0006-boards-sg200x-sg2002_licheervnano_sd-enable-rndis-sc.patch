@@ -1,0 +1,22 @@
+From e54886add6cea85bd2a839f7c4b9cce92a881a57 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 16:15:17 +0800
+Subject: [PATCH 06/13] boards: sg200x: sg2002_licheervnano_sd: enable rndis
+ script
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig      | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index fbdc254..1c56012 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -26,3 +26,4 @@ CONFIG_TARGET_PACKAGE_BUSYBOX_SYSLOGD_SCRIPT=y
+ CONFIG_TARGET_PACKAGE_GATORD=n
+ CONFIG_TARGET_PACKAGE_NTP=y
+ CONFIG_TARGET_PACKAGE_WIFI=y
++CONFIG_TARGET_PACKAGE_RNDIS_SCRIPT=y
+-- 
+2.40.1
+

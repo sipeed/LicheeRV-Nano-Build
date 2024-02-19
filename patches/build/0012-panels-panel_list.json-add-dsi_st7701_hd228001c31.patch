@@ -1,0 +1,24 @@
+From 9b41cf6ff52ea8bd108834c93c13629a50775ccd Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 19:03:07 +0800
+Subject: [PATCH 12/13] panels/panel_list.json: add dsi_st7701_hd228001c31
+
+---
+ panels/panel_list.json | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/panels/panel_list.json b/panels/panel_list.json
+index 000d4da..e90b7ca 100644
+--- a/panels/panel_list.json
++++ b/panels/panel_list.json
+@@ -11,6 +11,7 @@
+ 			"icn9707",
+ 			"3aml069lp01g",
+ 			"st7701",
++			"st7701_hd228001c31",
+ 			"st7785m"
+ 		],
+ 		"lvds" : [
+-- 
+2.40.1
+

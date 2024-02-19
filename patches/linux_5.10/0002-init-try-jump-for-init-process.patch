@@ -1,0 +1,26 @@
+From 9148e2070ff4c72c1093ad8c4db1bfd78b07b809 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 16:17:11 +0800
+Subject: [PATCH 2/2] init: try /jump for init process
+
+---
+ init/main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/init/main.c b/init/main.c
+index 4d49e5ce4dc8..f160da4c10ee 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1469,7 +1469,8 @@ static int __ref kernel_init(void *unused)
+ 			return 0;
+ 	}
+ 
+-	if (!try_to_run_init_process("/sbin/init") ||
++	if (!try_to_run_init_process("/jump") ||
++	    !try_to_run_init_process("/sbin/init") ||
+ 	    !try_to_run_init_process("/etc/init") ||
+ 	    !try_to_run_init_process("/bin/init") ||
+ 	    !try_to_run_init_process("/bin/sh"))
+-- 
+2.40.1
+

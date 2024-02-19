@@ -1,0 +1,22 @@
+* licheervnano sdk
+
+** download
+
+#+BEGIN_SRC shell
+#+END_SRC
+
+** setup build environment
+
+#+BEGIN_SRC shell
+#+END_SRC
+
+** build whole system
+
+#+BEGIN_SRC shell
+#+END_SRC
+
+** make bootable sdcard image
+
+#+BEGIN_SRC shell
+#+END_SRC
+

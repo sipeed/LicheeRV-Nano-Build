@@ -1,0 +1,35 @@
+From ce3c8ad822b88cac3f9a58b1253b6d69a929c9c5 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 14:17:19 +0800
+Subject: [PATCH 01/13] boards: default: dts: sg200x: soph_base.dtsi: allow vo
+ and cvifb modify by other dts
+
+---
+ boards/default/dts/sg200x/soph_base.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/boards/default/dts/sg200x/soph_base.dtsi b/boards/default/dts/sg200x/soph_base.dtsi
+index 3e12a18..1dee070 100644
+--- a/boards/default/dts/sg200x/soph_base.dtsi
++++ b/boards/default/dts/sg200x/soph_base.dtsi
+@@ -737,7 +737,7 @@
+ 		reg-names = "ive_base";
+ 	};
+ 
+-	vo {
++	cvi_vo: vo {
+ 		compatible = "cvitek,vo";
+ 		reg = <0x0 0x0a080000 0x0 0x10000>, <0x0 0x0a0c8000 0x0 0xa0>, <0x0 0x0a0d1000 0x0 0x100>;
+ 		reg-names = "sc", "vip_sys", "dphy";
+@@ -760,7 +760,7 @@
+ 		};
+ 	};
+ 
+-	cvifb {
++	cvi_fb: cvifb {
+ 		compatible = "cvitek,fb";
+ 		memory-region = <&fb_reserved>;
+ 		reg = <0x0 0x0a088000 0x0 0x1000>;
+-- 
+2.40.1
+

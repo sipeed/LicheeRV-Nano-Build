@@ -1,0 +1,25 @@
+From 064d6ecc82ee3bc5e2e47bb190d4a3fad23dd9be Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 17:15:18 +0800
+Subject: [PATCH 09/13] boards: sg200x: sg2002_licheervnano_sd: fix missing
+ wifi kernel module install
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig      | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index a29da2e..082f147 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -10,6 +10,7 @@ CONFIG_TOOLCHAIN_MUSL_RISCV64=y
+ CONFIG_FLASH_SIZE_SHRINK=y
+ CONFIG_BOOT_IMAGE_SINGLE_DTB=y
+ # CONFIG_FLASH_SIZE_SHRINK is not set
++CONFIG_CP_EXT_WIRELESS=y
+ CONFIG_STORAGE_TYPE_sd=y
+ CONFIG_SENSOR_GCORE_GC4653=y
+ CONFIG_UBOOT_2021_10=y
+-- 
+2.40.1
+

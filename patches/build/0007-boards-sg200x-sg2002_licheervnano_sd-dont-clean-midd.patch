@@ -1,0 +1,40 @@
+From 7d718f9aa2a8778bcc1f6959903e54d6f48c2363 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 17:03:06 +0800
+Subject: [PATCH 07/13] boards: sg200x: sg2002_licheervnano_sd: dont clean
+ middleware demo
+
+---
+ .../sg200x/sg2002_licheervnano_sd/rootfs_script/clean_rootfs.sh | 2 +-
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/rootfs_script/clean_rootfs.sh b/boards/sg200x/sg2002_licheervnano_sd/rootfs_script/clean_rootfs.sh
+index 26692d8..581e2cb 100755
+--- a/boards/sg200x/sg2002_licheervnano_sd/rootfs_script/clean_rootfs.sh
++++ b/boards/sg200x/sg2002_licheervnano_sd/rootfs_script/clean_rootfs.sh
+@@ -28,7 +28,7 @@ rm -rf $SYSTEM_DIR/mnt/system/usr/lib/gio
+ rm -rf $SYSTEM_DIR/mnt/system/usr/lib/glib*
+ rm -rf $SYSTEM_DIR/mnt/system/usr/lib/gstreamer-1.0*
+ rm -rf $SYSTEM_DIR/mnt/system/usr/libexec*
+-rm -rf $SYSTEM_DIR/mnt/system/usr/bin
++#rm -rf $SYSTEM_DIR/mnt/system/usr/bin
+ rm -f $SYSTEM_DIR/mnt/system/usr/lib/libcvimath.so
+ rm -f $SYSTEM_DIR/mnt/system/usr/lib/libcviruntime.so
+ rm -f $SYSTEM_DIR/mnt/system/usr/lib/libcnpy.so
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index 1c56012..a29da2e 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -9,7 +9,7 @@ CONFIG_KERNEL_ENTRY_HACK_ADDR="0x80200000"
+ CONFIG_TOOLCHAIN_MUSL_RISCV64=y
+ CONFIG_FLASH_SIZE_SHRINK=y
+ CONFIG_BOOT_IMAGE_SINGLE_DTB=y
+-CONFIG_CP_EXT_WIRELESS=y
++# CONFIG_FLASH_SIZE_SHRINK is not set
+ CONFIG_STORAGE_TYPE_sd=y
+ CONFIG_SENSOR_GCORE_GC4653=y
+ CONFIG_UBOOT_2021_10=y
+-- 
+2.40.1
+

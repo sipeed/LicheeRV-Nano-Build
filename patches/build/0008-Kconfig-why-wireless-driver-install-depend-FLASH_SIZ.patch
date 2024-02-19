@@ -1,0 +1,30 @@
+From f0fb61231b89d9c60d6f270a2cc5a445eac2ca1b Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 17:14:31 +0800
+Subject: [PATCH 08/13] Kconfig: why wireless driver install depend
+ FLASH_SIZE_SHRINK?
+
+---
+ Kconfig | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/Kconfig b/Kconfig
+index f3cbb69..1a0a45d 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -229,11 +229,9 @@ config FLASH_SIZE_SHRINK
+ 
+ config CP_EXT_WIRELESS
+ 	bool "Install the osdrv/extdrv/wireless/*.ko"
+-	depends on FLASH_SIZE_SHRINK
+ 	default n
+ 	help
+-      Install the osdrv/extdrv/wireless/*.ko no matter
+-	  FLASH_SIZE_SHRINK is set or not.
++          Install the osdrv/extdrv/wireless/*.ko no matter
+ 
+ config NO_FB
+ 	bool "Do not compile frame buffer drivers"
+-- 
+2.40.1
+

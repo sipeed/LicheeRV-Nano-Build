@@ -1,0 +1,43 @@
+From 57da5bf843f6fe6034ea910fc5164fb1e0ca99fb Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 16:14:47 +0800
+Subject: [PATCH 05/13] tools/common/sd_tools/genimage_rootless.cfg: add user
+ partition
+
+---
+ tools/common/sd_tools/genimage_rootless.cfg | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/tools/common/sd_tools/genimage_rootless.cfg b/tools/common/sd_tools/genimage_rootless.cfg
+index 6751188..539db39 100644
+--- a/tools/common/sd_tools/genimage_rootless.cfg
++++ b/tools/common/sd_tools/genimage_rootless.cfg
+@@ -9,6 +9,12 @@ image boot.vfat {
+         size = 16M 
+ }
+ 
++image user.ext4 {
++        ext4 {
++        }
++        size = 32M
++}
++
+ image duo.img {
+         hdimage {
+         }
+@@ -22,6 +28,12 @@ image duo.img {
+         partition rootfs {
+                 partition-type = 0x83
+                 image = "rootfs.sd"
++		size = 16M
++        }
++
++        partition user {
++                partition-type = 0x83
++                image = "user.ext4"
+         }
+ }
+ 
+-- 
+2.40.1
+

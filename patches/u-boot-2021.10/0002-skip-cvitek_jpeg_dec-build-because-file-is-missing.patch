@@ -1,0 +1,39 @@
+From 30666957275874a9743a47f7196a9115cbbec010 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 18:58:54 +0800
+Subject: [PATCH 2/3] skip cvitek_jpeg_dec build, because file is missing
+
+---
+ cmd/Makefile     | 2 +-
+ drivers/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 697b382434..c4df550d5d 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -68,7 +68,7 @@ obj-$(CONFIG_CMD_FAT) += fat.o
+ obj-$(CONFIG_CMD_FDT) += fdt.o
+ obj-$(CONFIG_CMD_SQUASHFS) += sqfs.o
+ obj-$(CONFIG_CMD_FLASH) += flash.o
+-obj-$(CONFIG_CMD_CVI_JPEG) += cvi_jpeg.o
++#obj-$(CONFIG_CMD_CVI_JPEG) += cvi_jpeg.o
+ obj-$(CONFIG_CMD_CVI_VO) += cvi_vo.o
+ obj-$(CONFIG_CMD_CVI_UPDATE) += cvi_update.o
+ obj-$(CONFIG_CMD_CVI_UPDATE) += cvi_utask.o
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 3cc03cbc41..c20bd97946 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -32,7 +32,7 @@ obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
+ obj-$(CONFIG_$(SPL_TPL_)ACPI_PMC) += power/acpi_pmc/
+ obj-$(CONFIG_XEN) += xen/
+ obj-$(CONFIG_$(SPL_)FPGA) += fpga/
+-obj-$(CONFIG_CMD_CVI_JPEG) += jpeg/
++#obj-$(CONFIG_CMD_CVI_JPEG) += jpeg/
+ 
+ ifndef CONFIG_TPL_BUILD
+ ifdef CONFIG_SPL_BUILD
+-- 
+2.40.1
+

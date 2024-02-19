@@ -1,0 +1,43 @@
+From 90c35dfd3b496dfa842f60bd31d17ef1bf014321 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 19:00:11 +0800
+Subject: [PATCH 2/5] v2: Makefile: dont copy some file, because source file is
+ missing
+
+---
+ v2/Makefile | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/v2/Makefile b/v2/Makefile
+index 1d7672c..1a7859d 100644
+--- a/v2/Makefile
++++ b/v2/Makefile
+@@ -59,8 +59,8 @@ ifneq ($(FLASH_SIZE_SHRINK),y)
+ 	@cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin
+ 	@cp -f sample/sensor_test/sensor_test $(DESTDIR)/usr/bin
+ 	@cp -f sample/audio/sample_audio $(DESTDIR)/usr/bin
+-	@cp -f sample/cipher/sample_cipher $(DESTDIR)/usr/bin
+-	@cp -f sample/cvg/sample_cvg $(DESTDIR)/usr/bin
++	#@cp -f sample/cipher/sample_cipher $(DESTDIR)/usr/bin
++	#@cp -f sample/cvg/sample_cvg $(DESTDIR)/usr/bin
+ 	@cp -f sample/venc/sample_venc $(DESTDIR)/usr/bin
+ 	@cp -f sample/venc/sample_vcodec $(DESTDIR)/usr/bin
+ 	@cp -f sample/vdec/sample_vdec $(DESTDIR)/usr/bin
+@@ -68,10 +68,10 @@ endif
+ 
+ ifneq ($(FLASH_SIZE_SHRINK),y)
+ 	# copy venc
+-	@cp -f modules/venc/vc_lib/bin/cvi_h265_enc_test $(DESTDIR)/usr/bin
+-	@cp -f modules/venc/vc_lib/bin/cvi_h265_dec $(DESTDIR)/usr/bin
+-	@cp -f modules/venc/vc_lib/bin/cvi_h264_dec $(DESTDIR)/usr/bin
+-	@cp -f modules/venc/vc_lib/bin/cvi_jpg_codec $(DESTDIR)/usr/bin
++	#@cp -f modules/venc/vc_lib/bin/cvi_h265_enc_test $(DESTDIR)/usr/bin
++	#@cp -f modules/venc/vc_lib/bin/cvi_h265_dec $(DESTDIR)/usr/bin
++	#@cp -f modules/venc/vc_lib/bin/cvi_h264_dec $(DESTDIR)/usr/bin
++	#@cp -f modules/venc/vc_lib/bin/cvi_jpg_codec $(DESTDIR)/usr/bin
+ endif
+ 
+ ifneq ($(FLASH_SIZE_SHRINK),y)
+-- 
+2.40.1
+

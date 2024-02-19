@@ -1,0 +1,27 @@
+From 73141ee2bd9e362e6876888028cd75f64fda7c01 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 16:59:54 +0800
+Subject: [PATCH 1/5] v2: Makefile: install vio sensor_test audio demo into
+ rootfs
+
+---
+ v2/Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/v2/Makefile b/v2/Makefile
+index d905e4e..1d7672c 100644
+--- a/v2/Makefile
++++ b/v2/Makefile
+@@ -56,6 +56,9 @@ install:
+ ifneq ($(FLASH_SIZE_SHRINK),y)
+ 	# copy sample_xxx
+ 	@cp -f sample/mipi_tx/sample_dsi $(DESTDIR)/usr/bin
++	@cp -f sample/vio/sample_vio $(DESTDIR)/usr/bin
++	@cp -f sample/sensor_test/sensor_test $(DESTDIR)/usr/bin
++	@cp -f sample/audio/sample_audio $(DESTDIR)/usr/bin
+ 	@cp -f sample/cipher/sample_cipher $(DESTDIR)/usr/bin
+ 	@cp -f sample/cvg/sample_cvg $(DESTDIR)/usr/bin
+ 	@cp -f sample/venc/sample_venc $(DESTDIR)/usr/bin
+-- 
+2.40.1
+

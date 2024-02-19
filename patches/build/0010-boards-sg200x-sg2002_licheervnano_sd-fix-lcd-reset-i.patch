@@ -1,0 +1,43 @@
+From 036e62c7cb9868f3de65b19e06aa51d45be1ae0e Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 19 Feb 2024 18:57:01 +0800
+Subject: [PATCH 10/13] boards: sg200x: sg2002_licheervnano_sd: fix lcd reset
+ in devicetree
+
+---
+ .../dts_riscv/sg2002_licheervnano_sd.dts               | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts b/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts
+index 9c83350..2f916d5 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts
++++ b/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts
+@@ -32,7 +32,12 @@
+ };
+ 
+ &cvi_vo {
++#ifndef __UBOOT__
++	/delete-property/ reset-gpio;
++#else
++	// for uboot
+         reset-gpio = <&porte 0 1>;
++#endif
+         /delete-property/ pwm-gpio;
+         /delete-property/ power-ct-gpio;
+ 
+@@ -40,7 +45,12 @@
+ 
+ &mipi_tx {
+         /delete-property/ pwm-gpio;
++#ifndef __UBOOT__
++	// for linux kernel
++        reset-gpio = <&porte 0 1>;
++#else
+         /delete-property/ reset-gpio;
++#endif
+         /delete-property/ power-ct-gpio;
+         status = "okay";
+ };
+-- 
+2.40.1
+
