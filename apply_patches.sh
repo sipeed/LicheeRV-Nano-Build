@@ -14,6 +14,12 @@ cd osdrv
 # add aic8800 sdio wifi driver
 git am ../patches/osdrv/0001-extdrv-wireless-add-aic8800-sdio.patch
 git am ../patches/osdrv/0002-extdrv-wireless-aic8800-fix-firmware-load-path.patch
+
+# framebuffer default use double buffer
+git am ../patches/osdrv/0003-interdrv-v2-fb-default-enable-double-buffer.patch
+
+# fix pixel format on licheervnano
+git am ../patches/osdrv/0004-interdrv-v2-fb-fix-pixel-format-for-licheervnao-add-.patch
 cd ..
 
 cd ramdisk

@@ -1,0 +1,25 @@
+From 2c68482a1dd3a3e7181d290224f8056e1f37c350 Mon Sep 17 00:00:00 2001
+From: Lu <gravitydiv10@protonmail.com>
+Date: Mon, 19 Feb 2024 22:24:55 +0800
+Subject: [PATCH 3/4] interdrv: v2: fb: default enable double buffer
+
+---
+ interdrv/v2/fb/fb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/interdrv/v2/fb/fb.c b/interdrv/v2/fb/fb.c
+index 90591b1..11cf5e0 100644
+--- a/interdrv/v2/fb/fb.c
++++ b/interdrv/v2/fb/fb.c
+@@ -46,7 +46,7 @@ static bool double_buffer;
+ static int scale;
+ static bool fb_on_sc;
+ static int rdma_window;
+-static int option;
++static int option = 1; // default enable double buffer
+ 
+ static const struct fb_fix_screeninfo cvifb_fix = {
+ 	.id =		"cvifb",
+-- 
+2.35.8
+
