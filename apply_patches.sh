@@ -74,7 +74,7 @@ git am ../patches/build/0007-boards-sg200x-sg2002_licheervnano_sd-dont-clean-mid
 git am ../patches/build/0008-Kconfig-why-wireless-driver-install-depend-FLASH_SIZ.patch
 
 # enable out of tree wireless driver install config
-git am ../patches/build/0009-boards-sg200x-sg2002_licheervnano_sd-fix-missing-wif.patc
+git am ../patches/build/0009-boards-sg200x-sg2002_licheervnano_sd-fix-missing-wif.patch
 
 # fix lcd reset in devicetree
 git am ../patches/build/0010-boards-sg200x-sg2002_licheervnano_sd-fix-lcd-reset-i.patch
