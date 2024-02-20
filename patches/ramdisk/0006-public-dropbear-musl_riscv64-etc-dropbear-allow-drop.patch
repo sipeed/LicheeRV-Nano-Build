@@ -1,0 +1,22 @@
+From 53e8022fd38a09d4eec3002dc8cd4f289c376a2d Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 09:46:52 +0800
+Subject: [PATCH 6/6] public: dropbear: musl_riscv64: etc: dropbear: allow
+ dropbear save host key into disk
+
+---
+ rootfs/public/dropbear/musl_riscv64/etc/dropbear | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rootfs/public/dropbear/musl_riscv64/etc/dropbear b/rootfs/public/dropbear/musl_riscv64/etc/dropbear
+index 33a2157..ba8ad95 120000
+--- a/rootfs/public/dropbear/musl_riscv64/etc/dropbear
++++ b/rootfs/public/dropbear/musl_riscv64/etc/dropbear
+@@ -1 +1 @@
+-/var/run/dropbear
+\ No newline at end of file
++/mnt/data/dropbear
+\ No newline at end of file
+-- 
+2.40.1
+

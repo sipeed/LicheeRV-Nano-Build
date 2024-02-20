@@ -1,0 +1,200 @@
+From 11e1f0eeed9e9c64bd5d06ea94dde58fa45eb389 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 10:13:05 +0800
+Subject: [PATCH 7/9] rootfs: overlay: sg2002_licheervnano_sd: etc: add custom
+ config file for licheervnano
+
+---
+ .../overlay/sg2002_licheervnano_sd/etc/group  | 27 +++++++++++++
+ .../sg2002_licheervnano_sd/etc/hostname       |  1 +
+ .../overlay/sg2002_licheervnano_sd/etc/hosts  |  3 ++
+ .../sg2002_licheervnano_sd/etc/init.d/S99skel | 12 +++++-
+ .../sg2002_licheervnano_sd/etc/inittab        | 38 +++++++++++++++++++
+ .../overlay/sg2002_licheervnano_sd/etc/issue  |  1 +
+ .../overlay/sg2002_licheervnano_sd/etc/passwd | 10 +++++
+ .../sg2002_licheervnano_sd/etc/resolv.conf    |  1 +
+ .../etc/resolv.conf.skel                      |  2 +
+ .../overlay/sg2002_licheervnano_sd/etc/shadow | 10 +++++
+ 10 files changed, 104 insertions(+), 1 deletion(-)
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/group
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/hostname
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/hosts
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/inittab
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/issue
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/passwd
+ create mode 120000 rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf.skel
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/shadow
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/group b/rootfs/overlay/sg2002_licheervnano_sd/etc/group
+new file mode 100644
+index 0000000..34189a5
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/group
+@@ -0,0 +1,27 @@
++root:x:0:
++daemon:x:1:
++bin:x:2:
++sys:x:3:
++adm:x:4:
++tty:x:5:
++disk:x:6:
++lp:x:7:
++mail:x:8:
++kmem:x:9:
++wheel:x:10:root,sipeed
++cdrom:x:11:
++dialout:x:18:
++floppy:x:19:
++video:x:28:
++audio:x:29:
++tape:x:32:
++www-data:x:33:
++operator:x:37:
++utmp:x:43:
++plugdev:x:46:
++staff:x:50:
++lock:x:54:
++netdev:x:82:
++users:x:100:sipeed
++nogroup:x:65534:
++sipeed:x:1000:
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/hostname b/rootfs/overlay/sg2002_licheervnano_sd/etc/hostname
+new file mode 100644
+index 0000000..32918dc
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/hostname
+@@ -0,0 +1 @@
++licheervnano
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/hosts b/rootfs/overlay/sg2002_licheervnano_sd/etc/hosts
+new file mode 100644
+index 0000000..be89741
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/hosts
+@@ -0,0 +1,3 @@
++127.0.0.1	localhost
++127.0.1.1	cvitek
++127.0.1.1	licheervnano
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99skel b/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99skel
+index ed2b606..41bbb00 100755
+--- a/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99skel
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99skel
+@@ -3,5 +3,15 @@
+ # copy default camera config file
+ if [ ! -e /mnt/data/sensor_cfg.ini ]
+ then
+-	cp /etc/sensor_cfg.ini /mnt/data
++	cp /etc/sensor_cfg.ini /mnt/data/sensor_cfg.ini
++fi
++
++if [ ! -e /mnt/data/resolv.conf ]
++then
++	cp /etc/resolv.conf.skel /mnt/data/resolv.conf
++fi
++if [ ! -e /mnt/data/user/sipeed ]
++then
++	mkdir -pv /mnt/data/user/sipeed
++	chown -R sipeed:sipeed /mnt/data/user/sipeed
+ fi
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/inittab b/rootfs/overlay/sg2002_licheervnano_sd/etc/inittab
+new file mode 100644
+index 0000000..e4ccf7e
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/inittab
+@@ -0,0 +1,38 @@
++# /etc/inittab
++#
++# Copyright (C) 2001 Erik Andersen <andersen@codepoet.org>
++#
++# Note: BusyBox init doesn't support runlevels.  The runlevels field is
++# completely ignored by BusyBox init. If you want runlevels, use
++# sysvinit.
++#
++# Format for each entry: <id>:<runlevels>:<action>:<process>
++#
++# id        == tty to run on, or empty for /dev/console
++# runlevels == ignored
++# action    == one of sysinit, respawn, askfirst, wait, and once
++# process   == program to run
++
++# Startup the system
++::sysinit:/sbin/mdev -s
++::sysinit:/bin/mkdir -p /dev/pts
++::sysinit:/bin/mkdir -p /dev/shm
++::sysinit:/bin/mount -a
++null::sysinit:/bin/hostname -F /etc/hostname
++
++# now run any rc scripts
++::sysinit:/etc/init.d/rcS
++
++# now run any post scripts
++::sysinit:/etc/init.d/rcP
++
++# Put a getty on the serial port
++console::respawn:/sbin/getty -L  console 115200 vt100 -n -l /bin/login
++
++# Stuff to do for the 3-finger salute
++::ctrlaltdel:/sbin/reboot
++
++# Stuff to do before rebooting
++::shutdown:/etc/init.d/rcK
++::shutdown:/sbin/swapoff -a
++::shutdown:/bin/umount -a -r
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/issue b/rootfs/overlay/sg2002_licheervnano_sd/etc/issue
+new file mode 100644
+index 0000000..db0f64f
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/issue
+@@ -0,0 +1 @@
++welcome to licheervnano
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/passwd b/rootfs/overlay/sg2002_licheervnano_sd/etc/passwd
+new file mode 100644
+index 0000000..2c1ee5a
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/passwd
+@@ -0,0 +1,10 @@
++root:x:0:0:root:/root:/bin/sh
++daemon:x:1:1:daemon:/usr/sbin:/bin/false
++bin:x:2:2:bin:/bin:/bin/false
++sys:x:3:3:sys:/dev:/bin/false
++sync:x:4:100:sync:/bin:/bin/sync
++mail:x:8:8:mail:/var/spool/mail:/bin/false
++www-data:x:33:33:www-data:/var/www:/bin/false
++operator:x:37:37:Operator:/var:/bin/false
++nobody:x:65534:65534:nobody:/home:/bin/false
++sipeed:x:1000:1000:sipeed:/mnt/data/user/sipeed:/bin/sh
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf b/rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf
+new file mode 120000
+index 0000000..71fdce7
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf
+@@ -0,0 +1 @@
++/mnt/data/resolv.conf
+\ No newline at end of file
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf.skel b/rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf.skel
+new file mode 100644
+index 0000000..2d84459
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/resolv.conf.skel
+@@ -0,0 +1,2 @@
++nameserver 8.8.8.8
++nameserver 1.1.1.1
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/shadow b/rootfs/overlay/sg2002_licheervnano_sd/etc/shadow
+new file mode 100644
+index 0000000..f059b28
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/shadow
+@@ -0,0 +1,10 @@
++root:$1$rZeY8xRZ$pSQDgwdG8VTgf8P0CbNHD1:::::::
++daemon:*:::::::
++bin:*:::::::
++sys:*:::::::
++sync:*:::::::
++mail:*:::::::
++www-data:*:::::::
++operator:*:::::::
++nobody:*:::::::
++sipeed:$1$mvzs2SMo$phXIx1IjM4MEFeJTR6dz81:::::::
+-- 
+2.40.1
+

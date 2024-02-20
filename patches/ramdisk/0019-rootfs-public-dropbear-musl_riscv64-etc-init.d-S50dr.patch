@@ -1,0 +1,27 @@
+From 987aebb43a2e2e64d5489362558fea845280af31 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 15:08:34 +0800
+Subject: [PATCH 19/28] 
+ rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear: fix typo
+ s/realink/readlink/
+
+---
+ rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear b/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear
+index 5200167..38419dd 100755
+--- a/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear
++++ b/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear
+@@ -28,7 +28,7 @@ start() {
+ 	fi
+ 	if [ ! -e "$(readlink /etc/dropbear)" ]
+ 	then
+-		mkdir -p $(realink /etc/dropbear)
++		mkdir -p $(readink /etc/dropbear)
+ 	fi
+ 
+ 	printf "Starting dropbear sshd: "
+-- 
+2.40.1
+

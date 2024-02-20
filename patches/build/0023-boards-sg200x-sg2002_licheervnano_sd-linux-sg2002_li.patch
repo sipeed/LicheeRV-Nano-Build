@@ -1,0 +1,64 @@
+From 2cdbfe8492b1fe288a31674c7a46b94a5c10db22 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 17:27:16 +0800
+Subject: [PATCH 23/23] 
+ boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig:
+ enable some feature use for systemd based distro
+
+---
+ .../linux/sg2002_licheervnano_sd_defconfig    | 42 +++++++++----------
+ 1 file changed, 20 insertions(+), 22 deletions(-)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
+index fcd85a8..7cbeb0c 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
+@@ -621,25 +621,23 @@ CONFIG_UNIX_DIAG=y
+ CONFIG_NETLINK_DIAG=y
+ CONFIG_AIC_WLAN_SUPPORT=y
+ 
+-# these driver broken tpu driver
+-# CONFIG_CIFS is not set
+-# CONFIG_CIFS_DEBUG is not set
+-# CONFIG_FUSE_FS is not set
+-# CONFIG_CUSE is no set
+-# CONFIG_OVERLAY_FS is not set
+-# CONFIG_NAMESPACES is not set
+-# CONFIG_UTS_NS is not set
+-# CONFIG_IPC_NS is not set
+-# CONFIG_USER_NS is not set
+-# CONFIG_PID_NS is not set
+-# CONFIG_NET_NS is not set
+-# CONFIG_CGROUPS is not set
+-# CONFIG_MEMCG is not set
+-# CONFIG_BLK_CGROUP is not set
+-# CONFIG_CGROUP_SCHED is not set
+-# CONFIG_FAIR_GROUP_SCHED is not set
+-# CONFIG_CFS_BANDWIDTH is not set
+-# CONFIG_RT_GROUP_SCHED is not set
+-# CONFIG_CGROUP_PIDS is not set
+-# CONFIG_CGROUP_DEVICE is not set
+-# CONFIG_CHECKPOINT_RESTORE is not set
++# these driver may be broken tpu driver
++CONFIG_FUSE_FS=y
++CONFIG_CUSE=y
++CONFIG_OVERLAY_FS=y
++CONFIG_NAMESPACES=y
++CONFIG_UTS_NS=y
++CONFIG_IPC_NS=y
++CONFIG_USER_NS=y
++CONFIG_PID_NS=y
++CONFIG_NET_NS=y
++CONFIG_CGROUPS=y
++CONFIG_MEMCG=y
++CONFIG_BLK_CGROUP=y
++CONFIG_CGROUP_SCHED=y
++CONFIG_FAIR_GROUP_SCHED=y
++CONFIG_CFS_BANDWIDTH=y
++CONFIG_RT_GROUP_SCHED=y
++CONFIG_CGROUP_PIDS=y
++CONFIG_CGROUP_DEVICE=y
++CONFIG_CHECKPOINT_RESTORE=y
+-- 
+2.40.1
+

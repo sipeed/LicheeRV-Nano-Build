@@ -1,0 +1,20 @@
+From 9189e49c0c333a28585d4e340bc72080f24f08fa Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 17:56:35 +0800
+Subject: [PATCH 30/30] rootfs/overlay/sg2002_licheervnano_sd: fix root passwod
+ login
+
+---
+ rootfs/overlay/sg2002_licheervnano_sd/etc/securetty | 3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/securetty
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/securetty b/rootfs/overlay/sg2002_licheervnano_sd/etc/securetty
+new file mode 100644
+index 0000000..7d4a329
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/securetty
+@@ -0,0 +1,3 @@
++console
++ttyS0
++ttyGS0

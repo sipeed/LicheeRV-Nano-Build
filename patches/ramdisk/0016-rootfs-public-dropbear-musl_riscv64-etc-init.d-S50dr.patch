@@ -1,0 +1,29 @@
+From d3c0389079d86bab38722336b0ce3c8b323977d1 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 14:28:16 +0800
+Subject: [PATCH 16/28] 
+ rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear: if  not found,
+ create it
+
+---
+ rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear b/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear
+index 3e2eec8..5200167 100755
+--- a/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear
++++ b/rootfs/public/dropbear/musl_riscv64/etc/init.d/S50dropbear
+@@ -26,6 +26,10 @@ start() {
+ 			mkdir -p "$(readlink /etc/dropbear)"
+ 		fi
+ 	fi
++	if [ ! -e "$(readlink /etc/dropbear)" ]
++	then
++		mkdir -p $(realink /etc/dropbear)
++	fi
+ 
+ 	printf "Starting dropbear sshd: "
+ 	umask 077
+-- 
+2.40.1
+

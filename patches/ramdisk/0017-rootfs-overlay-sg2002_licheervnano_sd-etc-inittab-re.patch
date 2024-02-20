@@ -1,0 +1,28 @@
+From 526943dcd33c6dcbb9149b591fa3f11284da50f1 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 14:52:41 +0800
+Subject: [PATCH 17/28] rootfs/overlay/sg2002_licheervnano_sd/etc/inittab:
+ re-enable autologin
+
+---
+ rootfs/overlay/sg2002_licheervnano_sd/etc/inittab | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/inittab b/rootfs/overlay/sg2002_licheervnano_sd/etc/inittab
+index 9ab3582..e44ca50 100644
+--- a/rootfs/overlay/sg2002_licheervnano_sd/etc/inittab
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/inittab
+@@ -27,8 +27,8 @@ null::sysinit:/bin/hostname -F /etc/hostname
+ ::sysinit:/etc/init.d/rcP
+ 
+ # Put a getty on the serial port
+-console::respawn:/sbin/getty -L  console 115200 vt100 -n -l /bin/login
+-ttyGS0::askfirst:/sbin/getty -L ttyGS0 115200 vt100 -n -l /bin/login
++console::respawn:/sbin/getty -L console 115200 vt100 -n -l /usr/local/bin/autologin
++ttyGS0::askfirst:/sbin/getty -L ttyGS0 115200 vt100 -n -l /usr/local/bin/autologin
+ 
+ # Stuff to do for the 3-finger salute
+ ::ctrlaltdel:/sbin/reboot
+-- 
+2.40.1
+

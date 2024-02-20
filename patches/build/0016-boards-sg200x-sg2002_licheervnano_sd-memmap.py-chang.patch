@@ -1,0 +1,26 @@
+From 8f9c4918f57865812708e2fe8b959fa5e906d854 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 10:42:24 +0800
+Subject: [PATCH 16/17] boards/sg200x/sg2002_licheervnano_sd/memmap.py: change
+ framebuffer memory region size to 8000K
+
+---
+ boards/sg200x/sg2002_licheervnano_sd/memmap.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/memmap.py b/boards/sg200x/sg2002_licheervnano_sd/memmap.py
+index fcc097d..4c676f0 100755
+--- a/boards/sg200x/sg2002_licheervnano_sd/memmap.py
++++ b/boards/sg200x/sg2002_licheervnano_sd/memmap.py
+@@ -58,7 +58,7 @@ class MemoryMap:
+ 
+     # Boot logo is after the ION buffer
+     # Framebuffer uses boot logo's reserved memory
+-    BOOTLOGO_SIZE = 1800 * SIZE_1K
++    BOOTLOGO_SIZE = 8000 * SIZE_1K
+     BOOTLOGO_ADDR = ION_ADDR - BOOTLOGO_SIZE
+     FRAMEBUFFER_SIZE = BOOTLOGO_SIZE
+     FRAMEBUFFER_ADDR = BOOTLOGO_ADDR
+-- 
+2.40.1
+

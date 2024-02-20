@@ -1,0 +1,89 @@
+From 8fee6c6425e158efeb734c14e626604382224a01 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 10:41:02 +0800
+Subject: [PATCH 8/9] rootfs: public: add cdc acm script
+
+---
+ rootfs/public/Kconfig                         |  1 +
+ rootfs/public/acm/Kconfig                     |  5 ++++
+ .../public/acm/musl_riscv64/etc/init.d/S05acm | 26 +++++++++++++++++++
+ rootfs/public/acm/target.mk                   |  3 +++
+ rootfs/public/packages.mk                     |  1 +
+ 5 files changed, 36 insertions(+)
+ create mode 100644 rootfs/public/acm/Kconfig
+ create mode 100755 rootfs/public/acm/musl_riscv64/etc/init.d/S05acm
+ create mode 100644 rootfs/public/acm/target.mk
+
+diff --git a/rootfs/public/Kconfig b/rootfs/public/Kconfig
+index b1d86d9..c8fa8f9 100644
+--- a/rootfs/public/Kconfig
++++ b/rootfs/public/Kconfig
+@@ -1,3 +1,4 @@
++source "../ramdisk/rootfs/public/acm/Kconfig"
+ source "../ramdisk/rootfs/public/adbd/Kconfig"
+ source "../ramdisk/rootfs/public/ap6201bm/Kconfig"
+ source "../ramdisk/rootfs/public/bluetooth/Kconfig"
+diff --git a/rootfs/public/acm/Kconfig b/rootfs/public/acm/Kconfig
+new file mode 100644
+index 0000000..fada5b4
+--- /dev/null
++++ b/rootfs/public/acm/Kconfig
+@@ -0,0 +1,5 @@
++config TARGET_PACKAGE_ACM_SCRIPT
++        bool "Target package acm script"
++	default n
++        help
++          target package acm script
+diff --git a/rootfs/public/acm/musl_riscv64/etc/init.d/S05acm b/rootfs/public/acm/musl_riscv64/etc/init.d/S05acm
+new file mode 100755
+index 0000000..ac48a66
+--- /dev/null
++++ b/rootfs/public/acm/musl_riscv64/etc/init.d/S05acm
+@@ -0,0 +1,26 @@
++#!/bin/sh
++${CVI_SHOPTS}
++
++case "$1" in
++  start)
++    insmod /mnt/system/ko/dwc2.ko
++    echo device > /proc/cviusb/otg_role
++    printf "Starting acm: "
++    /etc/run_usb.sh probe acm
++    /etc/run_usb.sh start
++    [ $? = 0 ] && echo "OK" || echo "FAIL"
++  ;;
++  stop)
++    printf "Stopping acm: "
++    /etc/run_usb.sh stop
++    echo "OK"
++    sleep 1
++  ;;
++  restart)
++    printf "Restarting acm: "
++    /etc/run_usb.sh stop
++    sleep 1
++    /etc/run_usb.sh start
++    echo "OK"
++  ;;
++esac
+diff --git a/rootfs/public/acm/target.mk b/rootfs/public/acm/target.mk
+new file mode 100644
+index 0000000..a55534d
+--- /dev/null
++++ b/rootfs/public/acm/target.mk
+@@ -0,0 +1,3 @@
++ifeq ($(CONFIG_TARGET_PACKAGE_ACM_SCRIPT),y)
++TARGET_PACKAGES += acm
++endif
+diff --git a/rootfs/public/packages.mk b/rootfs/public/packages.mk
+index 07263ac..eaf39b5 100644
+--- a/rootfs/public/packages.mk
++++ b/rootfs/public/packages.mk
+@@ -1,3 +1,4 @@
++include $(TOP_DIR)/ramdisk/rootfs/public/acm/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/adbd/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/ap6201bm/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/bluetooth/target.mk
+-- 
+2.40.1
+

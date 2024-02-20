@@ -1,0 +1,49 @@
+From a6ad8c2c08fe8ef7fc00493894b962b8b48dd58b Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 13:48:23 +0800
+Subject: [PATCH 12/12] rootfs/public/wifi/musl_riscv64/etc/init.d/S50wpa:
+ start wpa_supplicant on bootup
+
+---
+ .../wifi/musl_riscv64/etc/init.d/S50wpa       | 29 +++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100755 rootfs/public/wifi/musl_riscv64/etc/init.d/S50wpa
+
+diff --git a/rootfs/public/wifi/musl_riscv64/etc/init.d/S50wpa b/rootfs/public/wifi/musl_riscv64/etc/init.d/S50wpa
+new file mode 100755
+index 0000000..fc246c8
+--- /dev/null
++++ b/rootfs/public/wifi/musl_riscv64/etc/init.d/S50wpa
+@@ -0,0 +1,29 @@
++#! /bin/sh
++
++CONF=/etc/wpa_supplicant.conf
++
++case $1 in
++  start)
++    echo "start wpa_supplicant"
++    if [ -e /boot/wpa_supplicant.conf ]
++    then
++	CONF=/boot/wpa_supplicant.conf
++    fi
++    wpa_supplicant -i wlan0 -c $CONF -B
++    if [ $? -eq 0 ]
++    then
++	    echo "OK"
++    else
++	    echo "FAIL"
++    fi
++    (udhcpc -i wlan0 -b) &
++    ;;
++  stop)
++    echo "stop wpa_supplicant"
++    killall wpa_supplicant
++    ;;
++  restart)
++    stop
++    start
++    ;;
++esac
+-- 
+2.40.1
+

@@ -1,0 +1,23 @@
+From 1320b365d85e416836e2b84adbb8638457375bb2 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 17:15:58 +0800
+Subject: [PATCH 22/23] 
+ boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig: enable
+ package tpudemo
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig      | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index 7027f0b..d78da3b 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -41,3 +41,4 @@ CONFIG_TARGET_PACKAGE_STRACE=y
+ CONFIG_TARGET_PACKAGE_EK=y
+ CONFIG_TARGET_PACKAGE_EVTEST=y
+ CONFIG_TARGET_PACKAGE_EMPTY=y
++CONFIG_TARGET_PACKAGE_TPUDEMO=y
+-- 
+2.40.1
+

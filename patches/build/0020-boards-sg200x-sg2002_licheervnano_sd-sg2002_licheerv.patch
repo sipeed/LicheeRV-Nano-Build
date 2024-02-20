@@ -1,0 +1,33 @@
+From 492e2e60b2b4bf08b89fe89f12daa44b1124491e Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 16:44:32 +0800
+Subject: [PATCH 20/20] 
+ boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig: enable
+ a lot of package, for debug usage
+
+---
+ .../sg2002_licheervnano_sd_defconfig                  | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index 51de8c2..7027f0b 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -30,3 +30,14 @@ CONFIG_TARGET_PACKAGE_NTP=y
+ CONFIG_TARGET_PACKAGE_WIFI=y
+ CONFIG_TARGET_PACKAGE_ACM_SCRIPT=y
+ CONFIG_TARGET_PACKAGE_LCD=y
++CONFIG_TARGET_PACKAGE_IPERF3=y
++CONFIG_TARGET_PACKAGE_E2FSPROGS=y
++CONFIG_TARGET_PACKAGE_STRESS=y
++CONFIG_TARGET_PACKAGE_PARTED=y
++CONFIG_TARGET_PACKAGE_ALSA=y
++CONFIG_TARGET_PACKAGE_TERMINFO=y
++CONFIG_TARGET_PACKAGE_SFTP_SERVER=y
++CONFIG_TARGET_PACKAGE_STRACE=y
++CONFIG_TARGET_PACKAGE_EK=y
++CONFIG_TARGET_PACKAGE_EVTEST=y
++CONFIG_TARGET_PACKAGE_EMPTY=y
+-- 
+2.40.1
+

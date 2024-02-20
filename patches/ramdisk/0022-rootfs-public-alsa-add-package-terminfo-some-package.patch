@@ -1,0 +1,85 @@
+From 430d72f9e032719ddcd1da59a6a536380b884216 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 15:35:50 +0800
+Subject: [PATCH 22/28] rootfs/public/alsa: add package terminfo, some package
+ such as ncurses need it
+
+---
+ rootfs/public/Kconfig                            |   1 +
+ rootfs/public/packages.mk                        |   1 +
+ rootfs/public/terminfo/Kconfig                   |   5 +++++
+ .../musl_riscv64/usr/share/terminfo/v/vt100      | Bin 0 -> 1190 bytes
+ rootfs/public/terminfo/target.mk                 |   3 +++
+ 5 files changed, 10 insertions(+)
+ create mode 100644 rootfs/public/terminfo/Kconfig
+ create mode 100644 rootfs/public/terminfo/musl_riscv64/usr/share/terminfo/v/vt100
+ create mode 100644 rootfs/public/terminfo/target.mk
+
+diff --git a/rootfs/public/Kconfig b/rootfs/public/Kconfig
+index 3960864..f47e502 100644
+--- a/rootfs/public/Kconfig
++++ b/rootfs/public/Kconfig
+@@ -29,6 +29,7 @@ source "../ramdisk/rootfs/public/secure_image/Kconfig"
+ source "../ramdisk/rootfs/public/wifi/Kconfig"
+ source "../ramdisk/rootfs/public/busybox-syslogd/Kconfig"
+ source "../ramdisk/rootfs/public/mt7603u/Kconfig"
++source "../ramdisk/rootfs/public/terminfo/Kconfig"
+ source "../ramdisk/rootfs/public/libtirpc/Kconfig"
+ source "../ramdisk/rootfs/public/libnfs/Kconfig"
+ source "../ramdisk/rootfs/public/bash/Kconfig"
+diff --git a/rootfs/public/packages.mk b/rootfs/public/packages.mk
+index 542e4db..63c73ce 100644
+--- a/rootfs/public/packages.mk
++++ b/rootfs/public/packages.mk
+@@ -29,6 +29,7 @@ include $(TOP_DIR)/ramdisk/rootfs/public/secure_image/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/wifi/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/busybox-syslogd/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/mt7603u/target.mk
++include $(TOP_DIR)/ramdisk/rootfs/public/terminfo/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/libtirpc/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/libnfs/target.mk
+ include $(TOP_DIR)/ramdisk/rootfs/public/crontabs/target.mk
+diff --git a/rootfs/public/terminfo/Kconfig b/rootfs/public/terminfo/Kconfig
+new file mode 100644
+index 0000000..a1115ec
+--- /dev/null
++++ b/rootfs/public/terminfo/Kconfig
+@@ -0,0 +1,5 @@
++config TARGET_PACKAGE_TERMINFO
++        bool "Target package terminfo"
++	default n
++        help
++          target package terminfo
+diff --git a/rootfs/public/terminfo/musl_riscv64/usr/share/terminfo/v/vt100 b/rootfs/public/terminfo/musl_riscv64/usr/share/terminfo/v/vt100
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9d7ead9de3fe2109f48ef40678bee06cde3fe52
+GIT binary patch
+literal 1190
+zcmdT?OKTHR6h1cwT8k#Q2uKG?7P;DjkC{A7bz(wW7eTG9RS+7*hE85>CYih@Nt+hj
+zx)rxBU5bdJprD|jpbHl+T)1%I!i7thV*Ku%N!y@*z{`B+eCIolJ9Cn8c8reD2>IBA
+z$8Kt>+LQKp*6bO%)u0T5lkJmP!_HP#b4JiE8M*2d5t9!&2LTQf;@-m+X_O9AU!HyN
+zL>}@|fW~p>38}~FB3%MolF?Pz>ykM=2IZ-`C+_z<bc=37xkGnd{T|&Ps&G2{{Rey0
+zhc16i&*%lcqBr!8KF~+{M4#!4oBQheZ?6ANKj<g;FMybrjk3YyVSm8Y18f59s2iy)
+z#?DBdlJ*+xGP}WUvOIeP{zR%`(o^=Fy=1T1TdBO?(SI|qN94z(6>Rq$`iHig{r_0N
+zGeQSR$?y`lG;ZkJ3Ui|lAyR-zE1C15L`+SBUkD{4!tV$}Eoqb`X-xFspQmKzLW!`b
+zo{`=M7BgK*8<6;4B<d)Bl$(CHd{E?g%wCuUy1*jP0WJeez!jhgv;Z3@18v|OFbB+F
+zY)UID;=NK@Q8`OiUIW5F1c*YHTfhYlL8n8|?hr9UEx|;EiNPe4B*sPbs2(eW#P#W-
+zlEDV2Nr{Vv%*)N7i>JhJ>lE+trmk^a#9`2=Ly?NeRNRT9NX58rin7zZ>Ek&+*PWfD
+zX+J)v1~dTNwO|1iT3N|v^Z7zyZEbzMTsF;0rCPPDTCHAhG@8v;%eLF?PN&=5*x20c
+d^|rRQxA6_Bcu`txYjReZQZZ>Bg690*e*k`ZKK}p!
+
+literal 0
+HcmV?d00001
+
+diff --git a/rootfs/public/terminfo/target.mk b/rootfs/public/terminfo/target.mk
+new file mode 100644
+index 0000000..537f191
+--- /dev/null
++++ b/rootfs/public/terminfo/target.mk
+@@ -0,0 +1,3 @@
++ifeq ($(CONFIG_TARGET_PACKAGE_TERMINFO),y)
++TARGET_PACKAGES += terminfo
++endif
+-- 
+2.40.1
+

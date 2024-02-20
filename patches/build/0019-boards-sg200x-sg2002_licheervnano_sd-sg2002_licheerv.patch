@@ -1,0 +1,23 @@
+From 5ddee25a970ed65f1afee8668134cf4f58d3882d Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 11:28:59 +0800
+Subject: [PATCH 19/19] 
+ boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig: enable
+ package lcd
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig      | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index e13d98a..51de8c2 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -29,3 +29,4 @@ CONFIG_TARGET_PACKAGE_GATORD=n
+ CONFIG_TARGET_PACKAGE_NTP=y
+ CONFIG_TARGET_PACKAGE_WIFI=y
+ CONFIG_TARGET_PACKAGE_ACM_SCRIPT=y
++CONFIG_TARGET_PACKAGE_LCD=y
+-- 
+2.40.1
+

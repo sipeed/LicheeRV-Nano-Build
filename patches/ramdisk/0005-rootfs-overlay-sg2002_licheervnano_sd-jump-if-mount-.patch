@@ -1,0 +1,26 @@
+From 9da399d80fe462ef34539fa8b1a9db685885fbc4 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 09:45:30 +0800
+Subject: [PATCH 5/6] rootfs: overlay: sg2002_licheervnano_sd: jump if mount
+ failed fallback tmpfs
+
+---
+ rootfs/overlay/sg2002_licheervnano_sd/jump | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/jump b/rootfs/overlay/sg2002_licheervnano_sd/jump
+index 244712d..e1ebd89 100755
+--- a/rootfs/overlay/sg2002_licheervnano_sd/jump
++++ b/rootfs/overlay/sg2002_licheervnano_sd/jump
+@@ -7,7 +7,7 @@ export PATH=/mnt/system/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbi
+ ls /dev/mmcblk0* | cat
+ mount -t proc proc /proc
+ mount -t sysfs sysfs /sys
+-mount /dev/mmcblk0p3 /mnt/data/ || exec /sbin/init
++mount /dev/mmcblk0p3 /mnt/data/ || mount -t tmpfs tmpfs /mnt/data
+ if [ -e /mnt/data/sbin/init ]
+ then
+ 	echo "use vendor's system setup driver"
+-- 
+2.40.1
+

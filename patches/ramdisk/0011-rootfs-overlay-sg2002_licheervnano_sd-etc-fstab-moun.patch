@@ -1,0 +1,39 @@
+From 793b040c92d943f9170daffbbc136d231d98c62d Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 13:48:02 +0800
+Subject: [PATCH 11/12] rootfs/overlay/sg2002_licheervnano_sd/etc/fstab: mount
+ /dev/mmcblk0p1 on bootup
+
+---
+ .../sg2002_licheervnano_sd/boot/.dontremove        |  0
+ rootfs/overlay/sg2002_licheervnano_sd/etc/fstab    | 14 ++++++++++++++
+ 2 files changed, 14 insertions(+)
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/boot/.dontremove
+ create mode 100644 rootfs/overlay/sg2002_licheervnano_sd/etc/fstab
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/boot/.dontremove b/rootfs/overlay/sg2002_licheervnano_sd/boot/.dontremove
+new file mode 100644
+index 0000000..e69de29
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/fstab b/rootfs/overlay/sg2002_licheervnano_sd/etc/fstab
+new file mode 100644
+index 0000000..48c6bfe
+--- /dev/null
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/fstab
+@@ -0,0 +1,14 @@
++# <file system>	<mount pt>	<type>	<options>	<dump>	<pass>
++/dev/root	/		ext2	rw,noauto	0	1
++/dev/mmcblk0p1	/boot		vfat	defaults		0	0
++/dev/mmcblk0p3	/mnt/cfg	ext2	defaults		0	0
++proc		/proc		proc	defaults	0	0
++devpts		/dev/pts	devpts	defaults,gid=5,mode=620,ptmxmode=0666	0	0
++tmpfs		/dev/shm	tmpfs	mode=0777	0	0
++tmpfs		/tmp		tmpfs	mode=1777	0	0
++tmpfs		/run		tmpfs	mode=0755,nosuid,nodev	0	0
++tmpfs		/var/run	tmpfs	mode=0755,nosuid,nodev	0	0
++tmpfs		/var/lock	tmpfs	mode=0755,nosuid,nodev	0	0
++tmpfs		/var/empty	tmpfs	mode=0755,nosuid,nodev	0	0
++sysfs		/sys		sysfs	defaults	0	0
++nodev		/sys/kernel/debug debugfs   defaults    0	0
+-- 
+2.40.1
+

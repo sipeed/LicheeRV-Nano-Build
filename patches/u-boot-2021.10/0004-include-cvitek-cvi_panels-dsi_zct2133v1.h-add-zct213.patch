@@ -1,0 +1,43 @@
+From 3392a86a0852d7e47268d46b612fbd479406450b Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 10:44:17 +0800
+Subject: [PATCH 4/5] include/cvitek/cvi_panels/dsi_zct2133v1.h: add zct2133v1
+ panel support
+
+---
+ include/cvitek/cvi_panels/cvi_panels.h    | 9 +++++++++
+ include/cvitek/cvi_panels/dsi_zct2133v1.h | 1 +
+ 2 files changed, 10 insertions(+)
+ create mode 120000 include/cvitek/cvi_panels/dsi_zct2133v1.h
+
+diff --git a/include/cvitek/cvi_panels/cvi_panels.h b/include/cvitek/cvi_panels/cvi_panels.h
+index 5863d7bbb1..4db45f4660 100644
+--- a/include/cvitek/cvi_panels/cvi_panels.h
++++ b/include/cvitek/cvi_panels/cvi_panels.h
+@@ -132,6 +132,15 @@ static struct panel_desc_s panel_desc = {
+ 	.dsi_init_cmds = dsi_init_cmds_st7785m_240x320,
+ 	.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7785m_240x320)
+ };
++#elif defined(MIPI_PANEL_ZCT2133V1)
++#include "dsi_zct2133v1.h"
++static struct panel_desc_s panel_desc = {
++        .panel_name = "zct2133v1-800x1280",
++        .dev_cfg = &dev_cfg_zct2133v1_800x1280,
++        .hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280,
++        .dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280,
++        .dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280)
++};
+ #elif defined(I80_PANEL_ST7789V)
+ #include "i80_st7789v.h"
+ static struct panel_desc_s panel_desc = {
+diff --git a/include/cvitek/cvi_panels/dsi_zct2133v1.h b/include/cvitek/cvi_panels/dsi_zct2133v1.h
+new file mode 120000
+index 0000000000..464113ec65
+--- /dev/null
++++ b/include/cvitek/cvi_panels/dsi_zct2133v1.h
+@@ -0,0 +1 @@
++../../../../middleware/v2/component/panel/sg200x/dsi_zct2133v1.h
+\ No newline at end of file
+-- 
+2.40.1
+

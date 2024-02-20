@@ -1,0 +1,60 @@
+From 2e685f1a3eb2d9ac8c5df8bc7d12f1b36884f5df Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 10:43:35 +0800
+Subject: [PATCH 7/7] v2/sample/mipi_tx/sample_dsi.c: add zct2133v1 into
+ sample_dsi
+
+---
+ v2/sample/mipi_tx/sample_dsi.c       | 9 +++++++++
+ v2/sample/mipi_tx/sample_dsi_panel.h | 1 +
+ 2 files changed, 10 insertions(+)
+
+diff --git a/v2/sample/mipi_tx/sample_dsi.c b/v2/sample/mipi_tx/sample_dsi.c
+index b5c23bd..48fbe75 100644
+--- a/v2/sample/mipi_tx/sample_dsi.c
++++ b/v2/sample/mipi_tx/sample_dsi.c
+@@ -37,6 +37,7 @@ typedef struct _optionExt_ {
+ 
+ typedef enum
+ {
++	DSI_PANEL_ZCT2133V1,
+ 	DSI_PANEL_3AML069LP01G,
+ 	DSI_PANEL_GM8775C,
+ 	DSI_PANEL_HX8394_EVB,
+@@ -100,6 +101,7 @@ static optionExt long_option_ext[] = {
+ };
+ 
+ static const char* s_panel_model_type_arr[] = {
++	"ZCT2133V1",
+ 	"3AML069LP01G",
+ 	"GM8775C",
+ 	"HX8394_EVB",
+@@ -407,6 +409,13 @@ void SAMPLE_MIPI_SET_PANEL_DESC()
+ 			g_panel_desc.dsi_init_cmds = dsi_init_cmds_st7785m_240x320;
+ 			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7785m_240x320);
+ 			break;
++		case DSI_PANEL_ZCT2133V1:
++                        g_panel_desc.panel_name = "ZCT2133V1-800x1280";
++                        g_panel_desc.dev_cfg = &dev_cfg_zct2133v1_800x1280;
++                        g_panel_desc.hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280;
++                        g_panel_desc.dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280;
++                        g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280);
++                        break;
+ 		case DSI_PANEL_HX8399_1080P:
+ 			g_panel_desc.panel_name = "HX8399_1080x1920";
+ 			g_panel_desc.dev_cfg = &dev_cfg_hx8399_1080x1920;
+diff --git a/v2/sample/mipi_tx/sample_dsi_panel.h b/v2/sample/mipi_tx/sample_dsi_panel.h
+index c15cd97..c45e5d8 100644
+--- a/v2/sample/mipi_tx/sample_dsi_panel.h
++++ b/v2/sample/mipi_tx/sample_dsi_panel.h
+@@ -29,6 +29,7 @@ extern "C" {
+ #include "dsi_gm8775c.h"
+ #include "dsi_lt9611.h"
+ #include "dsi_st7785m.h"
++#include "dsi_zct2133v1.h"
+ 
+ struct panel_desc_s {
+ 	char *panel_name;
+-- 
+2.40.1
+

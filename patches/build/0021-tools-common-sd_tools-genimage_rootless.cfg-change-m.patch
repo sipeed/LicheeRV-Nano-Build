@@ -1,0 +1,35 @@
+From 59b94c45fd1511a04c44639dfb887f04a717d3c4 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 17:13:07 +0800
+Subject: [PATCH 21/23] tools/common/sd_tools/genimage_rootless.cfg: change max
+ rootfs to 32MiB, change max user.ext4 size to 16MiB
+
+---
+ tools/common/sd_tools/genimage_rootless.cfg | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/common/sd_tools/genimage_rootless.cfg b/tools/common/sd_tools/genimage_rootless.cfg
+index 539db39..765d191 100644
+--- a/tools/common/sd_tools/genimage_rootless.cfg
++++ b/tools/common/sd_tools/genimage_rootless.cfg
+@@ -12,7 +12,7 @@ image boot.vfat {
+ image user.ext4 {
+         ext4 {
+         }
+-        size = 32M
++        size = 16M
+ }
+ 
+ image duo.img {
+@@ -28,7 +28,7 @@ image duo.img {
+         partition rootfs {
+                 partition-type = 0x83
+                 image = "rootfs.sd"
+-		size = 16M
++		size = 32M
+         }
+ 
+         partition user {
+-- 
+2.40.1
+

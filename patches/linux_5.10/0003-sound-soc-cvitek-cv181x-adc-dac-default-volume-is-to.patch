@@ -1,0 +1,156 @@
+From 86730361403e82f549246b3cdc66cdf461d52835 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 16:30:48 +0800
+Subject: [PATCH 3/3] sound/soc/cvitek/cv181x*: adc/dac default volume is too
+ low, so modify it
+
+---
+ sound/soc/cvitek/cv181xadc.c | 64 +++++++++++++++++++++---------------
+ sound/soc/cvitek/cv181xdac.c | 28 ++++++++++------
+ 2 files changed, 55 insertions(+), 37 deletions(-)
+
+diff --git a/sound/soc/cvitek/cv181xadc.c b/sound/soc/cvitek/cv181xadc.c
+index 91d101b62ea9..51fd19fb9b16 100644
+--- a/sound/soc/cvitek/cv181xadc.c
++++ b/sound/soc/cvitek/cv181xadc.c
+@@ -445,6 +445,39 @@ static struct cv181xadc *file_adc_dev(struct file *file)
+ 	return container_of(file->private_data, struct cv181xadc, miscdev);
+ }
+ 
++static void adc_set_volume(struct cv181xadc *adc, u32 val) {
++	u32 temp;
++	u32 val2;
++
++	pr_info("adc: set volume %d\n", val);
++	pr_debug("adc: ACODEC_SET_INPUT_VOL\n");
++	if ((val < 0) | (val > 24))
++		pr_err("Only support range 0 [0dB] ~ 24 [48dB]\n");
++	else if (val == 0) {
++		/* set mute */
++		temp = adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2)
++			| AUDIO_PHY_REG_MUTEL_ON
++			| AUDIO_PHY_REG_MUTER_ON;
++		adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2, temp);
++		temp = (adc_vol_list[val] | (adc_vol_list[val] << 16));
++		adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0, temp);
++	} else {
++		val2 = (adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0) & AUDIO_PHY_REG_ADC_VOLL_MASK);
++		for (temp = 0; temp < 25; temp++) {
++			if (val2 == adc_vol_list[temp])
++				break;
++		}
++		if (temp == 0) {
++			/* unmute */
++			temp = adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2)
++				& AUDIO_PHY_REG_MUTEL_OFF
++				& AUDIO_PHY_REG_MUTEL_OFF;
++			adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2, temp);
++		}
++		temp = (adc_vol_list[val] | (adc_vol_list[val] << 16));
++		adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0, temp);
++	}
++};
+ 
+ static long adc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ {
+@@ -473,33 +506,7 @@ static long adc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		break;
+ 
+ 	case ACODEC_SET_INPUT_VOL:
+-		pr_debug("adc: ACODEC_SET_INPUT_VOL\n");
+-		if ((val < 0) | (val > 24))
+-			pr_err("Only support range 0 [0dB] ~ 24 [48dB]\n");
+-		else if (val == 0) {
+-			/* set mute */
+-			temp = adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2)
+-				| AUDIO_PHY_REG_MUTEL_ON
+-				| AUDIO_PHY_REG_MUTER_ON;
+-			adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2, temp);
+-			temp = (adc_vol_list[val] | (adc_vol_list[val] << 16));
+-			adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0, temp);
+-		} else {
+-			val2 = (adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0) & AUDIO_PHY_REG_ADC_VOLL_MASK);
+-			for (temp = 0; temp < 25; temp++) {
+-				if (val2 == adc_vol_list[temp])
+-					break;
+-			}
+-			if (temp == 0) {
+-				/* unmute */
+-				temp = adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2)
+-					& AUDIO_PHY_REG_MUTEL_OFF
+-					& AUDIO_PHY_REG_MUTEL_OFF;
+-				adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA2, temp);
+-			}
+-			temp = (adc_vol_list[val] | (adc_vol_list[val] << 16));
+-			adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_ANA0, temp);
+-		}
++		adc_set_volume(adc, val);
+ 		break;
+ 
+ 	case ACODEC_GET_INPUT_VOL:
+@@ -883,6 +890,9 @@ static int cv181xadc_probe(struct platform_device *pdev)
+ 	ctrl1 = adc_read_reg(adc->adc_base, AUDIO_PHY_RXADC_CTRL1);
+ 	adc_write_reg(adc->adc_base, AUDIO_PHY_RXADC_CTRL1, ctrl1 | AUDIO_ADC_IGR_INIT_EN);
+ 
++	/* default input volume is 20 */
++	adc_set_volume(adc, 20);
++
+ 	return devm_snd_soc_register_component(&pdev->dev, &soc_component_dev_cv181xadc,
+ 					  &cv181xadc_dai, 1);
+ }
+diff --git a/sound/soc/cvitek/cv181xdac.c b/sound/soc/cvitek/cv181xdac.c
+index 6c8b520cc40e..d75140dbe592 100644
+--- a/sound/soc/cvitek/cv181xdac.c
++++ b/sound/soc/cvitek/cv181xdac.c
+@@ -311,6 +311,19 @@ static struct cv181xdac *file_dac_dev(struct file *file)
+ 	return container_of(file->private_data, struct cv181xdac, miscdev);
+ }
+ 
++static void dac_set_volume(struct cv181xdac *dac, u32 val) {
++	u32 temp;
++	pr_debug("dac: ACODEC_SET_OUTPUT_VOL with val=%d\n", val);
++	if ((val < 0) | (val > 32))
++		pr_err("Only support range 0 [mute] ~ 32 [maximum]\n");
++	else {
++		temp = dac_read_reg(dac->dac_base, AUDIO_PHY_TXDAC_AFE1)
++				& ~(AUDIO_PHY_REG_TXDAC_GAIN_UB_0_MASK | AUDIO_PHY_REG_TXDAC_GAIN_UB_1_MASK);
++		temp |= DAC_VOL_L(val) | DAC_VOL_R(val);
++		dac_write_reg(dac->dac_base, AUDIO_PHY_TXDAC_AFE1, temp);
++	}
++}
++
+ static long dac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 
+@@ -336,16 +349,7 @@ static long dac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		break;
+ 
+ 	case ACODEC_SET_OUTPUT_VOL:
+-		pr_debug("dac: ACODEC_SET_OUTPUT_VOL with val=%d\n", val);
+-
+-		if ((val < 0) | (val > 32))
+-			pr_err("Only support range 0 [mute] ~ 32 [maximum]\n");
+-		else {
+-			temp = dac_read_reg(dac->dac_base, AUDIO_PHY_TXDAC_AFE1)
+-					& ~(AUDIO_PHY_REG_TXDAC_GAIN_UB_0_MASK | AUDIO_PHY_REG_TXDAC_GAIN_UB_1_MASK);
+-			temp |= DAC_VOL_L(val) | DAC_VOL_R(val);
+-			dac_write_reg(dac->dac_base, AUDIO_PHY_TXDAC_AFE1, temp);
+-		}
++		dac_set_volume(dac, val);
+ 		break;
+ 
+ 	case ACODEC_GET_OUTPUT_VOL:
+@@ -654,6 +658,10 @@ static int cv181xdac_probe(struct platform_device *pdev)
+ 		gpio_direction_output(mute_pin_r, 1);
+ 		gpio_set_value(mute_pin_r, 0);
+ 	}
++
++
++	/* default volume 15 */
++	dac_set_volume(dac, 15);
+ 	return devm_snd_soc_register_component(&pdev->dev, &soc_component_dev_cv181xdac,
+ 					  &cv181xdac_dai, 1);
+ }
+-- 
+2.40.1
+

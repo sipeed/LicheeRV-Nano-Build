@@ -1,0 +1,77 @@
+From 2c0b7d6af77c537f2dda02425024003f8be3fb62 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 14:23:51 +0800
+Subject: [PATCH 15/28] overlay/musl_riscv64/etc/init.d/S00board: move system
+ module load script into S00board
+
+---
+ rootfs/overlay/musl_riscv64/etc/init.d/S00board       | 6 ++++++
+ rootfs/overlay/musl_riscv64/etc/init.d/S99user        | 5 -----
+ rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh | 2 ++
+ rootfs/public/lcd/musl_riscv64/etc/init.d/S05lcd      | 2 --
+ 4 files changed, 8 insertions(+), 7 deletions(-)
+ mode change 100644 => 100755 rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh
+
+diff --git a/rootfs/overlay/musl_riscv64/etc/init.d/S00board b/rootfs/overlay/musl_riscv64/etc/init.d/S00board
+index 27dfa18..7710141 100755
+--- a/rootfs/overlay/musl_riscv64/etc/init.d/S00board
++++ b/rootfs/overlay/musl_riscv64/etc/init.d/S00board
+@@ -9,5 +9,11 @@ case $1 in
+     echo 20 > /proc/sys/kernel/sched_rr_timeslice_ms
+     # Set min_free_kbytes
+     #echo 3072 > /proc/sys/vm/min_free_kbytes
++    export USERDATAPATH=/mnt/data/
++    export SYSTEMPATH=/mnt/system/
++    echo "load kernel modules..."
++    if [ -d $SYSTEMPATH/ko ]; then
++       sh $SYSTEMPATH/ko/loadsystemko.sh
++    fi
+     ;;
+ esac
+diff --git a/rootfs/overlay/musl_riscv64/etc/init.d/S99user b/rootfs/overlay/musl_riscv64/etc/init.d/S99user
+index 528e71a..41918a3 100755
+--- a/rootfs/overlay/musl_riscv64/etc/init.d/S99user
++++ b/rootfs/overlay/musl_riscv64/etc/init.d/S99user
+@@ -8,11 +8,6 @@ export SYSTEMPATH=/mnt/system/
+ 
+ case "$1" in
+   start)
+-        echo "init mpp system..."
+-        if [ -d $SYSTEMPATH/ko ]; then
+-                sh $SYSTEMPATH/ko/loadsystemko.sh
+-        fi
+-
+         echo "Starting app..."
+         if [ -f $USERDATAPATH/auto.sh ]; then
+                 usleep 30000
+diff --git a/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh b/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh
+old mode 100644
+new mode 100755
+index b70f623..88e0a8c
+--- a/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh
++++ b/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh
+@@ -26,6 +26,8 @@ insmod /mnt/system/ko/soph_vc_driver.ko MaxVencChnNum=9 MaxVdecChnNum=9
+ #insmod /mnt/system/ko/soph_rtc.ko
+ insmod /mnt/system/ko/soph_ive.ko
+ 
++insmod /mnt/system/ko/soph_fb.ko opt_bpp=16
++
+ echo 3 > /proc/sys/vm/drop_caches
+ dmesg -n 4
+ 
+diff --git a/rootfs/public/lcd/musl_riscv64/etc/init.d/S05lcd b/rootfs/public/lcd/musl_riscv64/etc/init.d/S05lcd
+index 724a415..8bc4d8a 100755
+--- a/rootfs/public/lcd/musl_riscv64/etc/init.d/S05lcd
++++ b/rootfs/public/lcd/musl_riscv64/etc/init.d/S05lcd
+@@ -3,8 +3,6 @@
+ case "$1" in
+   start)
+     printf "start lcd: "
+-    sh /mnt/system/ko/loadsystemko.sh
+-    insmod /mnt/system/ko/soph_fb.ko opt_bpp=16
+     fbdaemon
+     echo "OK"
+     ;;
+-- 
+2.40.1
+

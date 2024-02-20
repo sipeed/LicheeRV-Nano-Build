@@ -1,0 +1,31 @@
+From 2f54dfbea717e901237c5c0d1f4ba9ba0a1574b7 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Tue, 20 Feb 2024 10:45:00 +0800
+Subject: [PATCH 5/5] include/cvitek/cvi_panels/cvi_panel_diffs.h: disable
+ startvl on uboot, it cause lcd show green color on blank
+
+---
+ include/cvitek/cvi_panels/cvi_panel_diffs.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/include/cvitek/cvi_panels/cvi_panel_diffs.h b/include/cvitek/cvi_panels/cvi_panel_diffs.h
+index c0ddf54fdd..689a4b78d3 100644
+--- a/include/cvitek/cvi_panels/cvi_panel_diffs.h
++++ b/include/cvitek/cvi_panels/cvi_panel_diffs.h
+@@ -20,7 +20,12 @@
+ #define START_VO "startvo 0 8192 0;"
+ #endif
+ 
+-#define START_VL "startvl 0 " LOGO_READ_ADDR " " LOGO_RESERVED_ADDR " " LOGOSIZE " " VO_ALIGNMENT ";"
++// this function borken on licheervnano
++// this function make lcd show green color on blank
++//#define START_VL "startvl 0 " LOGO_READ_ADDR " " LOGO_RESERVED_ADDR " " LOGOSIZE " " VO_ALIGNMENT ";"
++#ifndef START_VL
++#define START_VL " "
++#endif
+ #define SET_VO_BG "setvobg 0 0xffffffff;"
+ 
+ #endif
+-- 
+2.40.1
+
