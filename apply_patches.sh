@@ -45,8 +45,8 @@ git am ../patches/middleware/0001-v2-Makefile-install-vio-sensor_test-audio-demo
 git am ../patches/middleware/0002-v2-Makefile-dont-copy-some-file-because-source-file-.patch
 
 # add mipi panel st7701_hd228001c31
-../patches/middleware/0003-v2-component-panel-sg200x-add-dsi_st7701_hd228001c31.patch
-../patches/middleware/0004-v2-sample-mipi_tx-sample_dsi_panel.h-add-dsi_st7701_.patch
+git am ../patches/middleware/0003-v2-component-panel-sg200x-add-dsi_st7701_hd228001c31.patch
+git am ../patches/middleware/0004-v2-sample-mipi_tx-sample_dsi_panel.h-add-dsi_st7701_.patch
 
 # add gc4653 support for licheervnano
 git am ../patches/middleware/0005-v2-component-isp-sensor-sg200x-gcore_gc4653-add-supp.patch
