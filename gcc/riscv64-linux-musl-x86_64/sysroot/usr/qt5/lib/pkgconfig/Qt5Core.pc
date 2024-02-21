@@ -1,0 +1,14 @@
+prefix=/data/luhui/work/licheervnano-sdk-new/host-tools/gcc/riscv64-linux-musl-x86_64/bin/../sysroot/usr/qt5
+exec_prefix=${prefix}
+libdir=/usr/qt5/lib
+includedir=/usr/qt5/include
+
+host_bins=/data/luhui/work/licheervnano-sdk-new/host-tools/gcc/riscv64-linux-musl-x86_64/sysroot/usr/qt5/bin
+qt_config=shared shared rpath release c++11 c++14 c++17 c++1z concurrent dbus no-pkg-config reduce_exports stl properties animation textcodec big_codecs clock-monotonic codecs itemmodel proxymodel concatenatetablesproxymodel textdate datestring doubleconversion eventfd filesystemiterator filesystemwatcher gestures iconv identityproxymodel inotify library mimetype process statemachine regularexpression settings sharedmemory sortfilterproxymodel stringlistmodel systemsemaphore temporaryfile threadsafe-cloexec translation transposeproxymodel xmlstream xmlstreamreader xmlstreamwriter
+
+Name: Qt5 Core
+Description: Qt Core module
+Version: 5.15.2
+Libs: -L${libdir} -lQt5Core 
+Cflags: -DQT_CORE_LIB -I${includedir}/QtCore -I${includedir}
+

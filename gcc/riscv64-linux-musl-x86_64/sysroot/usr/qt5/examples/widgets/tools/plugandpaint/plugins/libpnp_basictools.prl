@@ -1,0 +1,7 @@
+QMAKE_PRL_BUILD_DIR = /data/luhui/work/licheervnano-sdk-new/ramdisk/src/qt5/qtbase/examples/widgets/tools/plugandpaint/plugins/basictools
+QMAKE_PRO_INPUT = basictools.pro
+QMAKE_PRL_TARGET = libpnp_basictools.a
+QMAKE_PRL_CONFIG = lex yacc depend_includepath testcase_targets import_qpa_plugin prepare_docs qt_docs_targets qt_build_extra file_copies qmake_use qt warn_on release link_prl incremental cross_compile release linux unix posix gcc cross_compile ccache compile_examples enable_new_dtags largefile ltcg precompile_header prefix_build force_independent force_bootstrap utf8_source create_prl link_prl no_private_qt_headers_warning QTDIR_build qt_example_installs exceptions_off testcase_exceptions explicitlib warning_clean plugin static install_ok have_target staticlib relative_qt_rpath thread link_ltcg uic link_ltcg link_ltcg moc resources dll
+QMAKE_PRL_VERSION = 1.0.0
+QMAKE_PRL_LIBS = /data/luhui/work/licheervnano-sdk-new/ramdisk/src/qt5/qtbase/lib/libQt5Widgets.so /data/luhui/work/licheervnano-sdk-new/ramdisk/src/qt5/qtbase/lib/libQt5Gui.so /data/luhui/work/licheervnano-sdk-new/ramdisk/src/qt5/qtbase/lib/libQt5Core.so -lpthread
+QMAKE_PRL_LIBS_FOR_CMAKE = /data/luhui/work/licheervnano-sdk-new/ramdisk/src/qt5/qtbase/lib/libQt5Widgets.so;/data/luhui/work/licheervnano-sdk-new/ramdisk/src/qt5/qtbase/lib/libQt5Gui.so;/data/luhui/work/licheervnano-sdk-new/ramdisk/src/qt5/qtbase/lib/libQt5Core.so;-lpthread;;;

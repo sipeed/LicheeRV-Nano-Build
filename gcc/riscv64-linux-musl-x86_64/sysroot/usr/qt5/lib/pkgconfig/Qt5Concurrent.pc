@@ -1,0 +1,13 @@
+prefix=/data/luhui/work/licheervnano-sdk-new/host-tools/gcc/riscv64-linux-musl-x86_64/bin/../sysroot/usr/qt5
+exec_prefix=${prefix}
+libdir=/usr/qt5/lib
+includedir=/usr/qt5/include
+
+
+Name: Qt5 Concurrent
+Description: Qt Concurrent module
+Version: 5.15.2
+Libs: -L${libdir} -lQt5Concurrent 
+Cflags: -DQT_CONCURRENT_LIB -I${includedir}/QtConcurrent -I${includedir}
+Requires: Qt5Core
+
