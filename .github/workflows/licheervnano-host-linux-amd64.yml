@@ -50,26 +50,16 @@ jobs:
         uses: actions/checkout@v3
         with:
             path: 'cvi_mmf_sdk'  # TODO: make this name a global variable
-            ref: 'v4.1.0-licheervnano'
-
-      - name: Download Toolchain
-        run: |
-              export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-              pushd cvi_mmf_sdk
-                wget https://sophon-file.sophon.cn/sophon-prod-s3/drive/23/03/07/16/host-tools.tar.gz
-                tar xf host-tools.tar.gz
-                sudo mkdir -pv /usr/local/lib/
-                sudo cp docker/*.so* /usr/local/lib/
-              popd
+            ref: 'newsdk'
 
       - name: Make System
         run: |
-              export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
               pushd cvi_mmf_sdk
+                git submodule update --init --recursive
                 source build/cvisetup.sh
-                defconfig cv1812cp_licheerv_nano_sd
+                defconfig sg2002_licheervnano_sd
                 build_all
-                ./build/tools/common/sd_tools/sd_gen_burn_image.sh install/soc_cv1812cp_licheerv_nano_sd/
+                ./build/tools/common/sd_tools/sd_gen_burn_image_rootless.sh install/soc_sg2002_licheervnano_sd/
               popd
 
       - name: 'Upload Artifact'
@@ -78,4 +68,4 @@ jobs:
           retention-days: 30
           name: licheervnano-cvi-mmf-sdk-output-${{ env.BUILD_ID }}
           path: |
-                  cvi_mmf_sdk/install/soc_cv1812cp_licheerv_nano_sd/images/*
+                  cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/images/*
