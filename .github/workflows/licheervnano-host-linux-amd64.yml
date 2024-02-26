@@ -56,6 +56,7 @@ jobs:
         run: |
               pushd cvi_mmf_sdk
                 git submodule update --init --recursive
+                ./apply_patches.sh
                 source build/cvisetup.sh
                 defconfig sg2002_licheervnano_sd
                 build_all
