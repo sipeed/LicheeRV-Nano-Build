@@ -55,7 +55,9 @@ jobs:
       - name: Make System
         run: |
               pushd cvi_mmf_sdk
-                git submodule update --init --recursive
+                git submodule update --init --recursive --depth=1
+                git config user.name 'gh'
+                git config user.email 'gh@none.nop'
                 ./apply_patches.sh
                 source build/cvisetup.sh
                 defconfig sg2002_licheervnano_sd
