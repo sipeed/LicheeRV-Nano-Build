@@ -1,7 +1,7 @@
-From 5ddee25a970ed65f1afee8668134cf4f58d3882d Mon Sep 17 00:00:00 2001
+From 3eab1406a54a3575c988f8d4dc5d2d5f9aa82bdf Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 11:28:59 +0800
-Subject: [PATCH 19/19] 
+Subject: [PATCH 19/33] 
  boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig: enable
  package lcd
 

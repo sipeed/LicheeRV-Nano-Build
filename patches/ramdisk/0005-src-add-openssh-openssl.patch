@@ -1,0 +1,104 @@
+From c25f617aa800a5f2ba87b87303f6e0efb2618db2 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 26 Feb 2024 11:35:17 +0800
+Subject: [PATCH 5/7] src: add openssh openssl
+
+---
+ src/openssh.org | 40 ++++++++++++++++++++++++++++++++++++++++
+ src/openssl.org | 37 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 77 insertions(+)
+ create mode 100644 src/openssh.org
+ create mode 100644 src/openssl.org
+
+diff --git a/src/openssh.org b/src/openssh.org
+new file mode 100644
+index 0000000..8259780
+--- /dev/null
++++ b/src/openssh.org
+@@ -0,0 +1,40 @@
++* libdaemon
++
++** get source
++
++#+BEGIN_SRC shell
++wget https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.6p1.tar.gz
++tar xf openssh-9.6p1.tar.gz
++#END_SRC
++
++** apply patches
++
++#+BEGIN_SRC shell
++#+END_SRC
++
++** cross compile
++
++#+BEGIN_SRC shell
++./configure --prefix=/usr \
++        --sysconfdir=/etc \
++        --localstatedir=/var \
++        --host=riscv64-unknown-linux-musl \
++	--without-zlib --disable-strip
++
++make -j`nproc`
++#+END_SRC
++
++** install into sysroot
++
++#+BEGIN_SRC shell
++make DESTDIR=$(riscv64-unknown-linux-musl-gcc -print-sysroot) install
++#+END_SRC
++
++** delete *.la file
++
++la file is harmfull for cross compile
++
++#+BEGIN_SRC shell
++find $(riscv64-unknown-linux-musl-gcc -print-sysroot) -name '*.la' -delete
++#+END_SRC
++
+diff --git a/src/openssl.org b/src/openssl.org
+new file mode 100644
+index 0000000..5736d15
+--- /dev/null
++++ b/src/openssl.org
+@@ -0,0 +1,37 @@
++* libdaemon
++
++** get source
++
++#+BEGIN_SRC shell
++wget https://github.com/openssl/openssl/releases/download/openssl-3.2.0/openssl-3.2.0.tar.gz
++tar xf openssl-3.2.0.tar.gz
++#END_SRC
++
++** apply patches
++
++#+BEGIN_SRC shell
++#+END_SRC
++
++** cross compile
++
++#+BEGIN_SRC shell
++./Configure linux64-riscv64 shared \
++        --cross-compile-prefix=riscv64-unknown-linux-musl- \
++        --prefix=/usr --openssldir=/etc/ssl 
++make -j`nproc`
++#+END_SRC
++
++** install into sysroot
++
++#+BEGIN_SRC shell
++make DESTDIR=$(riscv64-unknown-linux-musl-gcc -print-sysroot) install
++#+END_SRC
++
++** delete *.la file
++
++la file is harmfull for cross compile
++
++#+BEGIN_SRC shell
++find $(riscv64-unknown-linux-musl-gcc -print-sysroot) -name '*.la' -delete
++#+END_SRC
++
+-- 
+2.40.1
+

@@ -1,7 +1,7 @@
-From 59b94c45fd1511a04c44639dfb887f04a717d3c4 Mon Sep 17 00:00:00 2001
+From 9be2bba70a6d4b5199c8c268dc2d91e8792007d2 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 17:13:07 +0800
-Subject: [PATCH 21/23] tools/common/sd_tools/genimage_rootless.cfg: change max
+Subject: [PATCH 21/33] tools/common/sd_tools/genimage_rootless.cfg: change max
  rootfs to 32MiB, change max user.ext4 size to 16MiB
 
 ---

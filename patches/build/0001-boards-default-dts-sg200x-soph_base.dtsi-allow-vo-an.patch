@@ -1,7 +1,7 @@
-From ce3c8ad822b88cac3f9a58b1253b6d69a929c9c5 Mon Sep 17 00:00:00 2001
+From 7e2ac8696eb505f092a130c894c29c7b003895ee Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 14:17:19 +0800
-Subject: [PATCH 01/13] boards: default: dts: sg200x: soph_base.dtsi: allow vo
+Subject: [PATCH 01/33] boards: default: dts: sg200x: soph_base.dtsi: allow vo
  and cvifb modify by other dts
 
 ---

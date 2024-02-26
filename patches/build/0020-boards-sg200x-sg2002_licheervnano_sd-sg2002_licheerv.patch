@@ -1,7 +1,7 @@
-From 492e2e60b2b4bf08b89fe89f12daa44b1124491e Mon Sep 17 00:00:00 2001
+From fcafc4a2e92da0218092d82b6ee34c1a749f821d Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 16:44:32 +0800
-Subject: [PATCH 20/20] 
+Subject: [PATCH 20/33] 
  boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig: enable
  a lot of package, for debug usage
 

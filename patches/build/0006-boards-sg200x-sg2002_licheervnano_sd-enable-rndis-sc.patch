@@ -1,7 +1,7 @@
-From e54886add6cea85bd2a839f7c4b9cce92a881a57 Mon Sep 17 00:00:00 2001
+From 92cde7b1ea2f68d25b98b58424b8bd6f6faaf9da Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 16:15:17 +0800
-Subject: [PATCH 06/13] boards: sg200x: sg2002_licheervnano_sd: enable rndis
+Subject: [PATCH 06/33] boards: sg200x: sg2002_licheervnano_sd: enable rndis
  script
 
 ---

@@ -1,7 +1,7 @@
-From 1320b365d85e416836e2b84adbb8638457375bb2 Mon Sep 17 00:00:00 2001
+From d2b53871b169bcdc00c1d278b65ea3ead54ffd8b Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 17:15:58 +0800
-Subject: [PATCH 22/23] 
+Subject: [PATCH 22/33] 
  boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig: enable
  package tpudemo
 

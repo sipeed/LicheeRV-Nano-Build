@@ -1,0 +1,37 @@
+From b6aed07b0f1b84f667613f8b5a8621f84647393c Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Fri, 23 Feb 2024 09:19:42 +0800
+Subject: [PATCH 29/33] genimage_rootless.cfg: fix resize2fs too slow
+
+---
+ tools/common/sd_tools/genimage_rootless.cfg | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/tools/common/sd_tools/genimage_rootless.cfg b/tools/common/sd_tools/genimage_rootless.cfg
+index 73e5e46..c89a3bf 100644
+--- a/tools/common/sd_tools/genimage_rootless.cfg
++++ b/tools/common/sd_tools/genimage_rootless.cfg
+@@ -11,8 +11,10 @@ image boot.vfat {
+ 
+ image user.ext4 {
+         ext4 {
++		use-mke2fs = true
++		features = "64bit,has_journal,metadata_csum"
+         }
+-        size = 8M
++        size = 32M
+ }
+ 
+ image duo.img {
+@@ -28,7 +30,7 @@ image duo.img {
+         partition rootfs {
+                 partition-type = 0x83
+                 image = "rootfs.sd"
+-		size = 40M
++		size = 64M
+         }
+ 
+         partition user {
+-- 
+2.40.1
+

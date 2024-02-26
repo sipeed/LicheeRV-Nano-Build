@@ -1,7 +1,7 @@
-From 909f1df2d358b6c9b6c6903691b1fdbcc2bc080a Mon Sep 17 00:00:00 2001
+From eca18f7fe8485918151e8f54aac4dfb2fc682d8b Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 10:42:41 +0800
-Subject: [PATCH 17/17] panels/panel_list.json: add zct2133v1
+Subject: [PATCH 17/33] panels/panel_list.json: add zct2133v1
 
 ---
  panels/panel_list.json | 1 +

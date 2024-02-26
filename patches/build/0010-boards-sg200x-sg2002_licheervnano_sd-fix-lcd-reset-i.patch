@@ -1,7 +1,7 @@
-From 036e62c7cb9868f3de65b19e06aa51d45be1ae0e Mon Sep 17 00:00:00 2001
+From 1b3880fd97d611b709eda20c33b4f7ff5be8ad6e Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 18:57:01 +0800
-Subject: [PATCH 10/13] boards: sg200x: sg2002_licheervnano_sd: fix lcd reset
+Subject: [PATCH 10/33] boards: sg200x: sg2002_licheervnano_sd: fix lcd reset
  in devicetree
 
 ---

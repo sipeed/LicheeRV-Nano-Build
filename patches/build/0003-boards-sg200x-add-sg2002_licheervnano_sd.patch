@@ -1,7 +1,7 @@
-From eb734cc949588ac78c1635f671ea7aa6bf1aac61 Mon Sep 17 00:00:00 2001
+From ca7d171912b8180a1ca5ce939ed561a7be58c4af Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 14:56:24 +0800
-Subject: [PATCH 03/13] boards: sg200x: add sg2002_licheervnano_sd
+Subject: [PATCH 03/33] boards: sg200x: add sg2002_licheervnano_sd
 
 ---
  .../sg200x/sg2002_licheervnano_sd/config.json |   9 +

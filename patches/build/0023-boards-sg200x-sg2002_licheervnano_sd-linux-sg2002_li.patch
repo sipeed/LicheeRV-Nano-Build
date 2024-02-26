@@ -1,7 +1,7 @@
-From 2cdbfe8492b1fe288a31674c7a46b94a5c10db22 Mon Sep 17 00:00:00 2001
+From d54564d026be443e81b04f1d93d02f1b4e8ca3d0 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 17:27:16 +0800
-Subject: [PATCH 23/23] 
+Subject: [PATCH 23/33] 
  boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig:
  enable some feature use for systemd based distro
 

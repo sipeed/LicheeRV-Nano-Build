@@ -1,7 +1,7 @@
-From 57da5bf843f6fe6034ea910fc5164fb1e0ca99fb Mon Sep 17 00:00:00 2001
+From e7e09d3920ec4145f0a7275002e621aedb696c75 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 16:14:47 +0800
-Subject: [PATCH 05/13] tools/common/sd_tools/genimage_rootless.cfg: add user
+Subject: [PATCH 05/33] tools/common/sd_tools/genimage_rootless.cfg: add user
  partition
 
 ---

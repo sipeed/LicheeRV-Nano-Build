@@ -1,7 +1,7 @@
-From 8f9c4918f57865812708e2fe8b959fa5e906d854 Mon Sep 17 00:00:00 2001
+From 735a4101fb948b8f3739b99d8c75940a0ad1f458 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 10:42:24 +0800
-Subject: [PATCH 16/17] boards/sg200x/sg2002_licheervnano_sd/memmap.py: change
+Subject: [PATCH 16/33] boards/sg200x/sg2002_licheervnano_sd/memmap.py: change
  framebuffer memory region size to 8000K
 
 ---

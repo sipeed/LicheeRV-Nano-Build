@@ -1,0 +1,25 @@
+From 7bc11a0c8a5626345bda585cc99685d716c51dba Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Thu, 22 Feb 2024 09:47:54 +0800
+Subject: [PATCH 28/33] sg2002_licheervnano_defconfig: enable libdaemon expat
+ dbus avahi
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig   | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index f61f90f..ddba453 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -46,3 +46,7 @@ CONFIG_TARGET_PACKAGE_HAVEGED=y
+ CONFIG_TARGET_PACKAGE_UNIFONT=y
+ CONFIG_TARGET_PACKAGE_QT5=y
+ CONFIG_TARGET_PACKAGE_QT5DEMO=y
++CONFIG_TARGET_PACKAGE_LIBDAEMON=y
++CONFIG_TARGET_PACKAGE_EXPAT=y
++CONFIG_TARGET_PACKAGE_DBUS=y
++CONFIG_TARGET_PACKAGE_AVAHI=y
+-- 
+2.40.1
+

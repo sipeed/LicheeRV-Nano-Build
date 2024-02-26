@@ -1,0 +1,61 @@
+From 4ed10c08a3006430ca722ce29126b6ada4ae16c7 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Thu, 22 Feb 2024 09:37:23 +0800
+Subject: [PATCH 13/13] v2/component/panel/sg200x: fix CVI_U8 redefine
+
+---
+ v2/component/panel/sg200x/dsi_st7701_hd228001c31.h      | 5 ++---
+ v2/component/panel/sg200x/dsi_st7701_hd228001c31_alt0.h | 4 +++-
+ v2/component/panel/sg200x/dsi_zct2133v1.h               | 4 +++-
+ 3 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/v2/component/panel/sg200x/dsi_st7701_hd228001c31.h b/v2/component/panel/sg200x/dsi_st7701_hd228001c31.h
+index 3a48133..39d2f87 100644
+--- a/v2/component/panel/sg200x/dsi_st7701_hd228001c31.h
++++ b/v2/component/panel/sg200x/dsi_st7701_hd228001c31.h
+@@ -60,10 +60,9 @@ struct combo_dev_cfg_s dev_cfg_st7701_368x552 = {
+ 
+ const struct hs_settle_s hs_timing_cfg_st7701_368x552 = { .prepare = 6, .zero = 32, .trail = 1 };
+ 
+-#ifndef uint8_t
+-#define uint8_t unsigned char
++#ifndef CVI_U8
++#define CVI_U8 unsigned char
+ #endif
+-#define CVI_U8 uint8_t
+ 
+ static CVI_U8 data_st7701_hd228001c31_1[] = { 0xff, 0x77,0x01,0x00,0x00,0x13 }; // 6
+ static CVI_U8 data_st7701_hd228001c31_2[] = { 0xef, 0x08 }; // 2
+diff --git a/v2/component/panel/sg200x/dsi_st7701_hd228001c31_alt0.h b/v2/component/panel/sg200x/dsi_st7701_hd228001c31_alt0.h
+index a9f42cd..2d6dd87 100644
+--- a/v2/component/panel/sg200x/dsi_st7701_hd228001c31_alt0.h
++++ b/v2/component/panel/sg200x/dsi_st7701_hd228001c31_alt0.h
+@@ -60,7 +60,9 @@ struct combo_dev_cfg_s dev_cfg_st7701_368x552_alt0 = {
+ 
+ const struct hs_settle_s hs_timing_cfg_st7701_368x552_alt0 = { .prepare = 6, .zero = 32, .trail = 1 };
+ 
+-#define CVI_U8 uint8_t
++#ifndef CVI_U8
++#define CVI_U8 unsigned char
++#endif
+ 
+ static CVI_U8 data_st7701_hd228001c31_alt0_0[] = { 0x11 }; // 1
+ static CVI_U8 data_st7701_hd228001c31_alt0_1[] = { 0xff, 0x77, 0x01, 0x00, 0x00, 0x13 }; // 6
+diff --git a/v2/component/panel/sg200x/dsi_zct2133v1.h b/v2/component/panel/sg200x/dsi_zct2133v1.h
+index abee39a..56549dd 100644
+--- a/v2/component/panel/sg200x/dsi_zct2133v1.h
++++ b/v2/component/panel/sg200x/dsi_zct2133v1.h
+@@ -45,7 +45,9 @@ struct combo_dev_cfg_s dev_cfg_zct2133v1_800x1280 = {
+ 
+ const struct hs_settle_s hs_timing_cfg_zct2133v1_800x1280 = { .prepare = 6, .zero = 32, .trail = 1 };
+ 
+-#define CVI_U8 uint8_t
++#ifndef CVI_U8
++#define CVI_U8 unsigned char
++#endif
+ 
+ static CVI_U8 data_zct2133v1_0[] = { 0xE1, 0x93 };
+ static CVI_U8 data_zct2133v1_1[] = { 0xE2, 0x65 };
+-- 
+2.40.1
+

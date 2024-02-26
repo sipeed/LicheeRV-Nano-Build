@@ -1,7 +1,7 @@
-From 5d822ddeb04a43af6de3af19d52cd00888c7f905 Mon Sep 17 00:00:00 2001
+From 459ad12d9d29530396d739597a1ab7c4b2c48662 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 10:41:53 +0800
-Subject: [PATCH 15/17] 
+Subject: [PATCH 15/33] 
  boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig:
  disable rndis script, enable acm script
 

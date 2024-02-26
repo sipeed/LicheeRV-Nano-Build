@@ -1,0 +1,365 @@
+From e2595a53a74e3d8fdb846c9e13cf71ca1abb52d6 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Thu, 22 Feb 2024 09:40:52 +0800
+Subject: [PATCH 3/7] src: add avahi dbus expat libdaemon doc
+
+---
+ src/avahi.org                                 |  45 ++++++
+ src/dbus.org                                  |  32 ++++
+ src/expat.org                                 |  24 +++
+ src/libdaemon.org                             |  38 +++++
+ src/libdaemon_apply_patches.sh                |   4 +
+ ...mpile-for-riscv64-unknown-linux-musl.patch | 145 ++++++++++++++++++
+ src/qt5.org                                   |   9 ++
+ 7 files changed, 297 insertions(+)
+ create mode 100644 src/avahi.org
+ create mode 100644 src/dbus.org
+ create mode 100644 src/expat.org
+ create mode 100644 src/libdaemon.org
+ create mode 100755 src/libdaemon_apply_patches.sh
+ create mode 100644 src/patches/libdaemon/fix-corsscompile-for-riscv64-unknown-linux-musl.patch
+
+diff --git a/src/avahi.org b/src/avahi.org
+new file mode 100644
+index 0000000..fab0af2
+--- /dev/null
++++ b/src/avahi.org
+@@ -0,0 +1,45 @@
++* avahi
++
++** get source
++
++#+BEGIN_SRC shell
++wget https://avahi.org/download/avahi-0.8.tar.gz
++tar xf avahi-0.8.tar.gz
++#END_SRC
++
++** apply patches
++
++#+BEGIN_SRC shell
++#+END_SRC
++
++** cross compile
++
++#+BEGIN_SRC shell
++./configure --prefix=/usr \
++        --sysconfdir=/etc \
++        --localstatedir=/var \
++	--host=riscv64-unknown-linux-musl \
++	--enable-shared --enable-static \
++	--with-distro=none \
++	--enable-autoipd --disable-libevent \
++	--enable-libdaemon --disable-qt4 \
++	--disable-qt5 --disable-gtk --disable-gtk3 \
++	--disable-dbus --disable-gdbm --disable-manpages \
++	--with-xml=expat --disable-glib --disable-gobject \
++	--disable-python --disable-pygobject --disable-mono \
++	--disable-python-dbus --enable-dbus \
++	PKG_CONFIG_PATH=$(riscv64-unknown-linux-musl-gcc -print-sysroot)/usr/lib/pkgconfig \
++	PKG_CONFIG_LIBDIR=$(riscv64-unknown-linux-musl-gcc -print-sysroot)/usr/lib \
++	DBUS_CFLAGS="-I$(riscv64-unknown-linux-musl-gcc -print-sysroot)/usr/include/dbus-1.0 -I$(riscv64-unknown-linux-musl-gcc -print-sysroot)/usr/lib/dbus-1.0/include" \
++	LIBDAEMON_CFLAGS="-I$(riscv64-unknown-linux-musl-gcc -print-sysroot)/usr/include" \
++	CFLAGS="-L$(riscv64-unknown-linux-musl-gcc -print-sysroot)/usr/lib/ -ldbus-1 -ldaemon"
++
++make -j`nproc`
++#+END_SRC
++
++
++** install into sysroot
++
++#+BEGIN_SRC shell
++make DESTDIR=$(riscv64-unknown-linux-musl-gcc -print-sysroot) install
++#+END_SRC
+diff --git a/src/dbus.org b/src/dbus.org
+new file mode 100644
+index 0000000..292e7f6
+--- /dev/null
++++ b/src/dbus.org
+@@ -0,0 +1,32 @@
++* dbus
++
++** get source
++
++#+BEGIN_SRC shell
++wget https://dbus.freedesktop.org/releases/dbus/dbus-1.15.8.tar.xz
++tar xf dbus-1.15.8.tar.xz
++#END_SRC
++
++** apply patches
++
++#+BEGIN_SRC shell
++#+END_SRC
++
++** cross compile
++
++#+BEGIN_SRC shell
++./autogen.sh
++./configure --prefix=/usr \
++	--sysconfdir=/etc \
++	--localstatedir=/var \
++	--host=riscv64-unknown-linux-musl \
++	--enable-shared --enable-static
++
++make -j`nproc`
++#+END_SRC
++
++** install into sysroot
++
++#+BEGIN_SRC shell
++make DESTDIR=$(riscv64-unknown-linux-musl-gcc -print-sysroot) install
++#+END_SRC
+diff --git a/src/expat.org b/src/expat.org
+new file mode 100644
+index 0000000..1a639b6
+--- /dev/null
++++ b/src/expat.org
+@@ -0,0 +1,24 @@
++* expat
++
++** get source
++
++#+BEGIN_SRC shell
++wget https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.bz2
++tar xf expat-2.5.0.tar.bz2
++#END_SRC
++
++** cross compile
++
++#+BEGIN_SRC shell
++./configure --prefix=/usr \
++	--host=riscv64-unknown-linux-musl \
++	--enable-shared --enable-static
++
++make -j`nproc`
++#+END_SRC
++
++** install into sysroot
++
++#+BEGIN_SRC shell
++make DESTDIR=$(riscv64-unknown-linux-musl-gcc -print-sysroot) install
++#+END_SRC
+diff --git a/src/libdaemon.org b/src/libdaemon.org
+new file mode 100644
+index 0000000..f1dd185
+--- /dev/null
++++ b/src/libdaemon.org
+@@ -0,0 +1,38 @@
++* libdaemon
++
++** get source
++
++#+BEGIN_SRC shell
++wget https://0pointer.de/lennart/projects/libdaemon/libdaemon-0.14.tar.gz
++tar xf libdaemon-0.14.tar.gz
++#END_SRC
++
++** apply patches
++
++#+BEGIN_SRC shell
++../libdaemon_apply_patches.sh
++#+END_SRC
++
++** cross compile
++
++#+BEGIN_SRC shell
++./configure --prefix=/usr \
++	--host=riscv64-unknown-linux-musl \
++	--enable-shared --enable-static
++make -j`nproc`
++#+END_SRC
++
++** install into sysroot
++
++#+BEGIN_SRC shell
++make DESTDIR=$(riscv64-unknown-linux-musl-gcc -print-sysroot) install
++#+END_SRC
++
++** delete *.la file
++
++la file is harmfull for cross compile
++
++#+BEGIN_SRC shell
++find $(riscv64-unknown-linux-musl-gcc -print-sysroot) -name '*.la' -delete
++#+END_SRC
++
+diff --git a/src/libdaemon_apply_patches.sh b/src/libdaemon_apply_patches.sh
+new file mode 100755
+index 0000000..c167614
+--- /dev/null
++++ b/src/libdaemon_apply_patches.sh
+@@ -0,0 +1,4 @@
++#!/bin/sh
++
++# fix cross compile for riscv64-unknown-linux-musl
++patch -p1 < ../patches/libdaemon/fix-corsscompile-for-riscv64-unknown-linux-musl.patch
+diff --git a/src/patches/libdaemon/fix-corsscompile-for-riscv64-unknown-linux-musl.patch b/src/patches/libdaemon/fix-corsscompile-for-riscv64-unknown-linux-musl.patch
+new file mode 100644
+index 0000000..3fa0f4f
+--- /dev/null
++++ b/src/patches/libdaemon/fix-corsscompile-for-riscv64-unknown-linux-musl.patch
+@@ -0,0 +1,145 @@
++diff --git a/config.sub b/config.sub
++index 6759825..6e1b0a5 100755
++--- a/config.sub
+++++ b/config.sub
++@@ -120,7 +120,7 @@ esac
++ # Here we must recognize all the valid KERNEL-OS combinations.
++ maybe_os=`echo $1 | sed 's/^\(.*\)-\([^-]*-[^-]*\)$/\2/'`
++ case $maybe_os in
++-  nto-qnx* | linux-gnu* | linux-dietlibc | linux-newlib* | linux-uclibc* | \
+++  nto-qnx* | linux-gnu* | linux-dietlibc | linux-newlib* | linux-uclibc* | linux-musl* | \
++   uclinux-uclibc* | uclinux-gnu* | kfreebsd*-gnu* | knetbsd*-gnu* | netbsd*-gnu* | \
++   storm-chaos* | os2-emx* | rtmk-nova*)
++     os=-$maybe_os
++@@ -276,6 +276,7 @@ case $basic_machine in
++ 	| pdp10 | pdp11 | pj | pjl \
++ 	| powerpc | powerpc64 | powerpc64le | powerpcle | ppcbe \
++ 	| pyramid \
+++	| riscv64 \
++ 	| score \
++ 	| sh | sh[1234] | sh[24]a | sh[23]e | sh[34]eb | sheb | shbe | shle | sh[1234]le | sh3ele \
++ 	| sh64 | sh64le \
++@@ -287,6 +288,7 @@ case $basic_machine in
++ 	| we32k \
++ 	| x86 | xc16x | xscale | xscalee[bl] | xstormy16 | xtensa \
++ 	| z8k)
+++	
++ 		basic_machine=$basic_machine-unknown
++ 		;;
++ 	m6811 | m68hc11 | m6812 | m68hc12)
++@@ -357,6 +359,7 @@ case $basic_machine in
++ 	| pdp10-* | pdp11-* | pj-* | pjl-* | pn-* | power-* \
++ 	| powerpc-* | powerpc64-* | powerpc64le-* | powerpcle-* | ppcbe-* \
++ 	| pyramid-* \
+++        | riscv64-* \
++ 	| romp-* | rs6000-* \
++ 	| sh-* | sh[1234]-* | sh[24]a-* | sh[23]e-* | sh[34]eb-* | sheb-* | shbe-* \
++ 	| shle-* | sh[1234]le-* | sh3ele-* | sh64-* | sh64le-* \
++@@ -1250,7 +1253,7 @@ case $os in
++ 	      | -udi* | -eabi* | -lites* | -ieee* | -go32* | -aux* \
++ 	      | -chorusos* | -chorusrdb* \
++ 	      | -cygwin* | -pe* | -psos* | -moss* | -proelf* | -rtems* \
++-	      | -mingw32* | -linux-gnu* | -linux-newlib* | -linux-uclibc* \
+++	      | -mingw32* | -linux-gnu* | -linux-newlib* | -linux-uclibc* | -linux-musl* \
++ 	      | -uxpv* | -beos* | -mpeix* | -udk* \
++ 	      | -interix* | -uwin* | -mks* | -rhapsody* | -darwin* | -opened* \
++ 	      | -openstep* | -oskit* | -conix* | -pw32* | -nonstopux* \
++diff --git a/configure b/configure
++index 37161be..8477aa8 100755
++--- a/configure
+++++ b/configure
++@@ -13784,81 +13784,6 @@ _ACEOF
++ 
++ fi
++ 
++-{ $as_echo "$as_me:$LINENO: checking whether setpgrp takes no argument" >&5
++-$as_echo_n "checking whether setpgrp takes no argument... " >&6; }
++-if test "${ac_cv_func_setpgrp_void+set}" = set; then
++-  $as_echo_n "(cached) " >&6
++-else
++-  if test "$cross_compiling" = yes; then
++-  { { $as_echo "$as_me:$LINENO: error: cannot check setpgrp when cross compiling" >&5
++-$as_echo "$as_me: error: cannot check setpgrp when cross compiling" >&2;}
++-   { (exit 1); exit 1; }; }
++-else
++-  cat >conftest.$ac_ext <<_ACEOF
++-/* confdefs.h.  */
++-_ACEOF
++-cat confdefs.h >>conftest.$ac_ext
++-cat >>conftest.$ac_ext <<_ACEOF
++-/* end confdefs.h.  */
++-$ac_includes_default
++-int
++-main ()
++-{
++-/* If this system has a BSD-style setpgrp which takes arguments,
++-  setpgrp(1, 1) will fail with ESRCH and return -1, in that case
++-  exit successfully. */
++-  return setpgrp (1,1) != -1;
++-  ;
++-  return 0;
++-}
++-_ACEOF
++-rm -f conftest$ac_exeext
++-if { (ac_try="$ac_link"
++-case "(($ac_try" in
++-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++-  *) ac_try_echo=$ac_try;;
++-esac
++-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
++-$as_echo "$ac_try_echo") >&5
++-  (eval "$ac_link") 2>&5
++-  ac_status=$?
++-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
++-  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
++-  { (case "(($ac_try" in
++-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++-  *) ac_try_echo=$ac_try;;
++-esac
++-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
++-$as_echo "$ac_try_echo") >&5
++-  (eval "$ac_try") 2>&5
++-  ac_status=$?
++-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
++-  (exit $ac_status); }; }; then
++-  ac_cv_func_setpgrp_void=no
++-else
++-  $as_echo "$as_me: program exited with status $ac_status" >&5
++-$as_echo "$as_me: failed program was:" >&5
++-sed 's/^/| /' conftest.$ac_ext >&5
++-
++-( exit $ac_status )
++-ac_cv_func_setpgrp_void=yes
++-fi
++-rm -rf conftest.dSYM
++-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
++-fi
++-
++-
++-fi
++-{ $as_echo "$as_me:$LINENO: result: $ac_cv_func_setpgrp_void" >&5
++-$as_echo "$ac_cv_func_setpgrp_void" >&6; }
++-if test $ac_cv_func_setpgrp_void = yes; then
++-
++-cat >>confdefs.h <<\_ACEOF
++-#define SETPGRP_VOID 1
++-_ACEOF
++-
++-fi
++-
++ { $as_echo "$as_me:$LINENO: checking return type of signal handlers" >&5
++ $as_echo_n "checking return type of signal handlers... " >&6; }
++ if test "${ac_cv_type_signal+set}" = set; then
++diff --git a/examples/testd.c b/examples/testd.c
++index 6557dff..7c5ea2b 100644
++--- a/examples/testd.c
+++++ b/examples/testd.c
++@@ -23,7 +23,7 @@
++ #include <string.h>
++ #include <sys/types.h>
++ #include <sys/time.h>
++-#include <sys/unistd.h>
+++#include <unistd.h>
++ #include <sys/select.h>
++ 
++ #include <libdaemon/dfork.h>
+diff --git a/src/qt5.org b/src/qt5.org
+index e1850f2..2aaaa5e 100644
+--- a/src/qt5.org
++++ b/src/qt5.org
+@@ -30,3 +30,12 @@ make -j`nproc`
+ #+BEGIN_SRC shell
+ make install
+ #+END_SRC
++
++
++** delete *.la file
++
++la file is harmfull for cross compile
++
++#+BEGIN_SRC shell
++find $(riscv64-unknown-linux-musl-gcc -print-sysroot) -name '*.la' -delete
++#+END_SRC
+-- 
+2.40.1
+

@@ -1,7 +1,7 @@
-From 9b41cf6ff52ea8bd108834c93c13629a50775ccd Mon Sep 17 00:00:00 2001
+From eb40c1832322abd588141fc8de43a6c43ffb48b1 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 19:03:07 +0800
-Subject: [PATCH 12/13] panels/panel_list.json: add dsi_st7701_hd228001c31
+Subject: [PATCH 12/33] panels/panel_list.json: add dsi_st7701_hd228001c31
 
 ---
  panels/panel_list.json | 1 +

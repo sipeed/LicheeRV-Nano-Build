@@ -1,7 +1,7 @@
-From 7d718f9aa2a8778bcc1f6959903e54d6f48c2363 Mon Sep 17 00:00:00 2001
+From 6f472de0e6dcbcd1a89ff45852574f67405a0053 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 17:03:06 +0800
-Subject: [PATCH 07/13] boards: sg200x: sg2002_licheervnano_sd: dont clean
+Subject: [PATCH 07/33] boards: sg200x: sg2002_licheervnano_sd: dont clean
  middleware demo
 
 ---

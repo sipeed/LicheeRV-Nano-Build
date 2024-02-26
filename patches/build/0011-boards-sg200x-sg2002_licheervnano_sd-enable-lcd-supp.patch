@@ -1,7 +1,7 @@
-From 2d7d1c118b412150fe5091ba807bb0a046bd166b Mon Sep 17 00:00:00 2001
+From 3f07199ccc2f180e301d022c2e5c0deae4688181 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 18:57:27 +0800
-Subject: [PATCH 11/13] boards: sg200x: sg2002_licheervnano_sd: enable lcd
+Subject: [PATCH 11/33] boards: sg200x: sg2002_licheervnano_sd: enable lcd
  support in uboot
 
 ---

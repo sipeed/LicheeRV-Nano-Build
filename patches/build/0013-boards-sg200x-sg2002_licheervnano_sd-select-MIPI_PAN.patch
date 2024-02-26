@@ -1,7 +1,7 @@
-From fdc23fc14a4d888f8a1432242a4eed83c1b86a32 Mon Sep 17 00:00:00 2001
+From d3895ed5cbaad2e582b50514039fe7ae22b16f60 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 19:03:50 +0800
-Subject: [PATCH 13/13] boards: sg200x: sg2002_licheervnano_sd: select
+Subject: [PATCH 13/33] boards: sg200x: sg2002_licheervnano_sd: select
  MIPI_PANEL_ST7701_HD228001C31 for default mipi panel(uboot)
 
 ---

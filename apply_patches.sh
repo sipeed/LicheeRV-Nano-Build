@@ -29,99 +29,6 @@ git am ../patches/osdrv/0005-extdrv-tp-ts_gt9xx-gt9xx.h-change-touch-size-for-zc
 
 cd ..
 
-cd ramdisk
-# add aic8800 sdio wifi firmware
-git am ../patches/ramdisk/0001-rootfs-public-wifi-musl_riscv64-add-aic8800-sdio-wif.patch
-
-# add script for wifi module load on bootup
-git am ../patches/ramdisk/0002-rootfs-public-wifi-musl_riscv64-etc-add-script-for-w.patch
-
-# add S99skel and sensor_cfg.ini (default camera config file)
-git am ../patches/ramdisk/0003-rootfs-overlay-sg2002_licheervnano_sd-add-S99skel-se.patch
-
-# add jump script for alt rootfs
-git am ../patches/ramdisk/0004-rootfs-overlay-sg2002_licheervnano_sd-add-jump-scrip.patch
-
-# mount tmpfs when disk mount failed,
-git am ../patches/ramdisk/0005-rootfs-overlay-sg2002_licheervnano_sd-jump-if-mount-.patch
-
-# allow dropbear save host key into disk
-git am ../patches/ramdisk/0006-public-dropbear-musl_riscv64-etc-dropbear-allow-drop.patch
-
-# add custom config file for vendor custom, such as: user, hostname, skel
-git am ../patches/ramdisk/0007-rootfs-overlay-sg2002_licheervnano_sd-etc-add-custom.patch
-
-# add cdc acm script use for provide virtual com port on usb gadget
-git am ../patches/ramdisk/0008-rootfs-public-add-cdc-acm-script.patch
-
-# add getty listen on ttyGS0 (gadget cdc acm)
-git am ../patches/ramdisk/0009-rootfs-overlay-sg2002_licheervnano_sd-etc-inittab-ad.patch
-
-# add lcd startup script and test program (abgr1555)
-git am ../patches/ramdisk/0010-rootfs-public-add-lcd-startup-script-test-program.patch
-
-# mount /dev/mmcblk0p1 /boot on bootup
-git am ../patches/ramdisk/0011-rootfs-overlay-sg2002_licheervnano_sd-etc-fstab-moun.patch
-
-# start wpa_supplicant on bootup
-# raspberrypi style wpa_supplicant initial setup:
-# use wpa_supplicant.conf into /boot
-git am ../patches/ramdisk/0012-rootfs-public-wifi-musl_riscv64-etc-init.d-S50wpa-st.patch
-
-# add missing parted tool fro musl riscv64, use for partition expaned
-git am ../patches/ramdisk/0013-parted-musl_riscv64-bin-parted-add-missing-parted-fo.patch
-
-# add busybox full version, because we need udhcpd
-git am ../patches/ramdisk/0014-common_musl_riscv64-bin-busybox-add-busybox-full-ver.patch
-
-# move kernel module load into S00board, S99user is too late
-git am ../patches/ramdisk/0015-overlay-musl_riscv64-etc-init.d-S00board-move-system.patch
-
-# if `/etc/dropbear not found, create it
-git am ../patches/ramdisk/0016-rootfs-public-dropbear-musl_riscv64-etc-init.d-S50dr.patch
-git am ../patches/ramdisk/0019-rootfs-public-dropbear-musl_riscv64-etc-init.d-S50dr.patch
-
-# re-enable serial port autologin
-git am ../patches/ramdisk/0017-rootfs-overlay-sg2002_licheervnano_sd-etc-inittab-re.patch
-
-# some busybox not support mkdir -v, so remove it
-git am ../patches/ramdisk/0018-rootfs-overlay-sg2002_licheervnano_sd-busybox-mkdir-.patch
-
-# add sftp-server, use for file trans
-git am ../patches/ramdisk/0020-rootfs-public-sftp-server-add-sftp-server.patch
-
-# add package alsa, use for audio record/play
-git am ../patches/ramdisk/0021-rootfs-public-alsa-add-package-alsa.patch
-
-# alsamixer need terminfo
-git am ../patches/ramdisk/0022-rootfs-public-alsa-add-package-terminfo-some-package.patch
-
-# add strace, use for debug
-git am ../patches/ramdisk/0023-rootfs-public-strace-add-package-strace.patch
-
-# add ekermit, use for file trans
-git am ../patches/ramdisk/0024-rootfs-public-ek-add-package-ek-ekermit.patch
-
-# add evtest, use for touchscreen debug
-git am ../patches/ramdisk/0025-rootfs-public-evtest-add-package-evtest.patch
-
-# add empty, use for automate input, like (tcl expect)
-git am ../patches/ramdisk/0026-rootfs-public-empty-add-package-empty.patch
-
-# add LD_LIBRARY_PATH, fix sample_audio symbol missing
-git am ../patches/ramdisk/0027-rootfs-common_musl_riscv64-etc-profile-set-default-l.patch
-
-# save /var/log into disk
-git am ../patches/ramdisk/0028-rootfs-common_musl_riscv64-var-save-log-in-disk.patch
-
-# add package tpuddemo for tpu test
-git am ../patches/ramdisk/0029-rootfs-public-tpudemo-add-tpudemo-for-test.patch
-
-# add /etc/securtty fix root password login on serial port
-git am ../patches/ramdisk/0030-rootfs-overlay-sg2002_licheervnano_sd-fix-root-passw.patch
-
-cd ..
-
 cd middleware
 # install sample_vio sensor_test sample_audio into rootfs
 git am ../patches/middleware/0001-v2-Makefile-install-vio-sensor_test-audio-demo-into-.patch
@@ -147,6 +54,18 @@ git am ../patches/middleware/0008-v2-sample-common-sample_common_sensor.c-fix-se
 
 # fix sample_vio crash, thank lxowalle
 git am ../patches/middleware/0009-v2-sample-vio-sample_vio.c-fix-crash-thank-lxowalle.patch
+
+# fix mipi screen hd22801c31 initial
+git am ../patches/middleware/0010-v2-component-panel-sg200x-dsi_st7701_hd228001c31.h-r.patch
+
+# add alt hd22801c31 timing(not working)
+git am ../patches/middleware/0011-v2-component-panel-sg200x-dsi_st7701_hd228001c31_alt.patch
+
+# add mipi panel st7701_d300fpc9307a support
+git am ../patches/middleware/0012-v2-sample-mipi_tx-sample_dsi-add-st7701_d300fpc9307a.patch
+
+# fix CVI_U8 redefine
+git am ../patches/middleware/0013-v2-component-panel-sg200x-fix-CVI_U8-redefine.patch
 
 cd ..
 
@@ -221,6 +140,27 @@ git am ../patches/build/0022-boards-sg200x-sg2002_licheervnano_sd-sg2002_licheer
 # licheervnano linux kernel enable some feature for systemd based distro
 git am ../patches/build/0023-boards-sg200x-sg2002_licheervnano_sd-linux-sg2002_li.patch
 
+# add panel hd22801c31_alt0 into panel list
+git am ../patches/build/0024-panels-panel_list.json-add-st7701_hd228001c31_alt0.patch
+
+# change rootfs partition max size, 32MiB is too small, change to 40MiB
+git am ../patches/build/0025-tools-common-sd_tools-genimage_rootless.cfg-resize-r.patch
+
+# enable haveged unifont qt5 qt5demo
+git am ../patches/build/0026-sg2002_licheervnano_sd_defconfig-enable-haveged-unif.patch
+
+# add st7701_d300fpc9307a into panel list
+git am ../patches/build/0027-panels-panel_list.json-add-st7701_d300fpc9307a.patch
+
+# licheervnano: enable libdaemon expat dbus avahi
+git am ../patches/build/0028-sg2002_licheervnano_defconfig-enable-libdaemon-expat.patch
+
+git am ../patches/build/0029-genimage_rootless.cfg-fix-resize2fs-too-slow.patch
+git am ../patches/build/0030-licheervnano_sd-clean_rootfs.sh-not-used.patch
+git am ../patches/build/0031-sg2002_licheervnano_sd_defconfig-clean-buggy-package.patch
+git am ../patches/build/0032-linux-sg2002_licheervnano_sd_defconfig-add-gpio-key.patch
+git am ../patches/build/0033-sg2002_licheervnano_sd_defconfig-add-input-event-dae.patch
+
 cd ..
 
 
@@ -241,4 +181,24 @@ git am ../patches/u-boot-2021.10/0004-include-cvitek-cvi_panels-dsi_zct2133v1.h-
 # disable startvl on bootup, because it cause lcd show green background on blank
 git am ../patches/u-boot-2021.10/0005-include-cvitek-cvi_panels-cvi_panel_diffs.h-disable-.patch
 
+# add mipi panel st7701_hd228001c31_alt0
+git am ../patches/u-boot-2021.10/0006-include-cvitek-cvi_panels-add-dsi_st7701_hd228001c31.patch
+
+# add mipi panel st7701_d300fpc9307a
+git am ../patches/u-boot-2021.10/0007-include-cvitek-cvi_panels-add-dsi_st7701_d300fpc9307.patch
+
 cd ..
+
+
+exit 0
+cd ramdisk
+git am ../patches/ramdisk/0001-rootfs-public-add-a-lot-of-package-for-licheervnano.patch
+git am ../patches/ramdisk/0002-src-add-qt5.patch
+git am ../patches/ramdisk/0003-src-add-avahi-dbus-expat-libdaemon-doc.patch
+git am ../patches/ramdisk/0004-overlay-add-sg2002_licheervnano_sd.patch
+git am ../patches/ramdisk/0005-src-add-openssh-openssl.patch
+git am ../patches/ramdisk/0006-common_musl_riscv64-busybox-upgrade.patch
+git am ../patches/ramdisk/0007-common_musl_riscv64-S40network-allow-load-config-fro.patch
+cd ..
+
+

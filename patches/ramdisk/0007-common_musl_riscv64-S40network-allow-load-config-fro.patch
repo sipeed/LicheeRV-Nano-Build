@@ -1,0 +1,52 @@
+From 152d4496bd9301f60a169b6b16aad72bdb7a82a2 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 26 Feb 2024 11:36:41 +0800
+Subject: [PATCH 7/7] common_musl_riscv64: S40network: allow load config from
+ boot partition
+
+---
+ rootfs/common_musl_riscv64/etc/init.d/S40network      | 11 +++++++++--
+ .../lib/ld-musl-riscv64xthead.so.1                    |  1 +
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+ create mode 120000 rootfs/common_musl_riscv64/lib/ld-musl-riscv64xthead.so.1
+
+diff --git a/rootfs/common_musl_riscv64/etc/init.d/S40network b/rootfs/common_musl_riscv64/etc/init.d/S40network
+index 642c501..db80060 100755
+--- a/rootfs/common_musl_riscv64/etc/init.d/S40network
++++ b/rootfs/common_musl_riscv64/etc/init.d/S40network
+@@ -6,15 +6,22 @@
+ # Debian ifupdown needs the /run/network lock directory
+ mkdir -p /run/network
+ 
++CONF=/boot/interfaces
++
++if [ ! -e ${CONF} ]
++then
++	CONF=/etc/network/interfaces
++fi
++
+ case "$1" in
+   start)
+ 	printf "Starting network: "
+-	/sbin/ifup -a
++	/sbin/ifup -i $CONF -a
+ 	[ $? = 0 ] && echo "OK" || echo "FAIL"
+ 	;;
+   stop)
+ 	printf "Stopping network: "
+-	/sbin/ifdown -a
++	/sbin/ifdown -i $CONF -a
+ 	[ $? = 0 ] && echo "OK" || echo "FAIL"
+ 	;;
+   restart|reload)
+diff --git a/rootfs/common_musl_riscv64/lib/ld-musl-riscv64xthead.so.1 b/rootfs/common_musl_riscv64/lib/ld-musl-riscv64xthead.so.1
+new file mode 120000
+index 0000000..18e985d
+--- /dev/null
++++ b/rootfs/common_musl_riscv64/lib/ld-musl-riscv64xthead.so.1
+@@ -0,0 +1 @@
++ld-musl-riscv64v_xthead.so.1
+\ No newline at end of file
+-- 
+2.40.1
+

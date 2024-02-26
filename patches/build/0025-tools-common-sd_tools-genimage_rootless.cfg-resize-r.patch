@@ -1,0 +1,35 @@
+From 42f581cd2cb2b04e0310e02e433ea1d29c1a82d8 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 21 Feb 2024 15:00:52 +0800
+Subject: [PATCH 25/33] tools/common/sd_tools/genimage_rootless.cfg: resize
+ rootfs and user partition size
+
+---
+ tools/common/sd_tools/genimage_rootless.cfg | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/common/sd_tools/genimage_rootless.cfg b/tools/common/sd_tools/genimage_rootless.cfg
+index 765d191..73e5e46 100644
+--- a/tools/common/sd_tools/genimage_rootless.cfg
++++ b/tools/common/sd_tools/genimage_rootless.cfg
+@@ -12,7 +12,7 @@ image boot.vfat {
+ image user.ext4 {
+         ext4 {
+         }
+-        size = 16M
++        size = 8M
+ }
+ 
+ image duo.img {
+@@ -28,7 +28,7 @@ image duo.img {
+         partition rootfs {
+                 partition-type = 0x83
+                 image = "rootfs.sd"
+-		size = 32M
++		size = 40M
+         }
+ 
+         partition user {
+-- 
+2.40.1
+

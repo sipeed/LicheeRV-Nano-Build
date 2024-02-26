@@ -1,7 +1,7 @@
-From 3c5aa0b9ca9aeefb71a779225b20d5e24c3fab16 Mon Sep 17 00:00:00 2001
+From 09bec129903565900d645e2f23e059a2c31f02e3 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 15:49:29 +0800
-Subject: [PATCH 04/13] boards: sg200: sg2002_licheervnano_sd: enable aic8800
+Subject: [PATCH 04/33] boards: sg200: sg2002_licheervnano_sd: enable aic8800
  sdio wifi support
 
 ---

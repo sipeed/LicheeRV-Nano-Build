@@ -1,7 +1,7 @@
-From d4b27497375018d8182330d71d67051ba65f1a2e Mon Sep 17 00:00:00 2001
+From 1cca0a40539396f4ea0da82c03b3d5f32dd61141 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 14:52:49 +0800
-Subject: [PATCH 02/13] tools: common: sd_tools: add
+Subject: [PATCH 02/33] tools: common: sd_tools: add
  sd_gen_burn_image_rootless.sh
 
 ---

@@ -1,0 +1,25 @@
+From 6c45c4672973b24004884b1dbbb95941d82ea663 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 21 Feb 2024 15:13:17 +0800
+Subject: [PATCH 26/33] sg2002_licheervnano_sd_defconfig: enable haveged
+ unifont qt5 qt5demo
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig   | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index d78da3b..f61f90f 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -42,3 +42,7 @@ CONFIG_TARGET_PACKAGE_EK=y
+ CONFIG_TARGET_PACKAGE_EVTEST=y
+ CONFIG_TARGET_PACKAGE_EMPTY=y
+ CONFIG_TARGET_PACKAGE_TPUDEMO=y
++CONFIG_TARGET_PACKAGE_HAVEGED=y
++CONFIG_TARGET_PACKAGE_UNIFONT=y
++CONFIG_TARGET_PACKAGE_QT5=y
++CONFIG_TARGET_PACKAGE_QT5DEMO=y
+-- 
+2.40.1
+

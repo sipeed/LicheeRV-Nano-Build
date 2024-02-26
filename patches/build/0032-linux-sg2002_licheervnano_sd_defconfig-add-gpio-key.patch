@@ -1,0 +1,24 @@
+From 0696576e3bb4084466f0c794a459fe081116bc17 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 26 Feb 2024 11:31:41 +0800
+Subject: [PATCH 32/33] linux/sg2002_licheervnano_sd_defconfig: add gpio key
+
+---
+ .../linux/sg2002_licheervnano_sd_defconfig                       | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
+index 7cbeb0c..8af2804 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
+@@ -620,6 +620,7 @@ CONFIG_PACKET_DIAG=y
+ CONFIG_UNIX_DIAG=y
+ CONFIG_NETLINK_DIAG=y
+ CONFIG_AIC_WLAN_SUPPORT=y
++CONFIG_KEYBOARD_GPIO=y
+ 
+ # these driver may be broken tpu driver
+ CONFIG_FUSE_FS=y
+-- 
+2.40.1
+

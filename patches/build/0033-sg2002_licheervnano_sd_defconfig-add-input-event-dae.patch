@@ -1,0 +1,23 @@
+From 67d991d6c7756a309ceb851b4b29ca374943eb00 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Mon, 26 Feb 2024 11:32:05 +0800
+Subject: [PATCH 33/33] sg2002_licheervnano_sd_defconfig: add
+ input-event-daemon & curl
+
+---
+ .../sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig     | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index 004a9db..7f900c2 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -52,3 +52,5 @@ CONFIG_TARGET_PACKAGE_DBUS=y
+ CONFIG_TARGET_PACKAGE_AVAHI=y
+ CONFIG_TARGET_PACKAGE_OPENSSL=y
+ CONFIG_TARGET_PACKAGE_OPENSSH=y
++CONFIG_TARGET_PACKAGE_INPUT_EVENT_DAEMON=y
++CONFIG_TARGET_PACKAGE_CURL=y
+-- 
+2.40.1
+

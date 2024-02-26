@@ -1,0 +1,43 @@
+From 1884e1e8c7e319baccfe89413a967eb22020fe7b Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Thu, 22 Feb 2024 09:45:10 +0800
+Subject: [PATCH 7/7] include/cvitek/cvi_panels: add dsi_st7701_d300fpc9307
+ support
+
+---
+ include/cvitek/cvi_panels/cvi_panels.h              | 9 +++++++++
+ include/cvitek/cvi_panels/dsi_st7701_d300fpc9307a.h | 1 +
+ 2 files changed, 10 insertions(+)
+ create mode 120000 include/cvitek/cvi_panels/dsi_st7701_d300fpc9307a.h
+
+diff --git a/include/cvitek/cvi_panels/cvi_panels.h b/include/cvitek/cvi_panels/cvi_panels.h
+index ea73e45cec..a0b656ccc7 100644
+--- a/include/cvitek/cvi_panels/cvi_panels.h
++++ b/include/cvitek/cvi_panels/cvi_panels.h
+@@ -78,6 +78,15 @@ static struct panel_desc_s panel_desc = {
+ 	.dsi_init_cmds = dsi_init_cmds_ota7290b_320x1280,
+ 	.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_ota7290b_320x1280)
+ };
++#elif defined(MIPI_PANEL_ST7701_D300FPC9307A)
++#include "dsi_st7701_d300fpc9307a.h"
++static struct panel_desc_s panel_desc = {
++        .panel_name = "ST7701-480x854",
++        .dev_cfg = &dev_cfg_st7701_480x854,
++        .hs_timing_cfg = &hs_timing_cfg_st7701_480x854,
++        .dsi_init_cmds = dsi_init_cmds_st7701_480x854,
++        .dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x854)
++};
+ #elif defined(MIPI_PANEL_OTA7290B_1920)
+ #include "dsi_ota7290b_1920.h"
+ static struct panel_desc_s panel_desc = {
+diff --git a/include/cvitek/cvi_panels/dsi_st7701_d300fpc9307a.h b/include/cvitek/cvi_panels/dsi_st7701_d300fpc9307a.h
+new file mode 120000
+index 0000000000..79e6fc4362
+--- /dev/null
++++ b/include/cvitek/cvi_panels/dsi_st7701_d300fpc9307a.h
+@@ -0,0 +1 @@
++../../../../middleware/v2/component/panel/sg200x/dsi_st7701_d300fpc9307a.h
+\ No newline at end of file
+-- 
+2.40.1
+

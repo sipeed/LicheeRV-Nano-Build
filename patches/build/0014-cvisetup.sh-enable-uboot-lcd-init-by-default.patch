@@ -1,7 +1,7 @@
-From 359d24b156e308af2322fd8d4fa8a60151a2953e Mon Sep 17 00:00:00 2001
+From 9238b6504280dedf992fa12b9f9cee3142b2dc1c Mon Sep 17 00:00:00 2001
 From: Lu <gravitydiv10@protonmail.com>
 Date: Mon, 19 Feb 2024 21:46:10 +0800
-Subject: [PATCH 14/14] cvisetup.sh: enable uboot lcd init by default
+Subject: [PATCH 14/33] cvisetup.sh: enable uboot lcd init by default
 
 ---
  envsetup_soc.sh | 7 ++++++-
@@ -31,5 +31,5 @@ index bbee779..0ff5987 100644
    SENSOR=${SENSOR:-sony_imx327}
  }
 -- 
-2.35.8
+2.40.1
 

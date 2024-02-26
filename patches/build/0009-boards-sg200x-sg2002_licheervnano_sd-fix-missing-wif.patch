@@ -1,7 +1,7 @@
-From 064d6ecc82ee3bc5e2e47bb190d4a3fad23dd9be Mon Sep 17 00:00:00 2001
+From 4605b299c5b863f1c144acce6d12ac8fdfa3eae5 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Mon, 19 Feb 2024 17:15:18 +0800
-Subject: [PATCH 09/13] boards: sg200x: sg2002_licheervnano_sd: fix missing
+Subject: [PATCH 09/33] boards: sg200x: sg2002_licheervnano_sd: fix missing
  wifi kernel module install
 
 ---

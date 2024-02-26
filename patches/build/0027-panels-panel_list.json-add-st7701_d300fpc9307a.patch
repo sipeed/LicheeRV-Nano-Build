@@ -1,0 +1,24 @@
+From dad1b8328c0fdbab30197730e432fd94fd7a0770 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 21 Feb 2024 19:18:29 +0800
+Subject: [PATCH 27/33] panels/panel_list.json: add st7701_d300fpc9307a
+
+---
+ panels/panel_list.json | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/panels/panel_list.json b/panels/panel_list.json
+index e336cd3..1838aa7 100644
+--- a/panels/panel_list.json
++++ b/panels/panel_list.json
+@@ -8,6 +8,7 @@
+ 			"jd9366ab",
+ 			"nt35521",
+ 			"ota7290b",
++			"st7701_d300fpc9307a",
+ 			"ota7290b_1920",
+ 			"icn9707",
+ 			"3aml069lp01g",
+-- 
+2.40.1
+

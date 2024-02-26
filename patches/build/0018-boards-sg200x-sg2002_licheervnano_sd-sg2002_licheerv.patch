@@ -1,7 +1,7 @@
-From de6a11cc3eeed3f59290351205c75123507d6fe7 Mon Sep 17 00:00:00 2001
+From 3f4d8c391a316950ee1cf254f8c56859b8c988e0 Mon Sep 17 00:00:00 2001
 From: Lu Hui <luhui@sipeed.com>
 Date: Tue, 20 Feb 2024 11:18:29 +0800
-Subject: [PATCH 18/18] 
+Subject: [PATCH 18/33] 
  boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig:
  default use 7inch zct2133v1 panel
 

@@ -1,0 +1,43 @@
+From a8aad02f666cb0ed21ec229e798b6dea51c06ae8 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Fri, 23 Feb 2024 09:20:41 +0800
+Subject: [PATCH 31/33] sg2002_licheervnano_sd_defconfig: clean buggy package,
+ use new package replace it
+
+---
+ .../sg2002_licheervnano_sd_defconfig                   | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+index ddba453..004a9db 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+@@ -20,15 +20,15 @@ CONFIG_KERNEL_LZMA=y
+ CONFIG_SKIP_RAMDISK=y
+ CONFIG_SENSOR_TUNING_PARAM_cv181x_src_gcore_gc4653=y
+ # CONFIG_ROOTFS_OVERLAYFS is not set
+-CONFIG_TARGET_PACKAGE_DROPBEAR=y
+ CONFIG_TARGET_PACKAGE_MTD-UTILS=y
+-# CONFIG_TARGET_PACKAGE_RSYSLOG is not set
+-CONFIG_TARGET_PACKAGE_BUSYBOX_SYSLOGD_SCRIPT=y
++CONFIG_TARGET_PACKAGE_DROPBEAR=n
++CONFIG_TARGET_PACKAGE_RSYSLOG=n
++CONFIG_TARGET_PACKAGE_BUSYBOX_SYSLOGD_SCRIPT=n
+ # CONFIG_ENABLE_FREERTOS is not set
+ CONFIG_TARGET_PACKAGE_GATORD=n
++CONFIG_TARGET_PACKAGE_ACM_SCRIPT=n
+ CONFIG_TARGET_PACKAGE_NTP=y
+ CONFIG_TARGET_PACKAGE_WIFI=y
+-CONFIG_TARGET_PACKAGE_ACM_SCRIPT=y
+ CONFIG_TARGET_PACKAGE_LCD=y
+ CONFIG_TARGET_PACKAGE_IPERF3=y
+ CONFIG_TARGET_PACKAGE_E2FSPROGS=y
+@@ -50,3 +50,5 @@ CONFIG_TARGET_PACKAGE_LIBDAEMON=y
+ CONFIG_TARGET_PACKAGE_EXPAT=y
+ CONFIG_TARGET_PACKAGE_DBUS=y
+ CONFIG_TARGET_PACKAGE_AVAHI=y
++CONFIG_TARGET_PACKAGE_OPENSSL=y
++CONFIG_TARGET_PACKAGE_OPENSSH=y
+-- 
+2.40.1
+
