@@ -37,3 +37,7 @@
 [submodule "oss"]
 	path = oss
 	url = https://github.com/sophgo/oss
+[submodule "host-tools"]
+	path = host-tools
+	url = https://github.com/sipeed/LicheeRv-Nano-Build
+	branch = host-tools
