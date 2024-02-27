@@ -3,20 +3,34 @@
 ** download
 
 #+BEGIN_SRC shell
+git clone https://github.com/sipeed/LicheeRv-Nano-Build --depth=1 --recursive
+cd LicheeRv-Nano-Build
+git config user.name Name
+git config user.email nano@none.nop
+sh ./apply_patches.sh
+echo $?
 #+END_SRC
 
 ** setup build environment
 
 #+BEGIN_SRC shell
+cd docker/
+podman build -t LicheeRv-Nano-Build .
+podman run --rm -it -v /path/to/LicheeRv-Nano-Build:/path/to/LicheeRv-Nano-Build /bin/bash
 #+END_SRC
 
 ** build whole system
 
 #+BEGIN_SRC shell
+source build/cvisetup.sh
+defconfig sg2002_licheervnano_sd
+build_all
+./build/tools/common/sd_tools/sd_gen_burn_image_rootless.sh install/soc_sg2002_licheervnano_sd/
+ls -lh install/soc_sg2002_licheervnano_sd/images/*
 #+END_SRC
 
 ** make bootable sdcard image
 
 #+BEGIN_SRC shell
+dd if= install/soc_sg2002_licheervnano_sd/images/DATE.img of=/dev/your_sdcard
 #+END_SRC
-
