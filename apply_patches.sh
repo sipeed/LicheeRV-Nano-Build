@@ -11,6 +11,10 @@ git am ../patches/linux_5.10/0002-init-try-jump-for-init-process.patch
 
 # default dac/adc gain is too low, so we need set it high
 git am ../patches/linux_5.10/0003-sound-soc-cvitek-cv181x-adc-dac-default-volume-is-to.patch
+
+git am ../patches/linux_5.10/0004-drivers-add-hynitron-touch-screen.patch
+git am ../patches/linux_5.10/0005-hynitron_core.c-disable-CLEAR_POINT-message.patch
+
 cd ..
 
 cd osdrv

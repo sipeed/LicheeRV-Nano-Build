@@ -1,0 +1,25 @@
+From 979cdbace41bb1891fa920382471af76f4798d7f Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 16:28:28 +0800
+Subject: [PATCH 5/5] hynitron_core.c: disable CLEAR_POINT message
+
+---
+ drivers/input/touchscreen/hynitron/hynitron_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/touchscreen/hynitron/hynitron_core.c b/drivers/input/touchscreen/hynitron/hynitron_core.c
+index bb09fd27828d..dfcca64616cd 100644
+--- a/drivers/input/touchscreen/hynitron/hynitron_core.c
++++ b/drivers/input/touchscreen/hynitron/hynitron_core.c
+@@ -1046,7 +1046,7 @@ static void cst3xx_touch_report(struct work_struct *work)
+     goto END;
+ 
+ CLR_POINT:
+-	HYN_ERROR(" CLEAR POINT.\n"); 
++	//HYN_ERROR(" CLEAR POINT.\n"); 
+ #if HYN_MT_PROTOCOL_B_EN
+ 	for(i=0; i<=10; i++) {	
+ 		input_mt_slot(hyn_ts_data->input_dev, i);
+-- 
+2.40.1
+
