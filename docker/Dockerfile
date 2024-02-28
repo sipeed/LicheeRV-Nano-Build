@@ -20,7 +20,7 @@ RUN ldconfig && apt update -y && \
 	iputils-ping python3-git python3-jinja2 python3-subunit\
 	zstd liblz4-tool libacl1 parted erofs-utils genext2fs mtools\
 	fatcat ckermit neovim cscope asciinema libconfuse-dev dosfstools\
-	gettext autoconf-archive
+	gettext autoconf-archive clang
 
 RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen
 RUN locale-gen

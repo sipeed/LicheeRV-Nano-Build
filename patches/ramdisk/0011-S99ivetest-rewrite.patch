@@ -1,0 +1,39 @@
+From 4561a83733c3171d66c8cb58d432749de332e8a0 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 15:35:27 +0800
+Subject: [PATCH 11/12] S99ivetest: rewrite
+
+---
+ .../sg2002_licheervnano_sd/etc/init.d/S99ivetest       | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99ivetest b/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99ivetest
+index 1b4e3b4..bca3bca 100755
+--- a/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99ivetest
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99ivetest
+@@ -1,7 +1,5 @@
+ #!/bin/sh
+ 
+-YUV_TEST="add and or sub xor"
+-
+ case "$1" in
+   start)
+     printf "Starting ivetest: "
+@@ -21,13 +19,7 @@ case "$1" in
+ 	    then
+ 	    	dd if=/dev/urandom of=/tmp/rand2MiB bs=1M count=2
+ 	    fi
+-	    mkdir /tmp/yuv_test
+-	    cd /tmp/yuv_test
+-	    for i in ${YUV_TEST}
+-	    do
+-		    sample_${i} 1920 1080 /tmp/rand2MiB
+-		    rm ./*.yuv
+-	    done
++	    ive_stress 1920 1080 /tmp/rand2MiB 1000
+     done
+     ) &
+     [ $? = 0 ] && echo "OK" || echo "FAIL"
+-- 
+2.40.1
+

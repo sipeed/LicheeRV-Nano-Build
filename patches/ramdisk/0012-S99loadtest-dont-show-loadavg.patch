@@ -1,0 +1,25 @@
+From c183d9faf0f5e9e7eeb510633618b172dc8596ea Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 15:35:52 +0800
+Subject: [PATCH 12/12] S99loadtest: dont show loadavg
+
+---
+ rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99loadtest | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99loadtest b/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99loadtest
+index 75c9ecc..c128d88 100755
+--- a/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99loadtest
++++ b/rootfs/overlay/sg2002_licheervnano_sd/etc/init.d/S99loadtest
+@@ -16,7 +16,7 @@ case "$1" in
+ 	    fi
+ 	    colorbg=0xFF000000
+ 	    colorfg=0xFFFFFFFF
+-	    echo "$(uptime) tpu_clk: $(cat /sys/kernel/debug/clk/clk_tpu/clk_rate)" | fbbar 16 $colorfg $colorbg
++	    echo "tpu_clk: $(cat /sys/kernel/debug/clk/clk_tpu/clk_rate)" | fbbar 16 $colorfg $colorbg
+             sleep 1
+     done
+     ) &
+-- 
+2.40.1
+

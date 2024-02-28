@@ -1,0 +1,101 @@
+From f3052e6f3595084f5c49f2bec79f494a44d7e7ed Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 09:50:08 +0800
+Subject: [PATCH 15/15] add ive_stress test
+
+---
+ v2/Makefile                    |  6 ++++
+ v2/sample/ive/src/ive_stress.c | 64 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 70 insertions(+)
+ create mode 100644 v2/sample/ive/src/ive_stress.c
+
+diff --git a/v2/Makefile b/v2/Makefile
+index 1a7859d..a8acb34 100644
+--- a/v2/Makefile
++++ b/v2/Makefile
+@@ -64,6 +64,12 @@ ifneq ($(FLASH_SIZE_SHRINK),y)
+ 	@cp -f sample/venc/sample_venc $(DESTDIR)/usr/bin
+ 	@cp -f sample/venc/sample_vcodec $(DESTDIR)/usr/bin
+ 	@cp -f sample/vdec/sample_vdec $(DESTDIR)/usr/bin
++	@cp -f sample/ive/sample_* $(DESTDIR)/usr/bin
++	@cp -f sample/ive/ive_stress $(DESTDIR)/usr/bin
++	@cp -f sample/region/sample_region $(DESTDIR)/usr/bin
++	@cp -f sample/vdecvo/sample_vdecvo $(DESTDIR)/usr/bin
++	@cp -f sample/overlay/sample_overlay $(DESTDIR)/usr/bin
++	@cp -f sample/fisheye/sample_fisheye $(DESTDIR)/usr/bin
+ endif
+ 
+ ifneq ($(FLASH_SIZE_SHRINK),y)
+diff --git a/v2/sample/ive/src/ive_stress.c b/v2/sample/ive/src/ive_stress.c
+new file mode 100644
+index 0000000..9cfedd8
+--- /dev/null
++++ b/v2/sample/ive/src/ive_stress.c
+@@ -0,0 +1,64 @@
++#include "cvi_ive.h"
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/time.h>
++
++int main(int argc, char **argv)
++{
++	if (argc != 5) {
++		printf("Incorrect loop value. Usage: %s <w> <h> <file_name> <count>\n",
++		       argv[0]);
++		printf("Example: %s 352 288 data/00_352x288_444.yuv 100\n", argv[0]);
++		return CVI_FAILURE;
++	}
++	// 00_352x288_444.yuv
++	const char *filename = argv[3];
++	int ret = CVI_SUCCESS;
++	int input_w, input_h;
++	struct timeval t0, t1;
++	unsigned long elapsed_cpu, count;
++
++	input_w = atoi(argv[1]);
++	input_h = atoi(argv[2]);
++	IVE_HANDLE handle = CVI_IVE_CreateHandle();
++
++	// Create src image.
++	IVE_IMAGE_S src_444;
++
++	CVI_IVE_ReadRawImage(handle, &src_444, filename,
++			  IVE_IMAGE_TYPE_U8C3_PLANAR, input_w, input_h);
++
++	// Create dst image.
++	IVE_DST_IMAGE_S dst;
++
++	CVI_IVE_CreateImage(handle, &dst, IVE_IMAGE_TYPE_U8C3_PACKAGE, input_w,
++			    input_h);
++
++	// Config Setting.
++	IVE_CSC_CTRL_S stCtrl;
++
++	stCtrl.enMode = IVE_CSC_MODE_VIDEO_BT601_YUV2RGB;
++	count = atoi(argv[4]);
++
++	// Run HW IVE.
++	printf("Run HW IVE CSC YUV2RGB.\n");
++	gettimeofday(&t0, NULL);
++	while (count > 0) {
++		ret |= CVI_IVE_CSC(handle, &src_444, &dst, &stCtrl, 1);
++		count--;
++	}
++	gettimeofday(&t1, NULL);
++	elapsed_cpu =
++		((t1.tv_sec - t0.tv_sec) * 1000000 + t1.tv_usec - t0.tv_usec);
++	printf("%s CPU time %lu\n", __func__, elapsed_cpu);
++
++	CVI_IVE_WriteImg(handle, "sample_CSC_YUV2RGB.rgb", &dst);
++
++	CVI_SYS_FreeI(handle, &src_444);
++	CVI_SYS_FreeI(handle, &dst);
++	CVI_IVE_DestroyHandle(handle);
++
++	return ret;
++}
+-- 
+2.40.1
+

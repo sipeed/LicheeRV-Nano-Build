@@ -41,3 +41,6 @@
 	path = host-tools
 	url = https://github.com/sipeed/LicheeRv-Nano-Build
 	branch = host-tools
+[submodule "tpu-mlir"]
+	path = tpu-mlir
+	url = https://github.com/sophgo/tpu-mlir

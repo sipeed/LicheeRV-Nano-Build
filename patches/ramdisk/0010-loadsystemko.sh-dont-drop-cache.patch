@@ -1,0 +1,27 @@
+From 40fff9bc92f5182ef10cc81c1140b5e6dbf89ff4 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 15:35:10 +0800
+Subject: [PATCH 10/12] loadsystemko.sh: dont drop cache
+
+---
+ rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh b/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh
+index b70f623..2e1ae20 100644
+--- a/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh
++++ b/rootfs/overlay/musl_riscv64/system/ko/loadsystemko.sh
+@@ -26,8 +26,8 @@ insmod /mnt/system/ko/soph_vc_driver.ko MaxVencChnNum=9 MaxVdecChnNum=9
+ #insmod /mnt/system/ko/soph_rtc.ko
+ insmod /mnt/system/ko/soph_ive.ko
+ 
+-echo 3 > /proc/sys/vm/drop_caches
+-dmesg -n 4
++#echo 3 > /proc/sys/vm/drop_caches
++#dmesg -n 4
+ 
+ #usb hub control
+ #/etc/uhubon.sh host
+-- 
+2.40.1
+

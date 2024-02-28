@@ -1,0 +1,24 @@
+From 633fd8fa8212056160d38afa83ef057b0b1b12f7 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 15:32:56 +0800
+Subject: [PATCH 36/36] sd_gen_burn_image_rootless.sh: fix
+
+---
+ tools/common/sd_tools/sd_gen_burn_image_rootless.sh | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/tools/common/sd_tools/sd_gen_burn_image_rootless.sh b/tools/common/sd_tools/sd_gen_burn_image_rootless.sh
+index f03253b..bf5cb30 100755
+--- a/tools/common/sd_tools/sd_gen_burn_image_rootless.sh
++++ b/tools/common/sd_tools/sd_gen_burn_image_rootless.sh
+@@ -15,7 +15,6 @@ fi
+ 
+ output_dir=$1
+ echo ${output_dir}
+-pushd ${output_dir}
+ set -eu
+ image=`date +%Y%m%d-%H%M`.img
+ THISDIR=$(dirname $(realpath $0))
+-- 
+2.40.1
+

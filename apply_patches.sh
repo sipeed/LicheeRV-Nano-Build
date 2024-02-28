@@ -70,6 +70,9 @@ git am ../patches/middleware/0013-v2-component-panel-sg200x-fix-CVI_U8-redefine.
 
 git am ../patches/middleware/0014-panel-add-st7701_dxq5d0019b480854.patch
 
+git am ../patches/middleware/0015-add-ive_stress-test.patch
+
+
 cd ..
 
 
@@ -165,8 +168,7 @@ git am ../patches/build/0032-linux-sg2002_licheervnano_sd_defconfig-add-gpio-key
 git am ../patches/build/0033-sg2002_licheervnano_sd_defconfig-add-input-event-dae.patch
 git am ../patches/build/0034-panels-add-st7701_dxq5d0019b480854-into-panel-list.patch
 git am ../patches/build/0035-licheervnano_sd-enable-cstxxx-touch-screen-driver.patch
-
-
+git am ../patches/build/0036-sd_gen_burn_image_rootless.sh-fix.patch
 cd ..
 
 
@@ -197,8 +199,6 @@ git am ../patches/u-boot-2021.10/0008-panels-add-st7701_dxq5d0019b480854.patch
 
 cd ..
 
-
-exit 0
 cd ramdisk
 git am ../patches/ramdisk/0001-rootfs-public-add-a-lot-of-package-for-licheervnano.patch
 git am ../patches/ramdisk/0002-src-add-qt5.patch
@@ -208,6 +208,10 @@ git am ../patches/ramdisk/0005-src-add-openssh-openssl.patch
 git am ../patches/ramdisk/0006-common_musl_riscv64-busybox-upgrade.patch
 git am ../patches/ramdisk/0007-common_musl_riscv64-S40network-allow-load-config-fro.patch
 git am ../patches/ramdisk/0008-20240228.patch
+git am ../patches/ramdisk/0009-licheervnano-upgrade-isp-tune-config.patch
+git am ../patches/ramdisk/0010-loadsystemko.sh-dont-drop-cache.patch
+git am ../patches/ramdisk/0011-S99ivetest-rewrite.patch
+git am ../patches/ramdisk/0012-S99loadtest-dont-show-loadavg.patch
 cd ..
 
 
