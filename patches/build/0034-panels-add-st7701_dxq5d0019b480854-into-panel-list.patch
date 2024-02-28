@@ -1,0 +1,24 @@
+From ce9bb030de0d978577aa86ba85ecd8d301f57e31 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 09:40:44 +0800
+Subject: [PATCH 34/35] panels: add st7701_dxq5d0019b480854 into panel list
+
+---
+ panels/panel_list.json | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/panels/panel_list.json b/panels/panel_list.json
+index 1838aa7..bdc10ea 100644
+--- a/panels/panel_list.json
++++ b/panels/panel_list.json
+@@ -11,6 +11,7 @@
+ 			"st7701_d300fpc9307a",
+ 			"ota7290b_1920",
+ 			"icn9707",
++			"st7701_dxq5d0019b480854",
+ 			"3aml069lp01g",
+ 			"st7701",
+ 			"st7701_hd228001c31",
+-- 
+2.40.1
+

@@ -27,6 +27,7 @@ git am ../patches/osdrv/0004-interdrv-v2-fb-fix-pixel-format-for-licheervnao-add
 # change touch size, for zct2133v1 800x1280
 git am ../patches/osdrv/0005-extdrv-tp-ts_gt9xx-gt9xx.h-change-touch-size-for-zct.patch
 
+git am ../patches/osdrv/0006-extdrv-add-rtl8733bs-driver.patch
 cd ..
 
 cd middleware
@@ -66,6 +67,8 @@ git am ../patches/middleware/0012-v2-sample-mipi_tx-sample_dsi-add-st7701_d300fp
 
 # fix CVI_U8 redefine
 git am ../patches/middleware/0013-v2-component-panel-sg200x-fix-CVI_U8-redefine.patch
+
+git am ../patches/middleware/0014-panel-add-st7701_dxq5d0019b480854.patch
 
 cd ..
 
@@ -160,6 +163,9 @@ git am ../patches/build/0030-licheervnano_sd-clean_rootfs.sh-not-used.patch
 git am ../patches/build/0031-sg2002_licheervnano_sd_defconfig-clean-buggy-package.patch
 git am ../patches/build/0032-linux-sg2002_licheervnano_sd_defconfig-add-gpio-key.patch
 git am ../patches/build/0033-sg2002_licheervnano_sd_defconfig-add-input-event-dae.patch
+git am ../patches/build/0034-panels-add-st7701_dxq5d0019b480854-into-panel-list.patch
+git am ../patches/build/0035-licheervnano_sd-enable-cstxxx-touch-screen-driver.patch
+
 
 cd ..
 
@@ -187,6 +193,8 @@ git am ../patches/u-boot-2021.10/0006-include-cvitek-cvi_panels-add-dsi_st7701_h
 # add mipi panel st7701_d300fpc9307a
 git am ../patches/u-boot-2021.10/0007-include-cvitek-cvi_panels-add-dsi_st7701_d300fpc9307.patch
 
+git am ../patches/u-boot-2021.10/0008-panels-add-st7701_dxq5d0019b480854.patch
+
 cd ..
 
 
@@ -199,6 +207,7 @@ git am ../patches/ramdisk/0004-overlay-add-sg2002_licheervnano_sd.patch
 git am ../patches/ramdisk/0005-src-add-openssh-openssl.patch
 git am ../patches/ramdisk/0006-common_musl_riscv64-busybox-upgrade.patch
 git am ../patches/ramdisk/0007-common_musl_riscv64-S40network-allow-load-config-fro.patch
+git am ../patches/ramdisk/0008-20240228.patch
 cd ..
 
 

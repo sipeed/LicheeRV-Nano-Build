@@ -1,0 +1,46 @@
+From cac7d21bcb48452d9cbc80ed00095f53ccde9a22 Mon Sep 17 00:00:00 2001
+From: Lu Hui <luhui@sipeed.com>
+Date: Wed, 28 Feb 2024 09:41:20 +0800
+Subject: [PATCH 35/35] licheervnano_sd: enable cstxxx touch screen driver
+
+---
+ .../dts_riscv/sg2002_licheervnano_sd.dts                 | 9 +++++++++
+ .../linux/sg2002_licheervnano_sd_defconfig               | 2 ++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts b/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts
+index 2f916d5..039a053 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts
++++ b/boards/sg200x/sg2002_licheervnano_sd/dts_riscv/sg2002_licheervnano_sd.dts
+@@ -96,6 +96,15 @@
+                 goodix,rst-gpio = <&porte 4 0>;
+                 status = "okay";
+         };
++	hytr: hynitron@5a {
++		compatible = "hynitron,hyn_ts";
++		reg = <0x5a>;
++		hynitron,irq-gpio = <&porte 3 0>;
++		hynitron,reset-gpio = <&porte 4 0>;
++		hynitron,max-touch-number = <5>;
++		hynitron,display-coords = <368 552>;
++                status = "okay";
++	};
+ };
+ 
+ &dac {
+diff --git a/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig b/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
+index 8af2804..361330d 100644
+--- a/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
++++ b/boards/sg200x/sg2002_licheervnano_sd/linux/sg2002_licheervnano_sd_defconfig
+@@ -621,6 +621,8 @@ CONFIG_UNIX_DIAG=y
+ CONFIG_NETLINK_DIAG=y
+ CONFIG_AIC_WLAN_SUPPORT=y
+ CONFIG_KEYBOARD_GPIO=y
++CONFIG_INPUT_TOUCHSCREEN=y
++CONFIG_TOUCHSCREEN_HYNITRON_TS=y
+ 
+ # these driver may be broken tpu driver
+ CONFIG_FUSE_FS=y
+-- 
+2.40.1
+
