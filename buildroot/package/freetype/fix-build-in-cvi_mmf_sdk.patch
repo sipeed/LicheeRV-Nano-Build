@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 14fba30..0d5eeb5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -21,7 +21,7 @@ PROJECT_TITLE := FreeType
+ # The variable TOP_DIR holds the path to the topmost directory in the project
+ # engine source hierarchy.  If it is not defined, default it to `.'.
+ #
+-TOP_DIR ?= .
++TOP_DIR = .
+ 
+ # The variable OBJ_DIR gives the location where object files and the
+ # FreeType library are built.

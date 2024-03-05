@@ -1,0 +1,1 @@
+../../../../middleware/v2/component/panel/sg200x/dsi_st7701_hd228001c31.h

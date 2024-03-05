@@ -1,0 +1,51 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	if [ -e /boot/usb.host ]
+	then
+		exit 0
+	fi
+	. /etc/profile
+	cd /sys/kernel/config/usb_gadget
+	mkdir g0
+	cd g0
+	if [ -e /boot/usb.idVendor ]
+	then
+		cat /boot/usb.idVendor > idVendor
+	else
+		echo 0123 > idVendor
+	fi
+	if [ -e /boot/usb.idProduct ]
+	then
+		cat /boot/usb.idProduct > idProduct
+	else
+		echo 4567 > idProduct
+	fi
+	mkdir strings/0x409
+	if [ -e /boot/usb.serialnumber ]
+	then
+		cat /boot/usb.serialnumber > strings/0x409/serialnumber
+	else
+		echo '0123456789ABCDEF' > strings/0x409/serialnumber
+	fi
+	if [ -e /boot/usb.manufacturer ]
+	then
+		cat /boot/usb.manufacturer > strings/0x409/manufacturer
+	else
+		echo 'sipeed' > strings/0x409/manufacturer
+	fi
+	if [ -e /boot/usb.product ]
+	then
+		cat /boot/usb.product > strings/0x409/product
+	else
+		echo 'licheervnano' > strings/0x409/product
+	fi
+	mkdir functions/acm.GS0
+	mkdir functions/rndis.usb0
+	mkdir configs/c.1
+	ln -s functions/acm.GS0 configs/c.1/
+	ln -s functions/rndis.usb0 configs/c.1/
+	ls /sys/class/udc/ | cat > UDC
+	echo device > /proc/cviusb/otg_role
+fi

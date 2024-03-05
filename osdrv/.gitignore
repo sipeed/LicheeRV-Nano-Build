@@ -1,0 +1,11 @@
+*.o
+*.d
+*.mod.c
+*.cmd
+*.mod
+
+.tmp_versions
+Module.symvers
+modules.order
+
+interdrv/gator/generated_gator_src_md5.h

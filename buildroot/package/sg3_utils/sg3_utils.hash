@@ -1,0 +1,6 @@
+# Locally calculated from download (no sig, hash)
+sha256  d6b9a41690d540e58d1e99c26ac8db37336c849ef6a03f96ea48ca2fe334dbfa  sg3_utils-1.48.tar.xz
+
+# Hash for license files
+sha256  d212debdb0a5d7754c977f6dc53bb6c88b4ace7ab784ddbccd06bb970adb1a37  COPYING
+sha256  6b1a1de0b3394002973daaa407b93a1d2c13efd8dd1a32095d6872c36f09ba66  BSD_LICENSE

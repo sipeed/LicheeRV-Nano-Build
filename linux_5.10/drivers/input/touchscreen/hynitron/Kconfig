@@ -1,0 +1,10 @@
+config CONFIG_TOUCHSCREEN_HYNITRON_TS
+	bool "hynitorn Ts for TOUCHSCREEN"
+	depends on I2C
+	depends on INPUT
+	default y
+	help
+	  Say Y here if you have hynitorn touch panel.
+	  If unsure, say N.
+      
+    

@@ -1,0 +1,42 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting audtest: "
+    if [ -e /boot/audtest ]
+    then
+	    touch /tmp/audtest
+    fi
+    (
+    if [ -e /tmp/audtest ]
+    then
+	    sleep 20
+    fi
+    while true
+    do
+	    if [ ! -e /tmp/audtest ]
+	    then
+		break
+	    fi
+	    . /etc/profile
+	    export HOME=/root
+	    rm /tmp/rec.wav
+	    arecord -f S16_LE -d 1 /tmp/rec.wav
+	    aplay -f S16_LE -Dhw:1,0 /tmp/rec.wav
+	    sleep 0.5
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping audtest: "
+    rm /tmp/audtest
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart audtest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

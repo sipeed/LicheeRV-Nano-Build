@@ -1,0 +1,8 @@
+KERNEL_PATH.sh
+mk_gpt
+__pycache__
+/output
+/.config*
+/config.cmake
+/config.all_vars
+/.defconfig

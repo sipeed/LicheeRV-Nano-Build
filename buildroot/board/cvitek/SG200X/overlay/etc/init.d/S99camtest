@@ -1,0 +1,31 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting camtest: "
+    if [ -e /boot/camtest ]
+    then
+	    touch /tmp/camtest
+    fi
+    if [ ! -e /tmp/camtest ]
+    then
+	exit 0
+else
+	sleep 1
+    fi
+    (nice -n 17 /mnt/system/usr/bin/sample_vio 6 &> /dev/null) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping camtest: "
+    rm /tmp/camtest
+    killall sample_vio
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart camtest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config AIC_WLAN_SUPPORT
+        bool "AIC wireless Support"
+        default n
+        help
+          This is support for aic wireless chip.
+

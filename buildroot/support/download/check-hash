@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -e
+
+# Helper to check a file matches its known hash
+# Call it with:
+#   $1: the full path to the temporary file that was downloaded, and
+#       that is to be checked
+#   $2: the final basename of the file, to which it will be ultimately
+#       saved as, to be able to match it to the corresponding hashes
+#       in the .hash file
+#   $*: the paths of the files containing all the expected hashes
+#
+# Exit codes:
+#   0:  the hash file exists and the file to check matches all its hashes,
+#       or the hash file does not exist
+#   1:  unknown command-line option
+#   2:  the hash file exists and the file to check does not match at least
+#       one of its hashes
+#   3:  the hash file exists and there was no hash to check the file against
+#   4:  the hash file exists and at least one hash type is unknown
+
+while getopts :q OPT; do
+    case "${OPT}" in
+    q)  exec >/dev/null;;
+    \?) exit 1;;
+    esac
+done
+shift $((OPTIND-1))
+
+file="${1}"
+base="${2}"
+shift 2
+declare -a h_files=( "${@}" )
+
+# Check one hash for a file
+# $1: algo hash
+# $2: known hash
+# $3: file (full path)
+# $4: hash file (full path)
+check_one_hash() {
+    _h="${1}"
+    _known="${2}"
+    _file="${3}"
+    _h_file="${4}"
+
+    # Note: md5 is supported, but undocumented on purpose.
+    # Note: sha3 is not supported, since there is currently no implementation
+    #       (the NIST has yet to publish the parameters).
+    case "${_h}" in
+        md5|sha1)                       ;;
+        sha224|sha256|sha384|sha512)    ;;
+        *) # Unknown hash, exit with error
+            printf "ERROR: unknown hash '%s' for '%s'\n"  \
+                   "${_h}" "${base}" >&2
+            exit 4
+            ;;
+    esac
+
+    # Do the hashes match?
+    _hash=$( ${_h}sum "${_file}" |cut -d ' ' -f 1 )
+    if [ "${_hash}" = "${_known}" ]; then
+        printf "%s: OK (%s: %s)\n" "${base}" "${_h}" "${_hash}"
+        return 0
+    fi
+
+    printf "ERROR: while checking hashes from %s\n" "${_h_file}" >&2
+    printf "ERROR: %s has wrong %s hash:\n" "${base}" "${_h}" >&2
+    printf "ERROR: expected: %s\n" "${_known}" >&2
+    printf "ERROR: got     : %s\n" "${_hash}" >&2
+    printf "ERROR: Incomplete download, or man-in-the-middle (MITM) attack\n" >&2
+
+    exit 2
+}
+
+# Do we know one or more hashes for that file?
+nb_h_files=0
+nb_checks=0
+for h_file in "${h_files[@]}"; do
+    [ -f "${h_file}" ] || continue
+    : $((nb_h_files++))
+    while read t h f; do
+        case "${t}" in
+            ''|'#'*)
+                # Skip comments and empty lines
+                continue
+                ;;
+            *)
+                if [ "${f}" = "${base}" ]; then
+                    check_one_hash "${t}" "${h}" "${file}" "${h_file}"
+                    : $((nb_checks++))
+                fi
+                ;;
+        esac
+    done <"${h_file}"
+done
+
+if [ ${nb_h_files} -eq 0 ]; then
+    printf "WARNING: no hash file for %s\n" "${base}" >&2
+    exit 0
+fi
+
+if [ ${nb_checks} -eq 0 ]; then
+    case " ${BR_NO_CHECK_HASH_FOR} " in
+    *" ${base} "*)
+        # File explicitly has no hash
+        exit 0
+        ;;
+    esac
+    printf "ERROR: No hash found for %s\n" "${base}" >&2
+    exit 3
+fi

@@ -1,0 +1,14 @@
+out/
+.vscode
+.DS_Store
+Debug/
+.xcuserstate
+.xcodeproj
+UserInterfaceState.xcuserstate
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+build/.cmake/
+100000000*
+cache/

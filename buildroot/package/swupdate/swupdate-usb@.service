@@ -1,0 +1,11 @@
+[Unit]
+Description=usb media swupdate service
+Requires=swupdate.service
+Wants=swupdate-progress.service
+
+[Service]
+ExecStartPre=/bin/mkdir -p /tmp/%I
+ExecStartPre=/bin/mount /dev/%I /tmp/%I
+ExecStart=/bin/sh -c "swupdate-client -v /tmp/%I/*.swu"
+ExecStopPost=/bin/umount /tmp/%I
+ExecStopPost=/bin/rmdir /tmp/%I

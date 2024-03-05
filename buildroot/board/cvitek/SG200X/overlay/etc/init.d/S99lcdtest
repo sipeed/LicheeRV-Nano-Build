@@ -1,0 +1,39 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting lcdtest: "
+    if [ -e /boot/lcdtest ]
+    then
+	    touch /tmp/lcdtest
+    fi
+    if [ -e /tmp/lcdtest ]
+    then
+	    sleep 2
+        fbpattern
+    fi
+    (
+    while true
+    do
+	    if [ ! -e /tmp/lcdtest ]
+	    then
+		break
+	    fi
+	date | fbbar 0 0xFFFFFFFF 0xFF000000
+	sleep 1
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping lcdtest: "
+    rm /tmp/lcdtest
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart lcdtest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

@@ -1,0 +1,6 @@
+# From http://downloads.asterisk.org/pub/telephony/dahdi-tools/releases/dahdi-tools-3.3.0.sha256
+sha256  5706b37df5840ecdc524d4c86df2ad34a31f83db552a8519b4ccf61bac75d2e4  dahdi-tools-3.3.0.tar.gz
+
+# License files, locally computed
+sha256  fa5fc1d1eec39532ea517518eeefd7b6e3c14341a55e5880a0e2a49eee47a5b7  LICENSE
+sha256  ec60b993835e2c6b79e6d9226345f4e614e686eb57dc13b6420c15a33a8996e5  LICENSE.LGPL

@@ -1,0 +1,4 @@
+# From https://github.com/troglobit/libuev/releases/download/v2.4.1/libuev-2.4.1.tar.xz.sha256
+sha256  1d171c572ca48ddd6763f76c54e77d021d4ca7beb007610f7c1fec903511977b  libuev-2.4.1.tar.xz
+# License files
+sha256  387d0d8e2aabf187751c8f1ebb9a4abaecaa7e0e05fead27f408193a0f0f17dd  LICENSE

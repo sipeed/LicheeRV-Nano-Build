@@ -1,0 +1,28 @@
+#!/bin/sh
+${CVI_SHOPTS}
+
+case "$1" in
+  start)
+    insmod /mnt/system/ko/dwc2.ko
+    echo device > /proc/cviusb/otg_role
+    printf "Starting rndis: "
+    /etc/run_usb.sh probe rndis
+    /etc/run_usb.sh start
+    ifconfig usb0 up
+    ifconfig usb0 169.254.250.73
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping rndis: "
+    /etc/run_usb.sh stop
+    echo "OK"
+    sleep 1
+  ;;
+  restart)
+    printf "Restarting rndis: "
+    /etc/run_usb.sh stop
+    sleep 1
+    /etc/run_usb.sh start
+    echo "OK"
+  ;;
+esac

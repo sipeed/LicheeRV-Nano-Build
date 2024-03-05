@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	. /etc/profile
+	if [ -e /boot/sshd_config ]
+	then
+		cp -vf /boot/sshd_config /etc/ssh/sshd_config
+	fi
+fi

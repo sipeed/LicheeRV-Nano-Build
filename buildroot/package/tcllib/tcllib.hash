@@ -1,0 +1,5 @@
+# From https://core.tcl-lang.org/tcllib/uv/tcllib-1.21.SHA256
+sha256  10c7749e30fdd6092251930e8a1aa289b193a3b7f1abf17fee1d4fa89814762f  tcllib-1.21.tar.xz
+
+# Locally computed:
+sha256  38e1f556213f4008cfd280457af57c76a1fe043dc026ece1c704c09b5f6e865c  license.terms

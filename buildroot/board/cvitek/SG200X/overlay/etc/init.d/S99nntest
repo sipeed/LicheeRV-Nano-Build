@@ -1,0 +1,35 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting nntest: "
+    if [ -e /boot/nntest ]
+    then
+	    touch /tmp/nntest
+    fi
+    (
+    while true
+    do
+	    if [ ! -e /tmp/nntest ]
+	    then
+		break
+	    fi
+	    cd /usr/bin/
+	nice -n 19 nn_runner_test 1000
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping nntest: "
+    rm /tmp/nntest
+    killall nn_runner_test
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart nntest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	. /etc/profile
+	if [ -e /boot/fb ]
+	then
+		insmod /mnt/system/ko/soph_fb.ko
+		# we need keep node /dev/fb0 open
+		# graphic layer will disable after node /dev/fb0 is closed
+		(
+		exec 3<>/dev/fb0
+		while true
+		do
+			sleep 65535
+		done
+		) &
+	fi
+	exit 0
+fi

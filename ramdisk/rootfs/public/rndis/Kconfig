@@ -1,0 +1,5 @@
+config TARGET_PACKAGE_RNDIS_SCRIPT
+        bool "Target package rndis script"
+	default n
+        help
+          target package rndis script

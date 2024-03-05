@@ -1,0 +1,36 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting loadtest: "
+    if [ -e /boot/loadtest ]
+    then
+	    touch /tmp/loadtest
+    fi
+    (
+    while true
+    do
+	    if [ ! -e /tmp/loadtest ]
+	    then
+		break
+	    fi
+	    colorbg=0xFF000000
+	    colorfg=0xFFFFFFFF
+	    echo "tpu_clk: $(cat /sys/kernel/debug/clk/clk_tpu/clk_rate)" | fbbar 16 $colorfg $colorbg
+            sleep 1
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping loadtest: "
+    rm /tmp/loadtest
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart loadtest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

@@ -1,0 +1,24 @@
+/dts-v1/;
+#include "cv181x_base_riscv.dtsi"
+#include "cv181x_asic_bga.dtsi"
+#include "cv181x_asic_spinor.dtsi"
+#include "cv181x_default_memmap.dtsi"
+
+/ {
+	i2cgpio: i2c-gpio {
+		compatible = "i2c-gpio";
+		scl-gpios = <&porta 28 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		sda-gpios = <&porta 29 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <5>;
+		status = "okay";
+		gt9xx: gt9xx@5d {
+		   compatible = "goodix,gt9xx";
+		   reg = <0x5d>;
+		   status = "okay";
+	   };
+	};
+};
+
+&wifisd {
+	status = "okay";
+};

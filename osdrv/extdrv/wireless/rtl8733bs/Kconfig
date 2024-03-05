@@ -1,0 +1,6 @@
+config RTL8733BS
+	depends on MMC
+	tristate "Realtek 8733B SDIO WiFi"
+	help
+	  Realtek RTL8733BS chipset driver
+	  802.11ac SDIO wireless network adapter

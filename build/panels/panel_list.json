@@ -1,0 +1,45 @@
+{
+	"panel_list" : {
+		"mipi" : [
+			"zct2133v1",
+			"hx8394",
+			"ili9881c",
+			"ili9881d",
+			"jd9366ab",
+			"nt35521",
+			"ota7290b",
+			"st7701_d300fpc9307a",
+			"ota7290b_1920",
+			"icn9707",
+			"st7701_dxq5d0019b480854",
+			"3aml069lp01g",
+			"st7701",
+			"st7701_hd228001c31",
+			"st7701_hd228001c31_alt0",
+			"st7785m"
+		],
+		"lvds" : [
+			"ek79202"
+		],
+		"i80" : [
+			"st7789v",
+			"st7789v3"
+		],
+		"bt" : [
+		],
+		"rgb" : [
+		]
+	},
+
+	"panel_param" : {
+		"lane_num" : [
+			"4_lanes",
+			"2_lanes",
+			"1_lane"
+		],
+
+		"lane_swap" : [
+			"lane_swap"
+		]
+	}
+}

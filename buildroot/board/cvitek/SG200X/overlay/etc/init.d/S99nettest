@@ -1,0 +1,109 @@
+#!/bin/sh
+
+GREEN=0xFF00FF00
+RED=0xFFFF0000
+
+WLAN0_TIMEOUT=15
+ETH0_TIMEOUT=8
+
+case "$1" in
+  start)
+    printf "Starting nettest: "
+    if [ -e /boot/nettest ]
+    then
+	    touch /tmp/nettest
+    fi
+    if [ -e /boot/nettest_url ]
+    then
+	    url=$(cat /boot/nettest_url)
+    fi
+    if [ -z "${url}" ]
+    then
+	    url=http://192.168.0.104:8000/rand10MiB
+    fi
+    (
+    while true
+    do
+	    if [ ! -e /tmp/nettest ]
+	    then
+		break
+	    fi
+	    colorbg=0xFF000000
+	    colorfg=0xFFFFFFFF
+	    wlan0_stat=$(ip link show wlan0 | head -n 1)
+	    wlan0_addr=$(ip link show wlan0 | tail -n 1)
+	    if [ -z "${wlan0_stat}" ]
+	    then
+		    wlan0_stat="wlan0 not found"
+		    colorfg=$RED
+	    fi
+	    echo "$wlan0_stat" | fbbar 48 $colorfg $colorbg
+	    echo "$wlan0_addr" | fbbar 64 $colorfg $colorbg
+	    colorfg=0xFFFFFFFF
+	    eth0_stat=$(ip link show eth0 | head -n 1)
+	    eth0_addr=$(ip link show eth0 | tail -n 1)
+	    if [ -z "${eth0_stat}" ]
+	    then
+		    eth0_stat="eth0 not found"
+		    colorfg=$RED
+	    fi
+	    echo "$eth0_stat" | fbbar 80 $colorfg $colorbg
+	    echo "$eth0_addr" | fbbar 96 $colorfg $colorbg
+	    wlan0_dl_start=$(cat /proc/uptime | awk -F. '{print $1}')
+	    curl --interface wlan0 --max-time ${WLAN0_TIMEOUT} ${url} > /dev/null
+	    if [ $? -ne 0 ]
+	    then
+		    wlan0_dl_time=-1
+		    udhcpc -i wlan0 -t 1 -T 1 -A 1 -v -n
+	    else
+		    wlan0_dl_end=$(cat /proc/uptime | awk -F. '{print $1}')
+		    wlan0_dl_time=$((wlan0_dl_end - wlan0_dl_start))
+	    fi
+	    if [ "${wlan0_dl_time}" -ge $((WLAN0_TIMEOUT - 3)) ]
+	    then
+		    colorfg=$RED
+	    elif [ "${wlan0_dl_time}" = -1 ]
+	    then
+		    colorfg=$RED
+	    else
+		    colorfg=$GREEN
+	    fi
+	    echo "wlan0 download test: ${wlan0_dl_time}" | fbbar 112 $colorfg $colorbg
+	    eth0_dl_start=$(cat /proc/uptime | awk -F. '{print $1}')
+	    curl --interface eth0 --max-time ${ETH0_TIMEOUT} ${url} > /dev/null
+	    if [ $? -ne 0 ]
+	    then
+		    eth0_dl_time=-1
+		    udhcpc -i eth0 -t 1 -T 1 -A 1 -v -n
+            else
+		    eth0_dl_end=$(cat /proc/uptime | awk -F. '{print $1}')
+		    eth0_dl_time=$((eth0_dl_end - eth0_dl_start))
+	    fi
+	    if [ "${eth0_dl_time}" -ge $((ETH0_TIMEOUT - 3)) ]
+	    then
+		    colorfg=$RED
+	    elif [ "${eth0_dl_time}" = -1 ]
+	    then
+		    colorfg=$RED
+	    else
+		    colorfg=$GREEN
+	    fi
+	    echo "eth0 download test: ${eth0_dl_time}" | fbbar 128 $colorfg $colorbg
+            sleep 0.5
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping nettest: "
+    rm /tmp/nettest
+    echo "OK"
+    sleep 1
+  ;;
+  restart)
+    printf "Restart nettest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

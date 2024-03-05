@@ -1,0 +1,66 @@
+&sd {
+	no-1-8-v;
+};
+
+&mipi_rx{
+	snsr-reset = <&portc 13 GPIO_ACTIVE_LOW>, <&portc 13 GPIO_ACTIVE_LOW>, <&portc 13 GPIO_ACTIVE_LOW>;
+};
+
+&dac{
+	mute-gpio-r = <&porte 2 GPIO_ACTIVE_LOW>;
+};
+
+&spi0 {
+	status = "disabled";
+	num-cs = <1>;
+	spidev@0 {
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <1000000>;
+		reg = <0>;
+	};
+};
+
+&spi1 {
+	status = "disabled";
+	num-cs = <1>;
+	spidev@0 {
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <1000000>;
+		reg = <0>;
+	};
+};
+
+&spi2 {
+	status = "disabled";
+	num-cs = <1>;
+	spidev@0 {
+	compatible = "rohm,dh2228fv";
+		spi-max-frequency = <1000000>;
+		reg = <0>;
+	};
+};
+
+&spi3 {
+	status = "okay";
+	num-cs = <1>;
+	spidev@0 {
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <1000000>;
+		reg = <0>;
+	};
+};
+
+/ {
+	/delete-node/ wifi-sd@4320000;
+	/delete-node/ i2s@04110000;
+	/delete-node/ sound_ext1;
+	/delete-node/ sound_ext2;
+	/delete-node/ sound_PDM;
+
+	wifi_pin {
+		compatible = "cvitek,wifi-pin";
+		poweron-gpio = <&porte 2 GPIO_ACTIVE_HIGH>;
+		wakeup-gpio = <&porte 6 GPIO_ACTIVE_HIGH>;
+	};
+
+};

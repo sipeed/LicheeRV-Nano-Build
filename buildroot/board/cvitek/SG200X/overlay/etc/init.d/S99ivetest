@@ -1,0 +1,38 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting ivetest: "
+    if [ -e /boot/ivetest ]
+    then
+	    touch /tmp/ivetest
+    fi
+    . /etc/profile
+    (
+    while true
+    do
+	    if [ ! -e /tmp/ivetest ]
+	    then
+		break
+	    fi
+	    if [ ! -e /tmp/rand2MiB ]
+	    then
+	    	dd if=/dev/urandom of=/tmp/rand2MiB bs=1M count=2
+	    fi
+	    /mnt/system/usr/bin/ive_stress 1920 1080 /tmp/rand2MiB 1000
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping ivetest: "
+    rm /tmp/ivetest
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart ivetest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

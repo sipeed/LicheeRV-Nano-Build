@@ -1,0 +1,62 @@
+#!/bin/sh
+
+. /etc/profile
+
+start() {
+	if [ -e /boot/wifi.sta ]
+	then
+		if [ -e /boot/wpa_supplicant.conf ]
+		then
+			cp /boot/wpa_supplicant.conf /etc/wpa_supplicant.conf
+		else
+			ssid="licheervnano"
+			pass="licheervnano"
+			if [ -e /boot/wifi.ssid ]
+			then
+				echo -n "ssid: "
+				cat /boot/wifi.ssid
+				ssid=`cat /boot/wifi.ssid`
+			fi
+			if [ -e /boot/wifi.pass ]
+			then
+				echo -n "wifi.pass: "
+				cat /boot/wifi.pass
+				pass=`cat /boot/wifi.pass`
+			fi
+			echo "ctrl_interface=/var/run/wpa_supplicant" > /etc/wpa_supplicant.conf
+			wpa_passphrase "$ssid" "$pass" >> /etc/wpa_supplicant.conf
+		fi
+		wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
+		if [ -e /boot/wifi.dhcp ]
+		then
+			(udhcpc -i wlan0 -t 10 -T 1 -A 5 -b -p /run/udhcpc.wlan0.pid) &
+		fi
+	fi
+	if [ -e /boot/wifi.mon ]
+	then
+		airmon-ng start wlan0
+	fi
+}
+
+stop() {
+	killall wpa_supplicant
+	kill `cat /run/udhcpc.wlan0.pid`
+	rm /run/udhcpc.wlan0.pid
+	airmon-ng stop wlan0mon
+}
+
+restart() {
+	start
+	stop
+}
+
+if [ "${1}" = "start" ]
+then
+	start
+elif [ "${1}" = "stop" ]
+then
+	stop
+elif [ "${1}" = "restart" ]
+then
+	restart
+fi

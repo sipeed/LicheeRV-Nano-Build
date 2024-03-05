@@ -1,0 +1,177 @@
+/dts-v1/;
+#include "soph_base_riscv.dtsi"
+#include "soph_asic_qfn.dtsi"
+#include "soph_asic_sd.dtsi"
+#include "soph_default_memmap.dtsi"
+
+#include <dt-bindings/input/linux-event-codes.h>
+#include <dt-bindings/gpio/gpio.h>
+
+&i2c0 {
+        status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
+};
+
+&i2c1 {
+        status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
+};
+
+&sd {
+        min-frequency = <400000>; // 400Khz
+        //max-frequency = <50000000>; // 50Mhz
+        max-frequency = <25000000>; // 25Mhz
+        //max-frequency = <10000000>; // 10Mhz
+        //max-frequency = <5000000>; // 5Mhz
+};
+
+&cvi_vo {
+#ifndef __UBOOT__
+	/delete-property/ reset-gpio;
+#else
+	// for uboot
+        reset-gpio = <&porte 0 1>;
+#endif
+        /delete-property/ pwm-gpio;
+        /delete-property/ power-ct-gpio;
+
+};
+
+&mipi_tx {
+        /delete-property/ pwm-gpio;
+#ifndef __UBOOT__
+	// for linux kernel
+        reset-gpio = <&porte 0 1>;
+#else
+        /delete-property/ reset-gpio;
+#endif
+        /delete-property/ power-ct-gpio;
+        status = "okay";
+};
+
+&uart1 {
+        status = "okay";
+};
+
+&pwm0 {
+        status = "okay";
+};
+
+&pwm1 {
+      status = "okay";
+};
+
+&pwm2 {
+      status = "okay";
+};
+
+&i2c2 {
+        status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
+};
+
+&i2c3 {
+        status = "disabled";
+        /delete-property/ scl-pinmux;
+        /delete-property/ sda-pinmux;
+        /delete-property/ scl-gpios;
+        /delete-property/ sda-gpios;
+};
+
+&i2c4 {
+        statuc = "okay";
+        gt9xx: gt9xx@14 {
+                compatible = "goodix,gt9xx";
+                reg = <0x14>;
+                goodix,irq-gpio = <&porte 3 0>;
+                goodix,rst-gpio = <&porte 4 0>;
+                status = "okay";
+        };
+	hytr: hynitron@5a {
+		compatible = "hynitron,hyn_ts";
+		reg = <0x5a>;
+		hynitron,irq-gpio = <&porte 3 0>;
+		hynitron,reset-gpio = <&porte 4 0>;
+		hynitron,max-touch-number = <5>;
+		hynitron,display-coords = <368 552>;
+                status = "okay";
+	};
+};
+
+&dac {
+        status = "okay";
+        /delete-property/ mute-gpio-r;
+};
+
+&fb_reserved {
+        status = "okay";
+};
+
+&cvi_fb {
+        status = "okay";
+};
+
+&mipi_rx {
+        snsr-reset = <&porte 1 GPIO_ACTIVE_LOW>;
+};
+
+/ {
+        model = "LicheeRv Nano";
+
+        gpio-keys {
+                compatible = "gpio-keys";
+                key-user {
+                        label = "User Key";
+                        linux,code = <KEY_DISPLAYTOGGLE>;
+                        debounce-interval = <1>;
+                        gpios = <&porta 30 1>;
+                };
+        };
+
+	leds {
+		compatible = "gpio-leds";
+
+		led-user {
+			gpios = <&porta 14 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "activity";
+		};
+	};
+
+        wifisd:wifi-sd@4320000 {
+                compatible = "cvitek,cv181x-sdio";
+                bus-width = <4>;
+                reg = <0x0 0x4320000 0x0 0x1000>;
+                reg_names = "core_mem";
+                src-frequency = <375000000>;
+                min-frequency = <400000>; // 400Khz
+                //max-frequency = <50000000>; // 50Mhz
+                //max-frequency = <45000000>; // 45Mhz
+                //max-frequency = <40000000>; // 40Mhz
+                //max-frequency = <35000000>; // 35Mhz
+                //max-frequency = <30000000>; // 30Mhz
+                max-frequency = <25000000>; // 25Mhz
+                //max-frequency = <20000000>; // 20Mhz
+                //max-frequency = <15000000>; // 15Mhz
+                //max-frequency = <10000000>; // 10Mhz
+                //max-frequency = <5000000>; // 5Mhz
+                64_addressing;
+                reset_tx_rx_phy;
+                non-removable;
+                pll_index = <0x7>;
+                pll_reg = <0x300207C>;
+                no-mmc;
+                no-sd;
+                status = "okay";
+                interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
+                interrupt-parent = <&plic0>;
+        };
+};

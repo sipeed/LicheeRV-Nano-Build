@@ -50,19 +50,22 @@ jobs:
         uses: actions/checkout@v3
         with:
             path: 'cvi_mmf_sdk'  # TODO: make this name a global variable
-            ref: 'newsdk'
+            ref: 'main'
+
+      - name: Download Toolchain
+        run: |
+              export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+              pushd cvi_mmf_sdk
+                wget https://sophon-file.sophon.cn/sophon-prod-s3/drive/23/03/07/16/host-tools.tar.gz
+                tar xf host-tools.tar.gz
+              popd
 
       - name: Make System
         run: |
               pushd cvi_mmf_sdk
-                git config --global user.name gh
-                git config --global user.email gh@none.nop
-                git submodule update --init --recursive --depth=1
-                ./apply_patches.sh
                 source build/cvisetup.sh
                 defconfig sg2002_licheervnano_sd
                 build_all
-                ./build/tools/common/sd_tools/sd_gen_burn_image_rootless.sh install/soc_sg2002_licheervnano_sd/
               popd
 
       - name: 'Upload Artifact'

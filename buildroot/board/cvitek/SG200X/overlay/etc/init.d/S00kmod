@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	. /etc/profile
+	ls /etc/modules-load.d/*.conf | sort | while read conf
+	do
+		cat $conf | while read line
+		do
+			if [ -e /lib/modules ]
+			then
+				modprobe $line
+			else
+				if [ -e /mnt/system/ko/${line}.ko ]
+				then
+					insmod /mnt/system/ko/${line}.ko
+				else
+					insmod /mnt/system/ko/3rd/${line}.ko
+				fi
+			fi
+		done
+	done
+	exit 0
+fi

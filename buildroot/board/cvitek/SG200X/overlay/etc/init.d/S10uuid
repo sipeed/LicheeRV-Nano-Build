@@ -1,0 +1,49 @@
+#!/bin/sh
+hex2mac() {
+	MAC=""
+	seq 2 2 12 | while read i
+	do
+		echo -n ${1} | head -c $i | tail -c 2
+		if [ $i != 12 ]
+		then
+			echo -n ':'
+		fi
+	done | tr '[:upper:]' '[:lower:]'
+}
+
+if [ "${1}" = start ]
+then
+	old_hostname=$(cat /etc/hostname)
+	new_hostname=licheervnano-$(sha512sum /sys/class/cvi-base/base_uid | head -c 4)
+
+	if [ "${old_hostname}" != "${new_hostname}" ]
+	then
+		hostname ${new_hostname}
+		echo ${new_hostname} > /etc/hostname
+		sed -i -e "s/${old_hostname}/${new_hostname}/g" /etc/hosts
+	fi
+	echo "hostname: ${new_hostname}"
+
+	if [ -e /boot/ethmac ]
+	then
+		new_ethmac=$(cat /boot/ethmac)
+	else
+		new_ethmac=$(hex2mac 48da356f$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+	fi
+
+	ifconfig eth0 down
+	ip link set eth0 address ${new_ethmac}
+	ifconfig eth0 up
+	echo "ethernet mac address: ${new_ethmac}"
+
+	if [ -e /boot/rndismac ]
+	then
+		new_rndismac=$(cat /boot/rndismac)
+	else
+		new_rndismac=$(hex2mac 48da356e$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+	fi
+	ifconfig usb0 down
+	ip link set usb0 address ${new_rndismac}
+	ifconfig usb0 up
+	echo "rndis mac address: ${new_ethmac}"
+fi

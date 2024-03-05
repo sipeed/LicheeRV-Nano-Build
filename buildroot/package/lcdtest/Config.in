@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LCDTEST
+	bool "lcdtest"
+	help
+	  some simple program use for test framebuffer

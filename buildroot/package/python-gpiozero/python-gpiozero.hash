@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/gpiozero/json
+md5  b8b63443961de2710d88b82671ec6d8a  gpiozero-2.0.tar.gz
+sha256  403bcc9e7f24f0877653e7fced91ba51508d5197c9d1f80e383fe6693b9c3c27  gpiozero-2.0.tar.gz
+# Locally computed sha256 checksums
+sha256  b6fdd587f3dc3a9b8cc5adae00918e3ffa909b1092bd4decf7e8b1b08fa5d0fb  LICENSE.rst

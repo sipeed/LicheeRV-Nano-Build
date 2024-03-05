@@ -1,0 +1,9 @@
+/dts-v1/;
+#include "soph_base_riscv.dtsi"
+#include "soph_asic_qfn.dtsi"
+#include "soph_asic_sd.dtsi"
+#include "soph_default_memmap.dtsi"
+
+/ {
+
+};

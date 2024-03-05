@@ -1,0 +1,21 @@
+config BR2_PACKAGE_ARP_SCAN
+	bool "arp-scan"
+	select BR2_PACKAGE_LIBPCAP
+	help
+	  The ARP scanner
+
+	  arp-scan is a command-line tool that uses the ARP protocol to
+	  discover and fingerprint IP hosts on the local network.
+
+	  https://github.com/royhills/arp-scan
+
+if BR2_PACKAGE_ARP_SCAN
+
+config BR2_PACKAGE_ARP_SCAN_DATA
+	bool "install data (OUI)"
+	default y  # legacy
+	help
+	  Say 'y' here (the default) to install the data along the
+	  binaries.
+
+endif # BR2_PACKAGE_ARP_SCAN

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	. /etc/profile
+	if [ -e /boot/gt9xx ]
+	then
+		insmod /mnt/system/ko/3rd/gt9xx.ko
+	fi
+	exit 0
+fi

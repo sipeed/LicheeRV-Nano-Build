@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/jaraco.functools/json
+md5  6683d6f56930d4f0b34157b083813cf3  jaraco.functools-4.0.0.tar.gz
+sha256  c279cb24c93d694ef7270f970d499cab4d3813f4e08273f95398651a634f0925  jaraco.functools-4.0.0.tar.gz
+# Locally computed sha256 checksums
+sha256  86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741  LICENSE

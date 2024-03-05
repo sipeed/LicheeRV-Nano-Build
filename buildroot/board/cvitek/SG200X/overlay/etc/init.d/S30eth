@@ -1,0 +1,31 @@
+#!/bin/sh
+
+. /etc/profile
+
+start() {
+	if [ ! -e /boot/eth.nodhcp ]
+	then
+		(udhcpc -i eth0 -t 10 -T 1 -A 5 -b -p /run/udhcpc.eth0.pid) &
+	fi
+}
+
+stop() {
+	kill `cat /run/udhcpc.eth0.pid`
+	rm /run/udhcpc.eth0.pid
+}
+
+restart() {
+	start
+	stop
+}
+
+if [ "${1}" = "start" ]
+then
+	start
+elif [ "${1}" = "stop" ]
+then
+	stop
+elif [ "${1}" = "restart" ]
+then
+	restart
+fi
