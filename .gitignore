@@ -177,5 +177,4 @@ buildroot/board/cvitek/SG200X/overlay/mnt/system/usr/bin/ive_stress
 buildroot/board/cvitek/SG200X/overlay/mnt/system/usr/bin/sample_cannyhysedge
 buildroot/board/cvitek/SG200X/overlay/mnt/system/sdk-release
 buildroot/board/cvitek/SG200X/overlay/mnt/system/auto.sh
-middleware/v2/modules/*
 middleware/v2/mod_tmp/*
