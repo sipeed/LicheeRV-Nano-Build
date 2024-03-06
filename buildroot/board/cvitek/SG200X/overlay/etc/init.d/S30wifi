@@ -73,9 +73,13 @@ start() {
 		else
 			id2=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 2))
 			id3=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 4 | tail -c 2))
+			if [ "$id2" = "$id3" ]
+			then
+				id2=$((id2 + 1))
+			fi
 			if [ "$id2" -ge 255 ]
 			then
-				id2=254
+				id2=253
 			fi
 			if [ "$id3" -ge 255 ]
 			then
