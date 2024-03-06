@@ -1,14 +1,7 @@
 *.d
 *.o
-*.a
-*.so
 *.dep
 *.dwo
-
-lib
-bin
-include
-tags
 
 *_asan
 sample/audio/sample_audio
@@ -48,5 +41,3 @@ modules/venc/vc/vcodec/codebase/sample/cvi_vcodec_version.h
 modules/venc/vc/jpeg/driver/include/version.h
 
 .vscode/settings.json
-
-modules/isp
