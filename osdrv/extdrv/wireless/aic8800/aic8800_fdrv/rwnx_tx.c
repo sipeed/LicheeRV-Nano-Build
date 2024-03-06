@@ -169,7 +169,8 @@ void rwnx_ps_bh_traffic_req(struct rwnx_hw *rwnx_hw, struct rwnx_sta *sta,
 	//         sta->mac_addr))
 	//    return;
 	if (!sta->ps.active) {
-	printk("sta %pM is not in Power Save mode", sta->mac_addr);
+		// dont flood my console
+		//printk("sta %pM is not in Power Save mode", sta->mac_addr);
 		return;
 	}
 #ifdef CREATE_TRACE_POINTS

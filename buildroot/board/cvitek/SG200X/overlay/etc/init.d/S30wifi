@@ -2,6 +2,40 @@
 
 . /etc/profile
 
+gen_hostapd_conf() {
+	ssid="${1}"
+	pass="${2}"
+	echo "ctrl_interface=/var/run/hostapd"
+	echo "ctrl_interface_group=0"
+	echo "ssid=${ssid}"
+	echo "hw_mode=g"
+	echo "channel=1"
+	echo "beacon_int=100"
+	echo "dtim_period=2"
+	echo "max_num_sta=255"
+	echo "rts_threshold=-1"
+	echo "fragm_threshold=-1"
+	echo "macaddr_acl=0"
+	echo "auth_algs=3"
+	echo "wpa=2"
+	echo "wpa_passphrase=${pass}"
+	echo "ieee80211n=1"
+}
+
+
+
+gen_udhcpd_conf() {
+        interface=${1}
+        ipv4_prefix=${2}
+        echo "start ${ipv4_prefix}.100"
+        echo "end ${ipv4_prefix}.200"
+        echo "interface ${interface}"
+        echo "pidfile /var/run/udhcpd.${interface}.pid"
+        echo "lease_file /var/lib/misc/udhcpd.${interface}.leases"
+        echo "option subnet 255.255.255.0"
+        echo "option lease 864000"
+}
+
 start() {
 	if [ -e /boot/wifi.sta ]
 	then
@@ -31,8 +65,50 @@ start() {
 		then
 			(udhcpc -i wlan0 -t 10 -T 1 -A 5 -b -p /run/udhcpc.wlan0.pid) &
 		fi
-	fi
-	if [ -e /boot/wifi.mon ]
+	elif [ -e /boot/wifi.ap ]
+	then
+		if [ -e /boot/hostapd.conf ]
+		then
+			cp /boot/hostapd.conf /etc/hostapd.conf
+		else
+			id2=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 2))
+			id3=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 4 | tail -c 2))
+			if [ "$id2" -ge 255 ]
+			then
+				id2=254
+			fi
+			if [ "$id3" -ge 255 ]
+			then
+				id3=254
+			fi
+			ssid="licheervnano-${id2}${id3}"
+                        pass="licheervnano"
+                        if [ -e /boot/wifi.ssid ]
+                        then
+                                echo -n "ssid: "
+                                cat /boot/wifi.ssid
+                                ssid=`cat /boot/wifi.ssid`
+                        fi
+                        if [ -e /boot/wifi.pass ]
+                        then
+                                echo -n "wifi.pass: "
+                                cat /boot/wifi.pass
+                                pass=`cat /boot/wifi.pass`
+                        fi
+			gen_hostapd_conf "$ssid" "$pass" > /etc/hostapd.conf
+			if [ -e /boot/wifi.ipv4_prefix ]
+			then
+				ipv4_prefix=`cat /boot/rndis.ipv4_prefix`
+			else
+				ipv4_prefix=10.$id3.$id2
+			fi
+			gen_udhcpd_conf wlan0 "${ipv4_prefix}"  > /etc/udhcpd.wlan0.conf
+			ifconfig wlan0 up
+			ip addr add $ipv4_prefix.1/24 dev wlan0
+		fi
+		hostapd -B -i wlan0 /etc/hostapd.conf
+		udhcpd -S /etc/udhcpd.wlan0.conf
+	elif [ -e /boot/wifi.mon ]
 	then
 		airmon-ng start wlan0
 	fi
@@ -42,6 +118,8 @@ stop() {
 	killall wpa_supplicant
 	kill `cat /run/udhcpc.wlan0.pid`
 	rm /run/udhcpc.wlan0.pid
+	kill `cat /var/run/udhcpd.wlan0.pid`
+	rm /var/run/udhcpd.wlan0.pid
 	airmon-ng stop wlan0mon
 }
 

@@ -2,11 +2,16 @@
 
 . /etc/profile
 
-gen_dnsmasq_conf() {
+gen_udhcpd_conf() {
 	interface=${1}
 	ipv4_prefix=${2}
-	echo "interface=${interface}"
-	echo "dhcp-range=${ipv4_prefix}.50,${ipv4_prefix}.150,255.255.255.0,120h"
+	echo "start ${ipv4_prefix}.100"
+	echo "end ${ipv4_prefix}.200"
+	echo "interface ${interface}"
+	echo "pidfile /var/run/udhcpd.${interface}.pid"
+	echo "lease_file /var/lib/misc/udhcpd.${interface}.leases"
+	echo "option subnet 255.255.255.0"
+	echo "option lease 864000"
 }
 
 start() {
@@ -28,13 +33,15 @@ start() {
 			fi
 			ipv4_prefix=10.$id2.$id3
 		fi
-		gen_dnsmasq_conf usb0 "${ipv4_prefix}"  > /etc/dnsmasq.conf
+		gen_udhcpd_conf usb0 "${ipv4_prefix}"  > /etc/udhcpd.usb0.conf
 		ip addr add $ipv4_prefix.1/24 dev usb0
+		udhcpd -S /etc/udhcpd.usb0.conf
 	fi
 }
 
 stop() {
-	echo ""
+	kill `cat /var/run/udhcpd.usb0.pid`
+        rm /var/run/udhcpd.usb0.pid
 }
 
 restart() {
