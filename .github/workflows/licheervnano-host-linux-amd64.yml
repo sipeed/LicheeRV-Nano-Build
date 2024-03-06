@@ -66,6 +66,36 @@ jobs:
                 source build/cvisetup.sh
                 defconfig sg2002_licheervnano_sd
                 build_all
+                # build other variant
+                cp build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig bak.config
+
+                # 2.8inch
+                cat bak.config | sed -e 's/CONFIG_MIPI_PANEL_ZCT2133V1/CONFIG_MIPI_PANEL_ST7701_HD228001C31/g' > build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+                defconfig sg2002_licheervnano_sd
+                clean_uboot
+                clean_opensbi
+                clean_fsbl
+                build_fsbl
+                cp -v cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/fip.bin cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/hd228001c31.bin
+
+                # 3inch
+                cat bak.config | sed -e 's/CONFIG_MIPI_PANEL_ZCT2133V1/CONFIG_MIPI_PANEL_ST7701_D300FPC9307A/g' > build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+                defconfig sg2002_licheervnano_sd
+                clean_uboot
+                clean_opensbi
+                clean_fsbl
+                build_fsbl
+                cp -v cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/fip.bin cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/d300fpc9307a.bin
+
+                # 5inch
+                cat bak.config | sed -e 's/CONFIG_MIPI_PANEL_ZCT2133V1/CONFIG_MIPI_PANEL_ST7701_DXQ5D0019B480854/g' > build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
+                defconfig sg2002_licheervnano_sd
+                clean_uboot
+                clean_opensbi
+                clean_fsbl
+                build_fsbl
+                cp -v cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/fip.bin cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/dxq5d0019b480854.bin
+
               popd
 
       - name: 'Upload Artifact'
@@ -75,3 +105,4 @@ jobs:
           name: licheervnano-cvi-mmf-sdk-output-${{ env.BUILD_ID }}
           path: |
                   cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/images/*
+                  cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/*.bin
