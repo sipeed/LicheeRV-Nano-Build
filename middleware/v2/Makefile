@@ -102,7 +102,6 @@ package:
 	@echo "package done"
 endif
 clean:
-	@if [ -d mod_tmp ]; then mv mod_tmp modules; fi;
 	@rm -rf include/isp
 	@make -C modules/ clean
 	@make -C 3rdparty/ clean
