@@ -13,8 +13,18 @@ hex2mac() {
 
 if [ "${1}" = start ]
 then
+	prefix=licheervnano
+	if [ -e /boot/hostname.prefix ]
+	then
+		prefix=$(cat /boot/hostname.prefix)
+	fi
 	old_hostname=$(cat /etc/hostname)
-	new_hostname=licheervnano-$(sha512sum /sys/class/cvi-base/base_uid | head -c 4)
+	new_hostname=${prefix}-$(sha512sum /sys/class/cvi-base/base_uid | head -c 4)
+
+	if [ -e /boot/hostname ]
+	then
+		new_hostname=$(cat /boot/hostname)
+	fi
 
 	if [ "${old_hostname}" != "${new_hostname}" ]
 	then
@@ -24,7 +34,7 @@ then
 	fi
 	echo "hostname: ${new_hostname}"
 
-	if [ -e /boot/ethmac ]
+	if [ -e /boot/eth.mac ]
 	then
 		new_ethmac=$(cat /boot/ethmac)
 	else
@@ -36,14 +46,17 @@ then
 	ifconfig eth0 up
 	echo "ethernet mac address: ${new_ethmac}"
 
-	if [ -e /boot/rndismac ]
+	if [ -e /boot/usb.rndis0 ]
 	then
-		new_rndismac=$(cat /boot/rndismac)
-	else
-		new_rndismac=$(hex2mac 48da356e$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+		if [ -e /boot/usb.rndis0.mac ]
+		then
+			new_rndismac=$(cat /boot/usb.rndis0.mac)
+		else
+			new_rndismac=$(hex2mac 48da356e$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+		fi
+		ifconfig usb0 down
+		ip link set usb0 address ${new_rndismac}
+		ifconfig usb0 up
+		echo "rndis mac address: ${new_rndismac}"
 	fi
-	ifconfig usb0 down
-	ip link set usb0 address ${new_rndismac}
-	ifconfig usb0 up
-	echo "rndis mac address: ${new_ethmac}"
 fi

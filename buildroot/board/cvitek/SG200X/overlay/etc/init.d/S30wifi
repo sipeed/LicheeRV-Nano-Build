@@ -43,6 +43,7 @@ start() {
 		then
 			cp /boot/wpa_supplicant.conf /etc/wpa_supplicant.conf
 		else
+			echo "wifi mode: sta"
 			ssid="licheervnano"
 			pass="licheervnano"
 			if [ -e /boot/wifi.ssid ]
@@ -71,6 +72,7 @@ start() {
 		then
 			cp /boot/hostapd.conf /etc/hostapd.conf
 		else
+			echo "wifi mode: ap"
 			id2=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 2))
 			id3=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 4 | tail -c 2))
 			if [ "$id2" = "$id3" ]
@@ -114,6 +116,7 @@ start() {
 		udhcpd -S /etc/udhcpd.wlan0.conf
 	elif [ -e /boot/wifi.mon ]
 	then
+		echo "wifi mode: mon"
 		airmon-ng start wlan0
 	fi
 }

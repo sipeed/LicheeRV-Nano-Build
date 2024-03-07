@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "${1}" = "start" ]
+then
+	if [ ! -e /boot/rclocal.disable ]
+	then
+		sh /etc/rc.local &
+	fi
+fi

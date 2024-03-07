@@ -3,8 +3,28 @@
 if [ "$1" = "start" ]
 then
 	. /etc/profile
+	printf "copy config file from /boot: "
 	if [ -e /boot/sshd_config ]
 	then
 		cp -vf /boot/sshd_config /etc/ssh/sshd_config
 	fi
+	if [ -e /boot/input-event-daemon ]
+	then
+		chmod 0644 /etc/input-event-daemon.conf
+	else
+		chmod 0000 /etc/input-event-daemon.conf
+	fi
+	if [ -e /boot/rc.local ]
+	then
+		cp -vf /boot/rc.local /etc/rc.local
+	fi
+	if [ -e /boot/ttyGS0_handler.sh ]
+	then
+		cp /boot/ttyGS0_handler.sh /etc/ttyGS0_handler.sh
+	fi
+	if [ -e /boot/console_handler.sh ]
+	then
+		cp /boot/ttyGS0_handler.sh /etc/ttyGS0_handler.sh
+	fi
+	echo "OK"
 fi

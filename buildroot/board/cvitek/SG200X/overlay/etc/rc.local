@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "HELLO WORLD"
+
+if [ -e /boot/maxicam ]
+then
+	/maixapp/apps/launcher/launcher &
+fi

@@ -3,10 +3,12 @@
 . /etc/profile
 
 start() {
+	printf "start ethernet: "
 	if [ ! -e /boot/eth.nodhcp ]
 	then
 		(udhcpc -i eth0 -t 10 -T 1 -A 5 -b -p /run/udhcpc.eth0.pid) &
 	fi
+	echo "OK"
 }
 
 stop() {

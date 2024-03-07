@@ -5,6 +5,7 @@ then
 	. /etc/profile
 	if [ -e /boot/fb ]
 	then
+		echo "framebuffer enable"
 		insmod /mnt/system/ko/soph_fb.ko
 		# we need keep node /dev/fb0 open
 		# graphic layer will disable after node /dev/fb0 is closed

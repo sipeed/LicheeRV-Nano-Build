@@ -3,8 +3,10 @@
 if [ "$1" = "start" ]
 then
 	. /etc/profile
+	printf "mounting filesystem : "
 	mkdir -p /boot
 	mount -t vfat /dev/mmcblk0p1 /boot
 	mount -t configfs configfs /sys/kernel/config
 	mount -t debugfs debugfs /sys/kernel/debug
+	echo "OK"
 fi

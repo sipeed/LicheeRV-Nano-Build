@@ -3,11 +3,13 @@
 if [ "$1" = "start" ]
 then
 	. /etc/profile
+	printf "load kernel module: "
+	depmod -a
 	ls /etc/modules-load.d/*.conf | sort | while read conf
 	do
 		cat $conf | while read line
 		do
-			if [ -e /lib/modules ]
+			if [ -e /mnt/system/ko/modules.dep ]
 			then
 				modprobe $line
 			else
@@ -20,5 +22,6 @@ then
 			fi
 		done
 	done
+	echo "OK"
 	exit 0
 fi

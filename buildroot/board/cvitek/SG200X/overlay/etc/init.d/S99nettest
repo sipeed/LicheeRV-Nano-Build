@@ -37,8 +37,8 @@ case "$1" in
 		    wlan0_stat="wlan0 not found"
 		    colorfg=$RED
 	    fi
-	    echo "$wlan0_stat" | fbbar 48 $colorfg $colorbg
-	    echo "$wlan0_addr" | fbbar 64 $colorfg $colorbg
+	    echo "$wlan0_stat" | fbbar 64 $colorfg $colorbg
+	    echo "$wlan0_addr" | fbbar 80 $colorfg $colorbg
 	    colorfg=0xFFFFFFFF
 	    eth0_stat=$(ip link show eth0 | head -n 1)
 	    eth0_addr=$(ip link show eth0 | tail -n 1)
@@ -47,8 +47,8 @@ case "$1" in
 		    eth0_stat="eth0 not found"
 		    colorfg=$RED
 	    fi
-	    echo "$eth0_stat" | fbbar 80 $colorfg $colorbg
-	    echo "$eth0_addr" | fbbar 96 $colorfg $colorbg
+	    echo "$eth0_stat" | fbbar 96 $colorfg $colorbg
+	    echo "$eth0_addr" | fbbar 112 $colorfg $colorbg
 	    wlan0_dl_start=$(cat /proc/uptime | awk -F. '{print $1}')
 	    curl --interface wlan0 --max-time ${WLAN0_TIMEOUT} ${url} > /dev/null
 	    if [ $? -ne 0 ]
@@ -68,7 +68,7 @@ case "$1" in
 	    else
 		    colorfg=$GREEN
 	    fi
-	    echo "wlan0 download test: ${wlan0_dl_time}" | fbbar 112 $colorfg $colorbg
+	    echo "wlan0 download test: ${wlan0_dl_time}" | fbbar 128 $colorfg $colorbg
 	    eth0_dl_start=$(cat /proc/uptime | awk -F. '{print $1}')
 	    curl --interface eth0 --max-time ${ETH0_TIMEOUT} ${url} > /dev/null
 	    if [ $? -ne 0 ]
@@ -88,7 +88,7 @@ case "$1" in
 	    else
 		    colorfg=$GREEN
 	    fi
-	    echo "eth0 download test: ${eth0_dl_time}" | fbbar 128 $colorfg $colorbg
+	    echo "eth0 download test: ${eth0_dl_time}" | fbbar 144 $colorfg $colorbg
             sleep 0.5
     done
     ) &
