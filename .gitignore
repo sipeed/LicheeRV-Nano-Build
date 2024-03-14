@@ -178,3 +178,4 @@ buildroot/board/cvitek/SG200X/overlay/mnt/system/usr/bin/sample_cannyhysedge
 buildroot/board/cvitek/SG200X/overlay/mnt/system/sdk-release
 buildroot/board/cvitek/SG200X/overlay/mnt/system/auto.sh
 middleware/v2/mod_tmp/*
+cscope.out

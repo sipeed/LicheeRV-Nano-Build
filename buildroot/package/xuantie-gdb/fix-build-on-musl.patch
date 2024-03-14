@@ -1,0 +1,31 @@
+diff --git a/gdb/nat/riscv-linux-tdesc.c b/gdb/nat/riscv-linux-tdesc.c
+index b8d4404d86a..a2c0e5eb10b 100644
+--- a/gdb/nat/riscv-linux-tdesc.c
++++ b/gdb/nat/riscv-linux-tdesc.c
+@@ -31,6 +31,10 @@
+ # define NFPREG 33
+ #endif
+ 
++#ifndef ELF_NFPREG
++# define ELF_NFPREG NFPREG
++#endif
++
+ #include "asm/ptrace.h"
+ #ifndef NT_RISCV_VECTOR
+ # define NT_RISCV_VECTOR 0x900
+diff --git a/gdbserver/linux-riscv-low.cc b/gdbserver/linux-riscv-low.cc
+index 47aba581041..63eb2eacfe8 100644
+--- a/gdbserver/linux-riscv-low.cc
++++ b/gdbserver/linux-riscv-low.cc
+@@ -30,6 +30,11 @@
+ # define NFPREG 33
+ #endif
+ 
++/* fix for musl libc */
++#ifndef ELF_NFPREG
++# define ELF_NFPREG NFPREG
++#endif
++
+ #ifdef CSKYMODIFY_CONFIG
+ #include "asm/ptrace.h"
+ #ifndef NT_RISCV_VECTOR

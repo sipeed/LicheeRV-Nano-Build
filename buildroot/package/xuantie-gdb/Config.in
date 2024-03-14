@@ -1,0 +1,11 @@
+config BR2_PACKAGE_XUANTIE_GDB
+	bool "xuantie-gdb"
+	depends on BR2_TOOLCHAIN_HAS_THREADS && BR2_TOOLCHAIN_HAS_THREADS_DEBUG
+	depends on BR2_PACKAGE_GDB_ARCH_SUPPORTS
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_8
+	depends on BR2_INSTALL_LIBSTDCPP
+	# The or1k musl port is incomplete, elf_gregset_t definition is missing:
+	# https://git.musl-libc.org/cgit/musl/tree/arch/or1k/bits/user.h?h=v1.2.3
+	depends on !BR2_or1k || !BR2_TOOLCHAIN_USES_MUSL
+	help
+	  gdbserver for c906

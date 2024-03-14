@@ -2806,6 +2806,7 @@ menu "Sipeed"
 	source "package/cvitek-riscv64-musl-sysroot/Config.in"
 	source "package/lcdtest/Config.in"
 	source "package/tpudemo-sg200x/Config.in"
+	source "package/xuantie-gdb/Config.in"
 endmenu
 
 

@@ -43,7 +43,8 @@
 /*******************************************************
  *  Global variables
  ******************************************************/
-u32 vo_log_lv = VO_ERR | VO_WARN | VO_NOTICE;
+//u32 vo_log_lv = VO_ERR | VO_WARN | VO_NOTICE;
+u32 vo_log_lv = 0;
 int smooth;
 int debug;
 int job_init;

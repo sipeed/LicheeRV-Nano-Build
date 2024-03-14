@@ -17,13 +17,13 @@ then
 		then
 			cat /boot/usb.idVendor > idVendor
 		else
-			echo 0123 > idVendor
+			echo 0x0123 > idVendor
 		fi
 		if [ -e /boot/usb.idProduct ]
 		then
 			cat /boot/usb.idProduct > idProduct
 		else
-			echo 4567 > idProduct
+			echo 0x4567 > idProduct
 		fi
 		mkdir strings/0x409
 		if [ -e /boot/usb.serialnumber ]

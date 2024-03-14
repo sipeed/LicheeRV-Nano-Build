@@ -29,10 +29,10 @@ extern u32 vo_log_lv;
 
 enum vo_msg_pri {
 	VO_ERR = 3,
-	VO_WARN = 4,
-	VO_NOTICE = 5,
-	VO_INFO = 6,
-	VO_DBG = 7,
+	VO_WARN = 7,
+	VO_NOTICE = 0xf,
+	VO_INFO = 0xff,
+	VO_DBG = 0xfff,
 };
 
 #ifdef __cplusplus

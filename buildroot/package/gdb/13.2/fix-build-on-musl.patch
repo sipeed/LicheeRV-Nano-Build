@@ -1,0 +1,48 @@
+diff --git a/gdb/nat/riscv-linux-tdesc.c b/gdb/nat/riscv-linux-tdesc.c
+index d676233..b3ffc28 100644
+--- a/gdb/nat/riscv-linux-tdesc.c
++++ b/gdb/nat/riscv-linux-tdesc.c
+@@ -31,6 +31,11 @@
+ # define NFPREG 33
+ #endif
+ 
++/* fix for old version musl libc */
++#ifndef ELF_NFPREG
++# define ELF_NFPREG NFPREG
++#endif
++
+ /* See nat/riscv-linux-tdesc.h.  */
+ 
+ struct riscv_gdbarch_features
+diff --git a/gdb/riscv-linux-nat.c b/gdb/riscv-linux-nat.c
+index 8be4a5a..a0cb299 100644
+--- a/gdb/riscv-linux-nat.c
++++ b/gdb/riscv-linux-nat.c
+@@ -34,6 +34,11 @@
+ # define NFPREG 33
+ #endif
+ 
++/* fix for old version musl libc */
++#ifndef ELF_NFPREG
++# define ELF_NFPREG NFPREG
++#endif
++
+ /* RISC-V Linux native additions to the default linux support.  */
+ 
+ class riscv_linux_nat_target final : public linux_nat_target
+diff --git a/gdbserver/linux-riscv-low.cc b/gdbserver/linux-riscv-low.cc
+index 129bc3b..dc44dcb 100644
+--- a/gdbserver/linux-riscv-low.cc
++++ b/gdbserver/linux-riscv-low.cc
+@@ -30,6 +30,11 @@
+ # define NFPREG 33
+ #endif
+ 
++/* fix for old version musl libc */
++#ifndef ELF_NFPREG
++# define ELF_NFPREG NFPREG
++#endif
++
+ /* Linux target op definitions for the RISC-V architecture.  */
+ 
+ class riscv_target : public linux_process_target
