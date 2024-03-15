@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SG2002_CODEC_FIRMWARE
+	bool "sg2002-codec-firmware"
+	help
+	  sg2002 codec firmware

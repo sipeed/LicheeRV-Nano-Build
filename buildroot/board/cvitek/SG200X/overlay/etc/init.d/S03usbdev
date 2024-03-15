@@ -17,13 +17,13 @@ then
 		then
 			cat /boot/usb.idVendor > idVendor
 		else
-			echo 0x0123 > idVendor
+			echo 0x3346 > idVendor
 		fi
 		if [ -e /boot/usb.idProduct ]
 		then
 			cat /boot/usb.idProduct > idProduct
 		else
-			echo 0x4567 > idProduct
+			echo 0x1009 > idProduct
 		fi
 		mkdir strings/0x409
 		if [ -e /boot/usb.serialnumber ]
@@ -54,6 +54,29 @@ then
 		then
 			mkdir functions/rndis.usb0
 			ln -s functions/rndis.usb0 configs/c.1/
+		fi
+		if [ -e /boot/usb.disk0 ]
+		then
+			mkdir functions/mass_storage.disk0
+			ln -s functions/mass_storage.disk0 configs/c.1/
+			echo 1 > functions/mass_storage.disk0/lun.0/removable
+			if [ -e /boot/usb.disk0.ro ]
+			then
+				echo 1 > functions/mass_storage.disk0/lun.0/ro
+				echo 1 > functions/mass_storage.disk0/lun.0/cdrom
+			fi
+			disk=$(cat /boot/usb.disk0)
+			if [ -z "${disk}" ]
+			then
+				if [ ! -e /mnt/usbdisk.img ]
+				then
+					dd if=/dev/zero of=/mnt/usbdisk.img bs=1M count=16
+					mkfs.vfat /mnt/usbdisk.img
+				fi
+				echo /mnt/usbdisk.img > functions/mass_storage.disk0/lun.0/file
+			else
+				cat /boot/usb.disk0 > functions/mass_storage.disk0/lun.0/file
+			fi
 		fi
 		ls /sys/class/udc/ | cat > UDC
 		echo device > /proc/cviusb/otg_role

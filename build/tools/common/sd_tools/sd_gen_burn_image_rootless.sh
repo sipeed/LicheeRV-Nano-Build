@@ -25,6 +25,11 @@ mkdir -pv ${output_dir}/input/rawimages/
 cp -fv ${output_dir}/fip.bin ${output_dir}/input/
 cp -fv ${output_dir}/rawimages/boot.sd ${output_dir}/input/rawimages/
 cp -fv ${output_dir}/rawimages/rootfs.sd ${output_dir}/input/
+touch ${output_dir}/input/usb.dev
+touch ${output_dir}/input/usb.rndis0
+touch ${output_dir}/input/fb
+touch ${output_dir}/input/wifi.sta
+touch ${output_dir}/input/gt9xx
 cp -fv ${THISDIR}/genimage_rootless.cfg ${output_dir}/genimage.cfg
 sed -i -e "s/duo.img/${image}/g" ${output_dir}/genimage.cfg
 cd ${output_dir}/
