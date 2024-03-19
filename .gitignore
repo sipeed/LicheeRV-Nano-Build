@@ -1,6 +1,7 @@
 *~
 *.swp
 host-tools/
+*.sqfs
 build/tools/common/sd_tools/genimage.cfg.tmp
 fsbl/build/*
 install/*

@@ -1,9 +1,6 @@
-FROM ubuntu:22.04
+FROM debian:latest
 
 ENV DEBIAN_FRONTEND noninteractive
-
-COPY libssl.so.1.1 /usr/local/lib/
-COPY libcrypto.so.1.1 /usr/local/lib/
 
 RUN ldconfig && apt update -y && \
 	apt install -y pkg-config build-essential ninja-build\

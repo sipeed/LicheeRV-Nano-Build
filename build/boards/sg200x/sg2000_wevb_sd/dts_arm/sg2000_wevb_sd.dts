@@ -1,10 +1,13 @@
 /dts-v1/;
-#include "soph_base_riscv.dtsi"
+#include "soph_base_arm.dtsi"
 #include "soph_asic_bga.dtsi"
 #include "soph_asic_sd.dtsi"
 #include "soph_default_memmap.dtsi"
 
 / {
 
+	sd:cv-sd@4310000 {
+		max-frequency = <10000000>;
+	};
 };
 
