@@ -16,7 +16,7 @@ fi
 output_dir=$1
 echo ${output_dir}
 set -eu
-image=`LC_ALL=C date | tr -d '( ):'`.img
+image=`LC_ALL=C date +%F-%R | sed -e 's/:/-/g' | tr -d '( ):'`.img
 THISDIR=$(dirname $(realpath $0))
 mkdir -pv ${output_dir}/tmp/
 mkdir -pv ${output_dir}/root/

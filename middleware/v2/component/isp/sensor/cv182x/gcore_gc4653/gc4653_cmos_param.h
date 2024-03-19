@@ -200,7 +200,10 @@ struct combo_dev_attr_s gc4653_rx_attr = {
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
+		// alpha board
 		.lane_id = {2, 1, 0, -1, -1},
+		// beta board
+		//.lane_id = {4, 3, 2, -1, -1},
 		.pn_swap = {0, 0, 0, 0, 0},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 	},
