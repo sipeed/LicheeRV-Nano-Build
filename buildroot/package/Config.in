@@ -2808,6 +2808,8 @@ menu "Sipeed"
 	source "package/tpudemo-sg200x/Config.in"
 	source "package/xuantie-gdb/Config.in"
 	source "package/sg2002-codec-firmware/Config.in"
+	source "package/mgba/Config.in"
+	source "package/gb-test-roms/Config.in"
 endmenu
 
 

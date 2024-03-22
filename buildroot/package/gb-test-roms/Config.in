@@ -1,0 +1,4 @@
+config BR2_PACKAGE_GB_TEST_ROMS
+	bool "gb-test-roms"
+	help
+	  game boy test roms

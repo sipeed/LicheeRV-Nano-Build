@@ -1,0 +1,35 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting modeltest: "
+    if [ -e /boot/modeltest ]
+    then
+	    touch /tmp/modeltest
+    fi
+    (
+    while true
+    do
+	    if [ ! -e /tmp/modeltest ]
+	    then
+		break
+	    fi
+	    cd /usr/bin/
+	nice -n 19 model_runner_test 10000
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping modeltest: "
+    rm /tmp/modeltest
+    killall model_runner
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart modeltest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

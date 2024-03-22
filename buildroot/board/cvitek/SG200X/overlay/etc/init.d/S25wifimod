@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	. /etc/profile
+	printf "load wifi kernel module: "
+	cd /mnt/system/ko/
+	insmod cfg80211.ko
+	insmod 3rd/aic8800_bsp.ko
+	insmod 3rd/aic8800_fdrv.ko
+	echo "OK"
+	exit 0
+fi

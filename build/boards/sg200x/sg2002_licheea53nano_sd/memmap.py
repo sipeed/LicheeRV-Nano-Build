@@ -15,7 +15,7 @@ class MemoryMap:
     # ==============
     # C906L FreeRTOS
     # ==============
-    FREERTOS_SIZE = 2 * SIZE_1M
+    FREERTOS_SIZE = 768 * SIZE_1K
     # FreeRTOS is at the end of DRAM
     FREERTOS_ADDR = DRAM_BASE + DRAM_SIZE - FREERTOS_SIZE
     FSBL_C906L_START_ADDR = FREERTOS_ADDR
@@ -40,7 +40,7 @@ class MemoryMap:
     # =================
     # Multimedia buffer. Used by u-boot/kernel/FreeRTOS
     # =================
-    ION_SIZE = 75 * SIZE_1M
+    ION_SIZE = 70 * SIZE_1M
     H26X_BITSTREAM_SIZE = 2 * SIZE_1M
     H26X_ENC_BUFF_SIZE = 0
     ISP_MEM_BASE_SIZE = 20 * SIZE_1M

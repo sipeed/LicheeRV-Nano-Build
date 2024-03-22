@@ -73,7 +73,7 @@ int cvi_board_init(void)
         val &= ~(1 << 26); // set level to low
         mmio_write_32(0x03020000, val);
 
-        suck_loop(200);
+        suck_loop(50);
 	user_led_toggle();
 
         val = mmio_read_32(0x03020000); // signal level
@@ -116,8 +116,8 @@ int cvi_board_init(void)
 	mmio_write_32(0x030010ac, 0x4); // PWRGPIO 2 PWM 10
 
         // camera function
-        //mmio_write_32(0x0300116C, 0x5); // RX4N CAM_MCLK0 for inside preview board
-        mmio_write_32(0x0300118C, 0x5); // RX0N CAM_MCLK1
+        mmio_write_32(0x0300116C, 0x5); // RX4N CAM_MCLK0 for alpha
+        //mmio_write_32(0x0300118C, 0x5); // RX0N CAM_MCLK1 for beta
 
         // camera/tp i2c
         mmio_write_32(0x03001090, 0x5); // PWR_GPIO6 IIC4_SCL
@@ -130,7 +130,7 @@ int cvi_board_init(void)
         mmio_write_32(0x0502707c, 0x11);// Unlock PWR_GPIO[4]
 
         // wait hardware bootup
-        suck_loop(100);
+        suck_loop(50);
 	user_led_off();
         return 0;
 }

@@ -29,9 +29,6 @@ then
 	insmod soph_pwm.ko
 	insmod soph_saradc.ko
 	insmod soph_wiegand.ko
-	insmod cfg80211.ko
-	insmod 3rd/aic8800_bsp.ko
-	insmod 3rd/aic8800_fdrv.ko
 	echo "OK"
 	exit 0
 fi

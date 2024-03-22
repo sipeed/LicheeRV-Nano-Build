@@ -3,8 +3,10 @@
  * Copyright (C) Cvitek Co., Ltd. 2019-2020. All rights reserved.
  */
 
+#include <config.h>
 #include <command.h>
 #include <common.h>
+#include <log.h>
 #include <stdlib.h>
 #include <linux/delay.h>
 #include <cpu_func.h>
@@ -16,6 +18,8 @@
 #include <cvi_panels/cvi_panels.h>
 
 #include <asm/io.h>
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define PANLE_ADAPTIVITY 0
 
@@ -154,8 +158,7 @@ static void dsi_panel_init(void)
 	u8 prepare = panel_desc.hs_timing_cfg->prepare;
 	u8 zero = panel_desc.hs_timing_cfg->zero;
 	u8 trail = panel_desc.hs_timing_cfg->trail;
-
-	debug("Init panel %s\n", panel_desc.panel_name);
+	printf("Init panel %s\n", panel_desc.panel_name);
 	mipi_tx_set_combo_dev_cfg(panel_desc.dev_cfg);
 	dsi_init(0, panel_desc.dsi_init_cmds, panel_desc.dsi_init_cmds_size);
 	dphy_set_hs_settle(prepare, zero, trail);
@@ -182,6 +185,38 @@ static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const ar
 	if (*argv[3] == 0 || *endp != 0)
 		return CMD_RET_USAGE;
 	uclass_get_device(UCLASS_VIDEO, 0, &udev);
+
+	char *panel_name = NULL;
+	panel_name = env_get("panel");
+	if (panel_name != NULL) {
+		if (strcmp(panel_name,"zct2133v1") == 0) { // 7inch
+			panel_desc.panel_name = "zct2133v1-800x1280";
+			panel_desc.dev_cfg = &dev_cfg_zct2133v1_800x1280;
+			panel_desc.hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280;
+			panel_desc.dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280;
+			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280);
+		} else if (strcmp(panel_name,"st7701_dxq5d0019b480854") == 0) { // 5inch
+			panel_desc.panel_name = "ST7701-480x854dxq";
+			panel_desc.dev_cfg = &dev_cfg_st7701_480x854dxq;
+			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_480x854dxq;
+			panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_480x854dxq;
+			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x854dxq);
+		} else if (strcmp(panel_name,"st7701_hd228001c31") == 0) { // 2.8 inch
+			panel_desc.panel_name = "ST7701-368x552";
+			panel_desc.dev_cfg = &dev_cfg_st7701_368x552;
+			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_368x552;
+			panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_368x552;
+			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_368x552);
+		} else if (strcmp(panel_name,"st7701_d300fpc9307a") == 0) { // 3 inch
+			panel_desc.panel_name = "ST7701-480x854";
+			panel_desc.dev_cfg = &dev_cfg_st7701_480x854;
+			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_480x854;
+			panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_480x854;
+			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x854);
+		} else {
+			printf("panel %s not found\n\r", panel_name);
+		}
+	}
 
 	switch (intf) {
 	case VO_INTF_MIPI: {

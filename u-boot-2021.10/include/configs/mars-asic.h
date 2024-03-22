@@ -256,6 +256,7 @@
 		"sdboot=" SD_BOOTM_COMMAND "\0" \
 		"sdbootauto=" SD_BOOTM_COMMAND_AUTO "\0" \
 		"othbootargs=" OTHERBOOTARGS "\0" \
+		"loadenvcmd=mmc info;load mmc 0:1 ${uImage_addr} uEnv.txt; if test $? -eq 0; then env import ${uImage_addr} - ; fi;\0" \
 		PARTS_OFFSET
 
 /********************************************************************************/
@@ -311,7 +312,7 @@
 	#ifdef CONFIG_ENABLE_ALIOS_UPDATE
 		#define CONFIG_BOOTCOMMAND	"cvi_update_rtos"
 	#elif CONFIG_SD_BOOT
-		#define CONFIG_BOOTCOMMAND	SHOWLOGOCMD "run sdboot || run sdbootauto"
+		#define CONFIG_BOOTCOMMAND	"run loadenvcmd ; " SHOWLOGOCMD "run sdboot || run sdbootauto"
 	#else
 		#define CONFIG_BOOTCOMMAND	SHOWLOGOCMD "cvi_update || run norboot || run nandboot ||run emmcboot"
 	#endif

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting ednctest: "
+    if [ -e /boot/ednctest ]
+    then
+	    touch /tmp/ednctest
+    fi
+    . /etc/profile
+    (
+    while true
+    do
+	    if [ ! -e /tmp/ednctest ]
+	    then
+		break
+	    fi
+	    if [ ! -e /tmp/rand.h264 ]
+	    then
+	    	dd if=/dev/urandom of=/tmp/rand.yuv bs=1M count=2
+		/mnt/system/usr/bin/sample_venc -h 1080 -w 1080 -c 264 -i rand.yuv -o /tmp/rand
+	    fi
+	    /mnt/system/usr/bin/sample_vcodec sample_vdec -c 264 -i rand.h264 -o rand
+    done
+    ) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping ednctest: "
+    rm /tmp/ednctest
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart ednctest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac

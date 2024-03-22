@@ -1,0 +1,8 @@
+config BR2_PACKAGE_MGBA
+	bool "mgba"
+	depends on BR2_PACKAGE_SDL
+	depends on BR2_PACKAGE_QT5
+	help
+	  game boy advance emulator
+
+	  https://github.com/mgba-emu/mgba
