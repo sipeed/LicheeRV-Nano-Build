@@ -26,5 +26,27 @@ then
 	then
 		cp /boot/ttyGS0_handler.sh /etc/ttyGS0_handler.sh
 	fi
+	if [ -e /boot/alpha ]
+	then
+		if [ ! -e /mnt/data/sensor_cfg.ini ]
+		then
+			cp /mnt/data/sensor_cfg.ini.alpha /mnt/data/sensor_cfg.ini
+		fi
+		# MIPI RX 4N PINMUX MCLK0
+		devmem 0x0300116C 32 0x5
+		# MIPI RX 0N PINMUX MIPIP RX 0N
+		devmem 0x0300118C 32 0x3
+		echo " alpha "
+	else
+		if [ ! -e /mnt/data/sensor_cfg.ini ]
+		then
+			cp /mnt/data/sensor_cfg.ini.beta /mnt/data/sensor_cfg.ini
+		fi
+		# MIPI RX 4N PINMUX MIPI RX 4N
+		devmem 0x0300116C 32 0x3
+		# MIPI RX 0N PINMUX MCLK1
+		devmem 0x0300118C 32 0x5
+		echo -n " beta "
+	fi
 	echo "OK"
 fi
