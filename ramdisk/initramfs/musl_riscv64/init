@@ -1,0 +1,100 @@
+#!/busybox sh
+
+export PATH=/
+
+msc() {
+	umount /dev/mmcblk0p1
+	umount /dev/mmcblk0p2
+	echo mmc0 > /sys/devices/platform/leds/leds/led-user/trigger
+	cd /sys/kernel/config/usb_gadget
+	mkdir g0
+	cd g0
+	if [ -e /boot/usb.idVendor ]
+	then
+		cat /boot/usb.idVendor > idVendor
+	else
+		echo 0x3346 > idVendor
+	fi
+	if [ -e /boot/usb.idProduct ]
+	then
+		cat /boot/usb.idProduct > idProduct
+	else
+		echo 0x1009 > idProduct
+	fi
+	mkdir strings/0x409
+	if [ -e /boot/usb.serialnumber ]
+	then
+		cat /boot/usb.serialnumber > strings/0x409/serialnumber
+	else
+		echo '0123456789ABCDEF' > strings/0x409/serialnumber
+	fi
+	if [ -e /boot/usb.manufacturer ]
+	then
+		cat /boot/usb.manufacturer > strings/0x409/manufacturer
+	else
+		echo 'sipeed' > strings/0x409/manufacturer
+	fi
+	if [ -e /boot/usb.product ]
+	then
+		cat /boot/usb.product > strings/0x409/product
+	else
+		echo 'licheervnano' > strings/0x409/product
+	fi
+	mkdir configs/c.1/
+	mkdir functions/mass_storage.disk0
+	ln -s functions/mass_storage.disk0 configs/c.1/
+	echo 1 > functions/mass_storage.disk0/lun.0/removable
+	echo /dev/mmcblk0 > functions/mass_storage.disk0/lun.0/file
+	ls /sys/class/udc/ | cat > UDC
+	echo device > /proc/cviusb/otg_role
+	while true
+	do
+		sleep 10
+		sync
+	done
+}
+
+mkdir /dev
+mount -t devtmpfs devtmpfs /dev
+mkdir /proc
+mount -t proc proc /proc
+mkdir /sys
+mount -t sysfs sysfs /sys
+mount -t configfs configfs /sys/kernel/config
+mount -t debugfs debugfs /sys/kernel/debug
+
+mkdir /boot
+mount -o ro /dev/mmcblk0p1 /boot
+
+msc=0
+if [ -e /boot/rec ]
+then
+	msc
+fi
+
+umount /dev/mmcblk0p1
+
+flashkey0=$(cat /sys/kernel/debug/gpio | grep 'User Key' | grep lo | wc -l)
+sleep 0.5
+flashkey1=$(cat /sys/kernel/debug/gpio | grep 'User Key' | grep lo | wc -l)
+if [ "${flashkey0}" -ne 0 ]
+then
+	if [ "${flashkey1}" -ne 0 ]
+	then
+		msc
+	fi
+fi
+
+mkdir /realroot
+mount -o rw /dev/mmcblk0p2 /realroot
+mfail="$?"
+
+if [ "${mfail}" -ne 0 ]
+then
+	msc
+fi
+
+mount -t proc proc /realroot/proc
+mount -t sysfs sysfs /realroot/sys
+mount -t devtmpfs devtmpfs /realroot/dev
+exec switch_root /realroot /sbin/init

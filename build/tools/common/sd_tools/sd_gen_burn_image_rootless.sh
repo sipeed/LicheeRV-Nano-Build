@@ -16,7 +16,8 @@ fi
 output_dir=$1
 echo ${output_dir}
 set -eu
-image=`LC_ALL=C date +%F-%R | sed -e 's/:/-/g' | tr -d '( ):'`.img
+git_id=$(git rev-parse HEAD | head -c 6)
+image=$(LC_ALL=C date +%F-%R | sed -e 's/:/-/g' | tr -d '( ):')-${git_id}.img
 THISDIR=$(dirname $(realpath $0))
 mkdir -pv ${output_dir}/tmp/
 mkdir -pv ${output_dir}/root/
@@ -29,6 +30,7 @@ touch ${output_dir}/input/usb.dev
 touch ${output_dir}/input/usb.rndis0
 touch ${output_dir}/input/wifi.sta
 touch ${output_dir}/input/gt9xx
+echo ${image} > ${output_dir}/input/ver
 cp -fv ${THISDIR}/genimage_rootless.cfg ${output_dir}/genimage.cfg
 sed -i -e "s/duo.img/${image}/g" ${output_dir}/genimage.cfg
 cd ${output_dir}/

@@ -83,6 +83,8 @@ class XmlParser:
 
         if self.storage == "emmc":
             self.__calEmmcOffset(parts)
+        if self.storage == "sd":
+            self.__calEmmcOffset(parts)
         elif self.storage == "spinor":
             self.__calNorOffset(parts)
         elif self.storage == "spinand":

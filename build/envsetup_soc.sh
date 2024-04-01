@@ -621,6 +621,7 @@ function build_all()
   pack_data || return $?
   pack_system || return $?
   pack_upgrade || return $?
+  pack_usbdl_image || return $?
   pack_burn_image || return $?
 )}
 

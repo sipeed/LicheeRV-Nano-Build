@@ -242,6 +242,28 @@ function pack_burn_image
   popd
 )}
 
+function pack_usbdl_image
+{(
+  pushd "$OUTPUT_DIR"
+  [ -d tmp ] && rm -rf tmp
+  set -eux
+  cp -rf $TOOLS_PATH/cv181x/usb_dl $OUTPUT_DIR
+  cd usb_dl
+  unzip -o $OUTPUT_DIR/upgrade.zip
+  cp $OUTPUT_DIR/fip.bin ./
+  set +eux
+  echo "========================================="
+  echo ""
+  echo "usb flash command:"
+  echo ""
+  echo "cd $OUTPUT_DIR/usb_dl && python3 cv181x_dl.py"
+  echo ""
+  echo ""
+  echo "========================================="
+
+  popd
+)}
+
 function pack_prog_img
 {(
   local tmp_dir
