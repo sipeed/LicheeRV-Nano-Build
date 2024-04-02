@@ -1,4 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
 // $Module: fmux_gpio $
 // $RegisterBank Version: V 1.0.00 $
 // $Author: ghost $

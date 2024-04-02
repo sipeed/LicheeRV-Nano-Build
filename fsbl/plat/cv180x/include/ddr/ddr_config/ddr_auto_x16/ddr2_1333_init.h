@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef __DDR2_PI_PHY_H__
 #define __DDR2_PI_PHY_H__
 
@@ -1152,6 +1150,7 @@ void ddrc_init(void);
 void phy_init(void);
 void ctrl_init_high_patch(void);
 void ctrl_init_low_patch(void);
+//void ctrl_init_detect_dram_size(uint8_t * dram_cap_in_mbyte);
 void ctrl_init_update_by_dram_size(uint8_t dram_cap_in_mbyte);
 
 #endif /* __DDR_PI_PHY_H__ */

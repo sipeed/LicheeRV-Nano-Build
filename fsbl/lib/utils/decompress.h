@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef __DECOMPRESS_H__
 #define __DECOMPRESS_H__
 

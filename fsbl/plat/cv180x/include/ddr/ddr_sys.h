@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef __DDR_SYS_H__
 #define __DDR_SYS_H__
 
@@ -13,6 +11,9 @@ extern uint32_t  dev_freq;
 extern uint64_t  reg_set;
 extern uint64_t  reg_span;
 extern uint64_t  reg_step;
+
+//extern uint64_t  debug_seqnum;
+//extern uint64_t  debug_seqnum1;
 
 extern uint32_t rddata;
 
@@ -37,11 +38,13 @@ enum train_mode {
 #define cfg_base		0x08004000
 
 #define DDR_SYS_BASE		0x08000000
+// #define PI_BASE			(DDR_SYS_BASE + 0x0000)
 #define PHY_BASE		(DDR_SYS_BASE + 0x2000)
 #define DDRC_BASE		(DDR_SYS_BASE + 0x4000)
 #define PHYD_BASE		(DDR_SYS_BASE + 0x6000)
 #define CV_DDR_PHYD_APB	(DDR_SYS_BASE + 0x6000)
 #define AXI_MON_BASE		(DDR_SYS_BASE + 0x8000)
+// #define TOP_BASE		(DDR_SYS_BASE + 0xa000)
 #define DDR_TOP_BASE		(DDR_SYS_BASE + 0xa000)
 #define PHYD_BASE_ADDR		(DDR_SYS_BASE)
 #define DDR_BIST_BASE		0x08010000
@@ -85,6 +88,7 @@ enum train_mode {
 #define SHMOO_MSG_CS(...)
 #endif
 
+// void check_rd32(uintptr_t addr, uint32_t expected); //unused
 void ddr_debug_num_write(void);
 void ddr_patch_set(void);
 void cvx16_rdvld_train(void);

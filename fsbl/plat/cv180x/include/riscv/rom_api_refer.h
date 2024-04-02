@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 p_rom_api_cryptodma_aes_decrypt = 0x0000000004400100;
 p_rom_api_flash_init = 0x0000000004400080;
 p_rom_api_get_boot_src = 0x0000000004400020;

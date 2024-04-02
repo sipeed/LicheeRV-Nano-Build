@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #include "bits.h"
 #include "csr.h"
 #include <riscv/asm_macros.S>

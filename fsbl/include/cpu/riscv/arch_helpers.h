@@ -1,8 +1,6 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef __ARCH_HELPERS_H__
 #define __ARCH_HELPERS_H__
-
+//#include <cpu.h>    /* for additional register definitions */
 #include <cdefs.h>  /* For __dead2 */
 #include <stdint.h>
 #include <sys/types.h>

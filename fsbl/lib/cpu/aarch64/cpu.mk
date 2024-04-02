@@ -1,5 +1,3 @@
-# SPDX-License-Identifier: BSD-3-Clause
-
 include lib/cpu/${BOOT_CPU}/cpu-ops.mk
 
 ASFLAGS +=\

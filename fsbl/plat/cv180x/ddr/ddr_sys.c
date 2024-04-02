@@ -1,6 +1,5 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <mmio.h>
+#include <reg_soc.h>
 #include <ddr_sys.h>
 #ifdef DDR2_3
 #include <ddr3_1866_init.h>
@@ -15,15 +14,34 @@
 #include <ddr_pkg_info.h>
 #include <regconfig.h>
 
-#define opdelay(_x) udelay((_x) / 1000)
+#define opdelay(_x) udelay((_x)/1000)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+// #pragma GCC diagnostic ignored "-Wunused-variable"
 
 uint32_t rddata;
 
+/*
+ * unused
+void check_rd32(uintptr_t addr, uint32_t expected)
+{
+	// uint32_t rdata;
+	// rdata = mmio_rd32(addr);
+	// if (rdata != expected)
+	//	mmio_wr32(TERM_SIM_ADDR, 0x0B0B0B0B); // fail
+}
+*/
+
 void ddr_debug_num_write(void)
 {
+	// debug_seqnum = debug_seqnum+1 ;
+	// mmio_wr32(4*(186 + PHY_BASE_ADDR)+CADENCE_PHYD,(debug_seqnum<<8));
+	// if (debug_seqnum ==255){ ;
+	// debug_seqnum1 = debug_seqnum1+1 ;
+	// mmio_wr32(4*(186 + PHY_BASE_ADDR)+CADENCE_PHYD,(debug_seqnum1<<8));
+	// debug_seqnum = 0 ;
+	// } ;
 }
 
 void load_ddr_patch_set_data(void)
@@ -31,7 +49,7 @@ void load_ddr_patch_set_data(void)
 #ifdef DDR_SIM
 	return;
 #endif
-
+	// NOTICE("ddr_patch_regs_count=%d\n", ddr_patch_regs_count);
 #ifndef DDR2_3
 	for (int i = 0; i < ddr_patch_regs_count; i++) {
 		uint32_t addr = ddr_patch_regs[i].addr;
@@ -93,6 +111,7 @@ void cvx16_rdvld_train(void)
 	uint64_t err_data_even;
 
 	cvx16_bist_wr_prbs_init();
+	// cvx16_bist_wr_sram_init();
 
 	byte0_vld = mmio_rd32(0x0B14 + PHYD_BASE_ADDR);
 	byte1_vld = mmio_rd32(0x0B44 + PHYD_BASE_ADDR);
@@ -106,6 +125,8 @@ void cvx16_rdvld_train(void)
 		mmio_wr32(0x0B44 + PHYD_BASE_ADDR, byte0_vld);
 		cvx16_bist_start_check(&bist_result, &err_data_odd, &err_data_even);
 
+		// KC_MSG(", bist_result = %x, err_data_odd = %x, err_data_even = %x\n",
+		//         bist_result,err_data_odd,err_data_even);
 		if (bist_result == 0) {
 			KC_MSG("vld end = %x, sel = %x", i, i + 1 + rdvld_offset);
 			i = i + 1 + rdvld_offset;
@@ -121,6 +142,8 @@ void cvx16_rdvld_train(void)
 void ddr_sys_suspend(void)
 {
 	uartlog("cvx16_ddr_sub_suspend\n");
+	// ddr_debug_wr32(0x3c);
+	// ddr_debug_num_write();
 	TJ_MSG("DDRC suspend start\n");
 
 	cvx16_ddrc_suspend();
@@ -130,11 +153,15 @@ void ddr_sys_suspend(void)
 	cvx16_ddr_phyd_save(0x05026800);
 	// cvx16_ddr_phya_pd
 	cvx16_ddr_phya_pd();
+	// virtual_pwr_off();
 }
 
 void ddr_sys_resume(void)
 {
 	uint8_t dram_cap_in_mbyte;
+	// ddr_sub_resume1
+	// cvx16_ddr_sub_resume1();
+	// KC_MSG("ddr_sub_resume1\n");
 
 	// pll_init
 	cvx16_pll_init();
@@ -148,6 +175,10 @@ void ddr_sys_resume(void)
 	cvx16_ddr_sub_resume2();
 	KC_MSG("ddr_sub_resume2\n");
 
+	// pinmux
+	//     cvx16_pinmux();
+	//     KC_MSG("cvx16_pinmux finish\n");
+
 	// ddr_sub_resume3
 	cvx16_ddr_sub_resume3();
 	KC_MSG("ddr_sub_resume3\n");
@@ -155,6 +186,9 @@ void ddr_sys_resume(void)
 	// ctrl_init_h.ctrl_high_patch=1;
 	//`uvm_send(ctrl_init_h);
 	ctrl_init_high_patch();
+
+	//    ctrl_init_detect_dram_size(&dram_cap_in_mbyte);
+	//    KC_MSG("ctrl_init_detect_dram_size finish\n");
 
 	// restory dram_cap_in_mbyte
 	rddata = mmio_rd32(0x0208 + PHYD_BASE_ADDR);
@@ -172,13 +206,18 @@ void ddr_sys_resume(void)
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
 	}
 
+	//    ctrl_init_h.ctrl_high_patch=1;
+	//    `uvm_send(ctrl_init_h);
+
 	cvx16_clk_gating_enable();
 }
 
 void cvx16_ddr_sub_resume2(void)
 {
 	uartlog("%s\n", __func__);
-	// Program INIT0.skip_dram_init = 0b11
+	// ddr_debug_wr32(0x44);
+	// ddr_debug_num_write();
+	//  Program INIT0.skip_dram_init = 0b11
 	rddata = mmio_rd32(cfg_base + 0xd0);
 	rddata = modified_bits_by_value(rddata, 0x3, 31, 30);
 	// rddata[31:30] = 0x3;
@@ -203,7 +242,8 @@ void cvx16_ddr_sub_resume2(void)
 void cvx16_ddr_sub_resume3(void)
 {
 	uartlog("%s\n", __func__);
-
+	// ddr_debug_wr32(0x45);
+	// ddr_debug_num_write();
 	// ddr_phyd_restore
 	cvx16_ddr_phyd_restore(0x05026800);
 	// setting_check
@@ -251,6 +291,9 @@ void cvx16_ddr_sub_resume3(void)
 	// rddata[5:5] = 0x0;
 	mmio_wr32(cfg_base + 0x30, rddata);
 	// Poll STAT.selfref_type = 2b00
+	// do {
+	//    rddata = mmio_rd32(cfg_base + 0x4);
+	//} while (get_bits_from_value(rddata, 5, 4) != 0x0);
 	while (1) {
 		rddata = mmio_rd32(cfg_base + 0x4);
 		if (get_bits_from_value(rddata, 5, 4) == 0x0) {
@@ -264,13 +307,17 @@ void cvx16_ddr_sub_resume3(void)
 void cvx16_ddrc_suspend(void)
 {
 	uartlog("%s\n", __func__);
-
-	// Write 0 to PCTRL_n.port_en
+	// ddr_debug_wr32(0x40);
+	// ddr_debug_num_write();
+	//  Write 0 to PCTRL_n.port_en
 	for (int i = 0; i < 4; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x0);
 	}
 	// Poll PSTAT.rd_port_busy_n = 0
 	// Poll PSTAT.wr_port_busy_n = 0
+	// do {
+	//    rddata = mmio_rd32(cfg_base+0x3fc);
+	//} while (rddata != 0);
 	while (1) {
 		rddata = mmio_rd32(cfg_base + 0x3fc);
 		if (rddata == 0) {
@@ -421,12 +468,15 @@ void cvx16_bist_wrlvl_init(void)
 	// bist clock enable
 	mmio_wr32(DDR_BIST_BASE + 0x0, 0x00060006);
 	sram_st = 0;
+	// sram_sp = 511;
 	sram_sp = 0;
 	// cmd queue
 	//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
 	//        repeat
 	cmd[0] = (1 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
 		 (0 << 0); // W  1~17  prbs  repeat0
+	// cmd[1] = (2 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
+	//          (0 << 0); // R  1~17  prbs  repeat0
 	cmd[1] = 0; // NOP
 	cmd[2] = 0; // NOP
 	cmd[3] = 0; // NOP
@@ -465,12 +515,17 @@ void cvx16_bist_rdglvl_init(void)
 	// bist clock enable
 	mmio_wr32(DDR_BIST_BASE + 0x0, 0x00060006);
 	sram_st = 0;
+	// sram_sp = 511;
 	sram_sp = 3;
 	// cmd queue
 	//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
 	//        repeat
+	// cmd[0] = (1 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
+	//          (0 << 0);  // W  1~17  prbs  repeat0
 	cmd[0] = (2 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
 		 (0 << 0); // R  1~17  prbs  repeat0
+	// cmd[1] = (2 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
+	//          (0 << 0);  // R  1~17  prbs  repeat0
 	cmd[1] = 0; // NOP
 	cmd[2] = 0; // NOP
 	cmd[3] = 0; // NOP
@@ -517,12 +572,17 @@ void cvx16_bist_rdlvl_init(uint32_t mode)
 	mmio_wr32(DDR_BIST_BASE + 0x0, 0x00060006);
 	if (mode == 0x0) { // MPR mode
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 3;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
 		//        repeat
+		// cmd[0] = (1 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
+		//          (0 << 0);  // W  1~17  prbs  repeat0
 		cmd[0] = (2 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
 			 (0 << 0); // R  1~17  prbs  repeat0
+		// cmd[1] = (2 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
+		//          (0 << 0);  // R  1~17  prbs  repeat0
 		cmd[1] = 0; // NOP
 		cmd[2] = 0; // NOP
 		cmd[3] = 0; // NOP
@@ -569,6 +629,7 @@ void cvx16_bist_rdlvl_init(uint32_t mode)
 	#endif
 	} else if (mode == 0x2) { // multi- bist write/read
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 7;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
@@ -589,6 +650,7 @@ void cvx16_bist_rdlvl_init(uint32_t mode)
 		mmio_wr32(0x0084 + PHYD_BASE_ADDR, rddata);
 		//----for Error enject simulation only
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 7;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
@@ -609,12 +671,17 @@ void cvx16_bist_rdlvl_init(uint32_t mode)
 		mmio_wr32(0x0084 + PHYD_BASE_ADDR, rddata);
 		//----for Error enject simulation only
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 3;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
 		//        repeat
+		// cmd[0] = (1 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
+		//          (0 << 0);  // W  1~17  prbs  repeat0
 		cmd[0] = (2 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
 			 (0 << 0); // R  1~17  prbs  repeat0
+		// cmd[1] = (2 << 30) | (sram_st << 21) | (sram_sp << 12) | (5 << 9) | (0 << 8) | (0 << 7) | (0 << 4) |
+		//          (0 << 0);  // R  1~17  prbs  repeat0
 		cmd[1] = 0; //NOP
 		cmd[2] = 0; // NOP
 		cmd[3] = 0; // NOP
@@ -646,6 +713,9 @@ void cvx16_bist_wdqlvl_init(uint32_t mode)
 	uint32_t sram_sp;
 	uint32_t fmax;
 	uint32_t fmin;
+	// uint32_t wdqlvl_vref_start; //unused
+	// uint32_t wdqlvl_vref_end; //unused
+	// uint32_t wdqlvl_vref_step; //unused
 	int i;
 
 	uartlog("%s\n", __func__);
@@ -657,6 +727,7 @@ void cvx16_bist_wdqlvl_init(uint32_t mode)
 	mmio_wr32(DDR_BIST_BASE + 0x0, 0x00060006);
 	if (mode == 0x0) { // phyd pattern
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 3;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
@@ -718,6 +789,7 @@ void cvx16_bist_wdqlvl_init(uint32_t mode)
 		mmio_wr32(0x0190 + PHYD_BASE_ADDR, rddata);
 		//----for Error enject simulation only
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 3;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
@@ -739,6 +811,7 @@ void cvx16_bist_wdqlvl_init(uint32_t mode)
 		mmio_wr32(0x0190 + PHYD_BASE_ADDR, rddata);
 		//----for Error enject simulation only
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 3;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
@@ -753,6 +826,7 @@ void cvx16_bist_wdqlvl_init(uint32_t mode)
 		cmd[5] = 0; // NOP
 	} else {
 		sram_st = 0;
+		// sram_sp = 511;
 		sram_sp = 3;
 		// cmd queue
 		//        op_code         start              stop        pattern    dq_inv     dm_inv    dq_rotate
@@ -863,6 +937,7 @@ void cvx16_bist_start_check(uint32_t *bist_result, uint64_t *err_data_odd, uint6
 
 #endif
 	// polling bist done
+	//    while (get_bits_from_value(2)  == 0x0 = mmio_rd32(DDR_BIST_BASE + 0x80),2);
 	while (1) {
 		rddata = mmio_rd32(DDR_BIST_BASE + 0x80);
 		if (get_bits_from_value(rddata, 2, 2) == 1) {
@@ -873,6 +948,7 @@ void cvx16_bist_start_check(uint32_t *bist_result, uint64_t *err_data_odd, uint6
 	KC_MSG("Read bist done %x ...\n", rddata);
 
 	if (get_bits_from_value(rddata, 3, 3) == 1) {
+		// opdelay(10);
 		*bist_result = 0;
 		uartlog("bist fail\n");
 		uartlog("err data\n");
@@ -884,6 +960,7 @@ void cvx16_bist_start_check(uint32_t *bist_result, uint64_t *err_data_odd, uint6
 		*err_data_odd = err_data_odd_h << 32 | err_data_odd_l;
 		*err_data_even = err_data_even_h << 32 | err_data_even_l;
 	} else {
+		// opdelay(10);
 		*bist_result = 1;
 		uartlog("bist pass\n");
 		*err_data_odd = 0;
@@ -897,8 +974,10 @@ void cvx16_bist_tx_shift_delay(uint32_t shift_delay)
 {
 	uint32_t shift_tmp;
 	uint32_t delay_tmp;
+	// uint32_t oenz_shift_tmp; //unused
 	uint32_t oenz_lead;
 	uint32_t tdfi_phy_wrdata;
+	// uint32_t dlie_sum_great; //unused
 	uint32_t dlie_sub;
 
 	uartlog("%s\n", __func__);
@@ -974,20 +1053,47 @@ void cvx16_ca_shift_delay(uint32_t shift_delay)
 	ddr_debug_num_write();
 	rddata = (shift_delay << 16) + shift_delay;
 	mmio_wr32(0x0900 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0904  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x0908  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x090C  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x0910  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x0914  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x0918  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x091C  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x0920  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x0924  + PHYD_BASE_ADDR,  rddata);
+	// mmio_wr32(0x0928  + PHYD_BASE_ADDR,  rddata);
 	mmio_wr32(0x092C + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0930  + PHYD_BASE_ADDR,  rddata);//CKE
+	// mmio_wr32(0x0934  + PHYD_BASE_ADDR,  rddata);//cs
+	// mmio_wr32(0x0938  + PHYD_BASE_ADDR,  rddata);//reset_n
 	cvx16_dll_sw_clr();
 	KC_MSG("%s Fisish\n", __func__);
 }
 
 void cvx16_cs_shift_delay(uint32_t shift_delay)
 {
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_cs_shift_delay\n");
 	ddr_debug_wr32(0x57);
 	ddr_debug_num_write();
 	rddata = (shift_delay << 16) + shift_delay;
+	// mmio_wr32(0x0900 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0904 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0908 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x090C + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0910 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0914 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0918 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x091C + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0920 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0924 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0928 + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x092C + PHYD_BASE_ADDR, rddata);
+	// mmio_wr32(0x0930 + PHYD_BASE_ADDR, rddata); //cke
 	mmio_wr32(0x0934 + PHYD_BASE_ADDR, rddata); //cs
+	// mmio_wr32(0x0938 + PHYD_BASE_ADDR, rddata); //reset_n
 	cvx16_dll_sw_clr();
-	KC_MSG("%s Fisish\n", __func__);
+	KC_MSG("cvx16_cs_shift_delay Fisish\n");
 }
 
 void cvx16_synp_mrw(uint32_t addr, uint32_t data)
@@ -1113,6 +1219,7 @@ void cvx16_chg_pll_freq(void)
 				}
 			}
 		}
+		//         opdelay(100000);  //  1000ns
 	}
 	// TOP_REG_RESETZ_DIV  =1
 	rddata = 0x00000001;
@@ -1138,6 +1245,7 @@ void cvx16_chg_pll_freq(void)
 	}
 #else
 	KC_MSG("check PLL lock...  pll init\n");
+
 #endif
 	//} Change PLL frequency
 }
@@ -1186,7 +1294,9 @@ void cvx16_dll_cal(void)
 		KC_MSG("DLL lock !\n");
 
 		uartlog("DLL lock\n");
+		// opdelay(1000);
 		uartlog("Do DLLUPD\n");
+		// cvx16_dll_cal_status();
 	} else { // stop calibration and update when low speed
 		// param_phyd_dll_rx_start_cal <= int_regin[1];
 		// param_phyd_dll_tx_start_cal <= int_regin[17];
@@ -1236,7 +1346,9 @@ void cvx16_dll_cal_phyd_hw(void)
 	KC_MSG("DLL lock !\n");
 
 	uartlog("DLL lock\n");
+	// opdelay(1000);
 	uartlog("Do DLLUPD\n");
+	// cvx16_dll_cal_status();
 	// param_phyd_dll_rx_start_cal <= int_regin[1];
 	// param_phyd_dll_tx_start_cal <= int_regin[17];
 	rddata = mmio_rd32(0x0040 + PHYD_BASE_ADDR);
@@ -1246,6 +1358,7 @@ void cvx16_dll_cal_phyd_hw(void)
 	KC_MSG("Do DLLCAL cntr_mode 0 Finish\n");
 
 	uartlog("Do DLLCAL cntr_mode 0 Finish\n");
+	// opdelay(1000);
 	KC_MSG("DLLCAL HW mode cntr_mode 1\n");
 
 	// param_phyd_dll_rx_sw_mode    [0]
@@ -1275,7 +1388,9 @@ void cvx16_dll_cal_phyd_hw(void)
 	KC_MSG("DLL lock !\n");
 
 	uartlog("DLL lock\n");
+	// opdelay(1000);
 	uartlog("Do DLLUPD\n");
+	// cvx16_dll_cal_status();
 	// param_phyd_dll_rx_start_cal <= int_regin[1];
 	// param_phyd_dll_tx_start_cal <= int_regin[17];
 	rddata = mmio_rd32(0x0040 + PHYD_BASE_ADDR);
@@ -1285,6 +1400,7 @@ void cvx16_dll_cal_phyd_hw(void)
 	KC_MSG("Do DLLCAL cntr_mode 1 Finish\n");
 
 	uartlog("Do DLLCAL cntr_mode 1 Finish\n");
+	// opdelay(1000);
 	// param_phyd_dll_rx_sw_mode    [0]
 	// param_phyd_dll_rx_start_cal  [1]
 	// param_phyd_dll_rx_cntr_mode  [2]
@@ -1312,7 +1428,9 @@ void cvx16_dll_cal_phyd_hw(void)
 	KC_MSG("DLL lock !\n");
 
 	uartlog("DLL lock\n");
+	// opdelay(1000);
 	uartlog("Do DLLUPD\n");
+	// cvx16_dll_cal_status();
 	// param_phyd_dll_rx_start_cal <= int_regin[1];
 	// param_phyd_dll_tx_start_cal <= int_regin[17];
 	rddata = mmio_rd32(0x0040 + PHYD_BASE_ADDR);
@@ -1358,7 +1476,9 @@ void cvx16_dll_cal_phya_enautok(void)
 	KC_MSG("DLL lock !\n");
 
 	uartlog("DLL lock\n");
+	// opdelay(1000);
 	uartlog("Do DLLUPD\n");
+	// cvx16_dll_cal_status();
 	// param_phyd_dll_rx_start_cal <= int_regin[1];
 	// param_phyd_dll_tx_start_cal <= int_regin[17];
 	rddata = mmio_rd32(0x0040 + PHYD_BASE_ADDR);
@@ -1375,6 +1495,8 @@ void cvx16_ddr_zqcal_isr8(void)
 	uint32_t KP40_GOLDEN;
 	uint32_t KN40_GOLDEN;
 	uint32_t dram_class;
+	// uint32_t wr_odt_en; //unused
+	// uint32_t rtt_wr; //unused
 	int i;
 	// VDDQ_TXr       = 0.6;
 	//------------------------------
@@ -1397,8 +1519,8 @@ void cvx16_ddr_zqcal_isr8(void)
 	if (get_bits_from_value(rddata, 0, 0) == 0) { // initial ZQCAL
 		rddata = mmio_rd32(0x0050 + PHYD_BASE_ADDR);
 		// dram_class = rddata[11:8];  //DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011
-		dram_class = get_bits_from_value(rddata, 3, 0);
-		// DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011
+		dram_class = get_bits_from_value(
+			rddata, 3, 0); // DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011
 		KC_MSG("dram_class = %x...\n", dram_class);
 
 		KC_MSG("DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011\n");
@@ -1479,6 +1601,7 @@ void cvx16_ddr_zqcal_isr8(void)
 		rddata = modified_bits_by_value(rddata, 0x10, 20, 16);
 		mmio_wr32(0x0144 + PHYD_BASE_ADDR, rddata);
 		for (i = 0; i < 32; i = i + 1) {
+			// opdelay(128);
 			rddata = mmio_rd32(0x3440 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 24, 24)) { // param_phya_to_reg_zq_cmp_out
 				rddata = mmio_rd32(0x0144 + PHYD_BASE_ADDR);
@@ -1520,6 +1643,8 @@ void cvx16_ddr_zqcal_isr8(void)
 		rddata = modified_bits_by_value(rddata, 0x9, 20, 16);
 		mmio_wr32(0x0148 + PHYD_BASE_ADDR, rddata);
 		for (i = 0; i < 32; i = i + 1) {
+			//        repeat(128) @(posedge clk);
+			// opdelay(128);
 			rddata = mmio_rd32(0x3440 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 24, 24)) { // param_phya_to_reg_zq_cmp_out
 				rddata = mmio_rd32(0x0148 + PHYD_BASE_ADDR);
@@ -1562,6 +1687,7 @@ void cvx16_ddr_zqcal_isr8(void)
 		rddata = modified_bits_by_value(rddata, 0x9, 28, 24);
 		mmio_wr32(0x0148 + PHYD_BASE_ADDR, rddata);
 		for (i = 0; i < 32; i = i + 1) {
+			// opdelay(128);
 			rddata = mmio_rd32(0x3440 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 24, 24)) { // param_phya_to_reg_zq_cmp_out
 				rddata = mmio_rd32(0x0148 + PHYD_BASE_ADDR);
@@ -1623,6 +1749,9 @@ void cvx16_ddr_zqcal_isr8(void)
 void cvx16_ddr_zqcal_hw_isr8(uint32_t hw_mode)
 {
 	uint32_t dram_class;
+	// uint32_t wr_odt_en; //unused
+	// uint32_t rtt_wr; //unused
+	// int i; //unused
 
 	uartlog("ddr_zqcal_hw_isr8\n");
 	ddr_debug_wr32(0x2c);
@@ -1646,8 +1775,8 @@ void cvx16_ddr_zqcal_hw_isr8(uint32_t hw_mode)
 	if (get_bits_from_value(rddata, 0, 0) == 0) { // initial ZQCAL
 		rddata = mmio_rd32(0x0050 + PHYD_BASE_ADDR);
 		// dram_class = rddata[11:8];  //DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011
-		dram_class = get_bits_from_value(rddata, 3, 0);
-		// DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011
+		dram_class = get_bits_from_value(
+			rddata, 3, 0); // DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011
 		KC_MSG("dram_class = %x...\n", dram_class);
 
 		KC_MSG("DDR2:0b0100, DDR3: 0b0110, DDR4: 0b1010, LPDDR3: 0b0111, LPDDR4: 0b1011\n");
@@ -1736,6 +1865,8 @@ void cvx16_ddr_zqcal_hw_isr8(uint32_t hw_mode)
 		while (get_bits_from_value(rddata, 16, 16) == 0) {
 			rddata = mmio_rd32(0x3440 + PHYD_BASE_ADDR);
 			KC_MSG("wait param_phyd_to_reg_zqcal_hw_done ...\n");
+
+			// opdelay(100);
 		}
 		uartlog("hw_done\n");
 		// param_phya_reg_zqcal_done  <= `PI_SD int_regin[0];
@@ -1968,10 +2099,20 @@ void cvx16_ddr_phy_power_on_seq2(void)
 	cvx16_dll_cal();
 	KC_MSG("Do DLLCAL done\n");
 
-	KC_MSG("without ZQ Calibration ...\n");
+	//    KC_MSG("Do ZQCAL if necessary ...\n");
 
-	KC_MSG("without ZQ240 Calibration ...\n");
+	// cvx16_ddr_zqcal_hw_isr8(0x7);//zqcal hw mode, bit0: offset_cal, bit1:pl_en, bit2:step2_en
+	// KC_MSG("Do ZQCAL done\n");
 
+	KC_MSG("cv181x without ZQ Calibration ...\n");
+
+	// cvx16_ddr_zq240_cal();//zq240_cal
+	// KC_MSG("Do cvx16_ddr_zq240_cal done\n");
+
+	KC_MSG("cv181x without ZQ240 Calibration ...\n");
+
+	// zq calculate variation
+	//  zq_cal_var();
 	KC_MSG("zq calculate variation not run\n");
 
 	// CA PD =0
@@ -2030,6 +2171,7 @@ void cvx16_wait_for_dfi_init_complete(void)
 	// synp setting
 	while (1) {
 		rddata = mmio_rd32(cfg_base + 0x000001bc);
+		//} while ((rddata & 0x00000001) != 1);
 		if (get_bits_from_value(rddata, 0, 0) == 1) {
 			break;
 		}
@@ -2197,6 +2339,8 @@ void cvx16_wrlvl_req(void)
 	selfref_en = get_bits_from_value(rddata, 0, 0);
 	rddata = modified_bits_by_value(rddata, 0, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, 0, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, 0, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, 0, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
@@ -2211,7 +2355,10 @@ void cvx16_wrlvl_req(void)
 	wr_odt_en = get_bits_from_value(rddata, 0, 0);
 	// bist setting for dfi wrlvl
 	cvx16_bist_wrlvl_init();
-
+	// // RFSHCTL3.dis_auto_refresh =1
+	// rddata = mmio_rd32(cfg_base + 0x60);
+	// rddata = modified_bits_by_value(rddata, 1, 0, 0); // RFSHCTL3.dis_auto_refresh
+	// mmio_wr32(cfg_base + 0x60, rddata);
 #ifdef DDR3
 	rtt_nom = 0;
 	if (wr_odt_en == 1) {
@@ -2266,9 +2413,9 @@ void cvx16_wrlvl_req(void)
 				rddata = mmio_rd32(cfg_base + 0xdc);
 				rtt_nom = modified_bits_by_value(rddata, 0, 9, 9); // rtt_nom[2]=0
 				rtt_nom = modified_bits_by_value(rtt_nom, get_bits_from_value(rtt_wr, 1, 1), 6,
-								 6); // rtt_nom[1]=rtt_wr[1]
+								6); // rtt_nom[1]=rtt_wr[1]
 				rtt_nom = modified_bits_by_value(rtt_nom, get_bits_from_value(rtt_wr, 0, 0), 2,
-								 2); // rtt_nom[1]=rtt_wr[0]
+								2); // rtt_nom[1]=rtt_wr[0]
 				uartlog("dodt for wrlvl setting\n");
 			}
 		} else {
@@ -2318,6 +2465,7 @@ void cvx16_wrlvl_req(void)
 
 #ifdef DDR3
 	rddata = mmio_rd32(cfg_base + 0xdc);
+	// rddata=modified_bits_by_value(rddata, 0, 7, 7); //Write leveling disable
 	cvx16_synp_mrw(0x1, get_bits_from_value(rddata, 15, 0));
 	rddata = mmio_rd32(cfg_base + 0xe0);
 	cvx16_synp_mrw(0x2, get_bits_from_value(rddata, 31, 16)); // MR2
@@ -2328,6 +2476,7 @@ void cvx16_wrlvl_req(void)
 #ifdef DDR2_3
 	if (get_ddr_type() == DDR_TYPE_DDR3) {
 		rddata = mmio_rd32(cfg_base + 0xdc);
+		// rddata=modified_bits_by_value(rddata, 0, 7, 7); //Write leveling disable
 		cvx16_synp_mrw(0x1, get_bits_from_value(rddata, 15, 0));
 		rddata = mmio_rd32(cfg_base + 0xe0);
 		cvx16_synp_mrw(0x2, get_bits_from_value(rddata, 31, 16)); // MR2
@@ -2338,15 +2487,22 @@ void cvx16_wrlvl_req(void)
 #endif
 #ifdef DDR4
 	rddata = mmio_rd32(cfg_base + 0xdc);
+	// rddata=modified_bits_by_value(rddata, 0, 7, 7); //Write leveling disable
 	cvx16_synp_mrw(0x1, get_bits_from_value(rddata, 15, 0));
 	uartlog("%s\n", __func__);
 	ddr_debug_wr32(0x2e);
 	ddr_debug_num_write();
 #endif
+	// // RFSHCTL3.dis_auto_refresh =0
+	// rddata = mmio_rd32(cfg_base + 0x60);
+	// rddata = modified_bits_by_value(rddata, 0, 0, 0); // RFSHCTL3.dis_auto_refresh
+	// mmio_wr32(cfg_base + 0x60, rddata);
 	// restore PWRCTL.powerdown_en, PWRCTL.selfref_en
 	rddata = mmio_rd32(cfg_base + 0x30);
 	rddata = modified_bits_by_value(rddata, selfref_sw, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, en_dfi_dram_clk_disable, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, powerdown_en, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, selfref_en, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
@@ -2354,6 +2510,7 @@ void cvx16_wrlvl_req(void)
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
 	}
+	// cvx16_wrlvl_status();
 	cvx16_clk_gating_enable();
 #endif // not DDR2
 }
@@ -2372,8 +2529,8 @@ void cvx16_rdglvl_req(void)
 #endif
 	uint32_t port_num;
 	// Note: training need ctrl_low_patch first
-	// Write 0 to PCTRL_n.port_en, without port 0
-	// port number = 0,1,2,3
+	//  Write 0 to PCTRL_n.port_en, without port 0
+	//  port number = 0,1,2,3
 	port_num = 0x4;
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x0);
@@ -2396,10 +2553,16 @@ void cvx16_rdglvl_req(void)
 	selfref_en = get_bits_from_value(rddata, 0, 0);
 	rddata = modified_bits_by_value(rddata, 0, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, 0, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   // this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, 0, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, 0, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
 	cvx16_clk_gating_disable();
+	// RFSHCTL3.dis_auto_refresh =1
+	// rddata = mmio_rd32(cfg_base + 0x60);
+	// rddata=modified_bits_by_value(rddata, 1, 0, 0); //RFSHCTL3.dis_auto_refresh
+	// mmio_wr32(cfg_base + 0x60, rddata);
 	uartlog("%s\n", __func__);
 	ddr_debug_wr32(0x2f);
 	ddr_debug_num_write();
@@ -2487,10 +2650,16 @@ void cvx16_rdglvl_req(void)
 		ddr_debug_num_write();
 	}
 #endif
+	// RFSHCTL3.dis_auto_refresh =0
+	// rddata = mmio_rd32(cfg_base + 0x60);
+	// rddata=modified_bits_by_value(rddata, 0, 0, 0); //RFSHCTL3.dis_auto_refresh
+	// mmio_wr32(cfg_base + 0x60, rddata);
 	// restore PWRCTL.powerdown_en, PWRCTL.selfref_en
 	rddata = mmio_rd32(cfg_base + 0x30);
 	rddata = modified_bits_by_value(rddata, selfref_sw, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, en_dfi_dram_clk_disable, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, powerdown_en, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, selfref_en, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
@@ -2498,6 +2667,7 @@ void cvx16_rdglvl_req(void)
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
 	}
+	// cvx16_rdglvl_status();
 	cvx16_clk_gating_enable();
 }
 
@@ -2515,15 +2685,16 @@ void cvx16_rdlvl_req(uint32_t mode)
 #endif
 	uint32_t port_num;
 	uint32_t vref_training_en;
-
+	// uint32_t code_neg; //unused
+	// uint32_t code_pos; //unused
 	// Note: training need ctrl_low_patch first
 	// mode = 0x0  : MPR mode, DDR3 only.
 	// mode = 0x1  : sram write/read continuous goto
 	// mode = 0x2  : multi- bist write/read
 	// mode = 0x10 : with Error enject,  multi- bist write/read
 	// mode = 0x12 : with Error enject,  multi- bist write/read
-	// Write 0 to PCTRL_n.port_en, without port 0
-	// port number = 0,1,2,3
+	//  Write 0 to PCTRL_n.port_en, without port 0
+	//  port number = 0,1,2,3
 	port_num = 0x4;
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x0);
@@ -2546,10 +2717,16 @@ void cvx16_rdlvl_req(uint32_t mode)
 	selfref_en = get_bits_from_value(rddata, 0, 0);
 	rddata = modified_bits_by_value(rddata, 0, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, 0, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, 0, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, 0, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
 	cvx16_clk_gating_disable();
+	//    //RFSHCTL3.dis_auto_refresh =1
+	//    rddata = mmio_rd32(cfg_base + 0x60);
+	//    rddata=modified_bits_by_value(rddata, 1, 0, 0); //RFSHCTL3.dis_auto_refresh
+	//    mmio_wr32(cfg_base + 0x60, rddata);
 	uartlog("%s\n", __func__);
 	ddr_debug_wr32(0x30);
 	ddr_debug_num_write();
@@ -2682,6 +2859,10 @@ void cvx16_rdlvl_req(uint32_t mode)
 
 	cvx16_rdvld_train();
 
+	//    //RFSHCTL3.dis_auto_refresh =0
+	//    rddata = mmio_rd32(cfg_base + 0x60);
+	//    rddata=modified_bits_by_value(rddata, 0, 0, 0); //RFSHCTL3.dis_auto_refresh
+	//    mmio_wr32(cfg_base + 0x60, rddata);
 	// bist clock disable
 	mmio_wr32(DDR_BIST_BASE + 0x0, 0x00040000);
 	cvx16_dfi_ca_park_prbs(0);
@@ -2689,6 +2870,8 @@ void cvx16_rdlvl_req(uint32_t mode)
 	rddata = mmio_rd32(cfg_base + 0x30);
 	rddata = modified_bits_by_value(rddata, selfref_sw, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, en_dfi_dram_clk_disable, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, powerdown_en, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, selfref_en, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
@@ -2696,6 +2879,7 @@ void cvx16_rdlvl_req(uint32_t mode)
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
 	}
+	// cvx16_rdlvl_status();
 	cvx16_clk_gating_enable();
 }
 
@@ -2725,6 +2909,8 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 	uint32_t byte0_all_te_found;
 	uint32_t byte1_all_le_found;
 	uint32_t byte1_all_te_found;
+	// uint32_t code_neg; //unused
+	// uint32_t code_pos; //unused
 	uint32_t byte0_cur_pirdlvl_st;
 	uint32_t byte1_cur_pirdlvl_st;
 	uint32_t sw_upd_req_start;
@@ -2735,8 +2921,8 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 	// mode = 0x2  : multi- bist write/read
 	// mode = 0x10 : with Error enject,  multi- bist write/read
 	// mode = 0x12 : with Error enject,  multi- bist write/read
-	// Write 0 to PCTRL_n.port_en, without port 0
-	// port number = 0,1,2,3
+	//  Write 0 to PCTRL_n.port_en, without port 0
+	//  port number = 0,1,2,3
 	port_num = 0x4;
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x0);
@@ -2759,10 +2945,16 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 	selfref_en = get_bits_from_value(rddata, 0, 0);
 	rddata = modified_bits_by_value(rddata, 0, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, 0, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, 0, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, 0, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
 	cvx16_clk_gating_disable();
+	//    //RFSHCTL3.dis_auto_refresh =1
+	//    rddata = mmio_rd32(cfg_base + 0x60);
+	//    rddata=modified_bits_by_value(rddata, 1, 0, 0); //RFSHCTL3.dis_auto_refresh
+	//    mmio_wr32(cfg_base + 0x60, rddata);
 	uartlog("%s\n", __func__);
 	ddr_debug_wr32(0x30);
 	ddr_debug_num_write();
@@ -2861,6 +3053,7 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 					sw_upd_req_start = 0x0;
 				}
 			}
+			// KC_MSG("sw_upd_req_start = %x\n", sw_upd_req_start);
 
 			if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte0_all_le_found & byte0_all_te_found)) &&
 			    ((byte1_pirdlvl_sw_upd_ack == 0x1) || (byte1_all_le_found & byte1_all_te_found))) {
@@ -2886,7 +3079,7 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 				}
 				if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte1_pirdlvl_sw_upd_ack == 0x1)) &&
 				    ((byte0_cur_pirdlvl_st != 0x0) && (byte1_cur_pirdlvl_st != 0x0))) {
-					SHMOO_MSG("vref = %02x, sw_rdq_training_start = %08x, ",
+					SHMOO_MSG("vref = %02x, sw_rdq_training_start = %08x , ",
 						  rx_vref_sel, dlie_code);
 					SHMOO_MSG("err_data_rise/err_data_fall = %08x, %08x\n",
 						  ((byte0_data_rise_fail & 0x000000FF) |
@@ -2894,6 +3087,8 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 						   ((byte0_data_fall_fail & 0x000000FF) |
 						   ((byte1_data_fall_fail & 0x000000FF) << 8)));
 				}
+				//if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte1_pirdlvl_sw_upd_ack == 0x1))
+				//    || ((byte0_cur_pirdlvl_st != 0x0) && (byte1_cur_pirdlvl_st != 0x0))) {
 				if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte1_pirdlvl_sw_upd_ack == 0x1)) &&
 				    (sw_upd_req_start == 0x1)) {
 					rddata = mmio_rd32(0x0090 + PHYD_BASE_ADDR);
@@ -2993,9 +3188,11 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 						sw_upd_req_start = 0x0;
 					}
 				}
+				// KC_MSG("sw_upd_req_start = %x\n", sw_upd_req_start);
 
 				if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte0_all_le_found & byte0_all_te_found)) &&
 				    ((byte1_pirdlvl_sw_upd_ack == 0x1) || (byte1_all_le_found & byte1_all_te_found))) {
+					//if ((byte0_pirdlvl_sw_upd_ack == 0x1) && (byte1_pirdlvl_sw_upd_ack == 0x1)) {
 					rddata = mmio_rd32(0x0B24 + PHYD_BASE_ADDR);
 					rx_vref_sel = get_bits_from_value(rddata, 4, 0);
 					rddata = mmio_rd32(0x0B08 + PHYD_BASE_ADDR);
@@ -3018,14 +3215,16 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 					}
 					if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte1_pirdlvl_sw_upd_ack == 0x1)) &&
 					    ((byte0_cur_pirdlvl_st != 0x0) && (byte1_cur_pirdlvl_st != 0x0))) {
-						SHMOO_MSG("vref = %02x, sw_rdq_training_start = %08x, ",
+						SHMOO_MSG("vref = %02x, sw_rdq_training_start = %08x , ",
 							  rx_vref_sel, dlie_code);
 						SHMOO_MSG("err_data_rise/err_data_fall = %08x, %08x\n",
-							  ((byte0_data_rise_fail & 0x000000FF) |
-							  ((byte1_data_rise_fail & 0x000000FF) << 8)),
-							  ((byte0_data_fall_fail & 0x000000FF) |
-							  ((byte1_data_fall_fail & 0x000000FF) << 8)));
+						       ((byte0_data_rise_fail & 0x000000FF) |
+							((byte1_data_rise_fail & 0x000000FF) << 8)),
+						       ((byte0_data_fall_fail & 0x000000FF) |
+							((byte1_data_fall_fail & 0x000000FF) << 8)));
 					}
+					// if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte1_pirdlvl_sw_upd_ack == 0x1))
+					//     || ((byte0_cur_pirdlvl_st != 0x0) && (byte1_cur_pirdlvl_st != 0x0))) {
 					if (((byte0_pirdlvl_sw_upd_ack == 0x1) || (byte1_pirdlvl_sw_upd_ack == 0x1)) &&
 					    (sw_upd_req_start == 0x1)) {
 						rddata = mmio_rd32(0x0090 + PHYD_BASE_ADDR);
@@ -3092,6 +3291,10 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 
 	cvx16_rdvld_train();
 
+	//    //RFSHCTL3.dis_auto_refresh =0
+	//    rddata = mmio_rd32(cfg_base + 0x60);
+	//    rddata=modified_bits_by_value(rddata, 0, 0, 0); //RFSHCTL3.dis_auto_refresh
+	//    mmio_wr32(cfg_base + 0x60, rddata);
 	// bist clock disable
 	mmio_wr32(DDR_BIST_BASE + 0x0, 0x00040000);
 	cvx16_dfi_ca_park_prbs(0);
@@ -3099,6 +3302,8 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 	rddata = mmio_rd32(cfg_base + 0x30);
 	rddata = modified_bits_by_value(rddata, selfref_sw, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, en_dfi_dram_clk_disable, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, powerdown_en, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, selfref_en, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
@@ -3106,6 +3311,7 @@ void cvx16_rdlvl_sw_req(uint32_t mode)
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
 	}
+	// cvx16_rdlvl_status();
 	cvx16_clk_gating_enable();
 }
 
@@ -3115,10 +3321,11 @@ void cvx16_wdqlvl_req(uint32_t data_mode, uint32_t lvl_mode)
 	uint32_t en_dfi_dram_clk_disable;
 	uint32_t powerdown_en;
 	uint32_t selfref_en;
+	// uint32_t bist_data_mode; //unused
 	uint32_t port_num;
 	// Note: training need ctrl_low_patch first
-	// Write 0 to PCTRL_n.port_en, without port 0
-	// port number = 0,1,2,3
+	//  Write 0 to PCTRL_n.port_en, without port 0
+	//  port number = 0,1,2,3
 	port_num = 0x4;
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x0);
@@ -3141,15 +3348,17 @@ void cvx16_wdqlvl_req(uint32_t data_mode, uint32_t lvl_mode)
 	selfref_en = get_bits_from_value(rddata, 0, 0);
 	rddata = modified_bits_by_value(rddata, 0, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, 0, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, 0, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, 0, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
 	cvx16_clk_gating_disable();
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_wdqlvl_req\n");
 	ddr_debug_wr32(0x31);
 	ddr_debug_num_write();
 	cvx16_dfi_ca_park_prbs(1);
-	KC_MSG("%s\n", __func__);
+	KC_MSG("cvx16_wdqlvl_req\n");
 
 	// param_phyd_piwdqlvl_dq_mode
 	//     <= #RD (~pwstrb_mask[12] & param_phyd_piwdqlvl_dq_mode) |  pwstrb_mask_pwdata[12];
@@ -3174,6 +3383,7 @@ void cvx16_wdqlvl_req(uint32_t data_mode, uint32_t lvl_mode)
 		rddata = mmio_rd32(cfg_base + 0xC);
 		rddata = modified_bits_by_value(rddata, 1, 7, 7);
 		mmio_wr32(cfg_base + 0xC, rddata);
+		//        cvx16_bist_wdmlvl_init(sram_sp);
 		cvx16_bist_wdmlvl_init();
 	} else {
 		// bist setting for dfi rdglvl
@@ -3181,9 +3391,10 @@ void cvx16_wdqlvl_req(uint32_t data_mode, uint32_t lvl_mode)
 		// data_mode = 0x1 : bist read/write
 		// data_mode = 0x11: with Error enject,  multi- bist write/read
 		// data_mode = 0x12: with Error enject,  multi- bist write/read
+		//         cvx16_bist_wdqlvl_init(data_mode, sram_sp);
 		cvx16_bist_wdqlvl_init(data_mode);
 	}
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_wdqlvl_req\n");
 	ddr_debug_wr32(0x31);
 	ddr_debug_num_write();
 	rddata = mmio_rd32(0x018C + PHYD_BASE_ADDR);
@@ -3221,6 +3432,8 @@ void cvx16_wdqlvl_req(uint32_t data_mode, uint32_t lvl_mode)
 	rddata = mmio_rd32(cfg_base + 0x30);
 	rddata = modified_bits_by_value(rddata, selfref_sw, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, en_dfi_dram_clk_disable, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, powerdown_en, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, selfref_en, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
@@ -3228,6 +3441,7 @@ void cvx16_wdqlvl_req(uint32_t data_mode, uint32_t lvl_mode)
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
 	}
+	// cvx16_wdqlvl_status();
 	cvx16_clk_gating_enable();
 }
 
@@ -3237,6 +3451,7 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 	uint32_t en_dfi_dram_clk_disable;
 	uint32_t powerdown_en;
 	uint32_t selfref_en;
+	// uint32_t bist_data_mode; //unused
 	uint32_t port_num;
 	uint32_t byte0_piwdqlvl_sw_upd_ack;
 	uint32_t byte1_piwdqlvl_sw_upd_ack;
@@ -3250,8 +3465,9 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 	uint32_t byte0_all_te_found;
 	uint32_t byte1_all_le_found;
 	uint32_t byte1_all_te_found;
-	// Write 0 to PCTRL_n.port_en, without port 0
-	// port number = 0,1,2,3
+	// uint32_t sram_sp;
+	//  Write 0 to PCTRL_n.port_en, without port 0
+	//  port number = 0,1,2,3
 	port_num = 0x4;
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x0);
@@ -3274,15 +3490,17 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 	selfref_en = get_bits_from_value(rddata, 0, 0);
 	rddata = modified_bits_by_value(rddata, 0, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, 0, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, 0, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, 0, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
 	cvx16_clk_gating_disable();
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_wdqlvl_sw_req\n");
 	ddr_debug_wr32(0x31);
 	ddr_debug_num_write();
 	cvx16_dfi_ca_park_prbs(1);
-	KC_MSG("%s\n", __func__);
+	KC_MSG("cvx16_wdqlvl_sw_req\n");
 
 	// param_phyd_piwdqlvl_dq_mode
 	//     <= #RD (~pwstrb_mask[12] & param_phyd_piwdqlvl_dq_mode) |  pwstrb_mask_pwdata[12];
@@ -3304,6 +3522,7 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 	}
 	mmio_wr32(0x00BC + PHYD_BASE_ADDR, rddata);
 	if (lvl_mode == 0x0) {
+		//        cvx16_bist_wdmlvl_init(sram_sp);
 		cvx16_bist_wdmlvl_init();
 	} else {
 		// bist setting for dfi rdglvl
@@ -3311,6 +3530,7 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 		// data_mode = 0x1 : bist read/write
 		// data_mode = 0x11: with Error enject,  multi- bist write/read
 		// data_mode = 0x12: with Error enject,  multi- bist write/read
+		//         cvx16_bist_wdqlvl_init(data_mode, sram_sp);
 		cvx16_bist_wdqlvl_init(data_mode);
 	}
 	uartlog("cvx16_wdqlvl_req sw\n");
@@ -3381,14 +3601,14 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 					byte1_data_fall_fail = get_bits_from_value(rddata, 8, 0);
 				}
 				if ((byte0_piwdqlvl_sw_upd_ack == 0x1) || (byte1_piwdqlvl_sw_upd_ack == 0x1)) {
-					SHMOO_MSG("vref = %02x, sw_wdq_training_start = %08x, ",
-						  tx_vref_sel, dlie_code);
+					SHMOO_MSG("vref = %02x, sw_wdq_training_start = %08x , ",
+					       tx_vref_sel, dlie_code);
 
 					SHMOO_MSG("err_data_rise/err_data_fall = %08x, %08x\n",
-						  ((byte0_data_rise_fail & 0x000000FF) |
-						  ((byte1_data_rise_fail & 0x000000FF) << 8)),
-						  ((byte0_data_fall_fail & 0x000000FF) |
-						  ((byte1_data_fall_fail & 0x000000FF) << 8)));
+					       ((byte0_data_rise_fail & 0x000000FF) |
+						((byte1_data_rise_fail & 0x000000FF) << 8)),
+					       ((byte0_data_fall_fail & 0x000000FF) |
+						((byte1_data_fall_fail & 0x000000FF) << 8)));
 				}
 				rddata = mmio_rd32(0x00BC + PHYD_BASE_ADDR);
 				rddata = modified_bits_by_value(rddata, 1, 8, 8); // param_phyd_piwdqlvl_sw_upd_req
@@ -3417,6 +3637,8 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 	rddata = mmio_rd32(cfg_base + 0x30);
 	rddata = modified_bits_by_value(rddata, selfref_sw, 5, 5); // PWRCTL.selfref_sw
 	rddata = modified_bits_by_value(rddata, en_dfi_dram_clk_disable, 3, 3); // PWRCTL.en_dfi_dram_clk_disable
+	// rddata=modified_bits_by_value(rddata, 0, 2, 2); //PWRCTL.deeppowerdown_en, non-mDDR/non-LPDDR2/non-LPDDR3,
+							   //this register must not be set to 1
 	rddata = modified_bits_by_value(rddata, powerdown_en, 1, 1); // PWRCTL.powerdown_en
 	rddata = modified_bits_by_value(rddata, selfref_en, 0, 0); // PWRCTL.selfref_en
 	mmio_wr32(cfg_base + 0x30, rddata);
@@ -3424,13 +3646,14 @@ void cvx16_wdqlvl_sw_req(uint32_t data_mode, uint32_t lvl_mode)
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
 	}
+	// cvx16_wdqlvl_status();
 	cvx16_clk_gating_enable();
 }
 
 void cvx16_wrlvl_status(void)
 {
 #if defined(DBG_SHMOO) || defined(DDR_SIM)
-	NOTICE("%s\n", __func__);
+	NOTICE("cvx16_wrlvl_status\n");
 	ddr_debug_wr32(0x32);
 	ddr_debug_num_write();
 	rddata = mmio_rd32(0x3100 + PHYD_BASE_ADDR);
@@ -3441,9 +3664,21 @@ void cvx16_wrlvl_status(void)
 	NOTICE("wrlvl_byte1_hard0 = %x\n", get_bits_from_value(rddata, 13, 0));
 	NOTICE("wrlvl_byte1_hard1 = %x\n", get_bits_from_value(rddata, 29, 16));
 
+	// rddata = mmio_rd32(0x3108 + PHYD_BASE_ADDR);
+	// NOTICE("wrlvl_byte2_hard0 = %x\n", get_bits_from_value(rddata, 13, 0));
+	// NOTICE("wrlvl_byte2_hard1 = %x\n", get_bits_from_value(rddata, 29, 16));
+
+	// rddata = mmio_rd32(0x310C + PHYD_BASE_ADDR);
+	// NOTICE("wrlvl_byte3_hard0 = %x\n", get_bits_from_value(rddata, 13, 0));
+	// NOTICE("wrlvl_byte3_hard1 = %x\n", get_bits_from_value(rddata, 29, 16));
+
 	rddata = mmio_rd32(0x3110 + PHYD_BASE_ADDR);
 	NOTICE("wrlvl_byte0_status = %x\n", get_bits_from_value(rddata, 15, 0));
 	NOTICE("wrlvl_byte1_status = %x\n", get_bits_from_value(rddata, 31, 16));
+
+	// rddata = mmio_rd32(0x3114 + PHYD_BASE_ADDR);
+	// NOTICE("wrlvl_byte2_status = %x\n", get_bits_from_value(rddata, 15, 0));
+	// NOTICE("wrlvl_byte3_status = %x\n", get_bits_from_value(rddata, 31, 16));
 
 	// RAW DLINE_UPD
 	mmio_wr32(0x016C + PHYD_BASE_ADDR, 0xffffffff);
@@ -3459,13 +3694,24 @@ void cvx16_wrlvl_status(void)
 	rddata = mmio_rd32(0x0A74 + PHYD_BASE_ADDR);
 	NOTICE("byte1 tx dqs raw delay_dqsn/delay_dqsp = %x\n", rddata);
 
+	// rddata = mmio_rd32(0x0A94 + PHYD_BASE_ADDR);
+	// NOTICE("byte2 tx dqs shift/delay_dqsn/delay_dqsp = %x\n", rddata);
+
+	// rddata = mmio_rd32(0x0AB4 + PHYD_BASE_ADDR);
+	// NOTICE("byte2 tx dqs raw delay_dqsn/delay_dqsp = %x\n", rddata);
+
+	// rddata = mmio_rd32(0x0AD4 + PHYD_BASE_ADDR);
+	// NOTICE("byte3 tx dqs shift/delay_dqsn/delay_dqsp = %x\n", rddata);
+
+	// rddata = mmio_rd32(0x0AE4 + PHYD_BASE_ADDR);
+	// NOTICE("byte3 tx dqs raw delay_dqsn/delay_dqsp = %x\n", rddata);
 #endif //DBG_SHMOO || DDR_SIM
 }
 
 void cvx16_rdglvl_status(void)
 {
 #if defined(DBG_SHMOO) || defined(DDR_SIM)
-	NOTICE("%s\n", __func__);
+	NOTICE("cvx16_rdglvl_status\n");
 	ddr_debug_wr32(0x33);
 	ddr_debug_num_write();
 	rddata = mmio_rd32(0x3140 + PHYD_BASE_ADDR);
@@ -3476,15 +3722,33 @@ void cvx16_rdglvl_status(void)
 	NOTICE("rdglvl_byte1_hard0 = %x\n", get_bits_from_value(rddata, 13, 0));
 	NOTICE("rdglvl_byte1_hard1 = %x\n", get_bits_from_value(rddata, 29, 16));
 
+	// rddata = mmio_rd32(0x3148 + PHYD_BASE_ADDR);
+	// NOTICE("rdglvl_byte2_hard0 = %x\n", get_bits_from_value(rddata, 13, 0));
+	// NOTICE("rdglvl_byte2_hard1 = %x\n", get_bits_from_value(rddata, 29, 16));
+
+	// rddata = mmio_rd32(0x314C + PHYD_BASE_ADDR);
+	// NOTICE("rdglvl_byte3_hard0 = %x\n", get_bits_from_value(rddata, 13, 0));
+	// NOTICE("rdglvl_byte3_hard1 = %x\n", get_bits_from_value(rddata, 29, 16));
+
 	rddata = mmio_rd32(0x3150 + PHYD_BASE_ADDR);
 	NOTICE("rdglvl_byte0_status = %x\n", get_bits_from_value(rddata, 15, 0));
 	NOTICE("rdglvl_byte1_status = %x\n", get_bits_from_value(rddata, 31, 16));
+
+	// rddata = mmio_rd32(0x3154 + PHYD_BASE_ADDR);
+	// NOTICE("rdglvl_byte2_status = %x\n", get_bits_from_value(rddata, 15, 0));
+	// NOTICE("rdglvl_byte3_status = %x\n", get_bits_from_value(rddata, 31, 16));
 
 	rddata = mmio_rd32(0x0B0C + PHYD_BASE_ADDR);
 	NOTICE("byte0 mask shift/delay = %x\n", rddata);
 
 	rddata = mmio_rd32(0x0B3C + PHYD_BASE_ADDR);
 	NOTICE("byte1 mask shift/delay = %x\n", rddata);
+
+	// rddata = mmio_rd32(0x0B6C + PHYD_BASE_ADDR);
+	// NOTICE("byte2 mask shift/delay = %x\n", rddata);
+
+	// rddata = mmio_rd32(0x0B9C + PHYD_BASE_ADDR);
+	// NOTICE("byte3 mask shift/delay = %x\n", rddata);
 
 	// RAW DLINE_UPD
 	mmio_wr32(0x016C + PHYD_BASE_ADDR, 0xffffffff);
@@ -3495,6 +3759,11 @@ void cvx16_rdglvl_status(void)
 	rddata = mmio_rd32(0x0B50 + PHYD_BASE_ADDR);
 	NOTICE("raw byte1 mask delay = %x\n", get_bits_from_value(rddata, 14, 8));
 
+	// rddata = mmio_rd32(0x0B80 + PHYD_BASE_ADDR);
+	// NOTICE("raw byte2 mask delay = %x\n", get_bits_from_value(rddata, 14, 8));
+
+	// rddata = mmio_rd32(0x0BB0 + PHYD_BASE_ADDR);
+	// NOTICE("raw byte3 mask delay = %x\n", get_bits_from_value(rddata, 14, 8));
 #endif //DBG_SHMOO || DDR_SIM
 }
 
@@ -3503,7 +3772,7 @@ void cvx16_rdlvl_status(void)
 #if defined(DBG_SHMOO) || defined(DDR_SIM)
 	uint32_t i;
 
-	NOTICE("%s\n", __func__);
+	NOTICE("cvx16_rdlvl_status\n");
 	ddr_debug_wr32(0x34);
 	ddr_debug_num_write();
 	for (i = 0; i < 2; i = i + 1) {
@@ -3612,7 +3881,7 @@ void cvx16_rdlvl_status(void)
 void cvx16_wdqlvl_status(void)
 {
 #if defined(DBG_SHMOO) || defined(DDR_SIM)
-	NOTICE("%s\n", __func__);
+	NOTICE("cvx16_wdqlvl_status\n");
 	ddr_debug_wr32(0x35);
 	ddr_debug_num_write();
 	for (int i = 0; i < 2; i = i + 1) {
@@ -3714,7 +3983,7 @@ void cvx16_dll_cal_status(void)
 	uint32_t rx_dll_code;
 	uint32_t tx_dll_code;
 
-	NOTICE("%s\n", __func__);
+	NOTICE("cvx16_dll_cal_status\n");
 	ddr_debug_wr32(0x37);
 	ddr_debug_num_write();
 	rddata = mmio_rd32(0x3018 + PHYD_BASE_ADDR);
@@ -3857,7 +4126,7 @@ void cvx16_zqcal_status(void)
 	uint32_t zq_drvn;
 	uint32_t zq_drvp;
 
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_zqcal_status\n");
 	ddr_debug_wr32(0x36);
 	ddr_debug_num_write();
 	rddata = mmio_rd32(0x0148 + PHYD_BASE_ADDR);
@@ -3881,7 +4150,7 @@ void cvx16_training_status(void)
 {
 	uint32_t i;
 
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_training_status\n");
 	// wrlvl
 	rddata = mmio_rd32(0x0A14 + PHYD_BASE_ADDR);
 	uartlog("byte0 tx dqs shift/delay_dqsn/delay_dqsp = %x\n", rddata);
@@ -4001,7 +4270,7 @@ void cvx16_training_status(void)
 	for (i = 0; i < 2; i = i + 1) {
 		rddata = mmio_rd32(0x0B24 + i * 0x30 + PHYD_BASE_ADDR);
 		uartlog("byte%x trig_lvl_dq = %x, trig_lvl_dqs = %x\n", i, get_bits_from_value(rddata, 4, 0),
-			get_bits_from_value(rddata, 20, 16));
+		       get_bits_from_value(rddata, 20, 16));
 	}
 	// wdqlvl
 	for (int i = 0; i < 2; i = i + 1) {
@@ -4088,7 +4357,7 @@ void cvx16_setting_check(void)
 	uint32_t dfi_t_wrdata_delay;
 	uint32_t phy_reg_version;
 
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_setting_check\n");
 	ddr_debug_wr32(0x0a);
 	ddr_debug_num_write();
 	phy_reg_version = mmio_rd32(0x3000 + PHYD_BASE_ADDR);
@@ -4258,7 +4527,7 @@ void cvx16_ddr_freq_change_htol(void)
 	// Note: freq_change_htol need ctrl_low_patch first
 	KC_MSG("HTOL Frequency Change Start\n");
 
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_ddr_freq_change_htol\n");
 	ddr_debug_wr32(0x38);
 	ddr_debug_num_write();
 	// TOP_REG_EN_PLL_SPEED_CHG =1, TOP_REG_NEXT_PLL_SPEED = 0b01, TOP_REG_CUR_PLL_SPEED=0b10
@@ -4452,6 +4721,11 @@ void cvx16_ddr_freq_change_htol(void)
 	rddata = modified_bits_by_value(rddata, 0, 1, 1);
 	rddata = modified_bits_by_value(rddata, 0, 0, 0);
 	mmio_wr32(cfg_base + 0x30, rddata);
+	////read EMR1 @INIT3
+	// rddata = mmio_rd32(cfg_base+0xdc);
+	////DDR2: Write ????to EMR1
+	////cvx16_synp_mrw(0x1,  {rddata[15:1], 0b1});
+	// cvx16_synp_mrw(0x1,  get_bits_from_value(rddata, 15, 1)<<1 | 1);
 #endif
 #ifdef DDR2_3
 	if (get_ddr_type() == DDR_TYPE_DDR3) {
@@ -4480,6 +4754,11 @@ void cvx16_ddr_freq_change_htol(void)
 		rddata = modified_bits_by_value(rddata, 0, 1, 1);
 		rddata = modified_bits_by_value(rddata, 0, 0, 0);
 		mmio_wr32(cfg_base + 0x30, rddata);
+		////read EMR1 @INIT3
+		// rddata = mmio_rd32(cfg_base+0xdc);
+		////DDR2: Write ????to EMR1
+		////cvx16_synp_mrw(0x1,  {rddata[15:1], 0b1});
+		// cvx16_synp_mrw(0x1,  get_bits_from_value(rddata, 15, 1)<<1 | 1);
 	}
 #endif
 	// 9. Put the SDRAM into self-refresh mode by setting PWRCTL.selfref_sw = 1, and polling STAT.operating_
@@ -4525,8 +4804,21 @@ void cvx16_ddr_freq_change_htol(void)
 	cvx16_chg_pll_freq();
 	KC_MSG("cvx16_chg_pll_freq done ...\n");
 
+	// test only when dll_cal is not use
+	//     #ifdef DDR3
+	//         //param_phyd_dll_sw_code    <= `PI_SD int_regin[23:16]
+	//         //param_phyd_dll_sw_code_mode    <= `PI_SD int_regin[8];
+	//         REGREAD(169 + PHY_BASE_ADDR, rddata);
+	//         rddata[23:16] = 0x54;
+	//         rddata[8] = 0b1;
+	//         REGWR  (169 + PHY_BASE_ADDR, rddata, 0);
 	uartlog("param_phyd_dll_sw_code\n");
-
+	//        //param_phyd_dll_sw_clr          <= `PI_SD int_regin[7];
+	//        rddata[7] = 0b1;
+	//        REGWR  (169 + PHY_BASE_ADDR, rddata, 0);
+	//        rddata[7] = 0b0;
+	//        REGWR  (169 + PHY_BASE_ADDR, rddata, 0);
+	//    #endif
 	// dll_cal
 	cvx16_dll_cal();
 	KC_MSG("Do DLLCAL done ...\n");
@@ -4545,6 +4837,16 @@ void cvx16_ddr_freq_change_htol(void)
 	rddata = modified_bits_by_value(
 		rddata, get_bits_from_value(rddata, 23, 17) + get_bits_from_value(rddata, 16, 16), 23, 16);
 	mmio_wr32(cfg_base + 0x68, rddata);
+//    // program phyupd_mask
+//    rddata = mmio_rd32(0x0800a504);
+//    //rddata[27:16] = rddata[27:17] + rddata[16];
+//    rddata = modified_bits_by_value(rddata, get_bits_from_value(rddata, 27, 17) +
+//                                    get_bits_from_value(rddata, 16, 16), 27, 16);
+//    mmio_wr32(0x0800a504, rddata);
+//    rddata = mmio_rd32(0x0800a500);
+//    //rddata[31:16] = rddata[31:17];
+//    rddata=modified_bits_by_value(rddata, get_bits_from_value(rddata, 31, 17), 31, 16);
+//    mmio_wr32(0x0800a500, rddata);
 #ifndef LP4
 	// 9. Set MSTR.dll_off_mode = 0
 	rddata = mmio_rd32(cfg_base + 0x0);
@@ -4587,6 +4889,7 @@ void cvx16_ddr_freq_change_htol(void)
 	rddata = mmio_rd32(cfg_base + 0xdc);
 	// 15. Perform an MRS command (using MRCTRL0 and MRCTRL1 registers) to reset the DLL explicitly by
 	// writing to MR0, bit A8. The timing of this MRS is automatically handled by the uMCTL2
+	// opdelay(1).2us; //wait tDLLK ??
 	// cvx16_synp_mrw(0x0,  {rddata[31:25], 0b1, rddata[23:16]});
 	cvx16_synp_mrw(0x0, get_bits_from_value(rddata, 31, 25) << 9 | 0b1 << 8 | get_bits_from_value(rddata, 23, 16));
 	uartlog("15. Perform an MRS command\n");
@@ -4618,6 +4921,10 @@ void cvx16_ddr_freq_change_htol(void)
 
 #endif
 #ifdef DDR3
+	////read mr1 @INIT3
+	// rddata = mmio_rd32(cfg_base+0xdc);
+	////DDR3: Write ????to MR1[0]
+	// cvx16_synp_mrw(0x1,  {rddata[15:1], 0b0});
 	// read mr2 @INIT4
 	rddata = mmio_rd32(cfg_base + 0xe0);
 	// cvx16_synp_mrw(0x2,  {rddata[31:26], rtt_wr[1:0], rddata[23:16]});
@@ -4645,7 +4952,7 @@ void cvx16_ddr_freq_change_htol(void)
 	cvx16_synp_mrw(0x0, get_bits_from_value(rddata, 31, 25) << 9 | 0b1 << 8 | get_bits_from_value(rddata, 23, 16));
 	KC_MSG("15. Perform an MRS command\n");
 
-	//don't remove. wait tDLLK ??
+	// opdelay(2).2us; //don't remove. wait tDLLK ??
 	opdelay(2200);
 #endif
 #ifdef DDR2
@@ -4654,12 +4961,20 @@ void cvx16_ddr_freq_change_htol(void)
 	// The uMCTL2 sets this bit appropriately.
 	// read EMR1 @INIT3
 	rddata = mmio_rd32(cfg_base + 0xdc);
+	////DDR2: Write ????to EMR1
+	////cvx16_synp_mrw(0x1,  {rddata[15:1], 0b1});
+	// cvx16_synp_mrw(0x1,  get_bits_from_value(rddata, 15, 1)<<1 | 0);
+	// rddata = mmio_rd32(cfg_base+0xdc);
 	cvx16_synp_mrw(0x0, get_bits_from_value(rddata, 31, 25) << 9 | 0b1 << 8 | get_bits_from_value(rddata, 23, 16));
 	KC_MSG("15. Perform an MRS command\n");
 
 #endif
 #ifdef DDR2_3
 	if (get_ddr_type() == DDR_TYPE_DDR3) {
+		////read mr1 @INIT3
+		// rddata = mmio_rd32(cfg_base+0xdc);
+		////DDR3: Write ????to MR1[0]
+		// cvx16_synp_mrw(0x1,  {rddata[15:1], 0b0});
 		// read mr2 @INIT4
 		rddata = mmio_rd32(cfg_base + 0xe0);
 		// cvx16_synp_mrw(0x2,  {rddata[31:26], rtt_wr[1:0], rddata[23:16]});
@@ -4691,7 +5006,7 @@ void cvx16_ddr_freq_change_htol(void)
 						get_bits_from_value(rddata, 23, 16));
 		KC_MSG("15. Perform an MRS command\n");
 
-		//don't remove. wait tDLLK ??
+		// opdelay(2).2us; //don't remove. wait tDLLK ??
 		opdelay(2200);
 	}
 	if (get_ddr_type() == DDR_TYPE_DDR2) {
@@ -4700,6 +5015,10 @@ void cvx16_ddr_freq_change_htol(void)
 		// The uMCTL2 sets this bit appropriately.
 		// read EMR1 @INIT3
 		rddata = mmio_rd32(cfg_base + 0xdc);
+		////DDR2: Write ????to EMR1
+		////cvx16_synp_mrw(0x1,  {rddata[15:1], 0b1});
+		// cvx16_synp_mrw(0x1,  get_bits_from_value(rddata, 15, 1)<<1 | 0);
+		// rddata = mmio_rd32(cfg_base+0xdc);
 		cvx16_synp_mrw(0x0, get_bits_from_value(rddata, 31, 25) << 9 | 0b1 << 8 |
 						get_bits_from_value(rddata, 23, 16));
 		KC_MSG("15. Perform an MRS command\n");
@@ -4725,7 +5044,9 @@ void cvx16_ddr_freq_change_htol(void)
 	cvx16_dll_sw_upd();
 #endif
 	uartlog("rdlvl_gate\n");
+	//        KC_MSG("pi_rdlvl_gate_req done ...\n");
 
+	//    #endif
 	cvx16_clk_gating_enable();
 	for (int i = 1; i < port_num; i++) {
 		mmio_wr32(cfg_base + 0x490 + 0xb0 * i, 0x1);
@@ -4757,7 +5078,7 @@ void cvx16_ddr_freq_change_ltoh(void)
 	// Note: freq_change_ltoh need ctrl_low_patch first
 	KC_MSG("LTOH Frequency Change Start\n");
 
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_ddr_freq_change_ltoh\n");
 	ddr_debug_wr32(0x39);
 	ddr_debug_num_write();
 	// TOP_REG_EN_PLL_SPEED_CHG =1, TOP_REG_NEXT_PLL_SPEED = 0b01, TOP_REG_CUR_PLL_SPEED=0b10
@@ -4803,10 +5124,10 @@ void cvx16_ddr_freq_change_ltoh(void)
 		}
 	}
 // 3. Set RFSHCTL3.dis_auto_refresh=1, to disable automatic refreshes
-//    rddata = mmio_rd32(cfg_base + 0x60);
-//    // rddata[0] = 0x1; //RFSHCTL3.dis_auto_refresh
-//    rddata = modified_bits_by_value(rddata, 1, 0, 0);
-//    mmio_wr32(cfg_base + 0x60, rddata);
+//   rddata = mmio_rd32(cfg_base + 0x60);
+////rddata[0] = 0x1; //RFSHCTL3.dis_auto_refresh
+//  rddata = modified_bits_by_value(rddata, 1, 0, 0);
+//  mmio_wr32(cfg_base + 0x60, rddata);
 // 5. Perform an MRS command (using MRCTRL0 and MRCTRL1 registers) to disable RTT_NOM:
 //    a. DDR3: Write ????to MR1[9], MR1[6] and MR1[2]
 //    b. DDR4: Write ????to MR1[10:8]
@@ -4869,7 +5190,7 @@ void cvx16_ddr_freq_change_ltoh(void)
 		uartlog("disable RTT_NOM DDR3: Write ????to MR1[9], MR1[6] and MR1[2]\n");
 		KC_MSG("disable RTT_NOM DDR3: Write ????to MR1[9], MR1[6] and MR1[2]\n");
 	}
-	if (get_ddr_type() == DDR_TYPE_DDR2) {
+	if (get_ddr_type() == DDR_TYPE_DDR2)	{
 		KC_MSG("DDR2\n");
 	}
 #endif
@@ -4971,7 +5292,15 @@ void cvx16_ddr_freq_change_ltoh(void)
 	// rddata[23:16] = {rddata[22:16], 0b0};
 	rddata = modified_bits_by_value(rddata, get_bits_from_value(rddata, 22, 16) << 1, 23, 16);
 	mmio_wr32(cfg_base + 0x68, rddata);
-
+//    // program phyupd_mask
+//    rddata = mmio_rd32(0x0800a504);
+//    //rddata[27:16] = {rddata[26:16],0b0};
+//    rddata=modified_bits_by_value(rddata, get_bits_from_value(rddata, 26, 16)<<1, 27, 16);
+//    mmio_wr32(0x0800a504, rddata);
+//    rddata = mmio_rd32(0x0800a500);
+//    //rddata[31:16] = {rddata[30:16],0b0};
+//    rddata = modified_bits_by_value(rddata, get_bits_from_value(rddata, 30, 16)<<1, 31, 16);
+//    mmio_wr32(0x0800a500, rddata);
 #ifndef LP4
 	// 9. Set MSTR.dll_off_mode = 0
 	rddata = mmio_rd32(cfg_base + 0x0);
@@ -5014,6 +5343,7 @@ void cvx16_ddr_freq_change_ltoh(void)
 	rddata = mmio_rd32(cfg_base + 0xdc);
 	// 15. Perform an MRS command (using MRCTRL0 and MRCTRL1 registers) to reset the DLL explicitly by
 	// writing to MR0, bit A8. The timing of this MRS is automatically handled by the uMCTL2
+	// opdelay(0).7us; //wait tDLLK ??
 	// cvx16_synp_mrw(0x0,  {rddata[31:25], 0b1, rddata[23:16]});
 	cvx16_synp_mrw(0x0,
 		       ((get_bits_from_value(rddata, 31, 25) << 9) | (0b1 << 8) | get_bits_from_value(rddata, 23, 16)));
@@ -5039,6 +5369,10 @@ void cvx16_ddr_freq_change_ltoh(void)
 
 #endif
 #ifdef DDR3
+	////read mr1 @INIT3
+	// rddata = mmio_rd32(cfg_base+0xdc);
+	////DDR3: Write ????to MR1[0]
+	// cvx16_synp_mrw(0x1,  {rddata[15:1], 0b0});
 	//  17. Re-enable RTT_PARK (DDR4 only) and RTT_NOM by performing MRS commands (if required).
 	// read mr1 @INIT3
 	rddata = mmio_rd32(cfg_base + 0xdc);
@@ -5065,24 +5399,32 @@ void cvx16_ddr_freq_change_ltoh(void)
 	// The uMCTL2 sets this bit appropriately.
 	// read EMR1 @INIT3
 	rddata = mmio_rd32(cfg_base + 0xdc);
+	////DDR2: Write ????to EMR1
+	////cvx16_synp_mrw(0x1,  {rddata[15:1], 0b1});
+	// cvx16_synp_mrw(0x1,  get_bits_from_value(rddata, 15, 1)<<1 | 0);
+	// rddata = mmio_rd32(cfg_base+0xdc);
 	cvx16_synp_mrw(0x0, get_bits_from_value(rddata, 31, 25) << 9 | 0b1 << 8 | get_bits_from_value(rddata, 23, 16));
 	KC_MSG("15. Perform an MRS command\n");
 
 #endif
 #ifdef DDR2_3
 	if (get_ddr_type() == DDR_TYPE_DDR3) {
+		////read mr1 @INIT3
+		// rddata = mmio_rd32(cfg_base+0xdc);
+		////DDR3: Write ????to MR1[0]
+		// cvx16_synp_mrw(0x1,  {rddata[15:1], 0b0});
 		//  17. Re-enable RTT_PARK (DDR4 only) and RTT_NOM by performing MRS commands (if required).
 		// read mr1 @INIT3
 		rddata = mmio_rd32(cfg_base + 0xdc);
-		// cvx16_synp_mrw(0x1,
-		//  {rddata[15:10], rtt_nom[2], rddata[8:7], rtt_nom[1], rddata[5:3], rtt_nom[0], rddata[1], 0b0});
+		//cvx16_synp_mrw(0x1,
+		//{rddata[15:10], rtt_nom[2], rddata[8:7], rtt_nom[1], rddata[5:3], rtt_nom[0], rddata[1], 0b0});
 		cvx16_synp_mrw(0x1, get_bits_from_value(rddata, 15, 10) << 10 |
-						get_bits_from_value(rtt_nom, 2, 2) << 9 |
-						get_bits_from_value(rddata, 8, 7) << 7 |
-						get_bits_from_value(rtt_nom, 1, 1) << 5 |
-						get_bits_from_value(rddata, 5, 3) << 3 |
-						get_bits_from_value(rtt_nom, 0, 0) << 2 |
-						get_bits_from_value(rddata, 1, 1) << 1 | 0b0);
+				get_bits_from_value(rtt_nom, 2, 2) << 9 |
+				get_bits_from_value(rddata, 8, 7) << 7 |
+				get_bits_from_value(rtt_nom, 1, 1) << 5 |
+				get_bits_from_value(rddata, 5, 3) << 3 |
+				get_bits_from_value(rtt_nom, 0, 0) << 2 |
+				get_bits_from_value(rddata, 1, 1) << 1 | 0b0);
 		uartlog("Re-enable RTT_NOM\n");
 		KC_MSG("Re-enable RTT_NOM\n");
 
@@ -5092,15 +5434,19 @@ void cvx16_ddr_freq_change_ltoh(void)
 		// writing to MR0, bit A8. The timing of this MRS is automatically handled by the uMCTL2
 		// cvx16_synp_mrw(0x0,  {rddata[31:25], 0b1, rddata[23:16]});
 		cvx16_synp_mrw(0x0, get_bits_from_value(rddata, 31, 25) << 9 | 0b1 << 8 |
-						get_bits_from_value(rddata, 23, 16));
+					get_bits_from_value(rddata, 23, 16));
 		opdelay(600); // don't remove. wait tDLLK ??
 	}
-	if (get_ddr_type() == DDR_TYPE_DDR2) {
+	if (get_ddr_type() == DDR_TYPE_DDR2)	{
 		// reset the DLL
 		// DDR2: Value to write to MR register. Bit 8 is for DLL and the setting here is ignored.
 		// The uMCTL2 sets this bit appropriately.
 		// read EMR1 @INIT3
 		rddata = mmio_rd32(cfg_base + 0xdc);
+		////DDR2: Write ????to EMR1
+		////cvx16_synp_mrw(0x1,  {rddata[15:1], 0b1});
+		// cvx16_synp_mrw(0x1,  get_bits_from_value(rddata, 15, 1)<<1 | 0);
+		// rddata = mmio_rd32(cfg_base+0xdc);
 		cvx16_synp_mrw(0x0, get_bits_from_value(rddata, 31, 25) << 9 | 0b1 << 8 |
 					get_bits_from_value(rddata, 23, 16));
 		KC_MSG("15. Perform an MRS command\n");
@@ -5149,15 +5495,15 @@ void cvx16_set_dq_vref(uint32_t vref)
 	uint32_t selfref_en;
 	uint32_t mr6_tmp;
 #endif //DDR4
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_set_dq_vref\n");
 	ddr_debug_wr32(0x3b);
 	ddr_debug_num_write();
 #ifdef DDR4
 	// save lowpower setting
 	rddata = mmio_rd32(cfg_base + 0x30);
 	// en_dfi_dram_clk_disable = rddata[3];
-	// powerdown_en            = rddata[1];
-	// selfref_en              = rddata[0];
+	//  powerdown_en            = rddata[1];
+	//  selfref_en              = rddata[0];
 	en_dfi_dram_clk_disable = get_bits_from_value(rddata, 3, 3);
 	powerdown_en = get_bits_from_value(rddata, 1, 1);
 	selfref_en = get_bits_from_value(rddata, 0, 0);
@@ -5223,7 +5569,7 @@ void cvx16_set_dq_vref(uint32_t vref)
 		rddata = modified_bits_by_value(rddata, vref, 20, 16);
 		mmio_wr32(0x0410 + PHYD_BASE_ADDR, rddata);
 	}
-	if (get_ddr_type() == DDR_TYPE_DDR2) {
+	if (get_ddr_type() == DDR_TYPE_DDR2)	{
 		// f0_param_phya_reg_tx_vref_sel	[20:16]
 		rddata = mmio_rd32(0x0410 + PHYD_BASE_ADDR);
 		rddata = modified_bits_by_value(rddata, vref, 20, 16);
@@ -5237,7 +5583,7 @@ void cvx16_set_dfi_init_start(void)
 	// synp setting
 	// phy is ready for initial dfi_init_start request
 	// set umctl2 to tigger dfi_init_start
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_set_dfi_init_start\n");
 	ddr_debug_wr32(0x0d);
 	ddr_debug_num_write();
 	mmio_wr32(cfg_base + 0x00000320, 0x00000000);
@@ -5250,7 +5596,7 @@ void cvx16_set_dfi_init_start(void)
 
 void cvx16_ddr_phya_pd(void)
 {
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_ddr_phya_pd\n");
 	ddr_debug_wr32(0x3d);
 	ddr_debug_num_write();
 	// ----------- PHY oen/pd reset ----------------
@@ -5306,7 +5652,7 @@ void cvx16_ddr_phyd_save(uint32_t sram_base_addr)
 {
 	int sram_offset = 0;
 
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_ddr_phyd_save\n");
 	ddr_debug_wr32(0x46);
 	ddr_debug_num_write();
 	rddata = mmio_rd32(0x0 + PHYD_BASE_ADDR);
@@ -5888,7 +6234,7 @@ void cvx16_ddr_phyd_restore(uint32_t sram_base_addr)
 {
 	int sram_offset = 0x0;
 	{
-		uartlog("%s\n", __func__);
+		uartlog("cvx16_ddr_phyd_restore\n");
 		ddr_debug_wr32(0x47);
 		ddr_debug_num_write();
 		rddata = mmio_rd32(sram_base_addr + sram_offset);
@@ -6221,6 +6567,36 @@ void cvx16_ddr_phyd_restore(uint32_t sram_base_addr)
 		rddata = mmio_rd32(sram_base_addr + sram_offset);
 		sram_offset += 4;
 		mmio_wr32(0x900 + PHYD_BASE_ADDR, rddata);
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x904 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x908 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x90c + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x910 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x914 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x918 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x91c + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x920 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x924 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x928 + PHYD_BASE_ADDR, rddata );
 		rddata = mmio_rd32(sram_base_addr + sram_offset);
 		sram_offset += 4;
 		mmio_wr32(0x92c + PHYD_BASE_ADDR, rddata);
@@ -6236,6 +6612,39 @@ void cvx16_ddr_phyd_restore(uint32_t sram_base_addr)
 		rddata = mmio_rd32(sram_base_addr + sram_offset);
 		sram_offset += 4;
 		mmio_wr32(0x940 + PHYD_BASE_ADDR, rddata);
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x944 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x948 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x94c + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x950 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x954 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x958 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x95c + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x960 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x964 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x968 + PHYD_BASE_ADDR, rddata );
+		// rddata  = mmio_rd32(sram_base_addr + sram_offset);
+		//  sram_offset += 4;
+		// mmio_wr32    ( 0x96c + PHYD_BASE_ADDR, rddata );
 		rddata = mmio_rd32(sram_base_addr + sram_offset);
 		sram_offset += 4;
 		mmio_wr32(0x970 + PHYD_BASE_ADDR, rddata);
@@ -6412,7 +6821,7 @@ void cvx16_ddr_phyd_restore(uint32_t sram_base_addr)
 
 void cvx16_dll_sw_upd(void)
 {
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_dll_sw_upd\n");
 	ddr_debug_wr32(0x4B);
 	ddr_debug_num_write();
 	rddata = 0x1;
@@ -6432,10 +6841,10 @@ void cvx16_bist_mask_shift_delay(uint32_t shift_delay, uint32_t en_lead)
 	uint8_t delay_tmp;
 	uint8_t dlie_sub;
 
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_bist_mask_shift_delay\n");
 	ddr_debug_wr32(0x4b);
 	ddr_debug_num_write();
-	// {shift_tmp, delay_tmp} = shift_delay;
+	//{shift_tmp, delay_tmp} = shift_delay;
 	shift_tmp = get_bits_from_value(shift_delay, 12, 7);
 	delay_tmp = get_bits_from_value(shift_delay, 6, 0);
 	if (shift_tmp > en_lead) {
@@ -6452,12 +6861,12 @@ void cvx16_bist_mask_shift_delay(uint32_t shift_delay, uint32_t en_lead)
 	mmio_wr32(0x0B10 + PHYD_BASE_ADDR, rddata);
 	mmio_wr32(0x0B40 + PHYD_BASE_ADDR, rddata);
 	cvx16_dll_sw_clr();
-	KC_MSG("%s Fisish\n", __func__);
+	KC_MSG("cvx16_bist_mask_shift_delay Fisish\n");
 }
 
 void cvx16_set_dq_trig_lvl(uint32_t trig_lvl)
 {
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_set_dq_trig_lvl\n");
 	ddr_debug_wr32(0x4c);
 	ddr_debug_num_write();
 	rddata = 0x00000000;
@@ -6468,6 +6877,7 @@ void cvx16_set_dq_trig_lvl(uint32_t trig_lvl)
 
 void cvx16_pll_init(void)
 {
+	// opdelay(10);
 	uartlog("pll_init\n");
 	ddr_debug_wr32(0x00);
 	ddr_debug_num_write();
@@ -6553,6 +6963,7 @@ void cvx16_pll_init(void)
 	uartlog("SSC_OFF\n");
 #endif // SSC_BYPASS
 #endif // SSC_EN
+	// opdelay(1000);
 	// DDRPLL setting
 	rddata = mmio_rd32(0x0C + CV_DDR_PHYD_APB);
 	//[0]    = 1;      //TOP_REG_DDRPLL_EN_DLLCLK
@@ -6686,6 +7097,10 @@ void cvx16_lb_0_phase40(void)
 	// ODT OFF
 	rddata = 0x00000000;
 	mmio_wr32(0x041C + PHYD_BASE_ADDR, rddata);
+	// param_phya_reg_rx_en_ca_train_mode
+	// rddata = mmio_rd32(0x0138 + PHYD_BASE_ADDR);
+	// rddata = modified_bits_by_value(rddata, 1, 0, 0 );
+	// mmio_wr32(0x0138 + PHYD_BASE_ADDR,  rddata);
 	rddata = 0x00404000;
 	for (j = 0; j < 2; j = j + 1) {
 		mmio_wr32(0x0B08 + j * 0x30 + PHYD_BASE_ADDR, rddata);
@@ -6704,6 +7119,7 @@ void cvx16_lb_0_phase40(void)
 	KC_MSG("wait for param_phyd_to_reg_lb_dq1_doing\n");
 
 	while (1) {
+		// opdelay(1000);
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		if (get_bits_from_value(rddata, 1, 0) == 0x3) {
 			break;
@@ -6720,6 +7136,7 @@ void cvx16_lb_0_phase40(void)
 	KC_MSG("wait for param_phyd_to_reg_lb_dq1_syncfound\n");
 
 	while (1) {
+		// opdelay(1000);
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		if (get_bits_from_value(rddata, 9, 8) == 0x3) {
 			break;
@@ -6736,6 +7153,7 @@ void cvx16_lb_0_phase40(void)
 	KC_MSG("wait for param_phyd_to_reg_lb_dq1_startfound\n");
 
 	while (1) {
+		// opdelay(1000);
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		if (get_bits_from_value(rddata, 17, 16) == 0x3) {
 			break;
@@ -6745,6 +7163,7 @@ void cvx16_lb_0_phase40(void)
 
 	KC_MSG("param_phyd_to_reg_lb_dq1_startfound = 1\n");
 
+	// opdelay(1000);
 	// Read param_phyd_to_reg_lb_dq_fail
 	rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 	KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -6756,6 +7175,7 @@ void cvx16_lb_0_phase40(void)
 	if (get_bits_from_value(rddata, 25, 24) != 0) {
 		KC_MSG("Error!!! DQ BIST Fail is Found ...\n");
 	}
+	// opdelay(1000);
 	// Read param_phyd_to_reg_lb_dq_fail
 	rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 	KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -6767,6 +7187,7 @@ void cvx16_lb_0_phase40(void)
 	if (get_bits_from_value(rddata, 25, 24) != 0) {
 		KC_MSG("Error!!! DQ BIST Fail is Found ...\n");
 	}
+	// opdelay(1000);
 	// Read param_phyd_to_reg_lb_dq_fail
 	rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 	KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -6793,7 +7214,7 @@ void cvx16_lb_0_external(void)
 	rddata = modified_bits_by_value(rddata, 1, 31, 31);
 	mmio_wr32(cfg_base + 0x000001a0, rddata);
 	mmio_wr32(cfg_base + 0x00000320, 0x00000001);
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_lb_0_external\n");
 	ddr_debug_wr32(0x4F);
 	ddr_debug_num_write();
 	cvx16_clk_gating_disable();
@@ -6868,6 +7289,10 @@ void cvx16_lb_0_external(void)
 	// ODT OFF
 	rddata = 0x00000000;
 	mmio_wr32(0x041C + PHYD_BASE_ADDR, rddata);
+	// param_phya_reg_rx_en_ca_train_mode
+	// rddata = mmio_rd32(0x0138 + PHYD_BASE_ADDR);
+	// rddata = modified_bits_by_value(rddata, 1, 0, 0 );
+	// mmio_wr32(0x0138 + PHYD_BASE_ADDR,  rddata);
 	rddata = 0x00000000;
 	for (i = 0x00404000; i <= 0x00505000; i = i + 0x00101000) {
 		if (i == 0x00808000) {
@@ -6893,6 +7318,7 @@ void cvx16_lb_0_external(void)
 		KC_MSG("wait for param_phyd_to_reg_lb_dq1_doing\n");
 
 		while (1) {
+			// opdelay(1000);
 			rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 1, 0) == 0x3) {
 				break;
@@ -6909,6 +7335,7 @@ void cvx16_lb_0_external(void)
 		KC_MSG("wait for param_phyd_to_reg_lb_dq1_syncfound\n");
 
 		while (1) {
+			// opdelay(1000);
 			rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 9, 8) == 0x3) {
 				break;
@@ -6925,6 +7352,7 @@ void cvx16_lb_0_external(void)
 		KC_MSG("wait for param_phyd_to_reg_lb_dq1_startfound\n");
 
 		while (1) {
+			// opdelay(1000);
 			rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 17, 16) == 0x3) {
 				break;
@@ -6934,6 +7362,7 @@ void cvx16_lb_0_external(void)
 
 		KC_MSG("param_phyd_to_reg_lb_dq1_startfound = 1\n");
 
+		// opdelay(1000);
 		// Read param_phyd_to_reg_lb_dq_fail
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -6945,6 +7374,7 @@ void cvx16_lb_0_external(void)
 		if (get_bits_from_value(rddata, 25, 24) != 0) {
 			KC_MSG("Error!!! DQ BIST Fail is Found ...\n");
 		}
+		// opdelay(1000);
 		// Read param_phyd_to_reg_lb_dq_fail
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -6956,6 +7386,7 @@ void cvx16_lb_0_external(void)
 		if (get_bits_from_value(rddata, 25, 24) != 0) {
 			KC_MSG("Error!!! DQ BIST Fail is Found ...\n");
 		}
+		// opdelay(1000);
 		// Read param_phyd_to_reg_lb_dq_fail
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -6996,7 +7427,7 @@ void cvx16_lb_1_dq_set_highlow(void)
 	rddata = modified_bits_by_value(rddata, 1, 31, 31);
 	mmio_wr32(cfg_base + 0x000001a0, rddata);
 	mmio_wr32(cfg_base + 0x00000320, 0x00000001);
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_lb_1_dq_set_highlow\n");
 	ddr_debug_wr32(0x50);
 	ddr_debug_num_write();
 	cvx16_clk_gating_disable();
@@ -7098,6 +7529,7 @@ void cvx16_lb_1_dq_set_highlow(void)
 	// pattern all 0
 	rddata = 0x00000000;
 	mmio_wr32(0x0104 + PHYD_BASE_ADDR, rddata);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x3404 + PHYD_BASE_ADDR);
 	if (get_bits_from_value(rddata, 8, 0) != 0x000) {
 		KC_MSG("Error!!! RX loop back din0[8:0] is not correct...\n");
@@ -7112,6 +7544,7 @@ void cvx16_lb_1_dq_set_highlow(void)
 	// pattern all 1
 	rddata = 0x01ff01ff;
 	mmio_wr32(0x0104 + PHYD_BASE_ADDR, rddata);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x3404 + PHYD_BASE_ADDR);
 	if (get_bits_from_value(rddata, 8, 0) != 0x1ff) {
 		KC_MSG("Error!!! RX loop back din0[8:0] is not correct...\n");
@@ -7141,6 +7574,7 @@ void cvx16_lb_1_dq_set_highlow(void)
 			rddata = modified_bits_by_value(rddata, get_bits_from_value(pattern, 19, 18), 5, 4);
 			rddata = modified_bits_by_value(rddata, get_bits_from_value(pattern, 21, 20), 9, 8);
 		}
+		// opdelay(1000);
 		rddata = mmio_rd32(0x3404 + PHYD_BASE_ADDR);
 		if (get_bits_from_value(rddata, 8, 0) != get_bits_from_value(pattern, 8, 0)) {
 			KC_MSG("Error!!! RX loop back din0[8:0] is not correct...\n");
@@ -7184,7 +7618,7 @@ void cvx16_lb_2_mux_demux(void)
 	rddata = modified_bits_by_value(rddata, 1, 31, 31);
 	mmio_wr32(cfg_base + 0x000001a0, rddata);
 	mmio_wr32(cfg_base + 0x00000320, 0x00000001);
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_lb_2_mux_demux\n");
 	ddr_debug_wr32(0x50);
 	ddr_debug_num_write();
 	cvx16_clk_gating_disable();
@@ -7259,6 +7693,10 @@ void cvx16_lb_2_mux_demux(void)
 	// ODT OFF
 	rddata = 0x00000000;
 	mmio_wr32(0x041C + PHYD_BASE_ADDR, rddata);
+	// param_phya_reg_rx_en_ca_train_mode
+	// rddata = mmio_rd32(0x0138 + PHYD_BASE_ADDR);
+	// rddata = modified_bits_by_value(rddata, 1, 0, 0 );
+	// mmio_wr32(0x0138 + PHYD_BASE_ADDR,  rddata);
 	rddata = 0x00000000;
 	for (i = 0x00404000; i <= 0x00404000; i = i + 0x00101000) {
 		if (i == 0x00808000) {
@@ -7284,6 +7722,7 @@ void cvx16_lb_2_mux_demux(void)
 		KC_MSG("wait for param_phyd_to_reg_lb_dq1_doing\n");
 
 		while (1) {
+			// opdelay(1000);
 			rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 1, 0) == 0x3) {
 				break;
@@ -7300,6 +7739,7 @@ void cvx16_lb_2_mux_demux(void)
 		KC_MSG("wait for param_phyd_to_reg_lb_dq1_syncfound\n");
 
 		while (1) {
+			// opdelay(1000);
 			rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 9, 8) == 0x3) {
 				break;
@@ -7316,6 +7756,7 @@ void cvx16_lb_2_mux_demux(void)
 		KC_MSG("wait for param_phyd_to_reg_lb_dq1_startfound\n");
 
 		while (1) {
+			// opdelay(1000);
 			rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 			if (get_bits_from_value(rddata, 17, 16) == 0x3) {
 				break;
@@ -7325,6 +7766,7 @@ void cvx16_lb_2_mux_demux(void)
 
 		KC_MSG("param_phyd_to_reg_lb_dq1_startfound = 1\n");
 
+		// opdelay(1000);
 		// Read param_phyd_to_reg_lb_dq_fail
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -7336,6 +7778,7 @@ void cvx16_lb_2_mux_demux(void)
 		if (get_bits_from_value(rddata, 25, 24) != 0) {
 			KC_MSG("Error!!! DQ BIST Fail is Found ...\n");
 		}
+		// opdelay(1000);
 		// Read param_phyd_to_reg_lb_dq_fail
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -7347,6 +7790,7 @@ void cvx16_lb_2_mux_demux(void)
 		if (get_bits_from_value(rddata, 25, 24) != 0) {
 			KC_MSG("Error!!! DQ BIST Fail is Found ...\n");
 		}
+		// opdelay(1000);
 		// Read param_phyd_to_reg_lb_dq_fail
 		rddata = mmio_rd32(0x3400 + PHYD_BASE_ADDR);
 		KC_MSG("param_phyd_to_reg_lb_dq0_fail = %x\n", get_bits_from_value(rddata, 24, 24));
@@ -7388,7 +7832,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 	rddata = modified_bits_by_value(rddata, 1, 31, 31);
 	mmio_wr32(cfg_base + 0x000001a0, rddata);
 	mmio_wr32(cfg_base + 0x00000320, 0x00000001);
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_lb_3_ca_set_highlow\n");
 	ddr_debug_wr32(0x50);
 	ddr_debug_num_write();
 	cvx16_clk_gating_disable();
@@ -7463,6 +7907,10 @@ void cvx16_lb_3_ca_set_highlow(void)
 	// ODT OFF
 	rddata = 0x00000000;
 	mmio_wr32(0x041C + PHYD_BASE_ADDR, rddata);
+	// param_phya_reg_rx_en_ca_train_mode
+	// rddata = mmio_rd32(0x0138 + PHYD_BASE_ADDR);
+	// rddata = modified_bits_by_value(rddata, 1, 0, 0 );
+	// mmio_wr32(0x0138 + PHYD_BASE_ADDR,  rddata);
 	// param_phyd_lb_dq_en            [0:     0]
 	// param_phyd_lb_dq_go            [1:     1]
 	// param_phyd_lb_sw_en            [2:     2]
@@ -7485,6 +7933,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 	// TOP_REG_TX_DDR3_GPO_SEL_GPIO	[19:	19]
 	rddata = 0x01010808; // TOP_REG_TX_DDR3_GPO_IN =1
 	mmio_wr32(0x58 + CV_DDR_PHYD_APB, rddata);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x58 + CV_DDR_PHYD_APB);
 	if (get_bits_from_value(rddata, 28, 28) != 0x1) {
 		KC_MSG("Error!!! GPO test Fail\n");
@@ -7493,6 +7942,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 	}
 	rddata = 0x01000808; // TOP_REG_TX_DDR3_GPO_IN =0
 	mmio_wr32(0x58 + CV_DDR_PHYD_APB, rddata);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x58 + CV_DDR_PHYD_APB);
 	if (get_bits_from_value(rddata, 28, 28) != 0x0) {
 		KC_MSG("Error!!! GPO test Fail\n");
@@ -7509,6 +7959,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 	// param_phyd_lb_sw_csb0_dout	16
 	rddata_ctrl = 0x00000000;
 	mmio_wr32(0x0114 + PHYD_BASE_ADDR, rddata_ctrl);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x3410 + PHYD_BASE_ADDR);
 	if (rddata != rddata_addr) {
 		KC_MSG("Error!!! CA BIST Fail is Found : CA[22:0] pin\n");
@@ -7531,6 +7982,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 	// param_phyd_lb_sw_csb0_dout	16
 	rddata_ctrl = 0x00010011;
 	mmio_wr32(0x0114 + PHYD_BASE_ADDR, rddata_ctrl);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x3410 + PHYD_BASE_ADDR);
 	if (rddata != rddata_addr) {
 		KC_MSG("Error!!! CA BIST Fail is Found : CA[22:0] pin\n");
@@ -7553,6 +8005,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 	// param_phyd_lb_sw_csb0_dout	16
 	rddata_ctrl = 0x00000010;
 	mmio_wr32(0x0114 + PHYD_BASE_ADDR, rddata_ctrl);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x3410 + PHYD_BASE_ADDR);
 	if (rddata != rddata_addr) {
 		KC_MSG("Error!!! CA BIST Fail is Found : CA[22:0] pin\n");
@@ -7575,6 +8028,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 	// param_phyd_lb_sw_csb0_dout	16
 	rddata_ctrl = 0x00010001;
 	mmio_wr32(0x0114 + PHYD_BASE_ADDR, rddata_ctrl);
+	// opdelay(1000);
 	rddata = mmio_rd32(0x3410 + PHYD_BASE_ADDR);
 	if (rddata != rddata_addr) {
 		KC_MSG("Error!!! CA BIST Fail is Found : CA[22:0] pin\n");
@@ -7605,6 +8059,7 @@ void cvx16_lb_3_ca_set_highlow(void)
 		rddata_ctrl = modified_bits_by_value(rddata_ctrl, get_bits_from_value(pattern, 24, 24), 4, 4);
 		rddata_ctrl = modified_bits_by_value(rddata_ctrl, get_bits_from_value(pattern, 25, 25), 16, 16);
 		mmio_wr32(0x0114 + PHYD_BASE_ADDR, rddata_ctrl);
+		// opdelay(1000);
 		rddata = mmio_rd32(0x3410 + PHYD_BASE_ADDR);
 		if (rddata != rddata_addr) {
 			KC_MSG("Error!!! CA BIST Fail is Found : CA[22:0] pin\n");
@@ -7640,7 +8095,9 @@ void cvx16_lb_3_ca_set_highlow(void)
 void cvx16_lb_4_ca_clk_pat(void)
 {
 	uint32_t i;
-
+	// uint32_t pattern; //unused
+	// uint32_t rddata_addr; //unused
+	// uint32_t rddata_ctrl; //unused
 	KC_MSG("%s test\n", __func__);
 
 	// Disable controller update for synopsys
@@ -7649,7 +8106,7 @@ void cvx16_lb_4_ca_clk_pat(void)
 	rddata = modified_bits_by_value(rddata, 1, 31, 31);
 	mmio_wr32(cfg_base + 0x000001a0, rddata);
 	mmio_wr32(cfg_base + 0x00000320, 0x00000001);
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_lb_4_ca_clk_pat\n");
 	ddr_debug_wr32(0x50);
 	ddr_debug_num_write();
 	cvx16_clk_gating_disable();
@@ -7724,6 +8181,10 @@ void cvx16_lb_4_ca_clk_pat(void)
 	// ODT OFF
 	rddata = 0x00000000;
 	mmio_wr32(0x041C + PHYD_BASE_ADDR, rddata);
+	// param_phya_reg_rx_en_ca_train_mode
+	// rddata = mmio_rd32(0x0138 + PHYD_BASE_ADDR);
+	// rddata = modified_bits_by_value(rddata, 1, 0, 0 );
+	// mmio_wr32(0x0138 + PHYD_BASE_ADDR,  rddata);
 	// CKE/RESETN
 	rddata = 0x00000067; // TOP_REG_TX_CA_SEL_GPIO_CKE0  [2] = 1
 	mmio_wr32(0x1c + CV_DDR_PHYD_APB, rddata);
@@ -7748,6 +8209,7 @@ void cvx16_lb_4_ca_clk_pat(void)
 	rddata = 0x51000000;
 	mmio_wr32(0x0404 + PHYD_BASE_ADDR, rddata);
 	// clock pattern
+	// opdelay(1000);
 	rddata = mmio_rd32(0x3410 + PHYD_BASE_ADDR);
 	if (rddata != 0x007fffff) {
 		KC_MSG("Error!!! CA BIST Fail is Found : CA[22:0] pin\n");
@@ -7809,13 +8271,19 @@ void cvx16_clk_gating_disable(void)
 	mmio_wr32(0x00F4 + PHYD_BASE_ADDR, rddata); // PHYD_SHIFT_GATING_EN
 	rddata = mmio_rd32(cfg_base + 0x30); // phyd_stop_clk
 	rddata = modified_bits_by_value(rddata, 0, 9, 9); //en_phyd_stop_clk
+	//rddata = modified_bits_by_value(rddata, 0, 10, 10 ); //phyd_stop_clk_sel, 1: old, 0: new
 	rddata = modified_bits_by_value(rddata, 0, 11, 11); //en_phya_stop_clk
+	//rddata = modified_bits_by_value(rddata, 0, 12, 12 ); //phya_stop_clk_sel, 1: old, 0: new
 	mmio_wr32(cfg_base + 0x30, rddata);
 	rddata = mmio_rd32(cfg_base + 0x148); // dfi read/write clock gatting
 	rddata = modified_bits_by_value(rddata, 0, 23, 23);
 	rddata = modified_bits_by_value(rddata, 0, 31, 31);
 	mmio_wr32(cfg_base + 0x148, rddata);
 	KC_MSG("clk_gating_disable\n");
+
+	// disable clock gating
+	// mmio_wr32(0x0800_a000 + 0x14 , 0x00000fff);
+	// KC_MSG("axi disable clock gating\n");
 }
 
 void cvx16_clk_gating_enable(void)
@@ -7842,11 +8310,12 @@ void cvx16_clk_gating_enable(void)
 	// 0b10110010000001
 	rddata = 0x00006C81;
 	mmio_wr32(0x44 + CV_DDR_PHYD_APB, rddata);
-
+	//    #ifdef _mem_freq_1333
+	//    #ifdef DDR2
 	rddata = mmio_rd32(cfg_base + 0x190);
 	rddata = modified_bits_by_value(rddata, 6, 28, 24);
 	mmio_wr32(cfg_base + 0x190, rddata);
-
+	//    #endif
 	rddata = 0x00030033;
 	mmio_wr32(0x00F4 + PHYD_BASE_ADDR, rddata); // PHYD_SHIFT_GATING_EN
 	rddata = mmio_rd32(cfg_base + 0x30); // phyd_stop_clk
@@ -7860,6 +8329,10 @@ void cvx16_clk_gating_enable(void)
 	rddata = modified_bits_by_value(rddata, 1, 31, 31);
 	mmio_wr32(cfg_base + 0x148, rddata);
 	KC_MSG("clk_gating_enable\n");
+
+	// disable clock gating
+	// mmio_wr32(0x0800_a000 + 0x14 , 0x00000fff);
+	// KC_MSG("axi disable clock gating\n");
 }
 
 void cvx16_dfi_phyupd_req(void)
@@ -7890,7 +8363,8 @@ void cvx16_dfi_phyupd_req(void)
 	uartlog("%s\n", __func__);
 	ddr_debug_wr32(0x54);
 	ddr_debug_num_write();
-
+	// if ($test$plusargs("")) {
+	//}
 	// RAW DLINE_UPD
 	rddata = ca_raw_upd;
 	mmio_wr32(0x016C + PHYD_BASE_ADDR, rddata);
@@ -7899,14 +8373,14 @@ void cvx16_dfi_phyupd_req(void)
 
 void cvx16_en_rec_vol_mode(void)
 {
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_en_rec_vol_mode\n");
 	ddr_debug_wr32(0x54);
 	ddr_debug_num_write();
 #ifdef DDR2
 	rddata = 0x00001001;
 	mmio_wr32(0x0500 + PHYD_BASE_ADDR, rddata);
 	mmio_wr32(0x0540 + PHYD_BASE_ADDR, rddata);
-	KC_MSG("%s done\n", __func__);
+	KC_MSG("cvx16_en_rec_vol_mode done\n");
 
 #endif
 }
@@ -7936,7 +8410,7 @@ void cvx16_dll_sw_clr(void)
 
 void cvx16_reg_toggle(void)
 {
-	uartlog("%s\n", __func__);
+	uartlog("cvx16_reg_toggle\n");
 	ddr_debug_wr32(0x57);
 	ddr_debug_num_write();
 	rddata = mmio_rd32(0x0 + PHYD_BASE_ADDR);
@@ -8013,6 +8487,7 @@ void cvx16_reg_toggle(void)
 	mmio_wr32(0x70 + PHYD_BASE_ADDR, rddata);
 	rddata = mmio_rd32(0x74 + PHYD_BASE_ADDR);
 	mmio_wr32(0x74 + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x74 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x80 + PHYD_BASE_ADDR);
 	mmio_wr32(0x80 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x80 + PHYD_BASE_ADDR, rddata);
@@ -8114,6 +8589,7 @@ void cvx16_reg_toggle(void)
 	mmio_wr32(0x148 + PHYD_BASE_ADDR, rddata);
 	rddata = mmio_rd32(0x74 + PHYD_BASE_ADDR);
 	mmio_wr32(0x74 + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x74 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x14c + PHYD_BASE_ADDR);
 	mmio_wr32(0x14c + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x14c + PHYD_BASE_ADDR, rddata);
@@ -8138,6 +8614,9 @@ void cvx16_reg_toggle(void)
 	rddata = mmio_rd32(0x170 + PHYD_BASE_ADDR);
 	mmio_wr32(0x170 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x170 + PHYD_BASE_ADDR, rddata);
+	// rddata = mmio_rd32(0x174 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x174 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x174 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x180 + PHYD_BASE_ADDR);
 	mmio_wr32(0x180 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x180 + PHYD_BASE_ADDR, rddata);
@@ -8158,6 +8637,7 @@ void cvx16_reg_toggle(void)
 	mmio_wr32(0x200 + PHYD_BASE_ADDR, rddata);
 	rddata = mmio_rd32(0x204 + PHYD_BASE_ADDR);
 	mmio_wr32(0x204 + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x204 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x208 + PHYD_BASE_ADDR);
 	mmio_wr32(0x208 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x208 + PHYD_BASE_ADDR, rddata);
@@ -8166,6 +8646,7 @@ void cvx16_reg_toggle(void)
 	mmio_wr32(0x220 + PHYD_BASE_ADDR, rddata);
 	rddata = mmio_rd32(0x224 + PHYD_BASE_ADDR);
 	mmio_wr32(0x224 + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x224 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x228 + PHYD_BASE_ADDR);
 	mmio_wr32(0x228 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x228 + PHYD_BASE_ADDR, rddata);
@@ -8192,6 +8673,7 @@ void cvx16_reg_toggle(void)
 	mmio_wr32(0x418 + PHYD_BASE_ADDR, rddata);
 	rddata = mmio_rd32(0x41c + PHYD_BASE_ADDR);
 	mmio_wr32(0x41c + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x41c + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x500 + PHYD_BASE_ADDR);
 	mmio_wr32(0x500 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x500 + PHYD_BASE_ADDR, rddata);
@@ -8249,6 +8731,36 @@ void cvx16_reg_toggle(void)
 	rddata = mmio_rd32(0x900 + PHYD_BASE_ADDR);
 	mmio_wr32(0x900 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x900 + PHYD_BASE_ADDR, rddata);
+	// rddata = mmio_rd32(0x904 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x904 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x904 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x908 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x908 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x908 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x90c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x90c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x90c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x910 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x910 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x910 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x914 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x914 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x914 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x918 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x918 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x918 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x91c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x91c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x91c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x920 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x920 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x920 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x924 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x924 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x924 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x928 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x928 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x928 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x92c + PHYD_BASE_ADDR);
 	mmio_wr32(0x92c + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x92c + PHYD_BASE_ADDR, rddata);
@@ -8264,6 +8776,39 @@ void cvx16_reg_toggle(void)
 	rddata = mmio_rd32(0x940 + PHYD_BASE_ADDR);
 	mmio_wr32(0x940 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x940 + PHYD_BASE_ADDR, rddata);
+	// rddata = mmio_rd32(0x944 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x944 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x944 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x948 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x948 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x948 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x94c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x94c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x94c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x950 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x950 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x950 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x954 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x954 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x954 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x958 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x958 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x958 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x95c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x95c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x95c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x960 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x960 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x960 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x964 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x964 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x964 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x968 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x968 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x968 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x96c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x96c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x96c + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x970 + PHYD_BASE_ADDR);
 	mmio_wr32(0x970 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x970 + PHYD_BASE_ADDR, rddata);
@@ -8516,6 +9061,36 @@ void cvx16_reg_toggle(void)
 	rddata = mmio_rd32(0x1900 + PHYD_BASE_ADDR);
 	mmio_wr32(0x1900 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x1900 + PHYD_BASE_ADDR, rddata);
+	// rddata = mmio_rd32(0x1904 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1904 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1904 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1908 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1908 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1908 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x190c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x190c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x190c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1910 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1910 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1910 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1914 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1914 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1914 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1918 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1918 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1918 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x191c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x191c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x191c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1920 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1920 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1920 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1924 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1924 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1924 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1928 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1928 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1928 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x192c + PHYD_BASE_ADDR);
 	mmio_wr32(0x192c + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x192c + PHYD_BASE_ADDR, rddata);
@@ -8531,6 +9106,39 @@ void cvx16_reg_toggle(void)
 	rddata = mmio_rd32(0x1940 + PHYD_BASE_ADDR);
 	mmio_wr32(0x1940 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x1940 + PHYD_BASE_ADDR, rddata);
+	// rddata = mmio_rd32(0x1944 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1944 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1944 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1948 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1948 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1948 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x194c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x194c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x194c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1950 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1950 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1950 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1954 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1954 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1954 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1958 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1958 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1958 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x195c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x195c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x195c + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1960 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1960 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1960 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1964 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1964 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1964 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x1968 + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x1968 + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x1968 + PHYD_BASE_ADDR, rddata );
+	// rddata = mmio_rd32(0x196c + PHYD_BASE_ADDR);
+	// mmio_wr32    ( 0x196c + PHYD_BASE_ADDR, ~rddata );
+	// mmio_wr32    ( 0x196c + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x1970 + PHYD_BASE_ADDR);
 	mmio_wr32(0x1970 + PHYD_BASE_ADDR, ~rddata);
 	mmio_wr32(0x1970 + PHYD_BASE_ADDR, rddata);
@@ -8707,10 +9315,13 @@ void cvx16_reg_toggle(void)
 	mmio_wr32(0x164 + PHYD_BASE_ADDR, rddata);
 	rddata = mmio_rd32(0x41c + PHYD_BASE_ADDR);
 	mmio_wr32(0x41c + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x41c + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x204 + PHYD_BASE_ADDR);
 	mmio_wr32(0x204 + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x204 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x224 + PHYD_BASE_ADDR);
 	mmio_wr32(0x224 + PHYD_BASE_ADDR, ~rddata);
+	// mmio_wr32    ( 0x224 + PHYD_BASE_ADDR, rddata );
 	rddata = mmio_rd32(0x3000 + PHYD_BASE_ADDR);
 	rddata = mmio_rd32(0x3004 + PHYD_BASE_ADDR);
 	rddata = mmio_rd32(0x3008 + PHYD_BASE_ADDR);
@@ -8878,6 +9489,16 @@ void cvx16_reg_toggle(void)
 	for (int i = 0; i < 64; i++) {
 		rddata = i << 24 | i << 16 | i << 8 | i;
 		mmio_wr32(0x900 + PHYD_BASE_ADDR, rddata);
+		// mmio_wr32( 0x904 + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x908 + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x90C + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x910 + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x914 + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x918 + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x91C + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x920 + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x924 + PHYD_BASE_ADDR, rddata );
+		// mmio_wr32( 0x928 + PHYD_BASE_ADDR, rddata );
 		mmio_wr32(0x92C + PHYD_BASE_ADDR, rddata);
 		mmio_wr32(0x930 + PHYD_BASE_ADDR, rddata);
 		mmio_wr32(0x934 + PHYD_BASE_ADDR, rddata);
@@ -8966,6 +9587,7 @@ void cvx16_ana_test(void)
 			rddata = modified_bits_by_value(rddata, get_bits_from_value(j, 3, 0), 19, 16);
 			rddata = modified_bits_by_value(rddata, get_bits_from_value(j, 3, 0), 23, 20);
 			mmio_wr32(0x0220 + PHYD_BASE_ADDR, rddata);
+			// opdelay(1000);
 		}
 	}
 	KC_MSG("%s Fisish\n", __func__);
@@ -8973,6 +9595,8 @@ void cvx16_ana_test(void)
 
 void cvx16_ddr_zq240(void)
 {
+	//        KC_MSG("cv181x without ZQ240 Calibration ...\n");
+
 	int i;
 	int pre_zq240_cmp_out;
 
@@ -9029,7 +9653,7 @@ void cvx16_ddr_zq240(void)
 	rddata = modified_bits_by_value(rddata, 0, 1, 0);
 	mmio_wr32(0x014c + PHYD_BASE_ADDR, rddata);
 	// TOP_REG_TX_SEL_GPIO         <= #RD (~pwstrb_mask[7] & TOP_REG_TX_SEL_GPIO) |  pwstrb_mask_pwdata[7];
-	// TOP_REG_TX_GPIO_OENZ        <= #RD (~pwstrb_mask[6] & TOP_REG_TX_GPIO_OENZ) |  pwstrb_mask_pwdata[6];
+	//  TOP_REG_TX_GPIO_OENZ        <= #RD (~pwstrb_mask[6] & TOP_REG_TX_GPIO_OENZ) |  pwstrb_mask_pwdata[6];
 	rddata = mmio_rd32(0x1c + CV_DDR_PHYD_APB);
 	rddata = modified_bits_by_value(rddata, 1, 7, 6);
 	mmio_wr32(0x1c + CV_DDR_PHYD_APB, rddata);
@@ -9091,6 +9715,7 @@ void cvx16_ddr_zq240(void)
 	mmio_wr32(0x0144 + PHYD_BASE_ADDR, rddata);
 	rddata = mmio_rd32(0x50 + CV_DDR_PHYD_APB);
 	rddata = modified_bits_by_value(rddata, 1, 0, 0);
+	//         rddata=modified_bits_by_value(rddata, 0, 19, 16 );
 	mmio_wr32(0x50 + CV_DDR_PHYD_APB, rddata);
 	// param_phya_reg_tx_zq_cmp_en    <= `PI_SD int_regin[0];
 	// param_phya_reg_tx_zq_cmp_offset_cal_en <= `PI_SD int_regin[1];
@@ -9111,6 +9736,7 @@ void cvx16_ddr_zq240(void)
 		rddata = 0x00000001; // TOP_REG_ZQ_EN_ZQ_240_TRIM
 		rddata = modified_bits_by_value(rddata, i, 19, 16); // TOP_REG_ZQ_TRIM_ZQ_240_TRIM
 		mmio_wr32(0x50 + CV_DDR_PHYD_APB, rddata);
+		// opdelay(128);
 		KC_MSG("START ZQ240 Calibration ==> round %x...\n", i);
 
 		rddata = mmio_rd32(0x3440 + PHYD_BASE_ADDR);
@@ -9151,11 +9777,14 @@ void cvx16_ddr_zq240(void)
 	mmio_wr32(0x40 + CV_DDR_PHYD_APB, rddata);
 	KC_MSG("TOP_REG_TX_ZQ_PD = 1...\n");
 
+	// opdelay(200);
 	KC_MSG("ZQ240 Complete ...\n");
 }
 
 void cvx16_ddr_zq240_ate(void)
 {
+	//        KC_MSG("cv181x without ZQ240 Calibration ...\n");
+
 	int i;
 	int pre_zq240_cmp_out;
 
@@ -9212,7 +9841,7 @@ void cvx16_ddr_zq240_ate(void)
 	rddata = modified_bits_by_value(rddata, 0, 1, 0);
 	mmio_wr32(0x014c + PHYD_BASE_ADDR, rddata);
 	// TOP_REG_TX_SEL_GPIO         <= #RD (~pwstrb_mask[7] & TOP_REG_TX_SEL_GPIO) |  pwstrb_mask_pwdata[7];
-	// TOP_REG_TX_GPIO_OENZ        <= #RD (~pwstrb_mask[6] & TOP_REG_TX_GPIO_OENZ) |  pwstrb_mask_pwdata[6];
+	//  TOP_REG_TX_GPIO_OENZ        <= #RD (~pwstrb_mask[6] & TOP_REG_TX_GPIO_OENZ) |  pwstrb_mask_pwdata[6];
 	rddata = mmio_rd32(0x1c + CV_DDR_PHYD_APB);
 	rddata = modified_bits_by_value(rddata, 1, 7, 6);
 	mmio_wr32(0x1c + CV_DDR_PHYD_APB, rddata);
@@ -9250,6 +9879,16 @@ void cvx16_ddr_zq240_ate(void)
 	uartlog("hw_done\n");
 	KC_MSG("param_phyd_to_reg_zqcal_hw_done ...\n");
 
+	// param_phya_reg_tx_zq_cmp_en    <= `PI_SD int_regin[0];
+	// param_phya_reg_tx_zq_cmp_offset_cal_en <= `PI_SD int_regin[1];
+	// param_phya_reg_tx_zq_ph_en     <= `PI_SD int_regin[2];
+	// param_phya_reg_tx_zq_pl_en     <= `PI_SD int_regin[3];
+	// param_phya_reg_tx_zq_step2_en  <= `PI_SD int_regin[4];
+	// param_phya_reg_tx_zq_cmp_offset[4:0] <= `PI_SD int_regin[12:8];
+	// param_phya_reg_tx_zq_sel_vref[4:0] <= `PI_SD int_regin[20:16];
+	// rddata = mmio_rd32(0x0144 + PHYD_BASE_ADDR);
+	// rddata=modified_bits_by_value(rddata, 0, 4, 0 );
+	// mmio_wr32(0x0144 + PHYD_BASE_ADDR,  rddata);
 	// param_phyd_zqcal_hw_mode =0
 	rddata = mmio_rd32(0x0074 + PHYD_BASE_ADDR);
 	rddata = modified_bits_by_value(rddata, 0, 18, 16);
@@ -9259,6 +9898,24 @@ void cvx16_ddr_zq240_ate(void)
 	//------------------------------
 	KC_MSG("START ZQ240 Calibration - ZQ 240 ...\n");
 
+	// rddata = mmio_rd32(0x0144 + PHYD_BASE_ADDR);
+	// rddata=modified_bits_by_value(rddata, 1, 4, 0 );
+	// mmio_wr32(0x0144 + PHYD_BASE_ADDR,  rddata);
+	// rddata = mmio_rd32(0x50+CV_DDR_PHYD_APB);
+	// rddata=modified_bits_by_value(rddata, 1, 0, 0 );
+	//          rddata=modified_bits_by_value(rddata, 0, 19, 16 );
+	// mmio_wr32(0x50+CV_DDR_PHYD_APB,  rddata);
+	// param_phya_reg_tx_zq_cmp_en    <= `PI_SD int_regin[0];
+	// param_phya_reg_tx_zq_cmp_offset_cal_en <= `PI_SD int_regin[1];
+	// param_phya_reg_tx_zq_ph_en     <= `PI_SD int_regin[2];
+	// param_phya_reg_tx_zq_pl_en     <= `PI_SD int_regin[3];
+	// param_phya_reg_tx_zq_step2_en  <= `PI_SD int_regin[4];
+	// param_phya_reg_tx_zq_cmp_offset[4:0] <= `PI_SD int_regin[12:8];
+	// param_phya_reg_tx_zq_sel_vref[4:0] <= `PI_SD int_regin[20:16];
+	// rddata = mmio_rd32(0x0144 + PHYD_BASE_ADDR);
+	// rddata=modified_bits_by_value(rddata, 0x15, 4, 0 );
+	// mmio_wr32(0x0144 + PHYD_BASE_ADDR,  rddata);
+	// rddata = mmio_rd32(0x50+CV_DDR_PHYD_APB);
 	rddata = 0x00000000;
 	rddata = modified_bits_by_value(rddata, 1, 0, 0);
 	rddata = modified_bits_by_value(rddata, 1, 19, 16);
@@ -9275,7 +9932,16 @@ void cvx16_ddr_zq240_ate(void)
 		KC_MSG("START ZQ240 Calibration - cmp_out = %x\n", get_bits_from_value(rddata, 24, 24));
 	}
 	uartlog("zq240 done\n");
-
+	// param_phya_reg_tx_zq_cmp_en    <= `PI_SD int_regin[0];
+	// param_phya_reg_tx_zq_cmp_offset_cal_en <= `PI_SD int_regin[1];
+	// param_phya_reg_tx_zq_ph_en     <= `PI_SD int_regin[2];
+	// param_phya_reg_tx_zq_pl_en     <= `PI_SD int_regin[3];
+	// param_phya_reg_tx_zq_step2_en  <= `PI_SD int_regin[4];
+	// param_phya_reg_tx_zq_cmp_offset[4:0] <= `PI_SD int_regin[12:8];
+	// param_phya_reg_tx_zq_sel_vref[4:0] <= `PI_SD int_regin[20:16];
+	// rddata = mmio_rd32(0x0144 + PHYD_BASE_ADDR);
+	// rddata=modified_bits_by_value(rddata, 0, 4, 0 );
+	// mmio_wr32(0x0144 + PHYD_BASE_ADDR,  rddata);
 	// TOP_REG_ZQ_EN_ZQ_240_TRIM =0
 	rddata = mmio_rd32(0x50 + CV_DDR_PHYD_APB);
 	rddata = modified_bits_by_value(rddata, 0, 1, 1);
@@ -9286,11 +9952,14 @@ void cvx16_ddr_zq240_ate(void)
 	mmio_wr32(0x40 + CV_DDR_PHYD_APB, rddata);
 	KC_MSG("TOP_REG_TX_ZQ_PD = 1...\n");
 
+	// opdelay(200);
 	KC_MSG("ZQ240 Complete ...\n");
 }
 
 void cvx16_ddr_zq240_cal(void)
 {
+	//        KC_MSG("cv181x without ZQ240 Calibration ...\n");
+
 	int i;
 	int pre_zq240_cmp_out;
 
@@ -9320,6 +9989,7 @@ void cvx16_ddr_zq240_cal(void)
 	// TOP_REG_ZQ_EN_ZQ_240_TRIM = 1
 	rddata = mmio_rd32(0x50 + CV_DDR_PHYD_APB);
 	rddata = modified_bits_by_value(rddata, 1, 0, 0);
+	//         rddata=modified_bits_by_value(rddata, 0, 19, 16 );
 	mmio_wr32(0x50 + CV_DDR_PHYD_APB, rddata);
 	// param_phya_reg_tx_zq_cmp_en    <= `PI_SD int_regin[0];            =1
 	// param_phya_reg_tx_zq_cmp_offset_cal_en <= `PI_SD int_regin[1];
@@ -9338,11 +10008,16 @@ void cvx16_ddr_zq240_cal(void)
 	rddata = modified_bits_by_value(rddata, 0x1A, 20, 16);
 	mmio_wr32(0x0144 + PHYD_BASE_ADDR, rddata);
 #endif
+	// rddata = mmio_rd32(0x50+CV_DDR_PHYD_APB);
+	// rddata=modified_bits_by_value(rddata, 1, 0, 0 );
+	// rddata=modified_bits_by_value(rddata, 1, 19, 16 );
+	// mmio_wr32(0x50+CV_DDR_PHYD_APB,  rddata);
 	pre_zq240_cmp_out = 0x0;
 	for (i = 0; i < 16; i = i + 1) {
 		rddata = 0x00000001; // TOP_REG_ZQ_EN_ZQ_240_TRIM
 		rddata = modified_bits_by_value(rddata, i, 19, 16); // TOP_REG_ZQ_TRIM_ZQ_240_TRIM
 		mmio_wr32(0x50 + CV_DDR_PHYD_APB, rddata);
+		// opdelay(128);
 		KC_MSG("START ZQ240 Calibration ==> round %x...\n", i);
 
 		rddata = mmio_rd32(0x3440 + PHYD_BASE_ADDR);
@@ -9359,7 +10034,7 @@ void cvx16_ddr_zq240_cal(void)
 		}
 		pre_zq240_cmp_out = get_bits_from_value(rddata, 24, 24);
 	}
-	if (i == 16) {
+	if ((i == 16)) {
 		KC_MSG("Error !!! ZQ240 Calibration\n");
 	}
 	uartlog("zq240 done\n");
@@ -9383,6 +10058,7 @@ void cvx16_ddr_zq240_cal(void)
 	mmio_wr32(0x40 + CV_DDR_PHYD_APB, rddata);
 	KC_MSG("TOP_REG_TX_ZQ_PD = 1...\n");
 
+	// opdelay(200);
 	KC_MSG("ZQ240 Complete ...\n");
 }
 
@@ -9582,7 +10258,7 @@ void ctrl_init_detect_dram_size(uint8_t *dram_cap_in_mbyte)
 
 		} while ((get_bits_from_value(rddata, 3, 3) == 0) && (cap_in_mbyte < 15)); // BIST fail stop the loop
 	}
-	if (get_ddr_type() == DDR_TYPE_DDR2) {
+	if (get_ddr_type() == DDR_TYPE_DDR2)	{
 		// fix size for DDR2
 		cap_in_mbyte = 6;
 	}
@@ -9630,9 +10306,12 @@ uint32_t ddr_bist_all(uint32_t mode, uint32_t capacity, uint32_t x16_mode)
 		fmax = 15;
 		fmin = 5;
 		sram_sp = 511; //for all dram size, repeat sso pattern
+		//sram_sp = 9 * (fmin + fmax) * (fmax - fmin + 1) / 2 / 4 + (fmax - fmin + 1); // 8*f/4 -1
+		//KC_MSG("sram_sp = %x\n", sram_sp);
 
 		// bist sso_period
 		mmio_wr32(DDR_BIST_BASE + 0x24, (fmax << 8) + fmin);
+
 	} else {
 		pattern = 1;
 		sram_sp = 511;
@@ -9691,6 +10370,7 @@ uint32_t ddr_bist_all(uint32_t mode, uint32_t capacity, uint32_t x16_mode)
 			break;
 	}
 
+	//aspi_axi_sr(`SPI_REG_DDR_BIST + 0x80, ptest_aspi_spi_rdata, 0x0000_000C, "INFO: polling bist done and pass")
 	if (FIELD_GET(rddata, 3, 2) == 1) {
 		KC_MSG("bist_Pass\n");
 		bist_result = 1 & bist_result;
@@ -9724,7 +10404,10 @@ void bist_all_dram_forever(uint32_t capacity)
 {
 	uint32_t count = 0;
 	uint32_t bist_result = 1;
+	// uint32_t sram_sp;
 
+	// sso_8x1_c(5, 15, 0, 1, &sram_sp);
+	// sso_8x1_c(5, 15, sram_sp, 1, &sram_sp);
 	while (1) {
 		NOTICE("%d\n", count++);
 		bist_result &= bist_all_dram(0, capacity);
@@ -9748,7 +10431,10 @@ static void ddr_sys_init(void)
 	cvx16_pll_init();
 
 	KC_MSG("DDRC_INIT !\n");
+	// ddrc_init_ddr3_4g_2133();
 	ddrc_init();
+
+	// cvx16_ctrlupd_short();
 
 	// release ddrc soft reset
 	KC_MSG("releast reset  !\n");
@@ -9824,8 +10510,8 @@ static uint32_t bist_all_dram_calvl(uint32_t mode, uint32_t capacity, uint32_t s
 	} else {
 		bist_err = 0x00000000;
 	}
-	SHMOO_MSG_CA("vref = %02x, sw_ca__training_start = %08x, err_data_rise/err_data_fall = %08x, %08x\n",
-		     vrefca, shift_delay, bist_err, bist_err);
+	SHMOO_MSG_CA("vref = %02x, sw_ca__training_start = %08x , err_data_rise/err_data_fall = %08x, %08x\n",
+		  vrefca, shift_delay, bist_err, bist_err);
 
 	return bist_result;
 }
@@ -9846,7 +10532,7 @@ static uint32_t bist_all_dram_cslvl(uint32_t mode, uint32_t capacity, uint32_t s
 		bist_err = 0x00000000;
 	}
 	SHMOO_MSG_CS("vref = %02x, sw_cs__training_start = %08x , err_data_rise/err_data_fall = %08x, %08x\n",
-		     vrefca, shift_delay, bist_err, bist_err);
+		  vrefca, shift_delay, bist_err, bist_err);
 
 	return bist_result;
 }
@@ -9855,6 +10541,7 @@ static uint32_t bist_all_dram_cslvl(uint32_t mode, uint32_t capacity, uint32_t s
 #if defined(DBG_SHMOO_CA) || defined(DBG_SHMOO_CS)
 static void bist_single(enum bist_mode mode)
 {
+	//uint32_t sram_sp;
 	uint32_t bist_result;
 	uint64_t err_data_odd;
 	uint64_t err_data_even;
@@ -9875,15 +10562,18 @@ void ddr_training(enum train_mode t_mode)
 	uint32_t mode;
 	uint32_t rddata;
 
+	// sram_sp =0
 	if (t_mode == E_WRLVL) {
 		// wrlvl
 		cvx16_wrlvl_req();
+		// cvx16_wrlvl_status();
 		bist_single(E_PRBS);
 	}
 
 	if (t_mode == E_RDGLVL) {
 		// rdglvl
 		cvx16_rdglvl_req();
+		// cvx16_rdglvl_status();
 		bist_single(E_PRBS);
 	}
 
@@ -9897,14 +10587,17 @@ void ddr_training(enum train_mode t_mode)
 		// lvl_mode  = 'h0 : wdmlvl
 		// lvl_mode  = 'h1 : wdqlvl
 		// lvl_mode  = 'h2 : wdqlvl and wdmlvl
-		// cvx16_wdqlvl_req(data_mode, lvl_mode)
+		// cvx16_wdqlvl_req( data_mode,  lvl_mode,  sram_sp)
 		if (mode == 0) {
 			cvx16_wdqlvl_req(0, 2); // dq/dm
 		} else {
 			if (mode == 1) {
 				cvx16_wdqlvl_req(1, 2); // dq/dm
+				// cvx16_wdqlvl_req(1, 1); // dq
+				// cvx16_wdqlvl_req(1, 0); // dm
 			}
 		}
+		// cvx16_wdqlvl_status();
 		bist_single(E_PRBS);
 	}
 
@@ -9928,6 +10621,7 @@ void ddr_training(enum train_mode t_mode)
 		} else {
 			cvx16_rdlvl_req(mode);
 		}
+		// cvx16_rdlvl_status();
 		bist_single(E_PRBS);
 	}
 
@@ -9950,6 +10644,7 @@ void ddr_training(enum train_mode t_mode)
 		mmio_wr32(0x0190 + PHYD_BASE_ADDR, rddata);
 		KC_MSG("cvx16_wdqlvl_sw_req\n");
 		cvx16_wdqlvl_sw_req(1, 2);
+		// cvx16_wdqlvl_status();
 		KC_MSG("cvx16_wdqlvl_req dq/dm finish\n");
 	}
 
@@ -9961,6 +10656,7 @@ void ddr_training(enum train_mode t_mode)
 
 		KC_MSG("SW mode 1, sram write/read continuous goto\n");
 		cvx16_rdlvl_sw_req(1);
+		// cvx16_rdlvl_status();
 		KC_MSG("cvx16_rdlvl_req finish\n");
 	}
 }
@@ -9979,7 +10675,7 @@ void calvl_req(uint32_t capacity)
 	uint32_t delay_end    = 0x40;
 	uint32_t delay_step   = 0x04;
 
-	uartlog("=== %s ===\n", __func__);
+	uartlog("=== calvl_req ===\n");
 	// if DDR3_4G:
 	//     capacity=4
 	// if DDR3_2G:
@@ -10015,16 +10711,25 @@ void calvl_req(uint32_t capacity)
 				cvx16_clk_gating_disable();
 				set_ca_vref(vrefca_sel);
 			}
+			// #mmio_wr32(0x0414 + PHYD_BASE_ADDR, vrefca_sel) #param_phya_reg_tx_vrefca_sel
+			// #time.sleep(0.1)
 			uartlog("shift_delay_before = %08x\n", j);
 
 			shift_delay = ((get_bits_from_value(j, 12, 7)) << 8) + (get_bits_from_value(j, 6, 0));
 
 			uartlog("shift_delay_after = %08x\n", shift_delay);
 			cvx16_ca_shift_delay(shift_delay);
+			// #bist_single_calvl(mode="prbs", shift_delay=j, vrefca=vrefca_sel)
 
+		#if 1 //ca park 1
 			cvx16_dfi_ca_park_prbs(1);
 			bist_result = bist_all_dram_calvl(0, capacity, j, vrefca_sel); //0: prbs
 			cvx16_dfi_ca_park_prbs(0);
+		#else //ca park 0
+			cvx16_dfi_ca_park_prbs(0);
+			bist_result = bist_all_dram_calvl(0, capacity, j, vrefca_sel); //0: prbs
+			cvx16_dfi_ca_park_prbs(0);
+		#endif
 		}
 	}
 	// re-init
@@ -10055,7 +10760,7 @@ void cslvl_req(uint32_t capacity)
 	uint32_t delay_end    = 0x40;
 	uint32_t delay_step   = 0x04;
 
-	uartlog("=== %s ===\n", __func__);
+	uartlog("=== cslvl_req ===\n");
 	// if DDR3_4G:
 	//     capacity=4
 	// if DDR3_2G:
@@ -10091,16 +10796,25 @@ void cslvl_req(uint32_t capacity)
 				cvx16_clk_gating_disable();
 				set_ca_vref(vrefca_sel);
 			}
+			// #mmio_wr32(0x0414 + PHYD_BASE_ADDR, vrefca_sel) #param_phya_reg_tx_vrefca_sel
+			// #time.sleep(0.1)
 			uartlog("shift_delay_before = %08x\n", j);
 
 			shift_delay = ((get_bits_from_value(j, 12, 7)) << 8) + (get_bits_from_value(j, 6, 0));
 
 			uartlog("shift_delay_after = %08x\n", shift_delay);
 			cvx16_cs_shift_delay(shift_delay);
+			// #bist_single_calvl(mode="prbs", shift_delay=j, vrefca=vrefca_sel)
 
+		#if 1 //ca park 1
 			cvx16_dfi_ca_park_prbs(1);
 			bist_result = bist_all_dram_cslvl(0, capacity, j, vrefca_sel); //0: prbs
 			cvx16_dfi_ca_park_prbs(0);
+		#else //ca park 0
+			cvx16_dfi_ca_park_prbs(0);
+			bist_result = bist_all_dram_cslvl(0, capacity, j, vrefca_sel); //0: prbs
+			cvx16_dfi_ca_park_prbs(0);
+		#endif
 		}
 	}
 	// re-init

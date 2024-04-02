@@ -116,6 +116,8 @@ void switch_rtc_mode_1st_stage(void);
 void switch_rtc_mode_2nd_stage(void);
 void set_rtc_en_registers(void);
 
+void apply_analog_trimming_data(void);
+
 void sys_pll_init(void);
 void sys_pll_init_od_sel(void);
 void sys_switch_all_to_pll(void);

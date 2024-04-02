@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef DWC2_STDTYPES_H
 #define DWC2_STDTYPES_H
 #ifdef __KERNEL__

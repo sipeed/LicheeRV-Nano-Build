@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 

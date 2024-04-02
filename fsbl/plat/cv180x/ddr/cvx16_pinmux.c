@@ -1,12 +1,13 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <mmio.h>
+#include <reg_soc.h>
 #include <ddr_sys.h>
 #include <ddr_pkg_info.h>
 
 void cvx16_pinmux(void)
 {
 	uartlog("%s\n", __func__);
+	//		ddr_debug_wr32(0x4E);
+	//		ddr_debug_num_write();
 #ifndef DDR_SIM
 	switch (get_ddr_vendor()) {
 	case DDR_VENDOR_NY_4G:

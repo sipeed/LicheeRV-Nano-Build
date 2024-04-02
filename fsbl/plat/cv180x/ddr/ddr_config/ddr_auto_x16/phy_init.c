@@ -1,10 +1,11 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <mmio.h>
+// #include <soc.h>
+#include <reg_soc.h>
 #include <ddr_sys.h>
 #include <ddr2_1333_init.h>
 #include <ddr3_1866_init.h>
 #include <ddr_pkg_info.h>
+// #include <printf.h>
 
 void phy_init(void)
 {

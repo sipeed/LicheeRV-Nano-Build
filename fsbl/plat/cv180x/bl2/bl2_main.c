@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <debug.h>
 #include <console.h>
 #include <platform.h>
@@ -61,6 +59,7 @@ void bl2_main(void)
 
 	INFO("CP_STATE_REG=0x%x\n", mmio_read_32(0x0E000018));
 
+	// print_sram_log();
 	lock_efuse_chipsn();
 
 	setup_dl_flag();

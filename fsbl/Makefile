@@ -1,5 +1,3 @@
-# SPDX-License-Identifier: BSD-3-Clause
-
 .PHONY: FORCE
 # Default goal is build all images
 .DEFAULT_GOAL := all

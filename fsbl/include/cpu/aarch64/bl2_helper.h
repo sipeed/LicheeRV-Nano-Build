@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef __BL2_HELPER_H__
 #define __BL2_HELPER_H__
 

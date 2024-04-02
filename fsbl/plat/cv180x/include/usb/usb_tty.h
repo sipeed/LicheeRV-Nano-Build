@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef _USB_TTY_H
 #define _USB_TTY_H
 

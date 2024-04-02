@@ -1,6 +1,5 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <platform_def.h>
+#include <reg_soc.h>
 #include <phy_pll_init.h>
 #include <ddr_sys.h>
 #ifdef DDR2_3
@@ -47,12 +46,12 @@ static void axi_mon_latency_setting(uint32_t lat_bin_size_sel)
 	uint32_t rdata;
 
 	mmio_wr32((AXI_MON_BASE + AXIMON_M1_WRITE + AXIMON_OFFSET_LAT_BIN_SIZE_SEL),
-		  lat_bin_size_sel); //for ddr3 1866: bin_size_sel=0d'5
+					lat_bin_size_sel);//for ddr3 1866: bin_size_sel=0d'5
 	mmio_wr32((AXI_MON_BASE + AXIMON_M1_READ + AXIMON_OFFSET_LAT_BIN_SIZE_SEL),
-		  lat_bin_size_sel);
+					lat_bin_size_sel);
 
-	mmio_wr32((AXI_MON_BASE + AXIMON_M1_WRITE + 0x00), 0x01000100); //input clk sel
-	rdata = mmio_rd32((AXI_MON_BASE + AXIMON_M1_WRITE + 0x04)); //hit sel setting
+	mmio_wr32((AXI_MON_BASE + AXIMON_M1_WRITE + 0x00), 0x01000100);//input clk sel
+	rdata = mmio_rd32((AXI_MON_BASE + AXIMON_M1_WRITE + 0x04));//hit sel setting
 	rdata = rdata & 0xfffffc00;
 	rdata = rdata | 0x00000000;
 	mmio_wr32((AXI_MON_BASE + AXIMON_M1_WRITE + 0x04), rdata);
@@ -78,9 +77,10 @@ static void axi_mon_latency_setting(uint32_t lat_bin_size_sel)
 	rdata = rdata | 0x00000000;
 	mmio_wr32((AXI_MON_BASE + AXIMON_M5_READ + 0x04), rdata);
 
-	rdata = mmio_rd32((DDR_TOP_BASE + 0x14));
+	//NOTICE("mon cg en.\n");
+	rdata = mmio_rd32((DDR_TOP_BASE+0x14));
 	rdata = rdata | 0x00000100;
-	mmio_wr32((DDR_TOP_BASE + 0x14), rdata);
+	mmio_wr32((DDR_TOP_BASE+0x14), rdata);
 }
 
 static void axi_mon_start(uint32_t base_register)
@@ -108,12 +108,12 @@ void dump_axi_mon_reg(uint32_t base_register)
 {
 	uint i = 0;
 
-	for (i = 0; i <= 0x7c; i = i + 0x10) {
-		NOTICE("0x%08x: 0x%08x, 0x%08x, 0x%08x, 0x%08x\n", AXI_MON_BASE + base_register + i,
-		       mmio_rd32(AXI_MON_BASE + base_register + i),
-		       mmio_rd32(AXI_MON_BASE + base_register + i + 0x4),
-		       mmio_rd32(AXI_MON_BASE + base_register + i + 0x8),
-		       mmio_rd32(AXI_MON_BASE + base_register + i + 0xc));
+	for (i = 0; i <= 0x7c; i = i+0x10) {
+		NOTICE("0x%08x: 0x%08x, 0x%08x, 0x%08x, 0x%08x\n", AXI_MON_BASE + base_register+i,
+								mmio_rd32(AXI_MON_BASE + base_register+i),
+								mmio_rd32(AXI_MON_BASE + base_register+i+0x4),
+								mmio_rd32(AXI_MON_BASE + base_register+i+0x8),
+								mmio_rd32(AXI_MON_BASE + base_register+i+0xc));
 	}
 }
 
@@ -137,6 +137,11 @@ void ddr_sys_bring_up(void)
 
 	uartlog("%s pattern!\n", __func__);
 
+	// mmio_wr32(PLLG6_BASE+top_pll_g6_reg_ddr_ssc_syn_src_en,
+	//            mmio_rd32(PLLG6_BASE+top_pll_g6_reg_ddr_ssc_syn_src_en)
+	//            &(~top_pll_g6_reg_ddr_ssc_syn_src_en_MASK)
+	//            |0x1<<top_pll_g6_reg_ddr_ssc_syn_src_en_OFFSET);
+
 #ifdef REAL_DDRPHY
 	uartlog("PLL INIT !\n");
 	pll_init();
@@ -144,6 +149,8 @@ void ddr_sys_bring_up(void)
 
 	uartlog("DDRC_INIT !\n");
 	ddrc_init();
+
+	// cvx16_ctrlupd_short();
 
 	// release ddrc soft reset
 	uartlog("releast reset  !\n");
@@ -212,7 +219,7 @@ void ddr_sys_bring_up(void)
 	if (bist_result == 0) {
 		ERROR("ERROR bist_fail\n");
 		ERROR("bist_result = %x, err_data_odd = %lx, err_data_even = %lx\n", bist_result, err_data_odd,
-		      err_data_even);
+			  err_data_even);
 	}
 #endif
 
@@ -240,7 +247,7 @@ void ddr_sys_bring_up(void)
 	if (bist_result == 0) {
 		ERROR("ERROR bist_fail\n");
 		ERROR("bist_result = %x, err_data_odd = %lx, err_data_even = %lx\n", bist_result, err_data_odd,
-		      err_data_even);
+			  err_data_even);
 	}
 #endif
 	// cvx16_rdglvl_req
@@ -254,9 +261,12 @@ void ddr_sys_bring_up(void)
 	if (bist_result == 0) {
 		ERROR("ERROR bist_fail\n");
 		ERROR("bist_result = %x, err_data_odd = %lx, err_data_even = %lx\n", bist_result, err_data_odd,
-		      err_data_even);
+			  err_data_even);
 	}
 #endif
+
+	//ERROR("AXI mon setting for latency histogram.\n");
+	//axi_mon_set_lat_bin_size(0x5);
 
 #ifdef DBG_SHMOO
 	// DPHY WDQ
@@ -283,14 +293,17 @@ void ddr_sys_bring_up(void)
 	// cvx16_wdqlvl_req(data_mode, lvl_mode)
 	NOTICE("cvx16_wdqlvl_sw_req dq/dm\n"); console_getc();
 	cvx16_wdqlvl_sw_req(1, 2);
+	// cvx16_wdqlvl_status();
 	KC_MSG("cvx16_wdqlvl_req dq/dm finish\n");
 
 	NOTICE("cvx16_wdqlvl_sw_req dq\n"); console_getc();
 	cvx16_wdqlvl_sw_req(1, 1);
+	// cvx16_wdqlvl_status();
 	KC_MSG("cvx16_wdqlvl_req dq finish\n");
 
 	NOTICE("cvx16_wdqlvl_sw_req dm\n"); console_getc();
 	cvx16_wdqlvl_sw_req(1, 0);
+	// cvx16_wdqlvl_status();
 	NOTICE("cvx16_wdqlvl_req dm finish\n");
 #else //DBG_SHMOO
 	// cvx16_wdqlvl_req
@@ -335,6 +348,7 @@ void ddr_sys_bring_up(void)
 	NOTICE("cvx16_rdlvl_req start\n"); console_getc();
 	NOTICE("SW mode 1, sram write/read continuous goto\n");
 	cvx16_rdlvl_sw_req(1);
+	// cvx16_rdlvl_status();
 	NOTICE("cvx16_rdlvl_req finish\n");
 #else //DBG_SHMOO
 	// cvx16_rdlvl_req
@@ -348,6 +362,7 @@ void ddr_sys_bring_up(void)
 	mmio_wr32(0x008c + PHYD_BASE_ADDR, rddata);
 
 	KC_MSG("mode multi- bist write/read\n");
+	// cvx16_rdlvl_req(2); // mode multi- PRBS bist write/read
 	cvx16_rdlvl_req(1); // mode multi- SRAM bist write/read
 	KC_MSG("cvx16_rdlvl_req finish\n");
 #ifdef DO_BIST
@@ -362,14 +377,16 @@ void ddr_sys_bring_up(void)
 #endif //!DBG_SHMOO
 
 #ifdef DBG_SHMOO_CA
-	// CA training
+	//CA training
 	NOTICE("\n===== calvl_req =====\n"); console_getc();
+	// sso_8x1_c(5, 15, sram_sp, 1, &sram_sp_1);
 	calvl_req(cap);
 #endif //DBG_SHMOO_CA
 
 #ifdef DBG_SHMOO_CS
-	// CS training
+	//CS training
 	NOTICE("\n===== cslvl_req =====\n"); console_getc();
+	// sso_8x1_c(5, 15, sram_sp, 1, &sram_sp_1);
 	cslvl_req(cap);
 #endif // DBG_SHMOO_CS
 
@@ -424,6 +441,10 @@ void ddr_sys_bring_up(void)
 #endif
 
 #ifdef FULL_MEM_BIST
+	//full memory
+	// sso_8x1_c(5, 15, 0, 1, &sram_sp);
+	// sso_8x1_c(5, 15, sram_sp, 1, &sram_sp);
+
 	NOTICE("====FULL_MEM_BIST====\n");
 	bist_result = bist_all_dram(0, cap);
 	if (bist_result == 0) {
@@ -454,7 +475,13 @@ void ddr_sys_bring_up(void)
 	bist_all_dram_forever(cap);
 #endif //FULL_MEM_BIST_FOREVER
 
+	//NOTICE("AXI mon setting for latency histogram.\n");
 	axi_mon_latency_setting(0x5);
+
+	//NOTICE("AXI mon 0 register dump before start.\n");
+	//dump_axi_mon_reg(AXIMON_M1_WRITE);
+	//NOTICE("AXI mon 1 register dump before start.\n");
+	//dump_axi_mon_reg(AXIMON_M1_READ);
 
 	axi_mon_start_all();
 

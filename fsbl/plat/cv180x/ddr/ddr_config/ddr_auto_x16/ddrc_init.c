@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <mmio.h>
+// #include <soc.h>
+#include <reg_soc.h>
 #include <ddr_sys.h>
 #ifdef DDR2_3
 #include <ddr3_1866_init.h>
@@ -16,7 +16,7 @@ uint32_t ddr_data_rate = 1866;
 void ddrc_init(void)
 {
 	if (get_ddr_type() == DDR_TYPE_DDR3) {
-		NOTICE("DDR3 1866 %s\n", __func__);
+		NOTICE("DDR3 1866 ddrc_init\n");
 		mmio_wr32(0x08004000 + 0xc, 0x63746371);
 		// PATCH0.use_blk_ext}:0:2:=0x1
 		// PATCH0.dis_auto_ref_cnt_fix:2:1:=0x0
@@ -288,7 +288,7 @@ void ddrc_init(void)
 		// PCFGWQOS1_2.wqos_map_timeout2:16:16:=0x1a8
 		// PCFGWQOS1_2.wqos_map_timeout1:0:16:=0x1a8
 	} else {
-		NOTICE("DDR2 1333 %s\n", __func__);
+		NOTICE("DDR2 1333 ddrc_init\n");
 		mmio_wr32(0x08004000 + 0xc, 0x63746371);
 		// PATCH0.use_blk_ext}:0:2:=0x1
 		// PATCH0.dis_auto_ref_cnt_fix:2:1:=0x0

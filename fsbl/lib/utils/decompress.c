@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <debug.h>
 #include <errno.h>
 #include <string.h>
@@ -120,6 +118,9 @@ int decompress_lz4(void *dst, size_t *dst_size, const void *src, size_t src_size
 		ERROR("LZ4F_decompress=%lu\n", ret);
 		return -1;
 	}
+
+	// No need to free.
+	// LZ4F_freeDecompressionContext(dctx);
 
 	return 0;
 }

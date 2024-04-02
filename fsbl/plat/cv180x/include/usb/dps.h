@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef DPS_H
 #define DPS_H
 
@@ -78,5 +76,57 @@ extern void DWC2_WritePhysAddress32(uint32_t addrValue, volatile uint32_t *locat
  * @param[in] size: size of the copy
  */
 extern void DWC2_BufferCopy(volatile uint8_t *dst, volatile uint8_t *src, uint32_t size);
+
+/**
+ * Invalidate the cache for the specified memory region.
+ * This function may be stubbed out if caching is disabled for memory regions
+ * as described in the driver documentation, or if the driver configuration does
+ * not require this function.
+ * @param[in] address Virtual address of memory region. (If an MMU is not in use,
+ * this will be equivalent to the physical address.) This address should be
+ * rounded down to the nearest cache line boundary.
+ * @param[in] size  size of memory in bytes.  This size should be rounded up to
+ * the nearest cache line boundary.  Use size UINTPTR_MAX to invalidate all
+ * memory cache.  A size of 0 should be ignored and the function should return
+ * immediately with no effect.
+ * @param[in] devInfo   This parameter can be used to pass implementation specific
+ * data to this function.  The content and use of this parameter is up to the
+ * implementor of this function to determine, and if not required it may be ignored.
+ *  For example, under Linux it can be used to pass a pointer to
+ * the device struct to be used in a call to dma_sync_single_for_device().  If
+ * used, the parameter should be passed to the core driver at initialisation as
+ * part of the configurationInfo struct.  Please
+ * see the core driver documentation for details of how to do this.
+ */
+// extern void DWC2_CacheInvalidate(uintptr_t address, size_t size);
+
+/**
+ * Flush the cache for the specified memory region
+ * This function may be stubbed out if caching is disabled for memory regions
+ * as described in the driver documentation, or if the driver configuration does
+ * not require this function.
+ * @param[in] address Virtual address of memory region. (If an MMU is not in use,
+ * this will be equivalent to the physical address.) This address should be
+ * rounded down to the nearest cache line boundary.
+ * @param[in] size  size of memory in bytes.  This size should be rounded up to
+ * the nearest cache line boundary.  Use size UINTPTR_MAX to flush all
+ * memory cache.  A size of 0 should be ignored and the function should return
+ * immediately with no effect.
+ * @param[in] devInfo   This parameter can be used to pass implementation specific
+ * data to this function.  The content and use of this parameter is up to the
+ * implementor of this function to determine, and if not required it may be ignored.
+ *  For example, under Linux it can be used to pass a pointer to
+ * the device struct to be used in a call to dma_sync_single_for_device().  If
+ * used, the parameter should be passed to the core driver at initialisation as
+ * part of the configurationInfo struct.  Please
+ * see the core driver documentation for details of how to do this.
+ */
+// extern void DWC2_CacheFlush(uintptr_t address, size_t size);
+
+/**
+ * Delay software execution by a number of nanoseconds
+ * @param[in] ns number of nanoseconds to delay software execution
+ */
+extern void DWC2_DelayNs(uint32_t ns);
 
 #endif /* DPS_H */

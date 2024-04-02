@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <debug.h>
 #include <console.h>
 #include <platform.h>

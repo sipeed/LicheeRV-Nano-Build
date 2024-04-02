@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
 /**********************************************************************
  * main.c
  *
@@ -22,6 +21,7 @@ int usb_polling(void *buf, uint32_t offset, uint32_t size)
 
 	cv_usb_vid = get_sw_info()->usb_vid;
 	INFO("USBVID/%x.\n", cv_usb_vid);
+	// flush_dcache_range((uint64_t)buf, size);
 
 	r = AcmApp(buf, offset, size);
 

@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -64,4 +62,26 @@ void DWC2_WritePhysAddress32(uint32_t addrValue, volatile uint32_t *location)
 void DWC2_BufferCopy(volatile uint8_t *dst, volatile uint8_t *src, uint32_t size)
 {
 	memcpy((void *)dst, (void *)src, size);
+}
+
+/* Since this is a bare-metal system, with no MMU in place, we expect that there will be no cache enabled */
+
+// void DWC2_CacheInvalidate(uintptr_t address, size_t size)
+// {
+// #ifdef TENSILICA
+//     xthal_dcache_region_invalidate(address, size);
+// #endif
+//     return;
+// }
+
+// void DWC2_CacheFlush(uintptr_t address, size_t size)
+// {
+// #ifdef TENSILICA
+//     xthal_dcache_region_writeback(address, size);
+// #endif
+//     return;
+// }
+
+void DWC2_DelayNs(uint32_t ns)
+{
 }

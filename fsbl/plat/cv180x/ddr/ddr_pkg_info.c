@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <platform_def.h>
 #include <ddr_pkg_info.h>
 #include <mmio.h>

@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef BYTEORDER_LENDIAN_H
 #define BYTEORDER_LENDIAN_H
 

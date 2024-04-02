@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <cpu.h>
 #include <mmio.h>
 #include <debug.h>
@@ -13,10 +11,19 @@
 
 #include <cv180x_pinlist_swconfig.h>
 #include <cv180x_reg_fmux_gpio.h>
+// #include <cv180x_reg_ioblk_G7.h>
+// #include <cv180x_reg_ioblk_G10.h>
 
 #include <security/security.h>
 
+// #include <cv_spinor.h>
+// #include <cv_spi_nand.h>
+// #include <spi_nand.h>
 #include <cv_usb.h>
+// #include <cv_sd.h>
+#include <cv_usb.h>
+// #include <sd.h>
+// #include <ff.h>
 
 #define PINMUX_MASK(PIN_NAME) FMUX_GPIO_FUNCSEL_##PIN_NAME##_MASK
 #define PINMUX_OFFSET(PIN_NAME) FMUX_GPIO_FUNCSEL_##PIN_NAME##_OFFSET

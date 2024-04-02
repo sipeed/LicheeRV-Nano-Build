@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <cpu.h>
 #include <mmio.h>
 #include <debug.h>
@@ -42,17 +40,21 @@ void __system_reset(const char *file, unsigned int line)
 
 	// enable rtc wdt reset
 	mmio_write_32(0x050260E0, 0x0001); //enable rtc_core wathdog reset enable
-	mmio_write_32(0x050260C8, 0x0001); //enable rtc_core power cycle enable
+	mmio_write_32(0x050260C8, 0x0001); //enable rtc_core power cycle   enable
 
 	// sw delay 100us
 	ATF_STATE = ATF_STATE_RESET_RTC_WAIT;
 	udelay(100);
 
+	// mmio_write_32(0x05025018,0x00FFFFFF); //Mercury rtcsys_rstn_src_sel
 	mmio_write_32(0x050250AC, 0x00000000); //cv181x rtcsys_rstn_src_sel
 	mmio_write_32(0x05025004, 0x0000AB18);
 	mmio_write_32(0x05025008, 0x00400040); //enable rtc_ctrl wathdog reset enable
 
-	mmio_write_32(0x03010004, 0x00000066); //config watch dog
+	// printf("Enable TOP_WDT\n");
+	// mmio_write_32(0x03010004,0x00000000); //config watch dog 2.6ms
+	// mmio_write_32(0x03010004,0x00000022); //config watch dog 166ms
+	mmio_write_32(0x03010004, 0x00000066); //config watch dog 166ms
 	mmio_write_32(0x0301001c, 0x00000020);
 	mmio_write_32(0x0301000c, 0x00000076);
 	mmio_write_32(0x03010000, 0x00000011);
@@ -60,6 +62,7 @@ void __system_reset(const char *file, unsigned int line)
 	// ROM_PWR_CYC
 	if (get_sw_info()->reset_type == 1) {
 		ATF_ERR = ATF_ERR_PLAT_SYSTEM_PWR_CYC;
+		// printf("Issue RTCSYS_PWR_CYC\n");
 
 		// wait pmu state to ON
 		while (mmio_read_32(0x050260D4) != 0x00000003) {
@@ -219,7 +222,7 @@ void sys_pll_od(void)
 
 	mmio_write_32(0x03002048, 0x00020109); //clk_cpu_axi0 = DISPPLL(1188) / 2
 	mmio_write_32(0x03002054, 0x00020009); //clk_tpu = TPLL(1400) / 2 = 700MHz
-	mmio_write_32(0x03002064, 0x00040009); //clk_emmc = FPLL(1500) / 4 = 375MHz
+	mmio_write_32(0x03002064, 0x00080009); //clk_emmc = FPLL(1500) / 8 = 187.5MHz
 	mmio_write_32(0x03002088, 0x00080009); //clk_spi_nand = FPLL(1500) / 8 = 187.5MHz
 	mmio_write_32(0x03002098, 0x00200009); //clk_sdma_aud0 = APLL(786.432) / 32 = 24.576MHz
 	mmio_write_32(0x03002120, 0x000F0009); //clk_pwm_src = FPLL(1500) / 15 = 100MHz
@@ -339,7 +342,7 @@ void sys_pll_nd(void)
 
 	mmio_write_32(0x03002048, 0x00030009); //clk_cpu_axi0 = FPLL(1500) / 3
 	mmio_write_32(0x03002054, 0x00030309); //clk_tpu = FPLL(1500) / 3 = 500MHz
-	mmio_write_32(0x03002064, 0x00040009); //clk_emmc = FPLL(1500) / 4 = 375MHz
+	mmio_write_32(0x03002064, 0x00080009); //clk_emmc = FPLL(1500) / 8 = 187.5MHz
 	mmio_write_32(0x03002088, 0x00080009); //clk_spi_nand = FPLL(1500) / 8 = 187.5MHz
 	mmio_write_32(0x03002098, 0x00120009); //clk_sdma_aud0 = APLL(442.368) / 18 = 24.576MHz
 	mmio_write_32(0x03002120, 0x000F0009); //clk_pwm_src = FPLL(1500) / 15 = 100MHz
@@ -404,13 +407,14 @@ void sys_pll_init_od_sel(void)
 
 void switch_rtc_mode_1st_stage(void)
 {
+	// TBD
 }
 
 void switch_rtc_mode_2nd_stage(void)
 {
 	uint32_t read_data;
 	uint32_t write_data;
-
+	// TBD
 	// mdelay(50);
 	read_data = mmio_read_32(REG_RTC_CTRL_BASE + RTC_CTRL0_STATUS0);
 	read_data = mmio_read_32(REG_RTC_CTRL_BASE + RTC_CTRL0);
@@ -456,4 +460,8 @@ void set_rtc_en_registers(void)
 	write_data = 0xffff0000 | write_data | (0x1 << 11) | (0x01 << 6);
 	mmio_write_32(REG_RTC_CTRL_BASE + RTC_CTRL0, write_data);
 	mmio_clrbits_32(REG_RTC_BASE + RTC_EN_PWR_VBAT_DET, BIT(2));
+}
+
+void apply_analog_trimming_data(void)
+{
 }

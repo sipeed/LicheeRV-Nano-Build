@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: BSD-3-Clause
+#include lib/cpu/${BOOT_CPU}/cpu-ops.mk
 
 ASFLAGS +=\
 	$(CPPFLAGS) \
@@ -38,7 +38,9 @@ CPU_SOURCES := \
 
 
 BL1_CPU_SOURCES := \
-	lib/cpu/${BOOT_CPU}/bl1_entrypoint.S
+	lib/cpu/${BOOT_CPU}/bl1_entrypoint.S \
+#	lib/cpu/${BOOT_CPU}/bl1_exceptions.S
 
 BL2_CPU_SOURCES := \
-	lib/cpu/${BOOT_CPU}/bl2_entrypoint.S
+	lib/cpu/${BOOT_CPU}/bl2_entrypoint.S \
+#	lib/cpu/${BOOT_CPU}/bl2_exceptions.S

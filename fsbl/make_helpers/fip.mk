@@ -1,5 +1,3 @@
-# SPDX-License-Identifier: BSD-3-Clause
-
 BLCP_PATH = ../fast_image_mcu/riscv/output/fast_image_mcu.bin
 ifeq ("$(wildcard $(BLCP_PATH))","")
 BLCP_PATH = test/empty.bin
@@ -18,7 +16,7 @@ fip%: export BLCP_IMG_RUNADDR=0x05200200
 fip%: export BLCP_PARAM_LOADADDR=0
 fip%: export NAND_INFO=00000000
 fip%: export NOR_INFO=$(shell printf '%72s' | tr ' ' 'FF')
-fip%: export DDR_PARAM_TEST_PATH = test/sophon/ddr_param.bin
+fip%: export DDR_PARAM_TEST_PATH = test/cv181x/ddr_param.bin
 
 ${BUILD_PLAT}:
 	@mkdir -p '${BUILD_PLAT}'

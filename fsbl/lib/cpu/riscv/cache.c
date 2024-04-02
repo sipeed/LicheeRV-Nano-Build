@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
-
 #include <platform.h>
 #include <arch_helpers.h>
 

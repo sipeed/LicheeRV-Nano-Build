@@ -1,4 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
 //##==============================================================================
 //##=== This script is generate by genswconfig.pl from .\00_cv180x_Pinlist_20220315.xls
 //##=== Generate Time stamp is : 2022-03-17 14:04:49

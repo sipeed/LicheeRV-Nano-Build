@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef DWC2_DRV_IF_H
 #define DWC2_DRV_IF_H
 

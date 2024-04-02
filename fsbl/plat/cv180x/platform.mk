@@ -82,3 +82,4 @@ BL2_SOURCES = \
 include plat/${CHIP_ARCH}/ddr/ddr.mk
 
 BL2_LINKERFILE := plat/${CHIP_ARCH}/bl2/bl2.ld.S
+#BL2_RLS_OBJS := plat/${CHIP_ARCH}/bl2_objs/${PROJECT_FULLNAME}/bl2/*.o

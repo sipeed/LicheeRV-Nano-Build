@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef __CPU_HELP_H__
 #define __CPU_HELP_H__
 

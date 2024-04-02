@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef _RISCV_BITS_H
 #define _RISCV_BITS_H
 

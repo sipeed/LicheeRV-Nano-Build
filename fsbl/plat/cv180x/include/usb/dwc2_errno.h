@@ -1,5 +1,3 @@
-/* SPDX-License-Identifier: BSD-3-Clause */
-
 #ifndef DWC2_ERRNO_H
 #define DWC2_ERRNO_H
 

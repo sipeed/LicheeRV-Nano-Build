@@ -8,6 +8,7 @@
 #ifndef __DWC2_UDC_OTG_PRIV__
 #define __DWC2_UDC_OTG_PRIV__
 
+//#include <sizes.h>
 #include <dwc2_ch9.h>
 #include <dwc2_drv_if.h>
 #include <list.h>
