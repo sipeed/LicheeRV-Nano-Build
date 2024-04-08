@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	. /etc/profile
+	if [ ! -e /boot/alpha ]
+	then
+		blpwm="/sys/class/pwm/pwmchip8/pwm2/"
+		if [ ! -e "${blpwm}" ]
+		then
+			echo 2 > /sys/class/pwm/pwmchip8/export
+		fi
+		echo 0 > $blpwm/enable
+		echo "10000" > ${blpwm}/period # 100KHZ
+		if [ -e /boot/uEnv.txt ]
+		then
+			hd22800=$(cat /boot/uEnv.txt | grep hd228001c31 | wc -l)
+			if [ "${hd22800}" -ne 0 ]
+			then
+				echo "5000" > ${blpwm}/duty_cycle # 50%
+			else
+				echo "9500" > ${blpwm}/duty_cycle
+			fi
+		else
+			echo "9500" > ${blpwm}/duty_cycle
+		fi
+		echo 1 > $blpwm/enable
+	fi
+	exit 0
+fi
