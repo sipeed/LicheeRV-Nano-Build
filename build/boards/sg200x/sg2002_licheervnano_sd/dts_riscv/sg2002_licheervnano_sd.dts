@@ -61,6 +61,10 @@
         status = "okay";
 };
 
+&uart2 {
+        status = "okay";
+};
+
 &pwm0 {
         status = "okay";
 };
