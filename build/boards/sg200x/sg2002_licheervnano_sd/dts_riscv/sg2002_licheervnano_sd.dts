@@ -65,6 +65,10 @@
         status = "okay";
 };
 
+&uart3 {
+	status = "okay";
+};
+
 &pwm0 {
         status = "okay";
 };
@@ -86,7 +90,7 @@
 };
 
 &i2c3 {
-        status = "disabled";
+        status = "okay";
         /delete-property/ scl-pinmux;
         /delete-property/ sda-pinmux;
         /delete-property/ scl-gpios;
@@ -94,7 +98,7 @@
 };
 
 &i2c4 {
-        statuc = "okay";
+        status = "okay";
         gt9xx: gt9xx@14 {
                 compatible = "goodix,gt9xx";
                 reg = <0x14>;
@@ -111,6 +115,14 @@
 		hynitron,display-coords = <368 552>;
                 status = "okay";
 	};
+};
+
+&spi1 {
+	status = "okay";
+};
+
+&spi2 {
+	status = "okay";
 };
 
 &dac {

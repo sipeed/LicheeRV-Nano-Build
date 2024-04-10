@@ -10,9 +10,16 @@ then
 	fi
 	if [ -e /boot/input-event-daemon ]
 	then
-		chmod 0644 /etc/input-event-daemon.conf
+		if [ ! -e /etc/input-event-daemon.conf ]
+		then
+			cp /etc/input-event-daemon.conf.bak /etc/input-event-daemon.conf
+		fi
 	else
-		chmod 0000 /etc/input-event-daemon.conf
+		if [ -e /etc/input-event-daemon.conf ]
+		then
+			cp /etc/input-event-daemon.conf /etc/input-event-daemon.conf.bak
+			rm /etc/input-event-daemon.conf
+		fi
 	fi
 	if [ -e /boot/rc.local ]
 	then
@@ -24,7 +31,7 @@ then
 	fi
 	if [ -e /boot/console_handler.sh ]
 	then
-		cp /boot/ttyGS0_handler.sh /etc/ttyGS0_handler.sh
+		cp /boot/console_handler.sh /etc/console_handler.sh
 	fi
 	if [ -e /boot/alpha ]
 	then
