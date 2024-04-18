@@ -39,27 +39,33 @@ gen_udhcpd_conf() {
 start() {
 	if [ -e /boot/wifi.sta ]
 	then
+		echo "wifi mode: sta"
 		if [ -e /boot/wpa_supplicant.conf ]
 		then
 			cp /boot/wpa_supplicant.conf /etc/wpa_supplicant.conf
 		else
-			echo "wifi mode: sta"
-			ssid="licheervnano"
-			pass="licheervnano"
-			if [ -e /boot/wifi.ssid ]
+			if [ ! -e /etc/wpa_supplicant.conf ]
 			then
-				echo -n "ssid: "
-				cat /boot/wifi.ssid
-				ssid=`cat /boot/wifi.ssid`
+				ssid=""
+				pass=""
+				if [ -e /boot/wifi.ssid ]
+				then
+					echo -n "ssid: "
+					cat /boot/wifi.ssid
+					ssid=`cat /boot/wifi.ssid`
+				fi
+				if [ -e /boot/wifi.pass ]
+				then
+					echo -n "wifi.pass: "
+					cat /boot/wifi.pass
+					pass=`cat /boot/wifi.pass`
+				fi
+				if [ ! -z "${ssid}${pass}" ]
+				then
+					echo "ctrl_interface=/var/run/wpa_supplicant" > /etc/wpa_supplicant.conf
+					wpa_passphrase "$ssid" "$pass" >> /etc/wpa_supplicant.conf
+				fi
 			fi
-			if [ -e /boot/wifi.pass ]
-			then
-				echo -n "wifi.pass: "
-				cat /boot/wifi.pass
-				pass=`cat /boot/wifi.pass`
-			fi
-			echo "ctrl_interface=/var/run/wpa_supplicant" > /etc/wpa_supplicant.conf
-			wpa_passphrase "$ssid" "$pass" >> /etc/wpa_supplicant.conf
 		fi
 		wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
 		if [ ! -e /boot/wifi.nodhcp ]
@@ -68,11 +74,11 @@ start() {
 		fi
 	elif [ -e /boot/wifi.ap ]
 	then
+		echo "wifi mode: ap"
 		if [ -e /boot/hostapd.conf ]
 		then
 			cp /boot/hostapd.conf /etc/hostapd.conf
 		else
-			echo "wifi mode: ap"
 			id2=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 2))
 			id3=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 4 | tail -c 2))
 			if [ "$id2" = "$id3" ]
@@ -87,28 +93,34 @@ start() {
 			then
 				id3=254
 			fi
-			ssid="licheervnano-${id2}${id3}"
-                        pass="licheervnano"
-                        if [ -e /boot/wifi.ssid ]
-                        then
-                                echo -n "ssid: "
-                                cat /boot/wifi.ssid
-                                ssid=`cat /boot/wifi.ssid`
-                        fi
-                        if [ -e /boot/wifi.pass ]
-                        then
-                                echo -n "wifi.pass: "
-                                cat /boot/wifi.pass
-                                pass=`cat /boot/wifi.pass`
-                        fi
-			gen_hostapd_conf "$ssid" "$pass" > /etc/hostapd.conf
+			if [ ! -e /etc/hostapd.conf ]
+			then
+				ssid="licheervnano-${id2}${id3}"
+				pass="licheervnano"
+				if [ -e /boot/wifi.ssid ]
+				then
+					echo -n "ssid: "
+					cat /boot/wifi.ssid
+					ssid=`cat /boot/wifi.ssid`
+				fi
+				if [ -e /boot/wifi.pass ]
+				then
+					echo -n "wifi.pass: "
+					cat /boot/wifi.pass
+					pass=`cat /boot/wifi.pass`
+				fi
+				gen_hostapd_conf "$ssid" "$pass" > /etc/hostapd.conf
+			fi
 			if [ -e /boot/wifi.ipv4_prefix ]
 			then
 				ipv4_prefix=`cat /boot/rndis.ipv4_prefix`
 			else
 				ipv4_prefix=10.$id3.$id2
 			fi
-			gen_udhcpd_conf wlan0 "${ipv4_prefix}"  > /etc/udhcpd.wlan0.conf
+			if [ ! -e /etc/udhcpd.wlan0.conf ]
+			then
+				gen_udhcpd_conf wlan0 "${ipv4_prefix}"  > /etc/udhcpd.wlan0.conf
+			fi
 			ifconfig wlan0 up
 			ip addr add $ipv4_prefix.1/24 dev wlan0
 		fi
@@ -131,8 +143,8 @@ stop() {
 }
 
 restart() {
-	start
 	stop
+	start
 }
 
 if [ "${1}" = "start" ]

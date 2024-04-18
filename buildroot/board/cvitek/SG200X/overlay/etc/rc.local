@@ -2,7 +2,7 @@
 
 echo "HELLO WORLD"
 
-if [ -e /boot/maxicam ]
+if [ -e /boot/maixcam ]
 then
 	/maixapp/apps/launcher/launcher &
 fi

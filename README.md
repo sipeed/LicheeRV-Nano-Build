@@ -15,8 +15,8 @@ you can use container:
 ```
 cd host/ubuntu
 docker build -t licheervnano-build-ubuntu .
-docker run --name licheervnano-build-ubuntu
-docker export | sqfstar licheervnano-build-ubuntu.sqfs
+docker run --name licheervnano-build-ubuntu licheervnano-build-ubuntu
+docker export licheervnano-build-ubuntu | sqfstar licheervnano-build-ubuntu.sqfs
 singularity shell -e licheervnano-build-ubuntu.sqfs
 ```
 
@@ -33,4 +33,8 @@ build_all
 
 # build fail
 
-on some system, qt5svg or qt5base will build failed on first build, please retryby command build_all
+on some system, qt5svg or qt5base will build failed on first build, please retry command:
+
+```
+build_all
+```
