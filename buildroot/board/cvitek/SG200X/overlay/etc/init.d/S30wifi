@@ -90,24 +90,21 @@ start() {
 			then
 				id3=254
 			fi
-			if [ ! -e /etc/hostapd.conf ]
+			ssid="licheervnano-${id2}${id3}"
+			pass="licheervnano"
+			if [ -e /boot/wifi.ssid ]
 			then
-				ssid="licheervnano-${id2}${id3}"
-				pass="licheervnano"
-				if [ -e /boot/wifi.ssid ]
-				then
-					echo -n "ssid: "
-					cat /boot/wifi.ssid
-					ssid=`cat /boot/wifi.ssid`
-				fi
-				if [ -e /boot/wifi.pass ]
-				then
-					echo -n "wifi.pass: "
-					cat /boot/wifi.pass
-					pass=`cat /boot/wifi.pass`
-				fi
-				gen_hostapd_conf "$ssid" "$pass" > /etc/hostapd.conf
+				echo -n "ssid: "
+				cat /boot/wifi.ssid
+				ssid=`cat /boot/wifi.ssid`
 			fi
+			if [ -e /boot/wifi.pass ]
+			then
+				echo -n "wifi.pass: "
+				cat /boot/wifi.pass
+				pass=`cat /boot/wifi.pass`
+			fi
+			gen_hostapd_conf "$ssid" "$pass" > /etc/hostapd.conf
 			if [ -e /boot/wifi.ipv4_prefix ]
 			then
 				ipv4_prefix=`cat /boot/rndis.ipv4_prefix`
