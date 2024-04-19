@@ -44,27 +44,24 @@ start() {
 		then
 			cp /boot/wpa_supplicant.conf /etc/wpa_supplicant.conf
 		else
-			if [ ! -e /etc/wpa_supplicant.conf ]
+			ssid=""
+			pass=""
+			if [ -e /boot/wifi.ssid ]
 			then
-				ssid=""
-				pass=""
-				if [ -e /boot/wifi.ssid ]
-				then
-					echo -n "ssid: "
-					cat /boot/wifi.ssid
-					ssid=`cat /boot/wifi.ssid`
-				fi
-				if [ -e /boot/wifi.pass ]
-				then
-					echo -n "wifi.pass: "
-					cat /boot/wifi.pass
-					pass=`cat /boot/wifi.pass`
-				fi
-				if [ ! -z "${ssid}${pass}" ]
-				then
-					echo "ctrl_interface=/var/run/wpa_supplicant" > /etc/wpa_supplicant.conf
-					wpa_passphrase "$ssid" "$pass" >> /etc/wpa_supplicant.conf
-				fi
+				echo -n "ssid: "
+				cat /boot/wifi.ssid
+				ssid=`cat /boot/wifi.ssid`
+			fi
+			if [ -e /boot/wifi.pass ]
+			then
+				echo -n "wifi.pass: "
+				cat /boot/wifi.pass
+				pass=`cat /boot/wifi.pass`
+			fi
+			if [ ! -z "${ssid}${pass}" ]
+			then
+				echo "ctrl_interface=/var/run/wpa_supplicant" > /etc/wpa_supplicant.conf
+				wpa_passphrase "$ssid" "$pass" >> /etc/wpa_supplicant.conf
 			fi
 		fi
 		wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
