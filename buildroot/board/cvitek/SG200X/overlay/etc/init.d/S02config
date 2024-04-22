@@ -39,6 +39,10 @@ then
 		then
 			cp /mnt/data/sensor_cfg.ini.alpha /mnt/data/sensor_cfg.ini
 		fi
+		if [ $(cat /mnt/data/sensor_cfg.ini | wc -l) -eq 0 ]
+		then
+			cp /mnt/data/sensor_cfg.ini.beta /mnt/data/sensor_cfg.ini
+		fi
 		# MIPI RX 4N PINMUX MCLK0
 		devmem 0x0300116C 32 0x5
 		# MIPI RX 0N PINMUX MIPIP RX 0N
@@ -49,7 +53,11 @@ then
 		then
 			cp /mnt/data/sensor_cfg.ini.beta /mnt/data/sensor_cfg.ini
 		fi
-		# MIPI RX 4N PINMUX MIPI RX 4N
+		if [ $(cat /mnt/data/sensor_cfg.ini | wc -l) -eq 0 ]
+		then
+			cp /mnt/data/sensor_cfg.ini.beta /mnt/data/sensor_cfg.ini
+		fi
+	k	# MIPI RX 4N PINMUX MIPI RX 4N
 		devmem 0x0300116C 32 0x3
 		# MIPI RX 0N PINMUX MCLK1
 		devmem 0x0300118C 32 0x5
