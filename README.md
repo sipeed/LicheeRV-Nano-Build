@@ -38,3 +38,11 @@ on some system, qt5svg or qt5base will build failed on first build, please retry
 ```
 build_all
 ```
+
+# how to modify image after build:
+
+```
+./host/mount_image.sh install/xxxxxx/xxxx.img mountpoint
+cd mountpoint
+touch xxx
+```
