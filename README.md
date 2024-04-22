@@ -42,7 +42,12 @@ build_all
 # how to modify image after build:
 
 ```
-./host/mount_image.sh install/xxxxxx/xxxx.img mountpoint
+# first partition
+touch wifi.sta
+mcopy -i install/xxx/xxx.img@@1s wifi.sta ::/
+
+# second partition
+./host/mount_ext4.sh install/xxx/xxx.img mountpoint
 cd mountpoint
 touch xxx
 ```
