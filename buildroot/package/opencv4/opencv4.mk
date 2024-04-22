@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-OPENCV4_VERSION = 4.8.1
+OPENCV4_VERSION = 4.9.0
 OPENCV4_SITE = $(call github,opencv,opencv,$(OPENCV4_VERSION))
 OPENCV4_INSTALL_STAGING = YES
 OPENCV4_LICENSE = Apache-2.0
@@ -44,6 +44,12 @@ ifeq ($(BR2_PACKAGE_OPENCV4_BUILD_TESTS)$(BR2_PACKAGE_OPENCV4_BUILD_PERF_TESTS),
 OPENCV4_CONF_OPTS += -DINSTALL_TEST=OFF
 else
 OPENCV4_CONF_OPTS += -DINSTALL_TEST=ON
+define OPENCV4_INSTALL_TESTBIN
+	ls $(@D)/buildroot-build/bin
+	mkdir -pv $(TARGET_DIR)/usr/bin/
+	cp -vf $(@D)/buildroot-build/bin/* $(TARGET_DIR)/usr/bin/
+endef
+OPENCV4_POST_INSTALL_TARGET_HOOKS += OPENCV4_INSTALL_TESTBIN
 endif
 
 # OpenCV build options
