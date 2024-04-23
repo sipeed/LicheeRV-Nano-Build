@@ -223,6 +223,7 @@
 	#define CONSOLEDEV "ttyS0\0"
 
 	/* config loglevel */
+	#define RELEASE
 	#ifdef RELEASE
 		#define CONSOLE_LOGLEVEL   " loglevel=0"
 		#define EARLYCON_RELEASE   " release "
