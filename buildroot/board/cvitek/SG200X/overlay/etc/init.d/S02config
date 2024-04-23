@@ -57,7 +57,7 @@ then
 		then
 			cp /mnt/data/sensor_cfg.ini.beta /mnt/data/sensor_cfg.ini
 		fi
-	k	# MIPI RX 4N PINMUX MIPI RX 4N
+		# MIPI RX 4N PINMUX MIPI RX 4N
 		devmem 0x0300116C 32 0x3
 		# MIPI RX 0N PINMUX MCLK1
 		devmem 0x0300118C 32 0x5
