@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LCDTEST_VERSION = 9dc8793ff0a6cdc973cf823af6447a79a4da6cac
+LCDTEST_VERSION = d6defe34015d64b70963e16ee0e1d274387ec060
 LCDTEST_SITE = $(call github,0x754C,lcdtest,$(LCDTEST_VERSION))
 
 define LCDTEST_BUILD_CMDS
