@@ -17,7 +17,7 @@ then
 			hd22800=$(cat /boot/uEnv.txt | grep hd228001c31 | wc -l)
 			if [ "${hd22800}" -ne 0 ]
 			then
-				echo "5000" > ${blpwm}/duty_cycle # 50%
+				echo "2000" > ${blpwm}/duty_cycle # 20%
 			else
 				echo "9500" > ${blpwm}/duty_cycle
 			fi
