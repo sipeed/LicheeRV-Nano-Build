@@ -30,6 +30,7 @@ touch ${output_dir}/input/usb.dev
 touch ${output_dir}/input/usb.rndis0
 touch ${output_dir}/input/wifi.sta
 touch ${output_dir}/input/gt9xx
+touch ${output_dir}/input/fb
 echo ${image} > ${output_dir}/input/ver
 cp -fv ${THISDIR}/genimage_rootless.cfg ${output_dir}/genimage.cfg
 sed -i -e "s/duo.img/${image}/g" ${output_dir}/genimage.cfg
