@@ -86,6 +86,8 @@ then
 fi
 
 mkdir /realroot
+e2fsck -fvp /dev/mmcblk0p2
+resize2fs /dev/mmcblk0p2
 mount -o rw /dev/mmcblk0p2 /realroot
 mfail="$?"
 
