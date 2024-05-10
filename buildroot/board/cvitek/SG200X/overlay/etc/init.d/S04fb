@@ -7,7 +7,6 @@ then
 	then
 		echo "framebuffer enable"
 		insmod /mnt/system/ko/soph_fb.ko
-		fbpattern
 		# we need keep node /dev/fb0 open
 		# graphic layer will disable after node /dev/fb0 is closed
 		(
