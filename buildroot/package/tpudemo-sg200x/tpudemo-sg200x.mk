@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-TPUDEMO_SG200X_VERSION = 345541b2f2a30e4efaa7505aa3b911826ec78505
+TPUDEMO_SG200X_VERSION = e50c97cbfc3f6018d674883a6a60bccd63bbf01d
 TPUDEMO_SG200X_SITE = $(call github,0x754C,tpudemo-sg200x,$(TPUDEMO_SG200X_VERSION))
 
 define TPUDEMO_SG200X_INSTALL_TARGET_CMDS
