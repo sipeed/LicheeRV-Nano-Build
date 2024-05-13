@@ -47,23 +47,29 @@ msc() {
 	echo /dev/mmcblk0 > functions/mass_storage.disk0/lun.0/file
 	ls /sys/class/udc/ | cat > UDC
 	echo device > /proc/cviusb/otg_role
+	(
 	while true
 	do
 		sleep 10
 		sync
 	done
+	) &
+	/busybox sh
+	exit
 }
 
-mkdir /dev
+set -x
+
+mkdir -p /dev
 mount -t devtmpfs devtmpfs /dev
-mkdir /proc
+mkdir -p /proc
 mount -t proc proc /proc
-mkdir /sys
+mkdir -p /sys
 mount -t sysfs sysfs /sys
 mount -t configfs configfs /sys/kernel/config
 mount -t debugfs debugfs /sys/kernel/debug
 
-mkdir /boot
+mkdir -p /boot
 mount -o ro /dev/mmcblk0p1 /boot
 
 msc=0
@@ -86,6 +92,10 @@ then
 fi
 
 mkdir /realroot
+parted -s /dev/mmcblk0 "resizepart 2 -0"
+echo "yes
+100%
+" | parted ---pretend-input-tty /dev/mmcblk0 "resizepart 2 100%"
 e2fsck -fvp /dev/mmcblk0p2
 resize2fs /dev/mmcblk0p2
 mount -o rw /dev/mmcblk0p2 /realroot
