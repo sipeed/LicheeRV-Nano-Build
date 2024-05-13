@@ -8,6 +8,11 @@ then
 	then
 		cp -vf /boot/sshd_config /etc/ssh/sshd_config
 	fi
+	if [ -e /boot/resolv.conf ]
+	then
+		rm -rf /etc/resolv.conf
+		cp -vf /boot/resolv.conf /etc/resolv.conf
+	fi
 	if [ -e /boot/input-event-daemon ]
 	then
 		if [ ! -e /etc/input-event-daemon.conf ]
