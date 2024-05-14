@@ -47,15 +47,14 @@ msc() {
 	echo /dev/mmcblk0 > functions/mass_storage.disk0/lun.0/file
 	ls /sys/class/udc/ | cat > UDC
 	echo device > /proc/cviusb/otg_role
-	(
 	while true
 	do
 		sleep 10
+		busybox iostat
+		busybox uptime
+		busybox uname
 		sync
 	done
-	) &
-	/busybox sh
-	exit
 }
 
 set -x
