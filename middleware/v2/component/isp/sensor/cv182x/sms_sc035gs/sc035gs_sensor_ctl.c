@@ -208,6 +208,19 @@ void sc035gs_exit(VI_PIPE ViPipe)
 /* 1296P30 and 1296P25 */
 static void sc035gs_linear_1296P30_init(VI_PIPE ViPipe)
 {
+	printf("###########   PinMux  #######################################################################\n");
+	system("devmem 0x0300116C 32 0x3");
+	system("devmem 0x03001170 32 0x3");
+	system("devmem 0x03001174 32 0x3");
+	system("devmem 0x03001178 32 0x3");
+	system("devmem 0x0300117C 32 0x3");
+	system("devmem 0x03001180 32 0x3");
+	system("devmem 0x03001184 32 0x3");
+	system("devmem 0x03001188 32 0x3");
+	system("devmem 0x0300118C 32 0x5");
+	system("devmem 0x03001190 32 0x3");
+	printf("###########   PinMux End  #######################################################################\n");
+	
 	sc035gs_write_register(ViPipe, 0x0103, 0x01);
 	delay_ms(33);
 	sc035gs_write_register(ViPipe, 0x0100, 0x00);

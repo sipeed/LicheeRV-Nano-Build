@@ -27,8 +27,8 @@
 
 #define LT6911_ID 6911
 
-#define INPUT_WIDTH         (1920)
-#define INPUT_HEIGHT        (1080)
+#define INPUT_WIDTH         (1920)		// 1920	1280 800
+#define INPUT_HEIGHT        (1080)		// 1080	720  600
 
 /****************************************************************************
  * global variables                                                            *
@@ -401,6 +401,7 @@ static CVI_S32 sensor_set_init(VI_PIPE ViPipe, ISP_INIT_ATTR_S *pstInitAttr)
 
 static CVI_S32 sensor_probe(VI_PIPE ViPipe)
 {
+	printf("[sensor_prob = lt6911_probe] \n");
 	return lt6911_probe(ViPipe);
 }
 
@@ -419,5 +420,6 @@ ISP_SNS_OBJ_S stSnsLT6911_Obj = {
 	.pfnGetRxAttr           = sensor_rx_attr,
 	.pfnExpSensorCb         = cmos_init_sensor_exp_function,
 	.pfnExpAeCb             = cmos_init_ae_exp_function,
-	.pfnSnsProbe		= sensor_probe,
+	.pfnSnsProbe		    = sensor_probe,
 };
+

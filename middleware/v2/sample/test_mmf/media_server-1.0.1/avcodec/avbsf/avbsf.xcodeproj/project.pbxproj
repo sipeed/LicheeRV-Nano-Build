@@ -1,0 +1,363 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0C9FC5F2298D010A00FB85DD /* avbsf-h265.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FC5EC298D010A00FB85DD /* avbsf-h265.c */; };
+		0C9FC5F3298D010A00FB85DD /* avbsf-h264.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FC5ED298D010A00FB85DD /* avbsf-h264.c */; };
+		0C9FC5F4298D010A00FB85DD /* avbsf-h266.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FC5EE298D010A00FB85DD /* avbsf-h266.c */; };
+		0C9FC5F5298D010A00FB85DD /* avbsf-aac.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FC5EF298D010A00FB85DD /* avbsf-aac.c */; };
+		0C9FC5F6298D010A00FB85DD /* avbsf.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FC5F0298D010A00FB85DD /* avbsf.c */; };
+		0C9FC5F7298D010A00FB85DD /* avpbs-h266.c in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FC5F1298D010A00FB85DD /* avpbs-h266.c */; };
+		46850374262413E500E7ABEC /* avpbs-h265.c in Sources */ = {isa = PBXBuildFile; fileRef = 46850368262413E500E7ABEC /* avpbs-h265.c */; };
+		46850375262413E600E7ABEC /* avpbs-vpx.c in Sources */ = {isa = PBXBuildFile; fileRef = 46850369262413E500E7ABEC /* avpbs-vpx.c */; };
+		46850376262413E600E7ABEC /* avpbs-g7xx.c in Sources */ = {isa = PBXBuildFile; fileRef = 4685036A262413E500E7ABEC /* avpbs-g7xx.c */; };
+		46850377262413E600E7ABEC /* avpbs-aac.c in Sources */ = {isa = PBXBuildFile; fileRef = 4685036B262413E500E7ABEC /* avpbs-aac.c */; };
+		46850378262413E600E7ABEC /* avpbs-opus.c in Sources */ = {isa = PBXBuildFile; fileRef = 4685036C262413E500E7ABEC /* avpbs-opus.c */; };
+		46850379262413E600E7ABEC /* avpbs.c in Sources */ = {isa = PBXBuildFile; fileRef = 4685036D262413E500E7ABEC /* avpbs.c */; };
+		4685037A262413E600E7ABEC /* avpbs-mp3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4685036E262413E500E7ABEC /* avpbs-mp3.c */; };
+		4685037B262413E600E7ABEC /* avpbs-h264.c in Sources */ = {isa = PBXBuildFile; fileRef = 4685036F262413E500E7ABEC /* avpbs-h264.c */; };
+		4685037E262413E600E7ABEC /* avpbs-av1.c in Sources */ = {isa = PBXBuildFile; fileRef = 46850372262413E500E7ABEC /* avpbs-av1.c */; };
+		4CEE46E827A70CA900740460 /* avpkt2bs.c in Sources */ = {isa = PBXBuildFile; fileRef = 4CEE46E327A70AE600740460 /* avpkt2bs.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0C9FC5EC298D010A00FB85DD /* avbsf-h265.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avbsf-h265.c"; path = "src/avbsf-h265.c"; sourceTree = "<group>"; };
+		0C9FC5ED298D010A00FB85DD /* avbsf-h264.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avbsf-h264.c"; path = "src/avbsf-h264.c"; sourceTree = "<group>"; };
+		0C9FC5EE298D010A00FB85DD /* avbsf-h266.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avbsf-h266.c"; path = "src/avbsf-h266.c"; sourceTree = "<group>"; };
+		0C9FC5EF298D010A00FB85DD /* avbsf-aac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avbsf-aac.c"; path = "src/avbsf-aac.c"; sourceTree = "<group>"; };
+		0C9FC5F0298D010A00FB85DD /* avbsf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = avbsf.c; path = src/avbsf.c; sourceTree = "<group>"; };
+		0C9FC5F1298D010A00FB85DD /* avpbs-h266.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-h266.c"; path = "src/avpbs-h266.c"; sourceTree = "<group>"; };
+		46850368262413E500E7ABEC /* avpbs-h265.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-h265.c"; path = "src/avpbs-h265.c"; sourceTree = "<group>"; };
+		46850369262413E500E7ABEC /* avpbs-vpx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-vpx.c"; path = "src/avpbs-vpx.c"; sourceTree = "<group>"; };
+		4685036A262413E500E7ABEC /* avpbs-g7xx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-g7xx.c"; path = "src/avpbs-g7xx.c"; sourceTree = "<group>"; };
+		4685036B262413E500E7ABEC /* avpbs-aac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-aac.c"; path = "src/avpbs-aac.c"; sourceTree = "<group>"; };
+		4685036C262413E500E7ABEC /* avpbs-opus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-opus.c"; path = "src/avpbs-opus.c"; sourceTree = "<group>"; };
+		4685036D262413E500E7ABEC /* avpbs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = avpbs.c; path = src/avpbs.c; sourceTree = "<group>"; };
+		4685036E262413E500E7ABEC /* avpbs-mp3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-mp3.c"; path = "src/avpbs-mp3.c"; sourceTree = "<group>"; };
+		4685036F262413E500E7ABEC /* avpbs-h264.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-h264.c"; path = "src/avpbs-h264.c"; sourceTree = "<group>"; };
+		46850372262413E500E7ABEC /* avpbs-av1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "avpbs-av1.c"; path = "src/avpbs-av1.c"; sourceTree = "<group>"; };
+		46E55E302460588000D8BDBA /* libavbsf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libavbsf.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		46E55E38246058CA00D8BDBA /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; path = include; sourceTree = "<group>"; };
+		4CEE46E327A70AE600740460 /* avpkt2bs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = avpkt2bs.c; path = src/avpkt2bs.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		46E55E2E2460588000D8BDBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		46E55E272460588000D8BDBA = {
+			isa = PBXGroup;
+			children = (
+				46E55E38246058CA00D8BDBA /* include */,
+				46E55E3A2460591E00D8BDBA /* src */,
+				46E55E312460588000D8BDBA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		46E55E312460588000D8BDBA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				46E55E302460588000D8BDBA /* libavbsf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		46E55E3A2460591E00D8BDBA /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4CEE46E327A70AE600740460 /* avpkt2bs.c */,
+				4685036D262413E500E7ABEC /* avpbs.c */,
+				4685036B262413E500E7ABEC /* avpbs-aac.c */,
+				46850372262413E500E7ABEC /* avpbs-av1.c */,
+				4685036A262413E500E7ABEC /* avpbs-g7xx.c */,
+				4685036F262413E500E7ABEC /* avpbs-h264.c */,
+				46850368262413E500E7ABEC /* avpbs-h265.c */,
+				4685036E262413E500E7ABEC /* avpbs-mp3.c */,
+				4685036C262413E500E7ABEC /* avpbs-opus.c */,
+				46850369262413E500E7ABEC /* avpbs-vpx.c */,
+				0C9FC5EF298D010A00FB85DD /* avbsf-aac.c */,
+				0C9FC5ED298D010A00FB85DD /* avbsf-h264.c */,
+				0C9FC5EC298D010A00FB85DD /* avbsf-h265.c */,
+				0C9FC5EE298D010A00FB85DD /* avbsf-h266.c */,
+				0C9FC5F0298D010A00FB85DD /* avbsf.c */,
+				0C9FC5F1298D010A00FB85DD /* avpbs-h266.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		46E55E2C2460588000D8BDBA /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		46E55E2F2460588000D8BDBA /* avbsf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 46E55E342460588000D8BDBA /* Build configuration list for PBXNativeTarget "avbsf" */;
+			buildPhases = (
+				46E55E2C2460588000D8BDBA /* Headers */,
+				46E55E2D2460588000D8BDBA /* Sources */,
+				46E55E2E2460588000D8BDBA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = avbsf;
+			productName = avbsf;
+			productReference = 46E55E302460588000D8BDBA /* libavbsf.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46E55E282460588000D8BDBA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				ORGANIZATIONNAME = ireader;
+				TargetAttributes = {
+					46E55E2F2460588000D8BDBA = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 46E55E2B2460588000D8BDBA /* Build configuration list for PBXProject "avbsf" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 46E55E272460588000D8BDBA;
+			productRefGroup = 46E55E312460588000D8BDBA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				46E55E2F2460588000D8BDBA /* avbsf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		46E55E2D2460588000D8BDBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C9FC5F5298D010A00FB85DD /* avbsf-aac.c in Sources */,
+				46850377262413E600E7ABEC /* avpbs-aac.c in Sources */,
+				4CEE46E827A70CA900740460 /* avpkt2bs.c in Sources */,
+				4685037A262413E600E7ABEC /* avpbs-mp3.c in Sources */,
+				46850374262413E500E7ABEC /* avpbs-h265.c in Sources */,
+				46850379262413E600E7ABEC /* avpbs.c in Sources */,
+				46850376262413E600E7ABEC /* avpbs-g7xx.c in Sources */,
+				4685037E262413E600E7ABEC /* avpbs-av1.c in Sources */,
+				0C9FC5F4298D010A00FB85DD /* avbsf-h266.c in Sources */,
+				0C9FC5F6298D010A00FB85DD /* avbsf.c in Sources */,
+				0C9FC5F2298D010A00FB85DD /* avbsf-h265.c in Sources */,
+				0C9FC5F3298D010A00FB85DD /* avbsf-h264.c in Sources */,
+				0C9FC5F7298D010A00FB85DD /* avpbs-h266.c in Sources */,
+				46850378262413E600E7ABEC /* avpbs-opus.c in Sources */,
+				4685037B262413E600E7ABEC /* avpbs-h264.c in Sources */,
+				46850375262413E600E7ABEC /* avpbs-vpx.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		46E55E322460588000D8BDBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"__ERROR__=(31*10000000+__LINE__*1000)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = (
+					.,
+					./include,
+					../avcodec/include,
+					../h264/include,
+					../h265/include,
+					../../sdk/include,
+					"../../media-server/libflv/include",
+				);
+			};
+			name = Debug;
+		};
+		46E55E332460588000D8BDBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "__ERROR__=(31*10000000+__LINE__*1000)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = (
+					.,
+					./include,
+					../avcodec/include,
+					../h264/include,
+					../h265/include,
+					../../sdk/include,
+					"../../media-server/libflv/include",
+				);
+			};
+			name = Release;
+		};
+		46E55E352460588000D8BDBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		46E55E362460588000D8BDBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		46E55E2B2460588000D8BDBA /* Build configuration list for PBXProject "avbsf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46E55E322460588000D8BDBA /* Debug */,
+				46E55E332460588000D8BDBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		46E55E342460588000D8BDBA /* Build configuration list for PBXNativeTarget "avbsf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46E55E352460588000D8BDBA /* Debug */,
+				46E55E362460588000D8BDBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46E55E282460588000D8BDBA /* Project object */;
+}

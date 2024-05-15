@@ -252,6 +252,20 @@ void os04a10_init(VI_PIPE ViPipe)
 	enWDRMode   = g_pastOs04a10[ViPipe]->enWDRMode;
 	u8ImgMode   = g_pastOs04a10[ViPipe]->u8ImgMode;
 
+		// PinMUX
+	printf("###########   PinMux  #######################################################################\n");
+	system("devmem 0x0300116C 32 0x3");
+	system("devmem 0x03001170 32 0x3");
+	system("devmem 0x03001174 32 0x3");
+	system("devmem 0x03001178 32 0x3");
+	system("devmem 0x0300117C 32 0x3");
+	system("devmem 0x03001180 32 0x3");
+	system("devmem 0x03001184 32 0x3");
+	system("devmem 0x03001188 32 0x3");
+	system("devmem 0x0300118C 32 0x3");
+	system("devmem 0x03001190 32 0x3");
+	printf("###########   PinMux End  #######################################################################\n");
+
 	os04a10_i2c_init(ViPipe);
 
 	if (enWDRMode == WDR_MODE_2To1_LINE) {

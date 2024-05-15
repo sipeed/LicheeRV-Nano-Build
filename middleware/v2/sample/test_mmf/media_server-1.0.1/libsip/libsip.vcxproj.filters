@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\proxy">
+      <UniqueIdentifier>{5a130e70-6cc1-4c2b-b41c-d1c1d1fee785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\uas">
+      <UniqueIdentifier>{1aadb350-7464-4f9b-8680-8ff146365b83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\uac">
+      <UniqueIdentifier>{f1d0d52b-9c9e-40f6-9e7f-f261f9563d02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SIP Header">
+      <UniqueIdentifier>{83d7eb8d-7a2e-4a85-9236-4ba56c2916b6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\sip-header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-transport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-uac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-uas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\uac\sip-uac-transaction.h">
+      <Filter>Source Files\uac</Filter>
+    </ClInclude>
+    <ClInclude Include="src\uas\sip-uas-transaction.h">
+      <Filter>Source Files\uas</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-agent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sip-internal.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sip-subscribe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\header\sip-header-contact.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+    <ClCompile Include="src\header\sip-header-uri.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+    <ClCompile Include="src\header\sip-header-via.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+    <ClCompile Include="src\header\sip-header-param.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+    <ClCompile Include="src\header\sip-header-cseq.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sip-message.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sip-dialog.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sip-reason.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\header\sip-header.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-ack.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-bye.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-cancel.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-invite.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-options.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-register.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-transaction.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-transaction-invite.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-transaction-noninvite.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-bye.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-cancel.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-options.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-register.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-transaction.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-transaction-invite.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-transaction-noninvite.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sip-agent.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-info.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-refer.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-subscribe.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-subscribe.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uac\sip-uac-info.c">
+      <Filter>Source Files\uac</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sip-subscribe.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\header\sip-header-substate.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uas\sip-uas-prack.c">
+      <Filter>Source Files\uas</Filter>
+    </ClCompile>
+    <ClCompile Include="src\header\sip-header-route.c">
+      <Filter>SIP Header</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

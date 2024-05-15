@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C34CC56F-34FE-4D93-8582-5853B05442EA}</ProjectGuid>
+    <RootNamespace>librtsp</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;include;../librtp/include;../../sdk/libhttp/include;../../sdk/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBRTSP_EXPORTS;OS_WINDOWS;_CRT_SECURE_NO_WARNINGS;RTP_OVER_RTSP_TRY_TO_FIND_NEXT_PACKET</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;include;../librtp/include;../../sdk/libhttp/include;../../sdk/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;OS_WINDOWS;RTP_OVER_RTSP_TRY_TO_FIND_NEXT_PACKET</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.;include;../librtp/include;../../sdk/libhttp/include;../../sdk/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBRTSP_EXPORTS;_CRT_SECURE_NO_WARNINGS;OS_WINDOWS;RTP_OVER_RTSP_TRY_TO_FIND_NEXT_PACKET</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>.;include;../librtp/include;../../sdk/libhttp/include;../../sdk/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;OS_WINDOWS;RTP_OVER_RTSP_TRY_TO_FIND_NEXT_PACKET</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="source\client\rtp-over-rtsp.c" />
+    <ClCompile Include="source\client\rtsp-client-announce.c" />
+    <ClCompile Include="source\client\rtsp-client-auth.c" />
+    <ClCompile Include="source\client\rtsp-client-describe.c" />
+    <ClCompile Include="source\client\rtsp-client-get-parameter.c" />
+    <ClCompile Include="source\client\rtsp-client-options.c" />
+    <ClCompile Include="source\client\rtsp-client-pause.c" />
+    <ClCompile Include="source\client\rtsp-client-play.c" />
+    <ClCompile Include="source\client\rtsp-client-record.c" />
+    <ClCompile Include="source\client\rtsp-client-set-parameter.c" />
+    <ClCompile Include="source\client\rtsp-client-setup.c" />
+    <ClCompile Include="source\client\rtsp-client-teardown.c" />
+    <ClCompile Include="source\client\rtsp-client.c" />
+    <ClCompile Include="source\rtsp-header-range.c" />
+    <ClCompile Include="source\rtsp-header-rtp-info.c" />
+    <ClCompile Include="source\rtsp-header-session.c" />
+    <ClCompile Include="source\rtsp-header-transport.c" />
+    <ClCompile Include="source\rtsp-media.c" />
+    <ClCompile Include="source\rtsp-multicast.c" />
+    <ClCompile Include="source\rtsp-reason.c" />
+    <ClCompile Include="source\sdp-a-fmtp.c" />
+    <ClCompile Include="source\sdp-a-rtpmap.c" />
+    <ClCompile Include="source\sdp-a-webrtc.c" />
+    <ClCompile Include="source\sdp-options.c" />
+    <ClCompile Include="source\sdp.c" />
+    <ClCompile Include="source\server\rtsp-server-announce.c" />
+    <ClCompile Include="source\server\rtsp-server-describe.c" />
+    <ClCompile Include="source\server\rtsp-server-handler.c" />
+    <ClCompile Include="source\server\rtsp-server-options.c" />
+    <ClCompile Include="source\server\rtsp-server-parameter.c" />
+    <ClCompile Include="source\server\rtsp-server-pause.c" />
+    <ClCompile Include="source\server\rtsp-server-play.c" />
+    <ClCompile Include="source\server\rtsp-server-record.c" />
+    <ClCompile Include="source\server\rtsp-server-setup.c" />
+    <ClCompile Include="source\server\rtsp-server-teardown.c" />
+    <ClCompile Include="source\server\rtsp-server.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\rtp-over-rtsp.h" />
+    <ClInclude Include="include\rtp-sender.h" />
+    <ClInclude Include="include\rtsp-client.h" />
+    <ClInclude Include="include\rtsp-demuxer.h" />
+    <ClInclude Include="include\rtsp-header-range.h" />
+    <ClInclude Include="include\rtsp-header-rtp-info.h" />
+    <ClInclude Include="include\rtsp-header-session.h" />
+    <ClInclude Include="include\rtsp-header-transport.h" />
+    <ClInclude Include="include\rtsp-media.h" />
+    <ClInclude Include="include\rtsp-muxer.h" />
+    <ClInclude Include="include\rtsp-payloads.h" />
+    <ClInclude Include="include\rtsp-reason.h" />
+    <ClInclude Include="include\rtsp-server-aio.h" />
+    <ClInclude Include="include\rtsp-server.h" />
+    <ClInclude Include="include\sdp-a-fmtp.h" />
+    <ClInclude Include="include\sdp-a-rtpmap.h" />
+    <ClInclude Include="include\sdp-a-webrtc.h" />
+    <ClInclude Include="include\sdp-options.h" />
+    <ClInclude Include="include\sdp.h" />
+    <ClInclude Include="source\client\rtsp-client-internal.h" />
+    <ClInclude Include="source\server\rtsp-server-internal.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,5 +1,9 @@
 *~
 *.swp
+*.o
+*.a
+*.ko
+*.d
 host-tools/
 *.sqfs
 build/tools/common/sd_tools/genimage.cfg.tmp

@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\audio-mixer.h" />
+    <ClInclude Include="include\audio-resampler.h" />
+    <ClInclude Include="include\avbuffer.h" />
+    <ClInclude Include="include\avcodecid.h" />
+    <ClInclude Include="include\avdtsinfer.h" />
+    <ClInclude Include="include\avframe.h" />
+    <ClInclude Include="include\avpacket.h" />
+    <ClInclude Include="include\avsegment.h" />
+    <ClInclude Include="include\avstatistic.h" />
+    <ClInclude Include="include\avstream.h" />
+    <ClInclude Include="include\avtimeline.h" />
+    <ClInclude Include="include\bitmap.h" />
+    <ClInclude Include="include\colorspace.h" />
+    <ClInclude Include="include\h264-encoder.h" />
+    <ClInclude Include="include\h264-parameter.h" />
+    <ClInclude Include="include\audio-decoder.h" />
+    <ClInclude Include="include\audio-encoder.h" />
+    <ClInclude Include="include\text-render.h" />
+    <ClInclude Include="include\yuv-overlay.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\audio-mixer.c" />
+    <ClCompile Include="source\audio-resampler.c" />
+    <ClCompile Include="source\avbuffer.c" />
+    <ClCompile Include="source\avdtsinfer.c" />
+    <ClCompile Include="source\avframe.c" />
+    <ClCompile Include="source\avpacket.c" />
+    <ClCompile Include="source\avsegment.c" />
+    <ClCompile Include="source\avstatistic.c" />
+    <ClCompile Include="source\avstream.c" />
+    <ClCompile Include="source\avtimeline.c" />
+    <ClCompile Include="source\bitmap.c" />
+    <ClCompile Include="source\colorspace.c" />
+    <ClCompile Include="source\faac-decoder.c" />
+    <ClCompile Include="source\faac-encoder.c" />
+    <ClCompile Include="source\fdk-decoder.c" />
+    <ClCompile Include="source\g711-decoder.c" />
+    <ClCompile Include="source\g711-encoder.c" />
+    <ClCompile Include="source\interpolation-bilinear.c" />
+    <ClCompile Include="source\mp2lame-encoder.c" />
+    <ClCompile Include="source\openh264enc.cpp" />
+    <ClCompile Include="source\opus-decoder.c" />
+    <ClCompile Include="source\opus-encoder.c" />
+    <ClCompile Include="source\text-render-freetype.c" />
+    <ClCompile Include="source\text-render-gdi.c" />
+    <ClCompile Include="source\x262enc.c" />
+    <ClCompile Include="source\x264enc.c" />
+    <ClCompile Include="source\yuv-overlay.c" />
+    <ClCompile Include="test\faac-decoder-test.cpp" />
+    <ClCompile Include="test\faac-encoder-test.cpp" />
+    <ClCompile Include="test\fdk-decoder-test.cpp" />
+    <ClCompile Include="test\g711-decoder-test.cpp" />
+    <ClCompile Include="test\g711-encoder-test.cpp" />
+    <ClCompile Include="test\interpolation-test.cpp" />
+    <ClCompile Include="test\text-render-test.cpp" />
+    <ClCompile Include="test\x264-encode-test.cpp" />
+    <ClCompile Include="test\yuv-overlay-test.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{01E9D416-4A49-416E-8182-22241F07C295}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>avcodec</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;OS_WINDOWS;_CRT_SECURE_NO_WARNINGS;_AVCODEC_FAAC_;_AVCODEC_OPUS_;_AVCODEC_TWOLAME_;_AVCODEC_X264_;_AVCODEC_OPENH264_;_AVCODEC_FREETYPE_;%(PreprocessorDefinitions);_AVCODEC_SOXR_</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;../../sdk/include;../../3rd/freetype/include;../../3rd/freetype/include/freetype2;../../3rd/faac;../../3rd/twolame;../../3rd;../../3rd/soxr;../../3rd/fdk</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rd\openh264\win32;..\..\3rd\x264\win32;..\..\3rd\freetype\win32;..\..\3rd\opus\win32;..\..\3rd\faac\win32;..\..\3rd\soxr\win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264-164.lib;openh264-v2.1.1.lib;freetype.lib;opus.lib;libfaac-1.30.lib;libfaad-2.10.0.lib;libsoxr.lib;fdk-aac.lib</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;OS_WINDOWS;%(PreprocessorDefinitions);_AVCODEC_FAAC_;_AVCODEC_OPUS_;_AVCODEC_TWOLAME_;_AVCODEC_X264_;_AVCODEC_OPENH264_;_AVCODEC_FREETYPE_;_AVCODEC_SOXR_</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;../../sdk/include;../../3rd/freetype/include;../../3rd/freetype/include/freetype2;../../3rd/faac;../../3rd/twolame;../../3rd;../../3rd/soxr;../../3rd/fdk</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rd\openh264\win64;..\..\3rd\x264\win64;..\..\3rd\freetype\win64;..\..\3rd\opus\win64;..\..\3rd\faac\win64;..\..\3rd\soxr\win64;..\..\3rd\fdk\win642</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264-164.lib;openh264-v2.1.1.lib;freetype.lib;opus.lib;libfaac-1.30.lib;libfaad-2.10.0.lib;libsoxr.lib</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;OS_WINDOWS;%(PreprocessorDefinitions);_AVCODEC_FAAC_;_AVCODEC_OPUS_;_AVCODEC_TWOLAME_;_AVCODEC_X264_;_AVCODEC_OPENH264_;_AVCODEC_FREETYPE_;_AVCODEC_SOXR_</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;../../sdk/include;../../3rd/freetype/include;../../3rd/freetype/include/freetype2;../../3rd/faac;../../3rd/twolame;../../3rd;../../3rd/soxr;../../3rd/fdk</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>libx264-164.lib;openh264-v2.1.1.lib;freetype.lib;opus.lib;libfaac-1.30.lib;libfaad-2.10.0.lib;libsoxr.lib;fdk-aac.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\3rd\openh264\win32;..\..\3rd\x264\win32;..\..\3rd\freetype\win32;..\..\3rd\opus\win32;..\..\3rd\faac\win32;..\..\3rd\soxr\win32</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;OS_WINDOWS;%(PreprocessorDefinitions);_AVCODEC_FAAC_;_AVCODEC_OPUS_;_AVCODEC_TWOLAME_;_AVCODEC_X264_;_AVCODEC_OPENH264_;_AVCODEC_FREETYPE_;_AVCODEC_SOXR_</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;../../sdk/include;../../3rd/freetype/include;../../3rd/freetype/include/freetype2;../../3rd/faac;../../3rd/twolame;../../3rd;../../3rd/soxr;../../3rd/fdk</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rd\openh264\win64;..\..\3rd\x264\win64;..\..\3rd\freetype\win64;..\..\3rd\opus\win64;..\..\3rd\faac\win64;..\..\3rd\soxr\win64;..\..\3rd\fdk\win64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264-164.lib;openh264-v2.1.1.lib;freetype.lib;opus.lib;libfaac-1.30.lib;libfaad-2.10.0.lib;libsoxr.lib;fdk-aac.lib</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

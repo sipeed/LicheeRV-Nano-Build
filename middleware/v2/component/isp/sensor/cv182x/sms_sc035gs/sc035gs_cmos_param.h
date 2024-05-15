@@ -101,9 +101,13 @@ struct combo_dev_attr_s sc035gs_rx_attr = {
 	.mac_clk = RX_MAC_CLK_200M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_12BIT,
-		.lane_id = {2, 0, 1, -1, -1},
+		.lane_id = {4, 3, 2, -1, -1},
+		.pn_swap = {0, 0, 0, 0, 0},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
-		.pn_swap = {1, 1, 1, 0, 0},
+		.dphy = {
+			.enable = 1,
+			.hs_settle = 8,
+		},
 	},
 	.mclk = {
 		.cam = 0,

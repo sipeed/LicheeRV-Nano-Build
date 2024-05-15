@@ -891,7 +891,8 @@ CVI_S32 SAMPLE_COMM_SNS_GetDevAttr(SAMPLE_SNS_TYPE_E enSnsType, VI_DEV_ATTR_S *p
 	case OV_OS04A10_MIPI_4M_1440P_30FPS_10BIT_WDR2TO1:
 	case TECHPOINT_TP2850_MIPI_2M_30FPS_8BIT:
 	case TECHPOINT_TP2850_MIPI_4M_30FPS_8BIT:
-		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GR;
+		// pstViDevAttr->enBayerFormat = BAYER_FORMAT_RG;
+		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GB;
 		break;
 	case SOI_K06_MIPI_4M_25FPS_10BIT:
 		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GB;
@@ -1131,7 +1132,8 @@ CVI_S32 SAMPLE_COMM_SNS_GetIspAttrBySns(SAMPLE_SNS_TYPE_E enSnsType, ISP_PUB_ATT
 	case TECHPOINT_TP2850_MIPI_2M_30FPS_8BIT:
 	case TECHPOINT_TP2850_MIPI_4M_30FPS_8BIT:
 		// on licheervnano
-		pstPubAttr->enBayer = BAYER_RGGB;
+		pstPubAttr->enBayer = BAYER_BGGR;
+		// pstPubAttr->enBayer = BAYER_RGGB;
 		//pstPubAttr->enBayer = BAYER_GRBG;
 		break;
 #ifdef ARCH_CV182X

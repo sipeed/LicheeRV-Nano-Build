@@ -20,8 +20,8 @@ extern "C" {
 #include "lt6911_cmos_ex.h"
 
 // not real time resolution
-#define WIDTH   3840//3840 1920
-#define HEIGHT  2160//2160 1080
+#define WIDTH   1920	// 3840 1920 1280 800
+#define HEIGHT  1080	// 2160 1080 720  600
 
 static LT6911_MODE_S g_astLt6911_mode[LT6911_MODE_NUM] = {
 	[LT6911_MODE_NORMAL] = {
@@ -50,8 +50,8 @@ struct combo_dev_attr_s lt6911_rx_attr = {
 	.mac_clk = RX_MAC_CLK_600M,
 	.mipi_attr = {
 		.raw_data_type = YUV422_8BIT,
-		.lane_id = {2, 0, 1, 3, 4}, //3, 0, 1, 2, 4  ;   1, 4, 3, 2, 0  2, 0, 1, 3, 4   3, 1, 2, 4, 0
-		.pn_swap = {1, 1, 1, 1, 1},
+		.lane_id = {2, 4, 3, 1, 0}, //3, 0, 1, 2, 4  ;   1, 4, 3, 2, 0  2, 0, 1, 3, 4   3, 1, 2, 4, 0
+		.pn_swap = {0, 0, 0, 0, 0},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 		.dphy = {
 			.enable = 1,

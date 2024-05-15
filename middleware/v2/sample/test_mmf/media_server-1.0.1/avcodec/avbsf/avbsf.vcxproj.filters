@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\nalu">
+      <UniqueIdentifier>{b400754a-da08-44b3-bf21-18886b75a95d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pkt2bs">
+      <UniqueIdentifier>{9d789f34-842e-4d7b-8273-438e2ad08cd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\bs2pkt">
+      <UniqueIdentifier>{04272f84-8ed2-4a97-abcb-04009e46b57a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\flv">
+      <UniqueIdentifier>{5fcf7895-5c97-41d7-b695-4058140fe8dd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\avbsf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avpbs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avpkt2bs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avpktutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avpktutil2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\flv\flv2pkt.h">
+      <Filter>Header Files\flv</Filter>
+    </ClInclude>
+    <ClInclude Include="include\flv\pkt2flv.h">
+      <Filter>Header Files\flv</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\avpbs.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-aac.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-av1.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-g7xx.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-h264.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-h265.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-h266.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-mp3.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-opus.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpbs-vpx.c">
+      <Filter>Source Files\bs2pkt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avpkt2bs.c">
+      <Filter>Source Files\pkt2bs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avbsf.c">
+      <Filter>Source Files\nalu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avbsf-h266.c">
+      <Filter>Source Files\nalu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avbsf-aac.c">
+      <Filter>Source Files\nalu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avbsf-h264.c">
+      <Filter>Source Files\nalu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avbsf-h265.c">
+      <Filter>Source Files\nalu</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

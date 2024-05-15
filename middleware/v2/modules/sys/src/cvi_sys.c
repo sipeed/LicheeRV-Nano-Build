@@ -629,6 +629,22 @@ int ionFree(struct sys_ion_data *para)
 	return CVI_SUCCESS;
 }
 
+int ionFree2(struct sys_ion_data2 *para)
+{
+	CVI_S32 fd = -1;
+	CVI_S32 ret = CVI_SUCCESS;
+
+	if ((fd = get_sys_fd()) == -1)
+		return CVI_ERR_SYS_NOTREADY;
+
+	ret = ioctl(fd, SYS_ION_FREE, para);
+	if (ret < 0) {
+		printf("ioctl SYS_ION_ALLOC failed\n");
+	}
+
+	return CVI_SUCCESS;
+}
+
 static CVI_S32 _SYS_IonAlloc(CVI_U64 *pu64PhyAddr, CVI_VOID **ppVirAddr,
 			     CVI_U32 u32Len, CVI_BOOL cached, const CVI_CHAR *name)
 {

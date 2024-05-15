@@ -343,6 +343,16 @@ CVI_S32 CVI_SYS_StartThermalThread(void);
 CVI_S32 CVI_SYS_StopThermalThread(void);
 
 
+struct sys_ion_data2 {
+	__u32 size;
+	__u32 cached;
+	__u32 dmabuf_fd;
+	__u64 addr_p;
+	__u8 name[32];
+};
+
+int ionFree2(struct sys_ion_data2 *para);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

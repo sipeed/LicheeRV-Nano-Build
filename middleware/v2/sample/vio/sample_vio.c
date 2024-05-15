@@ -54,6 +54,8 @@ CVI_S32 SAMPLE_PLAT_VO_INIT2(void)
 	SAMPLE_VO_CONFIG_S stVoConfig;
 	RECT_S stDefDispRect  = {0, 0, 720, 1280};
 	SIZE_S stDefImageSize = {720, 1280};
+	// RECT_S stDefDispRect  = {0, 0, 480, 640};
+	// SIZE_S stDefImageSize = {480, 640};
 	CVI_S32 s32Ret = CVI_SUCCESS;
 
 	CVI_U32 panel_init = false;
@@ -3764,6 +3766,11 @@ CVI_S32 SAMPLE_VIO_TWO_DEV_VO(void)
 	stSizeIn.u32Height  = stSize.u32Height;
 	stSizeOut.u32Width  = 1280;
 	stSizeOut.u32Height = 720;
+
+	if (stSize.u32Width == 640) {
+		stSizeOut.u32Width  = stSize.u32Width;
+		stSizeOut.u32Height = stSize.u32Height;
+	}
 
 	s32Ret = SAMPLE_PLAT_VPSS_INIT(0, stSizeIn, stSizeOut);
 	if (s32Ret != CVI_SUCCESS) {

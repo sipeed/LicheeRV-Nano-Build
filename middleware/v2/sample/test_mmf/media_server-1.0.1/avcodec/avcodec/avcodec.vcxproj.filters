@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{bbd98074-db13-40f1-a56f-da8585db8737}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\avpacket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\h264-parameter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\yuv-overlay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\colorspace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\h264-encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\text-render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avstatistic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio-encoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio-decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avstream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avcodecid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avtimeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio-mixer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avsegment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avdtsinfer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio-resampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\x264enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\yuv-overlay.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\colorspace.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\interpolation-bilinear.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\bitmap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\openh264enc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\text-render-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\x264-encode-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\yuv-overlay-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\interpolation-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="source\text-render-freetype.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\text-render-gdi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\opus-encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avbuffer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avframe.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avpacket.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\faac-encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\faac-decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\faac-encoder-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\faac-decoder-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mp2lame-encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avstream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avstatistic.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avtimeline.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\audio-mixer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avsegment.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\g711-decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\g711-encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\g711-decoder-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\g711-encoder-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="source\avdtsinfer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\opus-decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\audio-resampler.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\x262enc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\fdk-decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\fdk-decoder-test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

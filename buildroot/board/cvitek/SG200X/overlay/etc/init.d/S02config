@@ -68,5 +68,9 @@ then
 		devmem 0x0300118C 32 0x5
 		echo -n " beta "
 	fi
+	if [ -e /boot/kvmtest ]
+	then
+		cp /mnt/data/sensor_cfg.ini.LT /mnt/data/sensor_cfg.ini
+	fi
 	echo "OK"
 fi

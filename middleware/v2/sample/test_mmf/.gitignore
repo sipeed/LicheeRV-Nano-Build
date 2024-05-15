@@ -1,0 +1,10 @@
+*.bin
+*.patch
+test_mmf
+!librtsp/include
+!librtsp/src
+!*/include
+!*/*/include
+!*/*/*/include
+!*/*/*/*/include
+!*/*/*/*/*/include

@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\client">
+      <UniqueIdentifier>{4afe1d4d-f89d-4ca7-87d4-357e995b6119}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\server">
+      <UniqueIdentifier>{5e4f0a51-fa58-49c9-be18-b5361fd74c1c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\rtsp-header-range.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rtsp-header-rtp-info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rtsp-header-session.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rtsp-header-transport.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rtsp-reason.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sdp-a-fmtp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sdp-a-rtpmap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sdp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-announce.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-describe.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-pause.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-play.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-setup.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-teardown.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-options.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-get-parameter.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-handler.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-options.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-describe.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-setup.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-teardown.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-play.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-pause.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-auth.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtp-over-rtsp.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-set-parameter.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\client\rtsp-client-record.c">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-announce.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-record.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rtsp-media.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\server\rtsp-server-parameter.c">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rtsp-multicast.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sdp-options.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sdp-a-webrtc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\rtsp-header-range.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-header-rtp-info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-header-session.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-header-transport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-reason.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sdp-a-fmtp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sdp-a-rtpmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sdp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\client\rtsp-client-internal.h">
+      <Filter>Source Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="source\server\rtsp-server-internal.h">
+      <Filter>Source Files\server</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtp-over-rtsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-media.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtp-sender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-demuxer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-muxer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-payloads.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rtsp-server-aio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sdp-options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sdp-a-webrtc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

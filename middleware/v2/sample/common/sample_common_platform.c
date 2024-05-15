@@ -220,7 +220,7 @@ CVI_S32 SAMPLE_PLAT_VPSS_INIT(VPSS_GRP VpssGrp, SIZE_S stSizeIn, SIZE_S stSizeOu
 
 	stVpssGrpAttr.stFrameRate.s32SrcFrameRate    = -1;
 	stVpssGrpAttr.stFrameRate.s32DstFrameRate    = -1;
-	stVpssGrpAttr.enPixelFormat                  = SAMPLE_PIXEL_FORMAT;
+	stVpssGrpAttr.enPixelFormat                  = SAMPLE_PIXEL_FORMAT;				// PIXEL_FORMAT_YUYV / SAMPLE_PIXEL_FORMAT / PIXEL_FORMAT_UYVY / PIXEL_FORMAT_YUV_400
 	stVpssGrpAttr.u32MaxW                        = stSizeIn.u32Width;
 	stVpssGrpAttr.u32MaxH                        = stSizeIn.u32Height;
 	stVpssGrpAttr.u8VpssDev                      = 0;

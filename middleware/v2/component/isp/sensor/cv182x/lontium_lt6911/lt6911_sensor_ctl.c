@@ -17,10 +17,11 @@
 #include "cvi_sns_ctrl.h"
 #include "lt6911_cmos_ex.h"
 
-#define LT6911_I2C_DEV 3
+
+#define LT6911_I2C_DEV 4
 #define LT6911_I2C_BANK_ADDR 0xff
 
-CVI_U8 lt6911_i2c_addr = 0x2b;
+CVI_U8 lt6911_i2c_addr = 0x56;
 const CVI_U32 lt6911_addr_byte = 1;
 const CVI_U32 lt6911_data_byte = 1;
 static int g_fd[VI_MAX_PIPE_NUM] = {[0 ... (VI_MAX_PIPE_NUM - 1)] = -1};
@@ -145,6 +146,7 @@ static int lt6911_i2c_read(VI_PIPE ViPipe, int RegAddr)
 	uint8_t bank = RegAddr >> 8;
 	uint8_t addr = RegAddr & 0xff;
 
+	printf("[lt6911_i2c_read] : addr = %x \n", addr);
 	lt6911_write_register(ViPipe, LT6911_I2C_BANK_ADDR, bank);
 	return lt6911_read_register(ViPipe, addr);
 }
@@ -154,6 +156,7 @@ static int lt6911_i2c_write(VI_PIPE ViPipe, int RegAddr, int data)
 	uint8_t bank = RegAddr >> 8;
 	uint8_t addr = RegAddr & 0xff;
 
+	printf("[lt6911_i2c_write] : addr = %x. data = %x \n", addr, data);
 	lt6911_write_register(ViPipe, LT6911_I2C_BANK_ADDR, bank);
 	return lt6911_write_register(ViPipe, addr, data);
 }
@@ -185,22 +188,43 @@ int  lt6911_probe(VI_PIPE ViPipe)
 	int nVal;
 	int nVal2;
 
+	// PinMUX
+	printf("###########   PinMux  #######################################################################\n");
+	system("devmem 0x0300116C 32 0x3");
+	system("devmem 0x03001170 32 0x3");
+	system("devmem 0x03001174 32 0x3");
+	system("devmem 0x03001178 32 0x3");
+	system("devmem 0x0300117C 32 0x3");
+	system("devmem 0x03001180 32 0x3");
+	system("devmem 0x03001184 32 0x3");
+	system("devmem 0x03001188 32 0x3");
+	system("devmem 0x0300118C 32 0x3");
+	system("devmem 0x03001190 32 0x3");
+	printf("###########   PinMux End  #######################################################################\n");
+
 	usleep(50);
+	printf("[lt6911_probe] -189 \n");
 	if (lt6911_i2c_init(ViPipe) != CVI_SUCCESS)
 		return CVI_FAILURE;
 
+	printf("[lt6911_probe] -195 \n");
 	nVal  = lt6911_read(ViPipe, LT6911_CHIP_ID_ADDR_H);
 	nVal2 = lt6911_read(ViPipe, LT6911_CHIP_ID_ADDR_L);
 	if (nVal < 0 || nVal2 < 0) {
-		CVI_TRACE_SNS(CVI_DBG_ERR, "read sensor id error.\n");
-		return nVal;
+		CVI_TRACE_SNS(CVI_DBG_ERR, "read sensor id error. \n");
+		printf("[lt6911_probe] jump return nVal -198 \n");
+		// return nVal;
 	}
+
+	printf("[lt6911_probe] -201 \n");
 	printf("data:%02x %02x\n", nVal, nVal2);
 	if ((((nVal & 0xFF) << 8) | (nVal2 & 0xFF)) != LT6911_CHIP_ID) {
 		CVI_TRACE_SNS(CVI_DBG_ERR, "Sensor ID Mismatch! Use the wrong sensor??\n");
-		return CVI_FAILURE;
+		printf("[lt6911_probe] jump return CVI_FAILURE -206 \n");
+		// return CVI_FAILURE;
 	}
 
+	printf("[lt6911_probe] -208 = exit success \n");
 	return CVI_SUCCESS;
 }
 
