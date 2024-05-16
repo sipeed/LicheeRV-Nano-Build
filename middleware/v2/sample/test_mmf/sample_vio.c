@@ -82,6 +82,9 @@ static uint64_t _get_time_us(void)
 // int oled_dev;
 int oled_i2c_init(uint8_t _EN, int * oled_dev)
 {
+	// PinMux
+	system("devmem 0x030010E0 32 0x2");
+	system("devmem 0x030010E4 32 0x2");
 	int ret; 
 	if(_EN) {
 		*oled_dev = open("/dev/i2c-3", O_RDWR, 0600);
@@ -2864,7 +2867,7 @@ _exit:
 	}
 	close_oled();
 	return 0;
-	
+
 }
 
 static int _test_i2c_oled(void)
