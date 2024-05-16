@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <linux/i2c.h>
+#include <linux/i2c-dev.h>
 #include <sys/time.h>
 #include <sys/param.h>
 #include <sys/prctl.h>
@@ -21,6 +23,7 @@
 #include "sophgo_middleware.h"
 // #include "vo_uapi.h"
 #include "rtsp-server.h"
+#include "fomat.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -68,6 +71,305 @@ static uint64_t _get_time_us(void)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_usec + tv.tv_sec * 1000000;
+}
+
+#define OLED_DISABLE 	0
+#define OLED_ENABLE		1
+#define oled_i2c_addr	0x3D
+#define OLED_CMD		0x00
+#define OLED_DATA		0x40
+
+// int oled_dev;
+int oled_i2c_init(uint8_t _EN, int * oled_dev)
+{
+	int ret; 
+	if(_EN) {
+		*oled_dev = open("/dev/i2c-3", O_RDWR, 0600);
+		if (*oled_dev < 0) {
+			CVI_TRACE_SNS(CVI_DBG_ERR, "Open /dev/cvi_i2c_drv-3 error!\n");
+			return CVI_FAILURE;
+		}
+
+		ret = ioctl(*oled_dev, I2C_SLAVE_FORCE, oled_i2c_addr);
+		if (ret < 0) {
+			printf("I2C_SLAVE_FORCE error! = %d\n", ret);
+			close(*oled_dev);
+			*oled_dev = -1;
+			return ret;
+		}
+		printf("I2C_SLAVE_FORCE OK! = %d\n", ret);
+		return ret;
+	} else {
+		if (*oled_dev >= 0) {
+			close(*oled_dev);
+			*oled_dev = -1;
+			ret = 0;
+			return ret;
+		}
+	}
+	return -1;
+}
+
+int oled_read_register(int _fb, uint8_t addr)
+{
+	int ret, data;
+	CVI_U8 buf[2];
+
+	if (_fb < 0)
+		return CVI_FAILURE;
+
+	buf[0] = addr;
+
+	ret = write(_fb, buf, 1);
+	if (ret < 0) {
+		CVI_TRACE_SNS(CVI_DBG_ERR, "I2C_WRITE error!\n");
+		return ret;
+	}
+
+	buf[0] = 0;
+	buf[1] = 0;
+	ret = read(_fb, buf, 1);
+	if (ret < 0) {
+		CVI_TRACE_SNS(CVI_DBG_ERR, "I2C_READ error!\n");
+		return ret;
+	}
+
+	// pack read back data
+	data = buf[0];
+
+	DEBUG("i2c r 0x%x = 0x%x\n", addr, data);
+	return data;
+}
+
+/* mode = OLED_CMD
+ * 		= OLED_DATA         */
+int oled_write_register(int _fb, uint8_t mode, uint8_t data)
+{
+	int ret;
+	CVI_U8 buf[2];
+
+	if (_fb < 0)
+		return CVI_SUCCESS;
+	buf[0] = mode;
+	buf[1] = data;
+
+	ret = write(_fb, buf, 2);
+	if (ret < 0) {
+		CVI_TRACE_SNS(CVI_DBG_ERR, "I2C_WRITE error!\n");
+		return CVI_FAILURE;
+	}
+	syslog(LOG_DEBUG, "i2c w 0x%x 0x%x\n", mode, data);
+	return CVI_SUCCESS;
+}
+
+// 坐标设置
+void OLED_Set_Pos(int _fb, uint8_t x, uint8_t y) 
+{ 
+	oled_write_register(_fb, OLED_CMD, 0xb0+y);
+	oled_write_register(_fb, OLED_CMD, ((x&0xf0)>>4)|0x10);
+	oled_write_register(_fb, OLED_CMD, (x&0x0f));
+}
+
+//开启OLED显示    
+void OLED_Display_On(int _fb)
+{
+	oled_write_register(_fb, OLED_CMD, 0X8D);
+	oled_write_register(_fb, OLED_CMD, 0X14);
+	oled_write_register(_fb, OLED_CMD, 0XAF);
+}
+
+//关闭OLED显示     
+void OLED_Display_Off(int _fb)
+{
+	oled_write_register(_fb, OLED_CMD, 0X8D);
+	oled_write_register(_fb, OLED_CMD, 0X10);
+	oled_write_register(_fb, OLED_CMD, 0XAE);
+}
+
+//清屏函数,清完屏,整个屏幕是黑色的!和没点亮一样!!!	  
+void OLED_Clear(int _fb)  
+{  
+	uint8_t i,n;		    
+	for(i=0;i<8;i++)  
+	{  
+		oled_write_register(_fb, OLED_CMD, 0xb0+i);
+		oled_write_register(_fb, OLED_CMD, 0x00);
+		oled_write_register(_fb, OLED_CMD, 0x10); 
+		for(n=0;n<128;n++)oled_write_register(_fb, OLED_DATA, 0x00); 
+	} //更新显示
+}
+
+//在指定位置显示一个字符,包括部分字符
+//x:0~127
+//y:0~63				 
+//sizey:选择字体 6x8  8x16
+void OLED_ShowChar(int _fb, uint8_t x,uint8_t y,uint8_t chr,uint8_t sizey)
+{      	
+	uint8_t c=0,sizex=sizey/2;
+	uint16_t i=0,size1;
+	if(sizey==8)size1=6;
+	else size1=(sizey/8+((sizey%8)?1:0))*(sizey/2);
+	c=chr-' ';//得到偏移后的值
+	OLED_Set_Pos(_fb, x, y);
+	for(i=0; i<size1; i++)
+	{
+		if(i%sizex==0&&sizey!=8) OLED_Set_Pos(_fb, x, y++);
+		if(sizey==8) oled_write_register(_fb, OLED_DATA, oled_asc2_0806[c][i]); //6X8字号
+		else if(sizey==16) oled_write_register(_fb, OLED_DATA, oled_asc2_1608[c][i]);//8x16字号
+		else return;
+	}
+}
+
+uint32_t oled_pow(uint8_t m,uint8_t n)
+{
+	uint32_t result=1;	 
+	while(n--)result*=m;    
+	return result;
+}
+
+//显示数字
+//x,y :起点坐标
+//num:要显示的数字
+//len :数字的位数
+//sizey:字体大小		  
+void OLED_ShowNum(int _fb, uint8_t x, uint8_t y, uint32_t num, uint8_t len, uint8_t sizey)
+{         	
+	uint8_t t, temp, m = 0;
+	uint8_t enshow = 0;
+	if(sizey == 8) m = 2;
+	for(t=0; t<len; t++)
+	{
+		temp = (num / oled_pow(10,len-t-1)) % 10;
+		if(enshow == 0 && t < (len-1))
+		{
+			if(temp == 0)
+			{
+				OLED_ShowChar(_fb, x+(sizey/2+m)*t, y, ' ',sizey);
+				continue;
+			}else enshow=1;
+		}
+	 	OLED_ShowChar(_fb, x+(sizey/2+m)*t, y, temp+'0', sizey);
+	}
+}
+
+//显示一个字符号串
+void OLED_ShowString(int _fb, uint8_t x, uint8_t y, uint8_t *chr, uint8_t sizey)
+{
+	uint8_t j=0;
+	while (chr[j]!='\0')
+	{		
+		OLED_ShowChar(_fb, x, y, chr[j++], sizey);
+		if(sizey==8)x+=6;
+		else x+=sizey/2;
+	}
+}
+
+//反显函数
+void OLED_ColorTurn(int _fb, uint8_t i)
+{
+	if(i==0)
+	{
+		oled_write_register(_fb, OLED_CMD, 0xA6); //正常显示
+	}
+	if(i==1)
+	{
+		oled_write_register(_fb, OLED_CMD, 0xA7);//反色显示
+	}
+}
+
+//屏幕旋转180度
+void OLED_DisplayTurn(int _fb, uint8_t i)
+{
+	if(i==0)
+	{
+		oled_write_register(_fb, OLED_CMD, 0xC8);//正常显示
+		oled_write_register(_fb, OLED_CMD, 0xA1);
+	}
+	if(i==1)
+	{
+		oled_write_register(_fb, OLED_CMD, 0xC0);//反转显示
+		oled_write_register(_fb, OLED_CMD, 0xA0);
+	}
+}
+
+//初始化				    
+void OLED_Init(int _fb)
+{
+	// OLED_RES_Clr();
+  	// delay_ms(200);
+	// OLED_RES_Set();
+	
+	oled_write_register(_fb, OLED_CMD, 0xAE);//--turn off oled panel
+	oled_write_register(_fb, OLED_CMD, 0x00);//---set low column address
+	oled_write_register(_fb, OLED_CMD, 0x10);//---set high column address
+	oled_write_register(_fb, OLED_CMD, 0x40);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
+	oled_write_register(_fb, OLED_CMD, 0x81);//--set contrast control register
+	oled_write_register(_fb, OLED_CMD, 0xCF);// Set SEG Output Current Brightness
+	oled_write_register(_fb, OLED_CMD, 0xA1);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
+	oled_write_register(_fb, OLED_CMD, 0xC8);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
+	oled_write_register(_fb, OLED_CMD, 0xA6);//--set normal display
+	oled_write_register(_fb, OLED_CMD, 0xA8);//--set multiplex ratio(1 to 64)
+	oled_write_register(_fb, OLED_CMD, 0x3f);//--1/64 duty
+	oled_write_register(_fb, OLED_CMD, 0xD3);//-set display offset	Shift Mapping RAM Counter (0x00~0x3F)
+	oled_write_register(_fb, OLED_CMD, 0x00);//-not offset
+	oled_write_register(_fb, OLED_CMD, 0xd5);//--set display clock divide ratio/oscillator frequency
+	oled_write_register(_fb, OLED_CMD, 0x80);//--set divide ratio, Set Clock as 100 Frames/Sec
+	oled_write_register(_fb, OLED_CMD, 0xD9);//--set pre-charge period
+	oled_write_register(_fb, OLED_CMD, 0xF1);//Set Pre-Charge as 15 Clocks & Discharge as 1 Clock
+	oled_write_register(_fb, OLED_CMD, 0xDA);//--set com pins hardware configuration
+	oled_write_register(_fb, OLED_CMD, 0x12);//
+	oled_write_register(_fb, OLED_CMD, 0xDB);//--set vcomh
+	oled_write_register(_fb, OLED_CMD, 0x40);//Set VCOM Deselect Level
+	oled_write_register(_fb, OLED_CMD, 0x20);//-Set Page Addressing Mode (0x00/0x01/0x02)
+	oled_write_register(_fb, OLED_CMD, 0x02);//
+	oled_write_register(_fb, OLED_CMD, 0x8D);//--set Charge Pump enable/disable
+	oled_write_register(_fb, OLED_CMD, 0x14);//--set(0x10) disable
+	oled_write_register(_fb, OLED_CMD, 0xA4);// Disable Entire Display On (0xa4/0xa5)
+	oled_write_register(_fb, OLED_CMD, 0xA6);// Disable Inverse Display On (0xa6/a7) 
+	OLED_Clear(_fb);
+	oled_write_register(_fb, OLED_CMD, 0xAF); /*display ON*/ 
+}
+
+void OLED_ShowStringtoend(int _fb, uint8_t x, uint8_t y, uint8_t *chr, uint8_t sizey, uint8_t end)
+{
+	uint8_t j=0;
+	while (chr[j] != end)
+	{		
+		OLED_ShowChar(_fb, x, y, chr[j++], sizey);
+		if(sizey==8)x+=6;
+		else x+=sizey/2;
+	}
+}
+
+void show_ip_on_oled(uint8_t *chr)
+{
+	int olde_fb;
+	if(oled_i2c_init(OLED_ENABLE, &olde_fb) < 0){
+		printf("I2C_SLAVE_FORCE error!!\n");
+		return;
+	}
+	OLED_Init(olde_fb);
+	OLED_ColorTurn(olde_fb, 0);	//0正常显示 1 反色显示
+  	OLED_DisplayTurn(olde_fb, 0);	//0正常显示 1 屏幕翻转显示
+	OLED_Clear(olde_fb);
+	OLED_ShowString(olde_fb, 4, 1, "rtsp://", 16);
+	OLED_ShowStringtoend(olde_fb, 4, 3, chr+7, 16, ':');
+	OLED_ShowString(olde_fb, 4, 5, ":8554/live", 16);
+	oled_i2c_init(OLED_DISABLE, &olde_fb);
+}
+
+void close_oled()
+{
+	int olde_fb;
+	if(oled_i2c_init(OLED_ENABLE, &olde_fb) < 0){
+		printf("I2C_SLAVE_FORCE error!!\n");
+		return;
+	}
+	OLED_Init(olde_fb);
+	OLED_ColorTurn(olde_fb, 0);	//0正常显示 1 反色显示
+  	OLED_DisplayTurn(olde_fb, 0);	//0正常显示 1 屏幕翻转显示
+	OLED_Clear(olde_fb);
+	oled_i2c_init(OLED_DISABLE, &olde_fb);
 }
 
 static int save_buff_to_file(char *filename, uint8_t *filebuf, uint32_t filebuf_len)
@@ -2408,6 +2710,7 @@ static int _test_vi_region_venc_h265_rtsp(void)
     }
     close(fd);
 
+	show_ip_on_oled(ipdata);
 
 	uint64_t start = _get_time_us();
 	uint64_t last_loop_us = start;
@@ -2559,6 +2862,16 @@ _exit:
 	if (0 != mmf_deinit()) {
 		printf("mmf deinit\n");
 	}
+	close_oled();
+	return 0;
+	
+}
+
+static int _test_i2c_oled(void)
+{
+	uint8_t * chat_str = "rtsp://xxx.xxx.xxx.xxx:8554/live";
+
+	show_ip_on_oled(chat_str);
 	return 0;
 }
 
@@ -2637,4 +2950,9 @@ int test_multiple_vi(void)
 int test_vi_region_venc_h265_rtsp(void)
 {
 	return _test_vi_region_venc_h265_rtsp();
+}
+
+int test_i2c_oled(void)
+{
+	return _test_i2c_oled();
 }

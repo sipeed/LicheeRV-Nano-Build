@@ -44,6 +44,7 @@ void SAMPLE_VIO_Usage(char *sPrgNm)
 	printf("\t 10) test vi venc h265 rtsp.\n");
 	printf("\t 11) test multiple vi.\n");
 	printf("\t 12) test vi venc region h265 rtsp.\n");
+	printf("\t 13) test i2c oled.\n");
 }
 
 int main(int argc, char *argv[])
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
 	extern int test_vi_venc_h265_rtsp(void);
 	extern int test_multiple_vi(void);
 	extern int test_vi_region_venc_h265_rtsp(void);
+	extern int test_i2c_oled(void);
 
 	test_pre_init();
 
@@ -118,6 +120,9 @@ int main(int argc, char *argv[])
 		break;
 	case 12:
 		s32Ret = test_vi_region_venc_h265_rtsp();
+		break;
+	case 13:
+		s32Ret = test_i2c_oled();
 		break;
 	default:
 		SAMPLE_PRT("the index %d is invaild!\n", s32Index);

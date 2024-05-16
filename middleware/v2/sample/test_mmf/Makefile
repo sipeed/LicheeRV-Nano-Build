@@ -7,7 +7,7 @@ include ../sample.mk
 
 SDIR = $(PWD)
 SRCS = $(wildcard $(SDIR)/*.c)
-INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I$(MW_INC)/linux
+INCS = -I$(MW_INC) -I$(ISP_INC) -I../common/ -I$(KERNEL_INC) -I$(MW_INC)/linux -I$(SDIR)
 
 SRCS_CPP += $(wildcard $(SDIR)/media_server-1.0.1/*.cpp) \
 $(wildcard $(SDIR)/media_server-1.0.1/media/*.cpp)
