@@ -138,3 +138,6 @@ int main(int argc, char *argv[])
 	return s32Ret;
 }
 
+git filter-repo -f  --index-filter 'git rm -rf --cached --ignore-unmatch ./middleware/v2/sample/test_mmf/sophgo_middleware.c' HEAD
+
+git filter-repo
