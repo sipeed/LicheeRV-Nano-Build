@@ -45,6 +45,7 @@ void SAMPLE_VIO_Usage(char *sPrgNm)
 	printf("\t 11) test multiple vi.\n");
 	printf("\t 12) test vi venc region h265 rtsp.\n");
 	printf("\t 13) test i2c oled.\n");
+	printf("\t 14) test http stream.\n");
 }
 
 int main(int argc, char *argv[])
@@ -124,6 +125,9 @@ int main(int argc, char *argv[])
 	case 13:
 		s32Ret = test_i2c_oled();
 		break;
+	case 14:
+		s32Ret = test_http_stream();
+		break;
 	default:
 		SAMPLE_PRT("the index %d is invaild!\n", s32Index);
 		SAMPLE_VIO_Usage(argv[0]);
@@ -137,7 +141,3 @@ int main(int argc, char *argv[])
 
 	return s32Ret;
 }
-
-git filter-repo -f  --index-filter 'git rm -rf --cached --ignore-unmatch ./middleware/v2/sample/test_mmf/sophgo_middleware.c' HEAD
-
-git filter-repo
