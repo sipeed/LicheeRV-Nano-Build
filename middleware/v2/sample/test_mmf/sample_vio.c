@@ -20,7 +20,7 @@
 #include "cvi_awb.h"
 
 #include "sample_comm.h"
-#include "sophgo_middleware.h"
+#include "maix_mmf.h"
 // #include "vo_uapi.h"
 #include "rtsp-server.h"
 #include "fomat.h"
