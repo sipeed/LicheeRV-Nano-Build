@@ -120,6 +120,15 @@ int cvi_board_init(void)
         //mmio_write_32(0x0300116C, 0x5); // RX4N CAM_MCLK0 for alpha
         mmio_write_32(0x0300118C, 0x5); // RX0N CAM_MCLK1 for beta
 
+	// spi1 on mipi csi 
+	/*
+	mmio_write_32(0x0300116C, 0x7); // spi1 clk   GPIOC2 MIPI_RX4N
+	mmio_write_32(0x03001170, 0x7); // spi1 cs    GPIOC3 MIPI_RX4P
+	mmio_write_32(0x03001174, 0x7); // spi1 miso  GPIOC4 MIPI_RX3N
+	mmio_write_32(0x03001178, 0x7); // spi1 mosi  GPIOC5 MIPI_RX3P
+	*/
+	
+
         // camera/tp i2c
         mmio_write_32(0x03001090, 0x5); // PWR_GPIO6 IIC4_SCL
         mmio_write_32(0x03001098, 0x5); // PWR_GPIO8 IIC4_SDA
