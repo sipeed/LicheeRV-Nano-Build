@@ -51,3 +51,10 @@ mcopy -i install/xxx/xxx.img@@1s wifi.sta ::/
 cd mountpoint
 touch xxx
 ```
+
+# logo
+
+```
+./host/make_logo.sh input.jpeg logo.jpeg
+mcopy -i install/xxx/xxx.img@@1s logo.jpeg ::/
+```

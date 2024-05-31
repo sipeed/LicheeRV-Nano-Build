@@ -5,6 +5,7 @@ then
 	. /etc/profile
 	if [ ! -e /boot/alpha ]
 	then
+		devmem 0x030010AC 0x04 # PINMUX PWM10
 		blpwm="/sys/class/pwm/pwmchip8/pwm2/"
 		if [ ! -e "${blpwm}" ]
 		then
