@@ -169,7 +169,7 @@
 		sck-gpio = <&porta 22 0>;
 		miso-gpio = <&porta 23 0>;
 		mosi-gpio = <&porta 25 0>;
-		cs-gpio = <&porta 24 0>;
+		cs-gpio = <&porta 24 GPIO_ACTIVE_LOW>;
 		num-chipselects = <1>;
 		status = "okay";
 
