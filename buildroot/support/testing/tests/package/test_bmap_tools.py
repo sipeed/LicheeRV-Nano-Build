@@ -25,6 +25,7 @@ class TestBmapTools(BRTest):
         BR2_PACKAGE_UTIL_LINUX=y
         BR2_PACKAGE_UTIL_LINUX_FALLOCATE=y
         BR2_PACKAGE_E2FSPROGS=y
+        BR2_PACKAGE_EXFATPROGS=y
         BR2_PACKAGE_UTIL_LINUX_LIBUUID=y
         """.format(infra.filepath(copy_script),
                    infra.filepath(sample_script))
