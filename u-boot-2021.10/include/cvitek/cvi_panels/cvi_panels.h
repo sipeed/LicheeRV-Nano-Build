@@ -27,6 +27,7 @@ struct panel_desc_s {
 
 #include "dsi_st7701_d300fpc9307a.h"
 #include "dsi_zct2133v1.h"
+#include "dsi_mtd70092b.h"
 #include "dsi_st7701_dxq5d0019b480854.h"
 #include "dsi_st7701_dxq5d0019_V0.h"
 #include "dsi_st7701_hd228001c31.h"
@@ -178,6 +179,14 @@ static struct panel_desc_s panel_desc = {
         .hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280,
         .dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280,
         .dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280)
+};
+#elif defined(MIPI_PANEL_mtd700920b)
+static struct panel_desc_s panel_desc = {
+        .panel_name = "mtd700920b-800x1280",
+        .dev_cfg = &dev_cfg_mtd700920b_800x1280,
+        .hs_timing_cfg = &hs_timing_cfg_mtd700920b_800x1280,
+        .dsi_init_cmds = dsi_init_cmds_mtd700920b_800x1280,
+        .dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_mtd700920b_800x1280)
 };
 #elif defined(I80_PANEL_ST7789V)
 #include "i80_st7789v.h"
