@@ -499,6 +499,8 @@ int usb_gadget_wakeup(struct usb_gadget *gadget)
 {
 	int ret = 0;
 
+	// printf("usb_gadget_wakeup \r\n");
+	// dev_err(dev, "usb_gadget_wakeup\n");
 	if (!gadget->ops->wakeup) {
 		ret = -EOPNOTSUPP;
 		goto out;
