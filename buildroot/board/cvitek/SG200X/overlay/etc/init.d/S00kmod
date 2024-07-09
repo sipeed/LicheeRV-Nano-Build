@@ -15,7 +15,7 @@ then
 	insmod soph_vpss.ko
 	insmod soph_dwa.ko
 	insmod soph_vo.ko
-	insmod soph_mipi_tx.ko
+#	insmod soph_mipi_tx.ko
 	insmod soph_rgn.ko
 	insmod soph_wdt.ko
 	insmod soph_clock_cooling.ko
