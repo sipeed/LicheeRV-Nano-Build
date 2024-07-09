@@ -1012,6 +1012,7 @@ static int rtw_drv_init(
 	struct acpi_device *adev;
 #endif
 
+
 #if defined(CONFIG_ACPI) && defined(CONFIG_GPIO_WAKEUP)
 	handle = ACPI_HANDLE(&func->dev);
 
@@ -1123,7 +1124,10 @@ free_if_vir:
 free_dvobj:
 	if (status != _SUCCESS)
 		sdio_dvobj_deinit(func);
+
+
 exit:
+	printk("%s: sdio device id , class = 0x%02X, vendor = 0x%04X, device = 0x%04X\n", __func__, id->class, id->vendor, id->device);
 	return status == _SUCCESS ? 0 : -ENODEV;
 }
 

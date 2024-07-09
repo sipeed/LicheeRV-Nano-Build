@@ -49,7 +49,7 @@ msc() {
 	echo device > /proc/cviusb/otg_role
 	while true
 	do
-		sleep 10
+		sleep 1
 		busybox iostat
 		busybox uptime
 		busybox uname
@@ -95,14 +95,20 @@ parted -s /dev/mmcblk0 "resizepart 2 -0"
 echo "yes
 100%
 " | parted ---pretend-input-tty /dev/mmcblk0 "resizepart 2 100%"
-e2fsck -fvp /dev/mmcblk0p2
+#e2fsck -fvp /dev/mmcblk0p2
 resize2fs /dev/mmcblk0p2
 mount -o rw /dev/mmcblk0p2 /realroot
 mfail="$?"
 
 if [ "${mfail}" -ne 0 ]
 then
-	msc
+	e2fsck -fvp /dev/mmcblk0p2
+	mount -o rw /dev/mmcblk0p2 /realroot
+	mfail="$?"
+	if [ "${mfail}" -ne 0 ]
+	then
+		msc
+	fi
 fi
 
 mount -t proc proc /realroot/proc

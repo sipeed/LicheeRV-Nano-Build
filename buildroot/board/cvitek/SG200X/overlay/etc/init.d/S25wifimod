@@ -8,6 +8,7 @@ then
 	insmod cfg80211.ko
 	insmod 3rd/aic8800_bsp.ko
 	insmod 3rd/aic8800_fdrv.ko
+	insmod 3rd/8733bs.ko
 	echo "OK"
 	exit 0
 fi

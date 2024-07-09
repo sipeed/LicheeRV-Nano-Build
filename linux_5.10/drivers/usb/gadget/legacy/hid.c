@@ -123,7 +123,7 @@ static struct usb_configuration config_driver = {
 	.label			= "HID Gadget",
 	.bConfigurationValue	= 1,
 	/* .iConfiguration = DYNAMIC */
-	.bmAttributes		= USB_CONFIG_ATT_SELFPOWER,
+	.bmAttributes		= USB_CONFIG_ATT_SELFPOWER | USB_CONFIG_ATT_WAKEUP,
 };
 
 /****************************** Gadget Bind ******************************/

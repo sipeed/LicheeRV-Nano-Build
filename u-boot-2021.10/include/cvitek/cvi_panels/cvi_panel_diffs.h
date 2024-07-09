@@ -22,10 +22,10 @@
 
 // this function borken on licheervnano
 // this function make lcd show green color on blank
-//#define START_VL "startvl 0 " LOGO_READ_ADDR " " LOGO_RESERVED_ADDR " " LOGOSIZE " " VO_ALIGNMENT ";"
+#define START_VL "startvl 0 " LOGO_READ_ADDR " " LOGO_RESERVED_ADDR " " LOGOSIZE " " VO_ALIGNMENT ";"
 #ifndef START_VL
 #define START_VL " "
 #endif
-#define SET_VO_BG "setvobg 0 0xffffffff;"
+#define SET_VO_BG "setvobg 0 0xffffffff ; "
 
 #endif

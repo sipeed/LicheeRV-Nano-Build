@@ -57,15 +57,26 @@
         status = "okay";
 };
 
+&uart0 {
+	clocks = <&clk CV181X_CLK_UART0>;
+	/delete-property/ clock-frequency;
+};
+
 &uart1 {
+        clocks = <&clk CV181X_CLK_UART1>;
+        /delete-property/ clock-frequency;
         status = "okay";
 };
 
 &uart2 {
+        clocks = <&clk CV181X_CLK_UART2>;
+        /delete-property/ clock-frequency;
         status = "okay";
 };
 
 &uart3 {
+        clocks = <&clk CV181X_CLK_UART3>;
+        /delete-property/ clock-frequency;
 	status = "okay";
 };
 
@@ -158,7 +169,7 @@
 		sck-gpio = <&porta 22 0>;
 		miso-gpio = <&porta 23 0>;
 		mosi-gpio = <&porta 25 0>;
-		cs-gpio = <&porta 24 0>;
+		cs-gpio = <&porta 24 GPIO_ACTIVE_LOW>;
 		num-chipselects = <1>;
 		status = "okay";
 
@@ -213,12 +224,12 @@
                 reg_names = "core_mem";
                 src-frequency = <375000000>;
                 min-frequency = <400000>; // 400Khz
-                //max-frequency = <50000000>; // 50Mhz
+                max-frequency = <50000000>; // 50Mhz
                 //max-frequency = <45000000>; // 45Mhz
                 //max-frequency = <40000000>; // 40Mhz
                 //max-frequency = <35000000>; // 35Mhz
                 //max-frequency = <30000000>; // 30Mhz
-                max-frequency = <25000000>; // 25Mhz
+                //max-frequency = <25000000>; // 25Mhz
                 //max-frequency = <20000000>; // 20Mhz
                 //max-frequency = <15000000>; // 15Mhz
                 //max-frequency = <10000000>; // 10Mhz

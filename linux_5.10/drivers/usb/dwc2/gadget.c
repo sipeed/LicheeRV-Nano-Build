@@ -4307,6 +4307,78 @@ static int dwc2_hsotg_ep_dequeue(struct usb_ep *ep, struct usb_request *req)
 }
 
 /**
+ * dwc2_hsotg_wakeup - send wakeup signal to the host
+ * @gadget: The usb gadget state
+ *
+ * If the gadget is in device mode and in the L1 or L2 state,
+ * it sends a wakeup signal to the host.
+ */
+static int dwc2_hsotg_wakeup(struct usb_gadget *gadget)
+{
+	struct dwc2_hsotg *hsotg = to_hsotg(gadget);
+	int ret = -1;
+	unsigned long flags;
+
+	spin_lock_irqsave(&hsotg->lock, flags);
+
+	if (!hsotg->remote_wakeup_allowed) {
+		dev_info(hsotg->dev,
+			"wakeup: signalling skipped: is not allowed by host\n");
+		goto skip;
+	}
+	if (hsotg->lx_state != DWC2_L1 && hsotg->lx_state != DWC2_L2) {
+		dev_info(hsotg->dev,
+			"wakeup: signalling skipped: gadget not in L1/L2 state: %d\n", hsotg->lx_state);
+		goto skip;
+	}
+	if (!dwc2_is_device_mode(hsotg)) {
+		dev_info(hsotg->dev,
+			"wakeup: signalling skipped: gadget not in device mode\n");
+		goto skip;
+	}
+
+	/*if (hsotg->in_ppd) {
+		if (dwc2_exit_partial_power_down(hsotg, 1, true))
+			dev_err(hsotg->dev, "wakeup: exit partial_power_down failed\n");
+		call_gadget(hsotg, resume);
+	}*/
+	if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_NONE && hsotg->bus_suspended) {
+		u32 pcgctl;
+
+		dev_info(hsotg->dev, "wakeup: exiting device clock gating\n");
+
+		/* Clear the Gate hclk. */
+		pcgctl = dwc2_readl(hsotg, PCGCTL);
+		pcgctl &= ~PCGCTL_GATEHCLK;
+		dwc2_writel(hsotg, pcgctl, PCGCTL);
+		udelay(5);
+
+		/* Phy Clock bit. */
+		pcgctl = dwc2_readl(hsotg, PCGCTL);
+		pcgctl &= ~PCGCTL_STOPPCLK;
+		dwc2_writel(hsotg, pcgctl, PCGCTL);
+		udelay(5);
+
+		hsotg->bus_suspended = false;
+	}
+
+	dev_info(hsotg->dev, "wakeup: sending signal to the host");
+
+	dwc2_set_bit(hsotg, DCTL, DCTL_RMTWKUPSIG);
+	mdelay(10);
+	dwc2_clear_bit(hsotg, DCTL, DCTL_RMTWKUPSIG);
+
+	/* After the signalling, the USB core wakes up to L0 */
+	call_gadget(hsotg, resume);
+	hsotg->lx_state = DWC2_L0;
+
+	ret = 0;
+skip:
+	spin_unlock_irqrestore(&hsotg->lock, flags);
+	return ret;
+}
+
+/**
  * dwc2_hsotg_ep_sethalt - set halt on a given endpoint
  * @ep: The endpoint to set halt.
  * @value: Set or unset the halt.
@@ -4688,6 +4760,7 @@ static const struct usb_gadget_ops dwc2_hsotg_gadget_ops = {
 	.pullup                 = dwc2_hsotg_pullup,
 	.vbus_session		= dwc2_hsotg_vbus_session,
 	.vbus_draw		= dwc2_hsotg_vbus_draw,
+ 	.wakeup			= dwc2_hsotg_wakeup,
 };
 
 /**

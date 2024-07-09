@@ -1,0 +1,3 @@
+only working on:
+        {SDIO_DEVICE(0x024c, 0xB73A), .class = SDIO_CLASS_WLAN, .driver_data = RTL8733B}, /* SDIO multi */
+
