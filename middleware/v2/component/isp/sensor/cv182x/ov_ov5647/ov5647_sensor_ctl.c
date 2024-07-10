@@ -225,6 +225,20 @@ int ov5647_probe(VI_PIPE ViPipe)
 
 void ov5647_init(VI_PIPE ViPipe)
 {
+		// PinMUX
+	printf("###########   PinMux  #######################################################################\n");
+	system("devmem 0x0300116C 32 0x3");
+	system("devmem 0x03001170 32 0x3");
+	system("devmem 0x03001174 32 0x3");
+	system("devmem 0x03001178 32 0x3");
+	system("devmem 0x0300117C 32 0x3");
+	system("devmem 0x03001180 32 0x3");
+	system("devmem 0x03001184 32 0x3");
+	system("devmem 0x03001188 32 0x3");
+	system("devmem 0x0300118C 32 0x3");
+	system("devmem 0x03001190 32 0x3");
+	printf("###########   PinMux End  #######################################################################\n");
+	
 	ov5647_i2c_init(ViPipe);
 
 	delay_ms(10);
