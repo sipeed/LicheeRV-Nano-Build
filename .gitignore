@@ -416,5 +416,5 @@ middleware/v2/sample/vio/sample_vio.o
 middleware/v2/sample/vio/sample_vio_main.d
 middleware/v2/sample/vio/sample_vio_main.o
 osdrv/extdrv/wireless/.tmp_4261/
-middleware/v2/lib/libsns_lt6911.a
-middleware/v2/lib/libsns_sc035gs.a
+middleware/v2/lib
+host-tools/
