@@ -213,7 +213,7 @@ static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const ar
 			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_480x854dxq_V0,
 			panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_480x854dxq_V0;
 			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x854dxq_V0);
-		} else if (strcmp(panel_name,"st7701_hd228001c31") == 0) { // 2.8 inch
+		} else if (strcmp(panel_name,"st7701_hd228001c31") == 0) { // 2.28 inch
 			panel_desc.panel_name = "ST7701-368x552";
 			panel_desc.dev_cfg = &dev_cfg_st7701_368x552;
 			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_368x552;
@@ -225,6 +225,12 @@ static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const ar
 			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_480x854;
 			panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_480x854;
 			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x854);
+		} else if (strcmp(panel_name,"MaixCam_Pro") == 0) { // 2.4 inch // g
+			panel_desc.panel_name = "D240SI31";
+			panel_desc.dev_cfg = &dev_cfg_d240si31;
+			panel_desc.hs_timing_cfg = &hs_timing_cfg_d240si31;		// g
+			panel_desc.dsi_init_cmds = dsi_init_cmds_d240si31;		// g
+			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_d240si31);		// g
 		} else {
 			printf("panel %s not found\n\r", panel_name);
 		}
