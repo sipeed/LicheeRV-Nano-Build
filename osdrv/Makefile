@@ -122,7 +122,7 @@ fast_image: rtos_cmdqu
 	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})
 
 jpeg:
-	@$(call COPY_KO, ${INTERDRV_PATH}/${@}/${CHIP_CODE}_${ARCH})
+	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})
 
 pwm:
 	@$(call MAKE_KO, ${INTERDRV_PATH}/${@})

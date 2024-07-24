@@ -17,8 +17,8 @@ ccflags-y += $(DEBFLAGS) -I$(PWD) -I$(LDDINCDIR) -D$(CHIP_TYPE) -D$(SUB_TYPE) -D
 KBUILD_EXTRA_SYMBOLS += $(PWD)/../vcodec/Module.symvers
 
 # PWD	:= $(shell pwd)
-obj-m += $(CHIP_CODE)_jpeg.o
-$(CHIP_CODE)_jpeg-y += cvi_jpeg.o jpeg_common.o jmm.o hal/$(CHIP_CODE)/cvi_jpeg_cfg.o
+obj-m += soph_jpeg.o
+soph_jpeg-y += cvi_jpeg.o jpeg_common.o jmm.o hal/$(CHIP_CODE)/cvi_jpeg_cfg.o
 
 all:
 	$(MAKE) ARCH=${ARCH} -C $(KERNEL_DIR) M=$(PWD) modules
