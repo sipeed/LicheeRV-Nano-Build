@@ -80,7 +80,8 @@ cvi_vc_driver-objs :=	$(COMMON_PATH)/rcKernel/cvi_rc_kernel.o	\
 			cvi_vc_drv.o	\
 			cvi_vc_drv_proc.o
 
-obj-m = cvi_vc_driver.o
+obj-m = soph_vc_driver.o
+soph_vc_driver-y = $(cvi_vc_driver-objs)
 
 ccflags-y += -I$(PWD)/../include/common/uapi/ -I$(PWD)/../include/chip/$(CHIP_CODE)/uapi/
 ccflags-y += -I$(PWD)/../include/common/kapi/
