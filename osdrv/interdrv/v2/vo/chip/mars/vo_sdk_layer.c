@@ -288,7 +288,7 @@ CVI_S32 vo_clear_chnbuf(VO_LAYER VoLayer, VO_CHN VoChn, bool bClrAll)
 			sys_cache_flush(vb->buf.phy_addr[i], vb->vir_addr, vb->buf.length[i]);
 		}
 	} else {
-		vo_pr(VO_ERR, "enPixFormat not support yet.\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "enPixFormat not support yet.\n");
 
 		gVoCtx->clearchnbuf = 0;
 		mutex_unlock(&jobs->lock);
@@ -328,7 +328,7 @@ CVI_S32 vo_send_frame(VO_LAYER VoLayer, VO_CHN VoChn, VIDEO_FRAME_INFO_S *pstVid
 		stSize = gVoCtx->stLayerAttr.stImageSize;
 
 	if (gVoCtx->stLayerAttr.enPixFormat != pstVideoFrame->stVFrame.enPixelFormat) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) PixelFormat(%d) mismatch.\n"
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) PixelFormat(%d) mismatch.\n"
 			, VoLayer, VoChn, pstVideoFrame->stVFrame.enPixelFormat);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
@@ -337,13 +337,13 @@ CVI_S32 vo_send_frame(VO_LAYER VoLayer, VO_CHN VoChn, VIDEO_FRAME_INFO_S *pstVid
 		pstVideoFrame->stVFrame.s16OffsetLeft - pstVideoFrame->stVFrame.s16OffsetRight))
 	 || (stSize.u32Height != (pstVideoFrame->stVFrame.u32Height -
 		pstVideoFrame->stVFrame.s16OffsetTop - pstVideoFrame->stVFrame.s16OffsetBottom))) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) Size(%d * %d) mismatch.\n"
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) Size(%d * %d) mismatch.\n"
 			, VoLayer, VoChn, pstVideoFrame->stVFrame.u32Width, pstVideoFrame->stVFrame.u32Height);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 
 	if (IS_FRAME_OFFSET_INVALID(pstVideoFrame->stVFrame)) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) frame offset (%d %d %d %d) invalid\n",
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) frame offset (%d %d %d %d) invalid\n",
 			VoLayer, VoChn,
 			pstVideoFrame->stVFrame.s16OffsetLeft, pstVideoFrame->stVFrame.s16OffsetRight,
 			pstVideoFrame->stVFrame.s16OffsetTop, pstVideoFrame->stVFrame.s16OffsetBottom);
@@ -353,18 +353,18 @@ CVI_S32 vo_send_frame(VO_LAYER VoLayer, VO_CHN VoChn, VIDEO_FRAME_INFO_S *pstVid
 	if (IS_FMT_YUV420(gVoCtx->stLayerAttr.enPixFormat)) {
 		if ((pstVideoFrame->stVFrame.u32Width - pstVideoFrame->stVFrame.s16OffsetLeft -
 		     pstVideoFrame->stVFrame.s16OffsetRight) & 0x01) {
-			vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) YUV420 can't accept odd frame valid width\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) YUV420 can't accept odd frame valid width\n",
 				VoLayer, VoChn);
-			vo_pr(VO_ERR, "u32Width(%d) s16OffsetLeft(%d) s16OffsetRight(%d)\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "u32Width(%d) s16OffsetLeft(%d) s16OffsetRight(%d)\n",
 				pstVideoFrame->stVFrame.u32Width, pstVideoFrame->stVFrame.s16OffsetLeft,
 				pstVideoFrame->stVFrame.s16OffsetRight);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 		if ((pstVideoFrame->stVFrame.u32Height - pstVideoFrame->stVFrame.s16OffsetTop -
 		     pstVideoFrame->stVFrame.s16OffsetBottom) & 0x01) {
-			vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) YUV420 can't accept odd frame valid height\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) YUV420 can't accept odd frame valid height\n",
 				VoLayer, VoChn);
-			vo_pr(VO_ERR, "u32Height(%d) s16OffsetTop(%d) s16OffsetBottom(%d)\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "u32Height(%d) s16OffsetTop(%d) s16OffsetBottom(%d)\n",
 				pstVideoFrame->stVFrame.u32Height, pstVideoFrame->stVFrame.s16OffsetTop,
 				pstVideoFrame->stVFrame.s16OffsetBottom);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
@@ -373,9 +373,9 @@ CVI_S32 vo_send_frame(VO_LAYER VoLayer, VO_CHN VoChn, VIDEO_FRAME_INFO_S *pstVid
 	if (IS_FMT_YUV422(gVoCtx->stLayerAttr.enPixFormat)) {
 		if ((pstVideoFrame->stVFrame.u32Width - pstVideoFrame->stVFrame.s16OffsetLeft -
 		     pstVideoFrame->stVFrame.s16OffsetRight) & 0x01) {
-			vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) YUV422 can't accept odd frame valid width\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) YUV422 can't accept odd frame valid width\n",
 				VoLayer, VoChn);
-			vo_pr(VO_ERR, "u32Width(%d) s16OffsetLeft(%d) s16OffsetRight(%d)\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "u32Width(%d) s16OffsetLeft(%d) s16OffsetRight(%d)\n",
 				pstVideoFrame->stVFrame.u32Width, pstVideoFrame->stVFrame.s16OffsetLeft,
 				pstVideoFrame->stVFrame.s16OffsetRight);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
@@ -386,17 +386,19 @@ CVI_S32 vo_send_frame(VO_LAYER VoLayer, VO_CHN VoChn, VIDEO_FRAME_INFO_S *pstVid
 
 	blk = vb_physAddr2Handle(pstVideoFrame->stVFrame.u64PhyAddr[0]);
 	if (blk == VB_INVALID_HANDLE) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) Invalid phy-addr(%llx). Can't locate VB_BLK.\n"
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) Invalid phy-addr(%llx). Can't locate VB_BLK.\n"
 			      , VoLayer, VoChn, pstVideoFrame->stVFrame.u64PhyAddr[0]);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
+	CVI_TRACE_VO(CVI_DBG_INFO, "Pool[%d] vb paddr(%#llx) usr_cnt(%d)\n", ((struct vb_s *)blk)->vb_pool,
+				((struct vb_s *)blk)->phy_addr, ((struct vb_s *)blk)->usr_cnt.counter);
 
 	if (base_fill_videoframe2buffer(chn, pstVideoFrame, &((struct vb_s *)blk)->buf) != CVI_SUCCESS) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) Invalid parameter\n", VoLayer, VoChn);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) Invalid parameter\n", VoLayer, VoChn);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 	ret = vb_qbuf(chn, CHN_TYPE_IN, blk);
-	vo_pr(VO_INFO, "vb_qbuf ret[%d]\n", ret);
+	CVI_TRACE_VO(CVI_DBG_INFO, "vb_qbuf ret[%d]\n", ret);
 
 	return ret;
 }
@@ -451,7 +453,7 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		return ret;
 
 	if (gVoCtx->is_dev_enable[VoDev]) {
-		vo_pr(VO_ERR, "VO DEV(%d) should be disabled.\n", VoDev);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) should be disabled.\n", VoDev);
 		return CVI_ERR_VO_DEV_HAS_ENABLED;
 	}
 
@@ -499,16 +501,16 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 					* (dv_timings.bt.hbackporch + dv_timings.bt.width
 					   + dv_timings.bt.hfrontporch + dv_timings.bt.hsync);
 	} else {
-		vo_pr(VO_ERR, "VO Sync Info(%d) invalid.\n", pstPubAttr->enIntfSync);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO Sync Info(%d) invalid.\n", pstPubAttr->enIntfSync);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 
 	if (dv_timings.bt.interlaced) {
-		vo_pr(VO_ERR, "VO not support interlaced timing.\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO not support interlaced timing.\n");
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 	if ((dv_timings.bt.pixelclock == 0) || (dv_timings.bt.height == 0) || (dv_timings.bt.width == 0)) {
-		vo_pr(VO_ERR, "VO Sync timing) invalid. width(%d) height(%d) pixelclock(%llu)\n"
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO Sync timing) invalid. width(%d) height(%d) pixelclock(%llu)\n"
 			, dv_timings.bt.width, dv_timings.bt.height, dv_timings.bt.pixelclock);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
@@ -536,7 +538,7 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		cfg.lvds_cfg.enable = 1;
 		cfg.lvds_cfg.pixelclock = pstPubAttr->stLvdsAttr.pixelclock;
 		//skip u64 devide
-		cfg.lvds_cfg.pixelclock = div_u64(dv_timings.bt.pixelclock, 1000);
+		cfg.lvds_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
 		cfg.lvds_cfg.backlight_gpio_num = pstPubAttr->stLvdsAttr.backlight_pin.gpio_num;
 
 		for (i = 0; i < VO_LVDS_LANE_MAX; ++i) {
@@ -545,19 +547,19 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		}
 
 		if (vo_set_interface(gvdev, &cfg) != 0) {
-			vo_pr(VO_ERR, "VO INTF configure failured.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO INTF configure failured.\n");
 			return CVI_FAILURE;
 		}
 	} else if ((pstPubAttr->enIntfType == VO_INTF_MIPI) || (pstPubAttr->enIntfType == VO_INTF_MIPI_SLAVE)) {
 		cfg.intf_type = CVI_VIP_DISP_INTF_DSI;
-		vo_pr(VO_DBG, "MIPI-DSI should be setup by mipi-tx.\n");
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "MIPI-DSI should be setup by mipi-tx.\n");
 	} else if (pstPubAttr->enIntfType == VO_INTF_I80) {
 		const VO_I80_CFG_S *psti80Cfg = &pstPubAttr->sti80Cfg;
 
 		if ((psti80Cfg->lane_s.CS > 3) || (psti80Cfg->lane_s.RS > 3) ||
 		    (psti80Cfg->lane_s.WR > 3) || (psti80Cfg->lane_s.RD > 3)) {
-			vo_pr(VO_ERR, "VO DEV(%d) I80 lane should be less than 3.\n", VoDev);
-			vo_pr(VO_ERR, "CS(%d) RS(%d) WR(%d) RD(%d).\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) I80 lane should be less than 3.\n", VoDev);
+			CVI_TRACE_VO(CVI_DBG_ERR, "CS(%d) RS(%d) WR(%d) RD(%d).\n",
 				     psti80Cfg->lane_s.CS, psti80Cfg->lane_s.RS,
 				     psti80Cfg->lane_s.WR, psti80Cfg->lane_s.RD);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
@@ -565,18 +567,18 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		if ((psti80Cfg->lane_s.CS == psti80Cfg->lane_s.RS) || (psti80Cfg->lane_s.CS == psti80Cfg->lane_s.WR) ||
 		    (psti80Cfg->lane_s.CS == psti80Cfg->lane_s.RD) || (psti80Cfg->lane_s.RS == psti80Cfg->lane_s.WR) ||
 		    (psti80Cfg->lane_s.CS == psti80Cfg->lane_s.RD) || (psti80Cfg->lane_s.WR == psti80Cfg->lane_s.RD)) {
-			vo_pr(VO_ERR, "VO DEV(%d) I80 lane can't duplicate CS(%d) RS(%d) WR(%d) RD(%d).\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) I80 lane can't duplicate CS(%d) RS(%d) WR(%d) RD(%d).\n",
 				     VoDev, psti80Cfg->lane_s.CS, psti80Cfg->lane_s.RS,
 				     psti80Cfg->lane_s.WR, psti80Cfg->lane_s.RD);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 		if (psti80Cfg->cycle_time > 250) {
-			vo_pr(VO_ERR, "VO DEV(%d) cycle time %d > 250.\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) cycle time %d > 250.\n",
 				     VoDev, psti80Cfg->cycle_time);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 		if (psti80Cfg->fmt >= VO_I80_FORMAT_MAX) {
-			vo_pr(VO_ERR, "VO DEV(%d) invalid I80 Format(%d).\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) invalid I80 Format(%d).\n",
 				     VoDev, psti80Cfg->fmt);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
@@ -584,7 +586,7 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 
 		cfg.intf_type = CVI_VIP_DISP_INTF_I80;
 		if (vo_set_interface(gvdev, &cfg) != 0) {
-			vo_pr(VO_ERR, "VO INTF configure failured.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO INTF configure failured.\n");
 			//return CVI_FAILURE;
 		}
 
@@ -594,7 +596,7 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 			((BIT(psti80Cfg->lane_s.RD) | BIT(psti80Cfg->lane_s.WR) | BIT(psti80Cfg->lane_s.RS)) << 4);
 		i80_ctrl[I80_CTRL_EOF] = 0xff;
 
-		vo_pr(VO_ERR, "VO I80 ctrl CMD(%#x) DATA(%#x)\n",
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO I80 ctrl CMD(%#x) DATA(%#x)\n",
 			     i80_ctrl[I80_CTRL_CMD], i80_ctrl[I80_CTRL_DATA]);
 
 
@@ -608,7 +610,7 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 	} else if (pstPubAttr->enIntfType == VO_INTF_HW_MCU) {
 		const VO_HW_MCU_CFG_S *McuCfg = &pstPubAttr->stMcuCfg;
 		if (McuCfg->mode >= VO_MCU_MODE_MAX) {
-			vo_pr(VO_ERR, "VO DEV(%d) invalid MCU Format(%d).\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) invalid MCU Format(%d).\n",
 				     VoDev, McuCfg->mode);
 			return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
@@ -621,40 +623,40 @@ CVI_S32 vo_set_pub_attr(VO_DEV VoDev, VO_PUB_ATTR_S *pstPubAttr)
 		cfg.mcu_cfg.backlight_avtive = McuCfg->backlight_avtive;
 		cfg.mcu_cfg.reset_gpio_num = McuCfg->reset_gpio_num;
 		cfg.mcu_cfg.reset_avtive = McuCfg->reset_avtive;
-		cfg.mcu_cfg.pixelclock = div_u64(dv_timings.bt.pixelclock, 1000);
+		cfg.mcu_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
 		memcpy(&cfg.mcu_cfg.pins, &pstPubAttr->stMcuCfg.pins, sizeof(struct vo_pins));
 		memcpy(&cfg.mcu_cfg.instrs, &pstPubAttr->stMcuCfg.instrs, sizeof(struct VO_MCU_INSTRS));
 		if (vo_set_interface(gvdev, &cfg) != 0) {
-			vo_pr(VO_ERR, "VO INTF configure failured.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO INTF configure failured.\n");
 			return CVI_FAILURE;
 		}
 	} else if (pstPubAttr->enIntfType == VO_INTF_BT656) {
 		cfg.intf_type = CVI_VIP_DISP_INTF_BT;
 		cfg.bt_cfg.mode = BT_MODE_656;
-		cfg.bt_cfg.pixelclock = div_u64(dv_timings.bt.pixelclock, 1000);
+		cfg.bt_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
 		memcpy(&cfg.bt_cfg.pins, &pstPubAttr->stBtAttr.pins, sizeof(struct vo_pins));
 
 		if (vo_set_interface(gvdev, &cfg) != 0) {
-			vo_pr(VO_ERR, "VO BT656 configure failured.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO BT656 configure failured.\n");
 			return CVI_FAILURE;
 		}
 	} else if (pstPubAttr->enIntfType == VO_INTF_BT1120) {
 		cfg.intf_type = CVI_VIP_DISP_INTF_BT;
 		cfg.bt_cfg.mode = BT_MODE_1120;
-		cfg.bt_cfg.pixelclock = div_u64(dv_timings.bt.pixelclock, 1000);
+		cfg.bt_cfg.pixelclock = dv_timings.bt.pixelclock / 1000;
 		memcpy(&cfg.bt_cfg.pins, &pstPubAttr->stBtAttr.pins, sizeof(struct vo_pins));
 
 		if (vo_set_interface(gvdev, &cfg) != 0) {
-			vo_pr(VO_ERR, "VO BT1120 configure failured.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO BT1120 configure failured.\n");
 			return CVI_FAILURE;
 		}
 	} else {
-		vo_pr(VO_ERR, "VO invalid INTF type(0x%x)\n", pstPubAttr->enIntfType);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO invalid INTF type(0x%x)\n", pstPubAttr->enIntfType);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 	vo_get_panelstatus(0, 0, &panel_status);
 
-	vo_pr(VO_INFO, "panel_status[%d], intf_type[%d]\n", panel_status, cfg.intf_type);
+	CVI_TRACE_VO(CVI_DBG_INFO, "panel_status[%d], intf_type[%d]\n", panel_status, cfg.intf_type);
 	if ((cfg.intf_type != CVI_VIP_DISP_INTF_DSI) && !panel_status) {
 		struct sclr_disp_timing timing;
 
@@ -736,13 +738,13 @@ CVI_S32 vo_set_chn_attr(VO_LAYER VoLayer, VO_CHN VoChn, const VO_CHN_ATTR_S *pst
 		return ret;
 
 	if (gVoCtx->is_chn_enable[VoLayer][VoChn]) {
-		vo_pr(VO_INFO, "VoLayer(%d) VoChn(%d) already enabled.\n", VoLayer, VoChn);
+		CVI_TRACE_VO(CVI_DBG_INFO, "VoLayer(%d) VoChn(%d) already enabled.\n", VoLayer, VoChn);
 		return CVI_FAILURE;
 	}
 	if ((pstChnAttr->stRect.u32Width < VO_MIN_CHN_WIDTH) || (pstChnAttr->stRect.u32Height < VO_MIN_CHN_HEIGHT)
 	 || (pstChnAttr->stRect.u32Width + pstChnAttr->stRect.s32X > gVoCtx->stLayerAttr.stImageSize.u32Width)
 	 || (pstChnAttr->stRect.u32Height + pstChnAttr->stRect.s32Y > gVoCtx->stLayerAttr.stImageSize.u32Height)) {
-		vo_pr(VO_INFO, "VoLayer(%d) VoChn(%d) rect(%d %d %d %d) invalid.\n"
+		CVI_TRACE_VO(CVI_DBG_INFO, "VoLayer(%d) VoChn(%d) rect(%d %d %d %d) invalid.\n"
 			, VoLayer, VoChn, pstChnAttr->stRect.s32X, pstChnAttr->stRect.s32Y
 			, pstChnAttr->stRect.u32Width, pstChnAttr->stRect.u32Height);
 		return CVI_FAILURE_ILLEGAL_PARAM;
@@ -753,7 +755,7 @@ CVI_S32 vo_set_chn_attr(VO_LAYER VoLayer, VO_CHN VoChn, const VO_CHN_ATTR_S *pst
 	area.w = pstChnAttr->stRect.u32Width;
 	area.h = pstChnAttr->stRect.u32Height;
 
-	vo_pr(VO_INFO, "Compose Area (%d,%d,%d,%d)\n", area.x, area.y, area.w, area.h);
+	CVI_TRACE_VO(CVI_DBG_INFO, "Compose Area (%d,%d,%d,%d)\n", area.x, area.y, area.w, area.h);
 	if (sclr_disp_set_rect(area) == 0) {
 		gvdev->compose_out.left = area.x;
 		gvdev->compose_out.top = area.y;
@@ -781,12 +783,12 @@ CVI_S32 vo_enable(VO_DEV VoDev)
 		return ret;
 
 	if (gVoCtx->stPubAttr.enIntfType == 0) {
-		vo_pr(VO_ERR, "VO DEV(%d) isn't correctly configured.\n", VoDev);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) isn't correctly configured.\n", VoDev);
 		//return CVI_ERR_VO_DEV_NOT_CONFIG;
 	}
 
 	if (gVoCtx->is_dev_enable[VoDev]) {
-		vo_pr(VO_ERR, "VO DEV(%d) should be disabled.\n", VoDev);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO DEV(%d) should be disabled.\n", VoDev);
 		//return CVI_ERR_VO_DEV_HAS_ENABLED;
 	}
 
@@ -797,7 +799,7 @@ CVI_S32 vo_enable(VO_DEV VoDev)
 	exe_cb.cmd_id = VPSS_CB_SET_FB_ON_VPSS;
 	exe_cb.data   = (void *)&gVoCtx->fb_on_vpss;
 	if (base_exe_module_cb(&exe_cb))
-		vo_pr(VO_DBG, "set fb_on_vpss(%d) failed!\n", gVoCtx->fb_on_vpss);
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "set fb_on_vpss(%d) failed!\n", gVoCtx->fb_on_vpss);
 
 	return CVI_SUCCESS;
 
@@ -814,12 +816,12 @@ CVI_S32 vo_disable(VO_DEV VoDev)
 		return ret;
 
 	if (!gVoCtx->is_dev_enable[VoDev]) {
-		vo_pr(VO_ERR, "VO_DEV(%d) already disabled.\n", VoDev);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO_DEV(%d) already disabled.\n", VoDev);
 		return CVI_SUCCESS;
 	}
 	for (VoLayer = 0; VoLayer < VO_MAX_LAYER_NUM; ++VoLayer) {
 		if (gVoCtx->is_layer_enable[VoLayer]) {
-			vo_pr(VO_ERR, "VoLayer(%d) isn't disabled yet.\n", VoLayer);
+			CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) isn't disabled yet.\n", VoLayer);
 			return CVI_FAILURE;
 		}
 	}
@@ -830,7 +832,7 @@ CVI_S32 vo_disable(VO_DEV VoDev)
 	exe_cb.cmd_id = VPSS_CB_SET_FB_ON_VPSS;
 	exe_cb.data   = (void *)&fb_on_vpss;
 	if (base_exe_module_cb(&exe_cb))
-		vo_pr(VO_DBG, "set fb_on_vpss(%d) failed!\n", fb_on_vpss);
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "set fb_on_vpss(%d) failed!\n", fb_on_vpss);
 
 	return CVI_SUCCESS;
 
@@ -851,7 +853,7 @@ CVI_S32 vo_enable_chn(VO_LAYER VoLayer, VO_CHN VoChn)
 		return ret;
 
 	if (gVoCtx->is_chn_enable[VoLayer][VoChn]) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) already enabled.\n", VoLayer, VoChn);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) already enabled.\n", VoLayer, VoChn);
 		return CVI_ERR_VO_CHN_NOT_DISABLED;
 	}
 
@@ -860,7 +862,7 @@ CVI_S32 vo_enable_chn(VO_LAYER VoLayer, VO_CHN VoChn)
 	gVoCtx->is_chn_enable[VoLayer][VoChn] = CVI_TRUE;
 
 	if (vo_start_streaming(gvdev)) {
-		vo_pr(VO_ERR, "Failed to vo start streaming\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo start streaming\n");
 		return -EAGAIN;
 	}
 
@@ -869,7 +871,7 @@ CVI_S32 vo_enable_chn(VO_LAYER VoLayer, VO_CHN VoChn)
 	if (create_thread) {
 		ret = vo_create_thread(gvdev, E_VO_TH_DISP);
 		if (ret) {
-			vo_pr(VO_ERR, "Failed to create E_VO_TH_DISP thread\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to create E_VO_TH_DISP thread\n");
 		}
 	}
 
@@ -950,7 +952,7 @@ static int vo_set_displaybuflen(VO_LAYER VoLayer, CVI_U32 u32BufLen)
 		return ret;
 
 	if (u32BufLen < 3) {
-		vo_pr(VO_ERR, "VoLayer(%d) u32BufLen(%d) low than min(3).\n", VoLayer, u32BufLen);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) u32BufLen(%d) low than min(3).\n", VoLayer, u32BufLen);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 	gVoCtx->u32DisBufLen = u32BufLen;
@@ -1017,12 +1019,12 @@ static void _vo_sdk_fill_disp_cfg(struct sclr_disp_cfg *cfg,
 	else
 		cfg->in_csc = SCL_CSC_709_LIMIT_YUV2RGB;
 
-	vo_pr(VO_DBG, "bytesperline 0(%d))\n", pfmt[0].bytesperline);
-	vo_pr(VO_DBG, "bytesperline 1(%d))\n", pfmt[1].bytesperline);
+	CVI_TRACE_VO(CVI_DBG_DEBUG, "bytesperline 0(%d))\n", pfmt[0].bytesperline);
+	CVI_TRACE_VO(CVI_DBG_DEBUG, "bytesperline 1(%d))\n", pfmt[1].bytesperline);
 	cfg->mem.pitch_y = pfmt[0].bytesperline;
 	cfg->mem.pitch_c = pfmt[1].bytesperline;
 
-	vo_pr(VO_DBG, " width(%d), heigh(%d)\n", mp->width, mp->height);
+	CVI_TRACE_VO(CVI_DBG_DEBUG, " width(%d), heigh(%d)\n", mp->width, mp->height);
 	cfg->mem.width = mp->width;
 	cfg->mem.height = mp->height;
 	cfg->mem.start_x = 0;
@@ -1052,6 +1054,7 @@ int _vo_sdk_setfmt(CVI_S32 width, CVI_S32 height, CVI_U32 pxlfmt)
 
 	switch (pxlfmt) {
 	case PIXEL_FORMAT_HSV_888_PLANAR:
+	case PIXEL_FORMAT_YUV_PLANAR_420:
 	case PIXEL_FORMAT_YUV_PLANAR_422:
 	case PIXEL_FORMAT_YUV_PLANAR_444:
 	case PIXEL_FORMAT_NV12:
@@ -1122,7 +1125,7 @@ int _vo_sdk_setfmt(CVI_S32 width, CVI_S32 height, CVI_U32 pxlfmt)
 		fmt.fmt.pix_mp.plane_fmt[p].sizeimage = fmt.fmt.pix_mp.plane_fmt[p].bytesperline
 		* mp->height / plane_sub_v;
 
-		vo_pr(VO_DBG, "plane-%d: bytesperline(%d) sizeimage(%x)\n", p,
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "plane-%d: bytesperline(%d) sizeimage(%x)\n", p,
 			fmt.fmt.pix_mp.plane_fmt[p].bytesperline, fmt.fmt.pix_mp.plane_fmt[p].sizeimage);
 		memset(fmt.fmt.pix_mp.plane_fmt[p].reserved, 0, sizeof(fmt.fmt.pix_mp.plane_fmt[p].reserved));
 	}
@@ -1152,13 +1155,13 @@ static int vo_set_chnrotation(VO_LAYER VoLayer, VO_CHN VoChn, ROTATION_E enRotat
 		return ret;
 
 	if (!GDC_SUPPORT_FMT(gVoCtx->stLayerAttr.enPixFormat)) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) invalid PixFormat(%d).\n"
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) invalid PixFormat(%d).\n"
 			, VoLayer, VoChn, gVoCtx->stLayerAttr.enPixFormat);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
 
 	if (enRotation >= ROTATION_MAX) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) invalid rotation(%d).\n", VoLayer, VoChn, enRotation);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) invalid rotation(%d).\n", VoLayer, VoChn, enRotation);
 		return CVI_ERR_VO_ILLEGAL_PARAM;
 	} else if (enRotation == ROTATION_0) {
 		gVoCtx->enRotation = enRotation;
@@ -1186,7 +1189,7 @@ static int vo_set_chnrotation(VO_LAYER VoLayer, VO_CHN VoChn, ROTATION_E enRotat
 	cfg->mem.width	 = area.width;
 	cfg->mem.height  = area.height;
 
-	vo_pr(VO_INFO, "Crop Area (%d,%d,%d,%d)\n", cfg->mem.start_x, cfg->mem.start_y,
+	CVI_TRACE_VO(CVI_DBG_INFO, "Crop Area (%d,%d,%d,%d)\n", cfg->mem.start_x, cfg->mem.start_y,
 						cfg->mem.width, cfg->mem.height);
 	sclr_disp_set_mem(&cfg->mem);
 	gvdev->crop_rect = area;
@@ -1203,20 +1206,20 @@ CVI_S32 vo_resume(void)
 	CVI_S32 ret = CVI_FAILURE;
 	MMF_CHN_S chn = {.enModId = CVI_ID_VO, .s32DevId = 0, .s32ChnId = 0};
 
-	vo_pr(VO_DBG, "vo resume DispBufLen[%d]\n", gVoCtx->u32DisBufLen);
+	CVI_TRACE_VO(CVI_DBG_DEBUG, "vo resume DispBufLen[%d]\n", gVoCtx->u32DisBufLen);
 
 	if (gVoCtx->is_chn_enable[VoLayer][VoChn]) {
 		base_mod_jobs_init(chn, CHN_TYPE_OUT, gVoCtx->u32DisBufLen - 1, 2, 0);
 
 		ret = vo_start_streaming(gvdev);
 		if (ret) {
-			vo_pr(VO_ERR, "Failed to vo start streaming\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo start streaming\n");
 			return -EAGAIN;
 		}
 
 		ret = vo_create_thread(gvdev, E_VO_TH_DISP);
 		if (ret) {
-			vo_pr(VO_ERR, "Failed to create E_VO_TH_DISP thread\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to create E_VO_TH_DISP thread\n");
 		}
 
 		vo_set_chnrotation(VoLayer, VoChn, gVoCtx->enRotation);
@@ -1235,13 +1238,13 @@ CVI_S32 vo_suspend(void)
 		gVoCtx->is_chn_enable[VoLayer][VoChn] = CVI_FALSE;
 		ret = vo_stop_streaming(gvdev);
 		if (ret) {
-			vo_pr(VO_ERR, "Failed to vo stop streaming\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo stop streaming\n");
 			return -EAGAIN;
 		}
 
 		ret = vo_destroy_thread(gvdev, E_VO_TH_DISP);
 		if (ret) {
-			vo_pr(VO_ERR, "Failed to vo destory thread\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo destory thread\n");
 			return -EAGAIN;
 		}
 
@@ -1282,12 +1285,12 @@ int vo_disablevideolayer(VO_LAYER VoLayer)
 		return ret;
 
 	if (!gVoCtx->is_layer_enable[VoLayer]) {
-		vo_pr(VO_ERR, "VoLayer(%d) isn't enabled yet.\n", VoLayer);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) isn't enabled yet.\n", VoLayer);
 		return CVI_SUCCESS;
 	}
 	for (VoChn = 0; VoChn < VO_MAX_CHN_NUM; ++VoChn) {
 		if (gVoCtx->is_chn_enable[VoLayer][VoChn]) {
-			vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) isn't disabled yet.\n", VoLayer, VoChn);
+			CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) isn't disabled yet.\n", VoLayer, VoChn);
 			return CVI_FAILURE;
 		}
 	}
@@ -1335,7 +1338,7 @@ static int vo_set_videolayerattr(VO_LAYER VoLayer, const VO_VIDEO_LAYER_ATTR_S *
 		return ret;
 
 	if (!VO_SUPPORT_FMT(pstLayerAttr->enPixFormat)) {
-		vo_pr(VO_DBG, "VoLayer(%d) enPixFormat(%d) unsupported\n"
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "VoLayer(%d) enPixFormat(%d) unsupported\n"
 			, VoLayer, pstLayerAttr->enPixFormat);
 		//return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
@@ -1345,13 +1348,13 @@ static int vo_set_videolayerattr(VO_LAYER VoLayer, const VO_VIDEO_LAYER_ATTR_S *
 		 && (pstLayerAttr->enPixFormat != PIXEL_FORMAT_BGR_888)
 		 && (pstLayerAttr->enPixFormat != PIXEL_FORMAT_RGB_888_PLANAR)
 		 && (pstLayerAttr->enPixFormat != PIXEL_FORMAT_BGR_888_PLANAR)) {
-			vo_pr(VO_ERR, "I80 only accept RGB/BGR pixel format.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "I80 only accept RGB/BGR pixel format.\n");
 			//return CVI_ERR_VO_ILLEGAL_PARAM;
 		}
 
 	if ((pstLayerAttr->stImageSize.u32Width != pstLayerAttr->stDispRect.u32Width)
 	 || (pstLayerAttr->stImageSize.u32Height != pstLayerAttr->stDispRect.u32Height)) {
-		vo_pr(VO_ERR, "VoLayer(%d) stImageSize(%d %d) stDispRect(%d %d) isn't the same.\n"
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) stImageSize(%d %d) stDispRect(%d %d) isn't the same.\n"
 			, VoLayer, pstLayerAttr->stImageSize.u32Width, pstLayerAttr->stImageSize.u32Height
 			, pstLayerAttr->stDispRect.u32Width, pstLayerAttr->stDispRect.u32Height);
 		//return CVI_ERR_VO_ILLEGAL_PARAM;
@@ -1359,7 +1362,7 @@ static int vo_set_videolayerattr(VO_LAYER VoLayer, const VO_VIDEO_LAYER_ATTR_S *
 
 	if ((pstLayerAttr->stImageSize.u32Width < VO_MIN_CHN_WIDTH)
 	 || (pstLayerAttr->stImageSize.u32Height < VO_MIN_CHN_HEIGHT)) {
-		vo_pr(VO_ERR, "VoLayer(%d) Size(%d %d) too small.\n"
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) Size(%d %d) too small.\n"
 			, VoLayer, pstLayerAttr->stImageSize.u32Width, pstLayerAttr->stImageSize.u32Height);
 		//return CVI_ERR_VO_ILLEGAL_PARAM;
 	}
@@ -1408,7 +1411,7 @@ static int vo_set_videolayerattr(VO_LAYER VoLayer, const VO_VIDEO_LAYER_ATTR_S *
 	//vo_set_tgt_compose(d->fd, &area);
 	sclr_disp_set_rect(rect);
 
-	vo_pr(VO_DBG, "VoLayer(%d) image-size(%d * %d) disp-rect(%d-%d-%d-%d).\n", VoLayer
+	CVI_TRACE_VO(CVI_DBG_DEBUG, "VoLayer(%d) image-size(%d * %d) disp-rect(%d-%d-%d-%d).\n", VoLayer
 		, pstLayerAttr->stImageSize.u32Width, pstLayerAttr->stImageSize.u32Height
 		, pstLayerAttr->stDispRect.s32X, pstLayerAttr->stDispRect.s32Y
 		, pstLayerAttr->stDispRect.u32Width, pstLayerAttr->stDispRect.u32Height);
@@ -1429,14 +1432,14 @@ int vo_disable_chn(VO_LAYER VoLayer, VO_CHN VoChn)
 		return ret;
 
 	if (!gVoCtx->is_chn_enable[VoLayer][VoChn]) {
-		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) already disabled.\n", VoLayer, VoChn);
+		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) already disabled.\n", VoLayer, VoChn);
 		return CVI_SUCCESS;
 	}
 
 	gVoCtx->is_chn_enable[VoLayer][VoChn] = CVI_FALSE;
 
 	if (vo_stop_streaming(gvdev)) {
-		vo_pr(VO_ERR, "Failed to vo stop streaming\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo stop streaming\n");
 		return -EAGAIN;
 	}
 
@@ -1479,7 +1482,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1495,7 +1498,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1503,7 +1506,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		rc = vo_get_chn_attr(cfg->VoLayer, cfg->VoChn, &cfg->pstChnAttr);
 
 		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_chn_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_to_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
 
@@ -1516,7 +1519,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_pub_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1524,7 +1527,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		rc = vo_get_pub_attr(cfg->VoDev, &cfg->pstPubAttr);
 
 		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_pub_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_to_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
 
@@ -1538,7 +1541,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_pub_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1572,7 +1575,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 		cfg = &_cfg_;
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_panel_status_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1591,7 +1594,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1607,7 +1610,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1623,7 +1626,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_dev_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1640,7 +1643,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_dev_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1657,7 +1660,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_snd_frm_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1672,7 +1675,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_clear_chn_buf_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1687,7 +1690,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_display_buflen_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1704,7 +1707,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_display_buflen_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1712,7 +1715,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		rc = vo_get_displaybuflen(cfg->VoLayer, &cfg->u32BufLen);
 
 		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_display_buflen_cfg))) {
-			vo_pr(VO_ERR, "copy_to_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
 		break;
@@ -1725,7 +1728,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_rotation_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1733,7 +1736,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		rc = vo_get_chnrotation(cfg->VoLayer, cfg->VoChn, &cfg->enRotation);
 
 		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_display_buflen_cfg))) {
-			vo_pr(VO_ERR, "copy_to_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 		}
 		break;
@@ -1745,7 +1748,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 		cfg = &_cfg_;
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_rotation_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1762,7 +1765,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1779,7 +1782,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1787,7 +1790,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		rc = vo_get_videolayerattr(cfg->VoLayer, &cfg->pstLayerAttr);
 
 		if (copy_to_user(p->ptr, cfg, sizeof(struct vo_video_layer_attr_cfg))) {
-			vo_pr(VO_ERR, "copy_to_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_to_user failed.\n");
 			rc = -1;
 
 		}
@@ -1802,7 +1805,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1819,7 +1822,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_video_layer_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1836,7 +1839,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1851,7 +1854,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1866,7 +1869,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}
@@ -1883,7 +1886,7 @@ long vo_sdk_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg = &_cfg_;
 
 		if (copy_from_user(cfg, p->ptr, sizeof(struct vo_chn_cfg))) {
-			vo_pr(VO_ERR, "copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "copy_from_user failed.\n");
 			rc = -ENOMEM;
 			break;
 		}

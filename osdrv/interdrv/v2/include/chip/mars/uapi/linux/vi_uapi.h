@@ -111,6 +111,7 @@ enum VI_SDK_CTRL {
 	VI_SDK_DETACH_VB_POOL,
 	VI_SDK_GET_PIPE_DUMP_ATTR,
 	VI_SDK_SET_PIPE_DUMP_ATTR,
+	VI_SDK_GET_DEV_STATUS
 };
 
 /*
@@ -183,7 +184,7 @@ struct vi_event {
 #endif
 };
 
-#define MO_TBL_SIZE 256
+#define MO_TBL_SIZE 2048
 
 struct mlv_info_s {
 	__u8	sensor_num;

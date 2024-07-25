@@ -1,3 +1,5 @@
+CONFIG_CVI_LOG = 1
+
 soph_vo-objs += chip/$(CHIP_CODE)/vo.o \
 				chip/$(CHIP_CODE)/vo_sdk_layer.o \
 				chip/$(CHIP_CODE)/proc/vo_disp_proc.o \
@@ -5,3 +7,7 @@ soph_vo-objs += chip/$(CHIP_CODE)/vo.o \
 
 soph_mipi_tx-objs := chip/$(CHIP_CODE)/vo_mipi_tx.o \
 					chip/$(CHIP_CODE)/proc/vo_mipi_tx_proc.o
+
+ifeq ($(CONFIG_CVI_LOG), 1)
+ccflags-y += -DCONFIG_CVI_LOG
+endif

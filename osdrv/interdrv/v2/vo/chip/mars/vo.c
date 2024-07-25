@@ -43,14 +43,14 @@
 /*******************************************************
  *  Global variables
  ******************************************************/
-//u32 vo_log_lv = VO_ERR | VO_WARN | VO_NOTICE;
-u32 vo_log_lv = 0;
+u32 vo_log_lv = CVI_DBG_WARN;
 int smooth;
 int debug;
 int job_init;
 static bool hide_vo;
 struct platform_device *g_pdev;
 
+module_param(vo_log_lv, int, 0644);
 module_param(hide_vo, bool, 0444);
 
 struct _vo_gdc_cb_param {
@@ -219,7 +219,7 @@ void _disp_ctrlpin_set(unsigned int gpio_num, enum GPIO_ACTIVE_E active)
 		snprintf(name, sizeof(name), "disp_ctrl_pin_%d", count++);
 		rc = devm_gpio_request_one(&g_pdev->dev, gpio_num, flags, name);
 		if (rc) {
-			vo_pr(VO_ERR, "gpio_num(%d) failed\n",  gpio_num);
+			CVI_TRACE_VO(CVI_DBG_ERR, "gpio_num(%d) failed\n",  gpio_num);
 			return;
 		}
 		gpio_set_value(gpio_num, active);
@@ -235,7 +235,7 @@ static void _disp_resetpin_set(unsigned int gpio_num, enum GPIO_ACTIVE_E active)
 		flags = GPIOF_DIR_OUT | (active ? GPIOF_INIT_HIGH : GPIOF_INIT_LOW);
 		rc = devm_gpio_request_one(&g_pdev->dev, gpio_num, flags, NULL);
 		if (rc) {
-			vo_pr(VO_ERR, "reset gpio_num(%d) failed\n",  gpio_num);
+			CVI_TRACE_VO(CVI_DBG_ERR, "reset gpio_num(%d) failed\n",  gpio_num);
 		} else {
 			gpio_set_value(gpio_num, !active);
 			usleep_range(5 * 1000, 10 * 1000);
@@ -316,7 +316,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 	int rc = -1;
 
 	if (smooth) {
-		vo_pr(VO_DBG, "V4L2_CID_DV_VIP_DISP_INTF won't apply if smooth.\n");
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "V4L2_CID_DV_VIP_DISP_INTF won't apply if smooth.\n");
 		sclr_disp_reg_force_up();
 		vdev->disp_interface = cfg->intf_type;
 
@@ -325,14 +325,14 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 	}
 
 	if (atomic_read(&vdev->disp_streamon) == 1) {
-		vo_pr(VO_INFO, "V4L2_CID_DV_VIP_DISP_ONLINE can't be control if streaming.\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "V4L2_CID_DV_VIP_DISP_ONLINE can't be control if streaming.\n");
 		rc = 0;
 
 		return rc;
 	}
 
 	if (cfg->intf_type == CVI_VIP_DISP_INTF_DSI) {
-		vo_pr(VO_INFO, "MIPI use mipi_tx to control.\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "MIPI use mipi_tx to control.\n");
 
 		rc = 0;
 		return rc;
@@ -344,7 +344,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 
 		clk_disp = devm_clk_get(&g_pdev->dev, clk_disp_name);
 		if (IS_ERR(clk_disp)) {
-			vo_pr(VO_ERR, "devm_clk_get clk_disp failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "devm_clk_get clk_disp failed.\n");
 			return rc;
 		}
 		if (clk_disp)
@@ -352,7 +352,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 
 		clk_dsi = devm_clk_get(&g_pdev->dev, clk_dsi_name);
 		if (IS_ERR(clk_dsi)) {
-			vo_pr(VO_ERR, "devm_clk_get clk_dsi failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "devm_clk_get clk_dsi failed.\n");
 			return rc;
 		}
 		if (clk_dsi)
@@ -381,7 +381,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 		sclr_disp_set_intf(SCLR_VO_INTF_LVDS);
 
 		if (cfg->lvds_cfg.pixelclock == 0) {
-			vo_pr(VO_ERR, "lvds pixelclock 0 invalid\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "lvds pixelclock 0 invalid\n");
 			return rc;
 		}
 		lvds_reg.b.out_bit = cfg->lvds_cfg.out_bits;
@@ -392,7 +392,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 			lvds_reg.b.dual_ch = 1;
 		else {
 			lvds_reg.b.dual_ch = 0;
-			vo_pr(VO_ERR, "invalid lvds chn_num(%d). Use 1 instead."
+			CVI_TRACE_VO(CVI_DBG_ERR, "invalid lvds chn_num(%d). Use 1 instead."
 				, cfg->lvds_cfg.chn_num);
 		}
 		lvds_reg.b.vs_out_en = cfg->lvds_cfg.vs_out_en;
@@ -433,7 +433,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 			vip_sys_clk_setting(0x10080);
 		} else if (cfg->mcu_cfg.mode == MCU_MODE_RGB888) {
 			dphy_dsi_set_pll(cfg->mcu_cfg.pixelclock * 6, 4, 24);
-			vip_sys_clk_setting(0x10080);
+			vip_sys_clk_setting(0x100c0);
 		}
 
 		//pinmux
@@ -454,7 +454,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 			sclr_disp_set_intf(SCLR_VO_INTF_BT601);
 			sclr_disp_bt_en(SCLR_VO_INTF_BT601);
 		} else {
-			vo_pr(VO_ERR, "invalid bt-mode(%d)\n", cfg->bt_cfg.mode);
+			CVI_TRACE_VO(CVI_DBG_ERR, "invalid bt-mode(%d)\n", cfg->bt_cfg.mode);
 			//return rc;
 		}
 
@@ -484,7 +484,7 @@ int vo_set_interface(struct cvi_vo_dev *vdev, struct cvi_disp_intf_cfg *cfg)
 		sync.b.eav_blk = 0xb6;
 		sclr_bt_set(enc, sync);
 	} else {
-		vo_pr(VO_ERR, "invalid disp-intf(%d)\n", cfg->intf_type);
+		CVI_TRACE_VO(CVI_DBG_ERR, "invalid disp-intf(%d)\n", cfg->intf_type);
 		return rc;
 	}
 	sclr_disp_reg_force_up();
@@ -549,7 +549,7 @@ int vo_set_rgn_cfg(const u8 inst, const struct cvi_rgn_cfg *cfg, const struct sc
 		ow_cfg->mem_size.w = ALIGN(ow_cfg->img_size.w * bpp, GOP_ALIGNMENT);
 		ow_cfg->mem_size.h = ow_cfg->img_size.h;
 #if 0
-		vo_pr(VO_INFO, "gop(%d) fmt(%d) rect(%d %d %d %d) addr(%llx) pitch(%d).\n", inst
+		CVI_TRACE_VO(CVI_DBG_INFO, "gop(%d) fmt(%d) rect(%d %d %d %d) addr(%llx) pitch(%d).\n", inst
 			, ow_cfg->fmt, ow_cfg->start.x, ow_cfg->start.y, ow_cfg->img_size.w, ow_cfg->img_size.h
 			, ow_cfg->addr, ow_cfg->pitch);
 #endif
@@ -621,7 +621,7 @@ struct cvi_disp_buffer *vo_next_buf(struct cvi_vo_dev *vdev)
 	spin_unlock_irqrestore(&vdev->rdy_lock, flags);
 
 	for (i = 0; i < 3; i++) {
-		vo_pr(VO_DBG, "qbuf->buf.planes[%d].addr=%llx\n", i, b->buf.planes[i].addr);
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "qbuf->buf.planes[%d].addr=%llx\n", i, b->buf.planes[i].addr);
 	}
 
 	return b;
@@ -660,13 +660,13 @@ static void _vo_hw_enque(struct cvi_vo_dev *vdev)
 		return;
 	b = vo_next_buf(vdev);
 	if (!b) {
-		vo_pr(VO_ERR, "Ready queue buffer empty\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "Ready queue buffer empty\n");
 		return;
 	}
 	vb2_buf = &b->buf;
 
 	for (i = 0; i < 3; i++) {
-		vo_pr(VO_DBG, "b->buf.planes[%d].addr=%llx\n", i, b->buf.planes[i].addr);
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "b->buf.planes[%d].addr=%llx\n", i, b->buf.planes[i].addr);
 	}
 
 	cfg = sclr_disp_get_cfg();
@@ -691,7 +691,7 @@ static void _vo_hw_enque(struct cvi_vo_dev *vdev)
 
 void vo_wake_up_th(struct cvi_vo_dev *vdev)
 {
-	vo_pr(VO_INFO, "wake up th when vb buffer done\n");
+	CVI_TRACE_VO(CVI_DBG_INFO, "wake up th when vb buffer done\n");
 	vdev->vo_th[E_VO_TH_DISP].flag = 1;
 	wake_up(&vdev->vo_th[E_VO_TH_DISP].wq);
 }
@@ -712,7 +712,7 @@ static void vo_disp_buf_queue(struct cvi_vo_dev *vdev, struct cvi_disp_buffer *b
 	if (vdev->num_rdy == 1) {
 		if (gVoCtx->is_layer_enable[0]) {
 
-			vo_pr(VO_INFO, "vo_disp_buf_queue set bgcolor\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "%s set bgcolor\n", __func__);
 			sclr_disp_enable_window_bgcolor(false);
 		}
 		_vo_hw_enque(vdev);
@@ -834,7 +834,7 @@ static void _i80_package_frame(struct vb_s *in, CVI_U8 *buffer, CVI_U8 byte_cnt)
 			continue;
 		//in_buf_vir[i] = CVI_SYS_MmapCache(in->buf.phy_addr[i], in->buf.length[i]);
 		if (in_buf_vir[i] == CVI_NULL) {
-			vo_pr(VO_INFO, "mmap for i80 transform failed.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "mmap for i80 transform failed.\n");
 			goto ERR_I80_MMAP;
 		}
 	}
@@ -859,7 +859,7 @@ static void _i80_package_frame(struct vb_s *in, CVI_U8 *buffer, CVI_U8 byte_cnt)
 ERR_I80_MMAP:
 	for (i = 0; i < 3; ++i)
 		if (in_buf_vir[i])
-			vo_pr(VO_INFO, "CVI_SYS_Munmap\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "CVI_SYS_Munmap\n");
 			//CVI_SYS_Munmap(in_buf_vir[i], in->buf.length[i]);
 }
 
@@ -875,7 +875,7 @@ static CVI_S32 _i80_transform_frame(VB_BLK blk_in, VB_BLK *blk_out)
 	*blk_out = vb_get_block_with_id(VB_INVALID_POOLID, buf_size, CVI_ID_VO);
 	if (*blk_out == VB_INVALID_HANDLE) {
 		vb_release_block(blk_in);
-		vo_pr(VO_INFO, "No more vb for i80 transform.\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "No more vb for i80 transform.\n");
 		return CVI_FAILURE;
 	}
 	vb_i80 = (struct vb_s *)*blk_out;
@@ -884,7 +884,7 @@ static CVI_S32 _i80_transform_frame(VB_BLK blk_in, VB_BLK *blk_out)
 	if (vb_i80->vir_addr == CVI_NULL) {
 		vb_release_block(blk_in);
 		vb_release_block(*blk_out);
-		vo_pr(VO_INFO, "mmap for i80 transform failed.\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "mmap for i80 transform failed.\n");
 		return CVI_FAILURE;
 	}
 	_i80_package_frame(vb_in, vb_i80->vir_addr, byte_cnt);
@@ -905,12 +905,12 @@ void vo_post_job(CVI_U8 vo_dev)
 
 	jobs = base_get_jobs_by_chn(chn, CHN_TYPE_IN);
 	if (!jobs) {
-		vo_pr(VO_ERR, "get in jobs failed\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "get in jobs failed\n");
 	}
 
 	up(&jobs->sem);
 
-	vo_pr(VO_INFO, "vo post job sem.count[%d]\n", jobs->sem.count);
+	CVI_TRACE_VO(CVI_DBG_INFO, "vo post job sem.count[%d]\n", jobs->sem.count);
 }
 
 static CVI_VOID _vo_qbuf(VB_BLK blk)
@@ -927,7 +927,7 @@ static CVI_VOID _vo_qbuf(VB_BLK blk)
 		VB_BLK blk_i80;
 
 		if (_i80_transform_frame(blk, &blk_i80) != CVI_SUCCESS) {
-			vo_pr(VO_INFO, "i80 transform NG.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "i80 transform NG.\n");
 			return;
 		}
 		vb = (struct vb_s *)blk_i80;
@@ -937,7 +937,7 @@ static CVI_VOID _vo_qbuf(VB_BLK blk)
 	if (FIFO_FULL(&jobs->workq)) {
 		mutex_unlock(&jobs->lock);
 		vb_release_block(blk);
-		vo_pr(VO_INFO, "vo workq is full. drop new one.\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "vo workq is full. drop new one.\n");
 		return;
 	}
 
@@ -945,12 +945,12 @@ static CVI_VOID _vo_qbuf(VB_BLK blk)
 		//pthread_mutex_unlock(&gVoCtx->vb_jobs.lock);
 		mutex_unlock(&jobs->lock);
 		vb_release_block(blk);
-		vo_pr(VO_INFO, "clearchnbuf is set. drop new one.\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "clearchnbuf is set. drop new one.\n");
 		return;
 	}
 
 	for (i = 0; i < 3; i++) {
-		vo_pr(VO_DBG, "vb->buf.phy_add[%d].addr=%llx\n", i, vb->buf.phy_addr[i]);
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "vb->buf.phy_add[%d].addr=%llx\n", i, vb->buf.phy_addr[i]);
 	}
 
 	FIFO_PUSH(&jobs->workq, vb);
@@ -958,7 +958,7 @@ static CVI_VOID _vo_qbuf(VB_BLK blk)
 
 	qbuf = vzalloc(sizeof(struct cvi_disp_buffer));
 	if (qbuf == NULL) {
-		vo_pr(VO_ERR, "QBUF vzalloc size(%zu) fail\n", sizeof(struct cvi_disp_buffer));
+		CVI_TRACE_VO(CVI_DBG_ERR, "QBUF vzalloc size(%zu) fail\n", sizeof(struct cvi_disp_buffer));
 		return;
 	}
 	qbuf->buf.length = 3;
@@ -1061,7 +1061,7 @@ static int _vo_disp_thread(void *arg)
 #endif
 
 	if (!jobs) {
-		vo_pr(VO_ERR, "get in jobs failed\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "get in jobs failed\n");
 		return CVI_FAILURE;
 	}
 
@@ -1080,12 +1080,12 @@ static int _vo_disp_thread(void *arg)
 		timeout = msecs_to_jiffies(SEM_WAIT_TIMEOUT_MS);
 		ret = down_timeout(&jobs->sem, timeout);
 		if (ret == -ETIME) {
-			vo_pr(VO_DBG, "Disp thread expired time, loop\n");
+			CVI_TRACE_VO(CVI_DBG_DEBUG, "Disp thread expired time, loop\n");
 			continue;
 		}
 
 		if (gVoCtx->pause) {
-			vo_pr(VO_INFO, "pause and skip update.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "pause and skip update.\n");
 			continue;
 		}
 
@@ -1096,18 +1096,20 @@ static int _vo_disp_thread(void *arg)
 
 		blk = base_mod_jobs_waitq_pop(chn, CHN_TYPE_IN);
 		if (blk == VB_INVALID_HANDLE) {
-			vo_pr(VO_INFO, "No more vb for dequeue.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "No more vb for dequeue.\n");
 			continue;
 		}
 		vb = (struct vb_s *)blk;
+		CVI_TRACE_VO(CVI_DBG_INFO, "Pool[%d] vb paddr(%#llx) usr_cnt(%d)\n",
+					vb->vb_pool, vb->phy_addr, vb->usr_cnt.counter);
 #ifdef __LP64__
-		vo_pr(VO_INFO, "wait q pop blk[0x%llx]\n", blk);
+		CVI_TRACE_VO(CVI_DBG_INFO, "wait q pop blk[0x%llx]\n", blk);
 #else
-		vo_pr(VO_INFO, "wait q pop blk[0x%x]\n", blk);
+		CVI_TRACE_VO(CVI_DBG_INFO, "wait q pop blk[0x%x]\n", blk);
 #endif
 
 		for (i = 0; i < 3; i++) {
-			vo_pr(VO_DBG, "vb->buf.phy_add[%d].addr=%llx\n", i, vb->buf.phy_addr[i]);
+			CVI_TRACE_VO(CVI_DBG_DEBUG, "vb->buf.phy_add[%d].addr=%llx\n", i, vb->buf.phy_addr[i]);
 		}
 
 		gVoCtx->u64DisplayPts[chn.s32DevId][chn.s32ChnId] = vb->buf.u64PTS;
@@ -1129,7 +1131,7 @@ static int _vo_disp_thread(void *arg)
 				cfg->mem.width	 = area.width;
 				cfg->mem.height  = area.height;
 
-				vo_pr(VO_INFO, "Crop Area (%d,%d,%d,%d)\n", cfg->mem.start_x,
+				CVI_TRACE_VO(CVI_DBG_INFO, "Crop Area (%d,%d,%d,%d)\n", cfg->mem.start_x,
 				cfg->mem.start_y, cfg->mem.width, cfg->mem.height);
 
 				sclr_disp_set_mem(&cfg->mem);
@@ -1160,18 +1162,18 @@ static int _vo_disp_thread(void *arg)
 				, CVI_ID_VO
 				, gVoCtx->enRotation) != CVI_SUCCESS) {
 				mutex_unlock(&vo_gdc_lock);
-				vo_pr(VO_ERR, "gdc rotation failed.\n");
+				CVI_TRACE_VO(CVI_DBG_ERR, "gdc rotation failed.\n");
 				continue;
 			}
 #if 0
-			vo_pr(VO_INFO, "dqbuf chn_id=%d, frm_num=%d, time=%dms\n",
+			CVI_TRACE_VO(CVI_DBG_INFO, "dqbuf chn_id=%d, frm_num=%d, time=%dms\n",
 					b.chnId, b.sequence, b.timestamp.tv_sec * 1000 + b.timestamp.tv_usec / 1000);
 #endif
 		}
 		// except for i80, vo needs to keep at least one buf for display.
 		// Thus, no buf done if there is only one buffer.
 		if (FIFO_SIZE(&jobs->workq) == 1 && (gVoCtx->stPubAttr.enIntfType != VO_INTF_I80)) {
-			vo_pr(VO_INFO, "vo keep one buf for display.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "vo keep one buf for display.\n");
 			continue;
 		}
 
@@ -1191,9 +1193,9 @@ static int _vo_disp_thread(void *arg)
 		vb_dqbuf(chn, CHN_TYPE_IN, &blk);
 
 		if (blk == VB_INVALID_HANDLE) {
-		//	vo_pr(VO_INFO, "%s can't get vb-blk.\n", CVI_SYS_GetModName(chn.enModId));
+		//	CVI_TRACE_VO(CVI_DBG_INFO, "%s can't get vb-blk.\n", CVI_SYS_GetModName(chn.enModId));
 		} else {
-			vo_pr(VO_INFO, "vb_done_handler\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "vb_done_handler\n");
 			gVoCtx->u64PreDonePts[chn.s32DevId][chn.s32ChnId] = ((struct vb_s *)blk)->buf.u64PTS;
 			gVoCtx->chnStatus[chn.s32DevId][chn.s32ChnId].u32frameCnt++;
 
@@ -1207,7 +1209,7 @@ static int _vo_disp_thread(void *arg)
 		duration_min = MIN(duration, duration_min);
 		sum += duration;
 		if (++count == 100) {
-			vo_pr(VO_INFO, "VO duration(ms): average(%d), max(%d) min(%d)\n"
+			CVI_TRACE_VO(CVI_DBG_INFO, "VO duration(ms): average(%d), max(%d) min(%d)\n"
 				, sum / count / 1000, duration_max / 1000, duration_min / 1000);
 			count = 0;
 			sum = duration_max = 0;
@@ -1247,7 +1249,7 @@ int vo_create_thread(struct cvi_vo_dev *vdev, enum E_VO_TH th_id)
 	int rc = 0;
 
 	if (th_id < 0 || th_id >= E_VO_TH_MAX) {
-		vo_pr(VO_ERR, "_vo_create_thread fail\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "_vo_create_thread fail\n");
 		return -1;
 	}
 	param.sched_priority = MAX_USER_RT_PRIO - 10;
@@ -1260,7 +1262,7 @@ int vo_create_thread(struct cvi_vo_dev *vdev, enum E_VO_TH th_id)
 			break;
 
 		default:
-			vo_pr(VO_ERR, "No such thread(%d)\n", th_id);
+			CVI_TRACE_VO(CVI_DBG_ERR, "No such thread(%d)\n", th_id);
 			return -1;
 		}
 
@@ -1268,7 +1270,7 @@ int vo_create_thread(struct cvi_vo_dev *vdev, enum E_VO_TH th_id)
 								(void *)vdev,
 								vdev->vo_th[th_id].th_name);
 		if (IS_ERR(vdev->vo_th[th_id].w_thread)) {
-			vo_pr(VO_ERR, "Unable to start %s.\n", vdev->vo_th[th_id].th_name);
+			CVI_TRACE_VO(CVI_DBG_ERR, "Unable to start %s.\n", vdev->vo_th[th_id].th_name);
 			return -1;
 		}
 		sched_setscheduler(vdev->vo_th[th_id].w_thread, SCHED_FIFO, &param);
@@ -1346,6 +1348,9 @@ int vo_stop_streaming(struct cvi_vo_dev *vdev)
 
 }
 
+struct sclr_disp_gamma_attr disp_gamma_attr;
+CVI_BOOL gamma_update;
+
 static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 {
 	u32 id = p->id;
@@ -1361,7 +1366,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_START_STREAMING:
 	{
 		if (vo_start_streaming(vdev)) {
-			vo_pr(VO_ERR, "Failed to vo start streaming\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo start streaming\n");
 			break;
 		}
 		rc = 0;
@@ -1371,7 +1376,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_STOP_STREAMING:
 	{
 		if (vo_stop_streaming(vdev)) {
-			vo_pr(VO_ERR, "Failed to vo stop streaming\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Failed to vo stop streaming\n");
 			break;
 		}
 
@@ -1405,13 +1410,13 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 				break;
 			}
 #ifdef __LP64__
-			vo_pr(VO_DBG, "blk[%d]=(0x%llx)\n", i, blk[i]);
+			CVI_TRACE_VO(CVI_DBG_DEBUG, "blk[%d]=(0x%llx)\n", i, blk[i]);
 #else
-			vo_pr(VO_DBG, "blk[%d]=(0x%x)\n", i, blk[i]);
+			CVI_TRACE_VO(CVI_DBG_DEBUG, "blk[%d]=(0x%x)\n", i, blk[i]);
 #endif
 
 			for (j = 0; j < 3; j++) {
-				vo_pr(VO_INFO, "vb->buf.phy_addr[%d].addr=%llx\n", j, vb->buf.phy_addr[j]);
+				CVI_TRACE_VO(CVI_DBG_INFO, "vb->buf.phy_addr[%d].addr=%llx\n", j, vb->buf.phy_addr[j]);
 			}
 
 			ret = vb_qbuf(chn, CHN_TYPE_IN, blk[i]);
@@ -1434,7 +1439,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 		timings = &_timings_;
 		if (copy_from_user(timings, (void *)p->ptr, sizeof(struct vo_dv_timings))) {
-			vo_pr(VO_ERR, "Set DV timing copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "Set DV timing copy_from_user failed.\n");
 			break;
 		}
 #if 0//TODO
@@ -1445,7 +1450,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		vdev->sink_rect.width = timings->bt.width;
 		vdev->sink_rect.height = timings->bt.height;
 		vdev->compose_out = vdev->sink_rect;
-		vo_pr(VO_INFO, "timing %d-%d\n", timings->bt.width, timings->bt.height);
+		CVI_TRACE_VO(CVI_DBG_INFO, "timing %d-%d\n", timings->bt.width, timings->bt.height);
 
 		vo_fill_disp_timing(&timing, &timings->bt);
 		sclr_disp_set_timing(&timing);
@@ -1458,7 +1463,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		struct vo_rect area;
 
 		if (copy_from_user(&area, p->ptr, sizeof(area)) != 0) {
-			vo_pr(VO_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
 			break;
 		}
 
@@ -1470,7 +1475,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 			rect.w = area.width;
 			rect.h = area.height;
 
-			vo_pr(VO_INFO, "Compose Area (%d,%d,%d,%d)\n", rect.x, rect.y, rect.w, rect.h);
+			CVI_TRACE_VO(CVI_DBG_INFO, "Compose Area (%d,%d,%d,%d)\n", rect.x, rect.y, rect.w, rect.h);
 			if (sclr_disp_set_rect(rect) == 0)
 				vdev->compose_out = area;
 		}
@@ -1483,7 +1488,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		struct vo_rect area;
 
 		if (copy_from_user(&area, (void __user *)p->ptr, sizeof(struct vo_rect))) {
-			vo_pr(VO_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
 			break;
 		}
 
@@ -1493,7 +1498,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		cfg->mem.width	 = area.width;
 		cfg->mem.height  = area.height;
 
-		vo_pr(VO_INFO, "Crop Area (%d,%d,%d,%d)\n", cfg->mem.start_x,
+		CVI_TRACE_VO(CVI_DBG_INFO, "Crop Area (%d,%d,%d,%d)\n", cfg->mem.start_x,
 												cfg->mem.start_y,
 												cfg->mem.width,
 												cfg->mem.height);
@@ -1507,7 +1512,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	{
 		if (p->value >= VIP_ALIGNMENT) {
 			vdev->align = p->value;
-			vo_pr(VO_INFO, "Set Align(%d)\n", vdev->align);
+			CVI_TRACE_VO(CVI_DBG_INFO, "Set Align(%d)\n", vdev->align);
 		}
 		rc = 0;
 		break;
@@ -1519,7 +1524,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		struct cvi_rgn_cfg cfg;
 
 		if (copy_from_user(&cfg, p->ptr, sizeof(struct cvi_rgn_cfg))) {
-			vo_pr(VO_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
 			break;
 		}
 		size.w = timing->hfde_end - timing->hfde_start + 1;
@@ -1548,7 +1553,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		struct sclr_csc_matrix cfg;
 
 		if (copy_from_user(&cfg, p->ptr, sizeof(struct sclr_csc_matrix))) {
-			vo_pr(VO_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
 			break;
 		}
 		sclr_disp_set_csc(&cfg);
@@ -1559,7 +1564,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_SET_CLK:
 	{
 		if (p->value < 8000) {
-			vo_pr(VO_ERR, "V4L2_CID_DV_VIP_DISP_SET_CLK clk(%d) less than 8000 kHz.\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "V4L2_CID_DV_VIP_DISP_SET_CLK clk(%d) less than 8000 kHz.\n",
 				p->value);
 			break;
 		}
@@ -1585,7 +1590,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	{
 		if (p->value >= SCL_CSC_601_LIMIT_YUV2RGB &&
 			p->value <= SCL_CSC_709_FULL_YUV2RGB) {
-			vo_pr(VO_ERR, "invalid disp-out-csc(%d)\n", p->value);
+			CVI_TRACE_VO(CVI_DBG_ERR, "invalid disp-out-csc(%d)\n", p->value);
 			break;
 		}
 		sclr_disp_set_out_csc(p->value);
@@ -1596,7 +1601,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_PATTERN:
 	{
 		if (p->value >= CVI_VIP_PAT_MAX) {
-			vo_pr(VO_ERR, "invalid disp-pattern(%d)\n",
+			CVI_TRACE_VO(CVI_DBG_ERR, "invalid disp-pattern(%d)\n",
 					p->value);
 			break;
 		}
@@ -1610,14 +1615,14 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		u16 u16_rgb[3], r, g, b;
 
 		if (copy_from_user(&u16_rgb[0], p->ptr, sizeof(u16_rgb))) {
-			//vo_pr(VO_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			//CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
 			break;
 		}
 
 		r = u16_rgb[0];
 		g = u16_rgb[1];
 		b = u16_rgb[2];
-		vo_pr(VO_INFO, "Set Frame BG color (R,G,B) = (%x,%x,%x)\n", r, g, b);
+		CVI_TRACE_VO(CVI_DBG_INFO, "Set Frame BG color (R,G,B) = (%x,%x,%x)\n", r, g, b);
 
 		sclr_disp_set_frame_bgcolor(r, g, b);
 
@@ -1630,14 +1635,14 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		u16 u16_rgb[3], r, g, b;
 
 		if (copy_from_user(&u16_rgb[0], p->ptr, sizeof(u16_rgb))) {
-			//vo_pr(VO_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			//CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
 			break;
 		}
 
 		r = u16_rgb[0];
 		g = u16_rgb[1];
 		b = u16_rgb[2];
-		vo_pr(VO_INFO, "Set window BG color 2(R,G,B) = (%d,%d,%d)\n", r, g, b);
+		CVI_TRACE_VO(CVI_DBG_INFO, "Set window BG color 2(R,G,B) = (%d,%d,%d)\n", r, g, b);
 
 		sclr_disp_set_window_bgcolor(r, g, b);
 
@@ -1647,7 +1652,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_ONLINE:
 	{
 		if (atomic_read(&vdev->disp_streamon) == 1) {
-			vo_pr(VO_ERR, "V4L2_CID_DV_VIP_DISP_ONLINE can't be control if streaming.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "V4L2_CID_DV_VIP_DISP_ONLINE can't be control if streaming.\n");
 
 			rc = 0;
 			break;
@@ -1666,12 +1671,12 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 
 		cfg = &_cfg_;
 		if (copy_from_user(cfg, p->ptr, sizeof(struct cvi_disp_intf_cfg))) {
-			//vo_pr(VO_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
+			//CVI_TRACE_VO(CVI_DBG_ERR, "ioctl-%#x, copy_from_user failed.\n", p->id);
 			break;
 		}
 
 		if (smooth) {
-			vo_pr(VO_DBG, "V4L2_CID_DV_VIP_DISP_INTF won't apply if smooth.\n");
+			CVI_TRACE_VO(CVI_DBG_DEBUG, "V4L2_CID_DV_VIP_DISP_INTF won't apply if smooth.\n");
 			sclr_disp_reg_force_up();
 			vdev->disp_interface = cfg->intf_type;
 			rc = 0;
@@ -1685,12 +1690,12 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		}
 #endif
 		if (atomic_read(&vdev->disp_streamon) == 1) {
-			vo_pr(VO_ERR, "V4L2_CID_DV_VIP_DISP_ONLINE can't be control if streaming.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "V4L2_CID_DV_VIP_DISP_ONLINE can't be control if streaming.\n");
 			break;
 		}
 
 		if (cfg->intf_type == CVI_VIP_DISP_INTF_DSI) {
-			vo_pr(VO_INFO, "MIPI use mipi_tx to control.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "MIPI use mipi_tx to control.\n");
 			//return rc;
 		} else if (cfg->intf_type == CVI_VIP_DISP_INTF_LVDS) {
 			int i = 0;
@@ -1720,7 +1725,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 			sclr_disp_set_intf(SCLR_VO_INTF_LVDS);
 
 			if (cfg->lvds_cfg.pixelclock == 0) {
-				vo_pr(VO_ERR, "lvds pixelclock 0 invalid\n");
+				CVI_TRACE_VO(CVI_DBG_ERR, "lvds pixelclock 0 invalid\n");
 				//return rc;
 			}
 
@@ -1732,7 +1737,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 				lvds_reg.b.dual_ch = 1;
 			else {
 				lvds_reg.b.dual_ch = 0;
-				vo_pr(VO_ERR, "invalid lvds chn_num(%d). Use 1 instead."
+				CVI_TRACE_VO(CVI_DBG_ERR, "invalid lvds chn_num(%d). Use 1 instead."
 					, cfg->lvds_cfg.chn_num);
 			}
 			lvds_reg.b.vs_out_en = cfg->lvds_cfg.vs_out_en;
@@ -1772,7 +1777,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 				vip_sys_clk_setting(0x10080);
 			} else if (cfg->mcu_cfg.mode == MCU_MODE_RGB888) {
 				dphy_dsi_set_pll(cfg->mcu_cfg.pixelclock * 6, 4, 24);
-				vip_sys_clk_setting(0x10080);
+				vip_sys_clk_setting(0x100c0);
 			}
 
 			//pinmux
@@ -1793,7 +1798,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 				sclr_disp_set_intf(SCLR_VO_INTF_BT601);
 				sclr_disp_bt_en(SCLR_VO_INTF_BT601);
 			} else {
-				vo_pr(VO_ERR, "invalid bt-mode(%d)\n", cfg->bt_cfg.mode);
+				CVI_TRACE_VO(CVI_DBG_ERR, "invalid bt-mode(%d)\n", cfg->bt_cfg.mode);
 				//return rc;
 			}
 
@@ -1823,7 +1828,7 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 			sync.b.eav_blk = 0xb6;
 			sclr_bt_set(enc, sync);
 		} else {
-			vo_pr(VO_ERR, "invalid disp-intf(%d)\n", cfg->intf_type);
+			CVI_TRACE_VO(CVI_DBG_ERR, "invalid disp-intf(%d)\n", cfg->intf_type);
 			//return rc;
 		}
 		sclr_disp_reg_force_up();
@@ -1844,23 +1849,20 @@ static long _vo_s_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 	case VO_IOCTL_GAMMA_LUT_UPDATE:
 	{
 		int i = 0;
-		struct sclr_disp_gamma_attr gamma_attr_sclr;
 		VO_GAMMA_INFO_S gamma_attr;
 
 		if (copy_from_user(&gamma_attr, (void *)p->ptr, sizeof(gamma_attr))) {
-			vo_pr(VO_ERR, "gamma lut update copy_from_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "gamma lut update copy_from_user failed.\n");
 			break;
 		}
 
-		gamma_attr_sclr.enable = gamma_attr.enable;
-		gamma_attr_sclr.pre_osd = gamma_attr.osd_apply;
+		disp_gamma_attr.enable = gamma_attr.enable;
+		disp_gamma_attr.pre_osd = gamma_attr.osd_apply;
 
 		for (i = 0; i < SCL_DISP_GAMMA_NODE; ++i) {
-			gamma_attr_sclr.table[i] = gamma_attr.value[i];
+			disp_gamma_attr.table[i] = gamma_attr.value[i];
 		}
-
-		sclr_disp_gamma_ctrl(gamma_attr_sclr.enable, gamma_attr_sclr.pre_osd);
-		sclr_disp_gamma_lut_update(gamma_attr_sclr.table, gamma_attr_sclr.table, gamma_attr_sclr.table);
+		gamma_update = true;
 
 		rc = 0;
 		break;
@@ -1943,7 +1945,7 @@ static long _vo_g_ctrl(struct cvi_vo_dev *vdev, struct vo_ext_control *p)
 		}
 
 		if (copy_to_user((void *)p->ptr, &gamma_attr, sizeof(VO_GAMMA_INFO_S))) {
-			vo_pr(VO_ERR, "gamma lut read copy_to_user failed.\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "gamma lut read copy_to_user failed.\n");
 			break;
 		}
 
@@ -2091,7 +2093,7 @@ int vo_mmap(struct file *file, struct vm_area_struct *vma)
 	while (vm_size > 0) {
 		if (remap_pfn_range(vma, vm_start, virt_to_pfn(pos), PAGE_SIZE, vma->vm_page_prot))
 			return -EAGAIN;
-		//vo_pr(VO_DBG, "vo proc mmap vir(%p) phys(%#llx)\n", pos, virt_to_phys((void *) pos));
+		//CVI_TRACE_VO(CVI_DBG_DEBUG, "vo proc mmap vir(%p) phys(%#llx)\n", pos, virt_to_phys((void *) pos));
 		vm_start += PAGE_SIZE;
 		pos += PAGE_SIZE;
 		vm_size -= PAGE_SIZE;
@@ -2129,10 +2131,10 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		RGN_HANDLE *pstHandle = attr->hdls;
 		RGN_TYPE_E enType = attr->enType;
 
-		vo_pr(VO_INFO, "VO_CB_GET_RGN_HDLS\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_GET_RGN_HDLS\n");
 
 		if (vo_cb_get_rgn_hdls(VoLayer, VoChn, enType, pstHandle)) {
-			vo_pr(VO_INFO, "VO_CB_GET_RGN_HDLS failed.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_GET_RGN_HDLS failed.\n");
 		}
 
 		rc = 0;
@@ -2147,10 +2149,10 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		RGN_HANDLE *pstHandle = attr->hdls;
 		RGN_TYPE_E enType = attr->enType;
 
-		vo_pr(VO_INFO, "VO_CB_SET_RGN_HDLS\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_SET_RGN_HDLS\n");
 
 		if (vo_cb_set_rgn_hdls(VoLayer, VoChn, enType, pstHandle)) {
-			vo_pr(VO_INFO, "VO_CB_SET_RGN_HDLS failed.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_SET_RGN_HDLS failed.\n");
 		}
 
 		rc = 0;
@@ -2166,10 +2168,10 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		VO_LAYER VoLayer = attr->stChn.s32DevId;
 		VO_CHN VoChn = attr->stChn.s32ChnId;
 
-		vo_pr(VO_INFO, "VO_CB_SET_RGN_CFG\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_SET_RGN_CFG\n");
 
 		if (vo_cb_set_rgn_cfg(VoLayer, VoChn, pstRgnCfg)) {
-			vo_pr(VO_INFO, "VO_CB_SET_RGN_CFG is failed.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_SET_RGN_CFG is failed.\n");
 		}
 
 		size.w = timing->hfde_end - timing->hfde_start + 1;
@@ -2186,10 +2188,10 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		VO_LAYER VoLayer = attr->stChn.s32DevId;
 		VO_CHN VoChn = attr->stChn.s32ChnId;
 
-		vo_pr(VO_INFO, "VO_CB_SET_RGN_COVER_CFG\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_SET_RGN_COVER_CFG\n");
 
 		if (vo_cb_set_rgn_coverex_cfg(VoLayer, VoChn, pstRgnCoverExCfg)) {
-			vo_pr(VO_INFO, "VO_CB_SET_RGN_COVER_CFG is failed.\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_SET_RGN_COVER_CFG is failed.\n");
 		}
 
 		vo_set_rgn_coverex_cfg(pstRgnCoverExCfg);
@@ -2203,11 +2205,11 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		VO_LAYER VoLayer = param->stChn.s32DevId;
 		VO_CHN VoChn = param->stChn.s32ChnId;
 
-		vo_pr(VO_INFO, "VO_CB_GET_CHN_SIZE\n");
+		CVI_TRACE_VO(CVI_DBG_INFO, "VO_CB_GET_CHN_SIZE\n");
 
 		rc = vo_cb_get_chn_size(VoLayer, VoChn, &param->rect);
 		if (rc != CVI_SUCCESS) {
-			vo_pr(VO_ERR, "VO_CB_GET_CHN_SIZE failed\n");
+			CVI_TRACE_VO(CVI_DBG_ERR, "VO_CB_GET_CHN_SIZE failed\n");
 		}
 		break;
 	}
@@ -2238,7 +2240,7 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		u8 vpss_dev;
 
 		vpss_dev = *((u8 *)arg);
-		vo_pr(VO_ERR, "VO_CB_QBUF_TRIGGER\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "VO_CB_QBUF_TRIGGER\n");
 
 		vo_post_job(vpss_dev);
 		rc = 0;
@@ -2248,7 +2250,7 @@ int vo_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 	case VO_CB_SET_FB_ON_VPSS:
 	{
 		gVoCtx->fb_on_vpss = *(bool *)arg;
-		vo_pr(VO_DBG, "fb_on_vpss(%d)\n", gVoCtx->fb_on_vpss);
+		CVI_TRACE_VO(CVI_DBG_DEBUG, "fb_on_vpss(%d)\n", gVoCtx->fb_on_vpss);
 		rc = 0;
 		break;
 	}
@@ -2270,32 +2272,39 @@ void vo_irq_handler(struct cvi_vo_dev *vdev, union sclr_intr intr_status)
 
 	if (intr_status.b.disp_frame_end) {
 		union sclr_disp_dbg_status status = sclr_disp_get_dbg_status(true);
+		bool axi_idle = sclr_disp_get_axi_status() & 0x01;
 
 		++vdev->frame_number;
 
 		if (status.b.bw_fail)
-			vo_pr(VO_ERR, " disp bw failed at frame#%d\n", vdev->frame_number);
+			CVI_TRACE_VO(CVI_DBG_ERR, " disp bw failed at frame#%d\n", vdev->frame_number);
 		if (status.b.osd_bw_fail)
-			vo_pr(VO_ERR, " osd bw failed at frame#%d\n", vdev->frame_number);
+			CVI_TRACE_VO(CVI_DBG_ERR, " osd bw failed at frame#%d\n", vdev->frame_number);
 
-		//vo_pr(VO_ERR, " vo_irq_handler entry 1 ,vdev->num_rdy[%d]\n",vdev->num_rdy);
+		//CVI_TRACE_VO(CVI_DBG_ERR, " vo_irq_handler entry 1 ,vdev->num_rdy[%d]\n",vdev->num_rdy);
 
 		// i80 won't need to keep one frame for read, but others need.
 		if ((vdev->num_rdy > 1) || (vdev->disp_interface == CVI_VIP_DISP_INTF_I80)) {
 
 			vo_buf_remove((struct cvi_vo_dev *)vdev);
-			vo_pr(VO_INFO, "vo_irq_handler entry\n");
+			CVI_TRACE_VO(CVI_DBG_INFO, "%s entry\n", __func__);
 
 			// muted until frame available.
 			if (gVoCtx->is_layer_enable[0]) {
 
-				vo_pr(VO_INFO, "vo_irq_handler set bgcolor\n");
+				CVI_TRACE_VO(CVI_DBG_INFO, "%s set bgcolor\n", __func__);
 				sclr_disp_enable_window_bgcolor(false);
 			}
 
 			vo_wake_up_th((struct cvi_vo_dev *)vdev);
 
 			_vo_hw_enque(vdev);
+		}
+
+		if (axi_idle && gamma_update) {
+			gamma_update = false;
+			sclr_disp_gamma_ctrl(disp_gamma_attr.enable, disp_gamma_attr.pre_osd);
+			sclr_disp_gamma_lut_update(disp_gamma_attr.table, disp_gamma_attr.table, disp_gamma_attr.table);
 		}
 	}
 }
@@ -2314,7 +2323,7 @@ static int _vo_init_param(struct cvi_vo_dev *vdev)
 
 	ret = base_set_mod_ctx(&ctx_s);
 	if (ret) {
-		vo_pr(VO_ERR, "Failed to set mod ctx\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to set mod ctx\n");
 		goto err;
 	}
 
@@ -2338,7 +2347,7 @@ int vo_create_instance(struct platform_device *pdev)
 	job_init = 0;//tmp test
 	vdev = dev_get_drvdata(&pdev->dev);
 	if (!vdev) {
-		vo_pr(VO_ERR, "invalid data\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "invalid data\n");
 		return -EINVAL;
 	}
 
@@ -2346,7 +2355,7 @@ int vo_create_instance(struct platform_device *pdev)
 	g_pdev = pdev;
 
 	if (ret) {
-		vo_pr(VO_ERR, "Failed to create err_handler thread\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to create err_handler thread\n");
 		goto err;
 	}
 
@@ -2373,7 +2382,7 @@ int vo_create_instance(struct platform_device *pdev)
 
 	ret = _vo_create_proc(vdev);
 	if (ret) {
-		vo_pr(VO_ERR, "Failed to create proc\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "Failed to create proc\n");
 		goto err;
 	}
 	ret = _vo_init_param(vdev);
@@ -2395,7 +2404,7 @@ int vo_destroy_instance(struct platform_device *pdev)
 
 	vdev = dev_get_drvdata(&pdev->dev);
 	if (!vdev) {
-		vo_pr(VO_ERR, "invalid data\n");
+		CVI_TRACE_VO(CVI_DBG_ERR, "invalid data\n");
 		return -EINVAL;
 	}
 
