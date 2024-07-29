@@ -1263,7 +1263,7 @@ long vi_sdk_ctrl(struct cvi_vi_dev *vdev, struct vi_ext_control *p)
 		struct mlv_info_s *mlv_i = kzalloc(sizeof(struct mlv_info_s), GFP_KERNEL);
 
 		if (!mlv_i) {
-			vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct mlv_info_s));
+			vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct mlv_info_s));
 			break;
 		}
 

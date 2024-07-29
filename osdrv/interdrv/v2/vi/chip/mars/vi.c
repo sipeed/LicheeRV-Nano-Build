@@ -2982,7 +2982,7 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_KERNEL);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				return CVI_FAILURE;
 			}
 			/* VI Online VPSS sc cb trigger */
@@ -3020,7 +3020,7 @@ int vi_start_streaming(struct cvi_vi_dev *vdev)
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_KERNEL);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				return CVI_FAILURE;
 			}
 			/* VI Online VPSS sc cb trigger */
@@ -4129,7 +4129,7 @@ static void _post_hw_enque(
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
 				return;
 			}
@@ -4202,7 +4202,7 @@ YUV_POSTRAW_TILE:
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				atomic_set(&vdev->pre_be_state[ISP_BE_CH0], ISP_PRE_BE_IDLE);
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
 				return;
@@ -4272,7 +4272,7 @@ YUV_POSTRAW:
 			struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 			if (!post_para) {
-				vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+				vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 				atomic_set(&vdev->postraw_state, ISP_POSTRAW_IDLE);
 				return;
 			}
@@ -4335,7 +4335,7 @@ YUV_POSTRAW:
 					struct sc_cfg_cb *post_para = kzalloc(sizeof(struct sc_cfg_cb), GFP_ATOMIC);
 
 					if (!post_para) {
-						vi_pr(VI_ERR, "fail to kzalloc(%lu)\n", sizeof(struct sc_cfg_cb));
+						vi_pr(VI_ERR, "fail to kzalloc(%zu)\n", sizeof(struct sc_cfg_cb));
 						atomic_set(&vdev->pre_be_state[ISP_BE_CH0], ISP_PRE_BE_IDLE);
 						return;
 					}
