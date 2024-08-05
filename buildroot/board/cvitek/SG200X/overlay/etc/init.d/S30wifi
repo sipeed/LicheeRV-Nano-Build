@@ -105,19 +105,26 @@ start() {
 				pass=`cat /boot/wifi.pass`
 			fi
 			gen_hostapd_conf "$ssid" "$pass" > /etc/hostapd.conf
-			if [ -e /boot/wifi.ipv4_prefix ]
-			then
-				ipv4_prefix=`cat /boot/rndis.ipv4_prefix`
-			else
-				ipv4_prefix=10.$id3.$id2
-			fi
-			if [ ! -e /etc/udhcpd.wlan0.conf ]
-			then
-				gen_udhcpd_conf wlan0 "${ipv4_prefix}"  > /etc/udhcpd.wlan0.conf
-			fi
-			ifconfig wlan0 up
-			ip addr add $ipv4_prefix.1/24 dev wlan0
 		fi
+		if [ -e /boot/wifi.ipv4_prefix ]
+		then
+			ipv4_prefix=`cat /boot/wifi.ipv4_prefix`
+		else
+			ipv4_prefix=10.$id3.$id2
+		fi
+		if [ ! -e /etc/udhcpd.wlan0.conf ]
+		then
+			gen_udhcpd_conf wlan0 "${ipv4_prefix}"  > /etc/udhcpd.wlan0.conf
+		fi
+		ifconfig wlan0 up
+		ip route del default || true
+		# routes=$(ip route show | grep 'dev wlan0' | awk '{print $1}')
+		# for route in $routes; do
+		# 	ip route del $route dev wlan0
+		# 	echo "Deleted route $route dev wlan0"
+		# done
+		ip add flush dev wlan0
+		ip addr add $ipv4_prefix.1/24 dev wlan0
 		hostapd -B -i wlan0 /etc/hostapd.conf
 		udhcpd -S /etc/udhcpd.wlan0.conf
 	elif [ -e /boot/wifi.mon ]
@@ -128,12 +135,20 @@ start() {
 }
 
 stop() {
-	killall wpa_supplicant
-	kill `cat /run/udhcpc.wlan0.pid`
-	rm /run/udhcpc.wlan0.pid
-	kill `cat /var/run/udhcpd.wlan0.pid`
-	rm /var/run/udhcpd.wlan0.pid
-	airmon-ng stop wlan0mon
+	ps -ef|grep hostapd|grep -v grep|awk '{print $1}'|xargs kill -2 || true
+	ps -ef|grep "udhcpd -S /etc/udhcpd.wlan0.conf" |grep -v grep|awk '{print $1}'|xargs kill -2 || true
+	killall wpa_supplicant || true
+	if [ -e /run/udhcpc.wlan0.pid ]
+	then
+		kill `cat /run/udhcpc.wlan0.pid` || true
+		rm -f /run/udhcpc.wlan0.pid
+	fi
+	if [ -e /var/run/udhcpd.wlan0.pid ]
+	then
+		kill `cat /var/run/udhcpd.wlan0.pid`  || true
+		rm -f /var/run/udhcpd.wlan0.pid
+	fi
+	airmon-ng stop wlan0mon || true
 }
 
 restart() {
