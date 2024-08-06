@@ -40,8 +40,8 @@ static const SC035GS_MODE_S g_astSC035GS_mode[SC035GS_MODE_NUM] = {
 		},
 		.f32MaxFps = 120,
 		.f32MinFps = 1.25, /* 515 * 120 / 0xFFFF */
-		.u32HtsDef = 878,
-		.u32VtsDef = 683,
+		.u32HtsDef = 1136,	// 0x320c/d 036b=878 0470=1136
+		.u32VtsDef = 528,	// 0x320e/f 02ab=683 0210=528
 		.stExp[0] = {
 			.u16Min = 1,
 			.u16Max = 677 << 4,// (vts - 6) * 16
@@ -98,9 +98,9 @@ static ISP_CMOS_BLACK_LEVEL_S g_stIspBlcCalibratio = {
 
 struct combo_dev_attr_s sc035gs_rx_attr = {
 	.input_mode = INPUT_MODE_MIPI,
-	.mac_clk = RX_MAC_CLK_200M,
+	.mac_clk = RX_MAC_CLK_600M,
 	.mipi_attr = {
-		.raw_data_type = RAW_DATA_12BIT,
+		.raw_data_type = RAW_DATA_10BIT,
 		.lane_id = {4, 3, 2, -1, -1},
 		.pn_swap = {0, 0, 0, 0, 0},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
@@ -111,6 +111,7 @@ struct combo_dev_attr_s sc035gs_rx_attr = {
 	},
 	.mclk = {
 		.cam = 0,
+		// .freq = CAMPLL_FREQ_37P125M,
 		.freq = CAMPLL_FREQ_24M,
 	},
 	.devno = 0,
