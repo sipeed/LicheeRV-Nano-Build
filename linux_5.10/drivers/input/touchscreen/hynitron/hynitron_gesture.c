@@ -658,4 +658,4 @@ int hyn_gesture_exit(void)
 
 
 // I dont known
-MODULE_LICENSE("NOP");
+MODULE_LICENSE("GPL");

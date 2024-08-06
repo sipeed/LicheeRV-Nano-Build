@@ -51,7 +51,7 @@ static int hyn_proximity_get_value(void);
 
 /************************************************
 MTKÆ½Ì¨:
-´¥¿ØIC----°ó¶¨hwmsen_attach(ID_PROXIMITY)----ÉÏ±¨hwm_sensor_data
+ï¿½ï¿½ï¿½ï¿½IC----ï¿½ï¿½hwmsen_attach(ID_PROXIMITY)----ï¿½Ï±ï¿½hwm_sensor_data
 
 *************************************************/
 
@@ -147,7 +147,7 @@ void hyn_proximity_mtk_init(void)
 
 /************************************************
 SpreadtrumÆ½Ì¨:
-´¥¿ØIC----´´½¨½Úµãproximity-----ÉÏ±¨ÊäÈëÉè±¸½Ó½ü»òÕßÔ¶Àë
+ï¿½ï¿½ï¿½ï¿½IC----ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½proximity-----ï¿½Ï±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è±¸ï¿½Ó½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½
 
 *************************************************/
 
@@ -539,4 +539,4 @@ void hyn_proximity_exit(void)
 #endif
 
 // I dont known
-MODULE_LICENSE("NOP");
+MODULE_LICENSE("GPL");

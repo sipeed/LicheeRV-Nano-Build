@@ -117,15 +117,22 @@
                 goodix,rst-gpio = <&porte 4 0>;
                 status = "okay";
         };
-	hytr: hynitron@5a {
-		compatible = "hynitron,hyn_ts";
-		reg = <0x5a>;
-		hynitron,irq-gpio = <&porte 3 0>;
-		hynitron,reset-gpio = <&porte 4 0>;
-		hynitron,max-touch-number = <5>;
-		hynitron,display-coords = <368 552>;
+        hynitron: hynitron@5a {
+                compatible = "hynitron,hyn_ts", "hyn,7xx";
+                reg = <0x5a>;
+                irq-gpio = <&porte 3 0>;
+                hynitron,irq-gpio = <&porte 3 0>;
+                reset-gpio = <&porte 4 0>;
+                hynitron,reset-gpio = <&porte 4 0>;
+                max-touch-number = <5>;
+                hynitron,max-touch-number = <5>;
+                display-coords = <0 0 480 640>;
+                hynitron,display-coords = <368 552>;
+                pos-swap = <0>;
+                posx-reverse = <0>;
+                posy-reverse = <0>;
                 status = "okay";
-	};
+        };
 };
 
 &spi0 {

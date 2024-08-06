@@ -249,4 +249,4 @@ int cst3xx_i2c_read_register(struct i2c_client *client, unsigned char *buf, int 
 #endif
 
 // I dont known
-MODULE_LICENSE("NOP");
+MODULE_LICENSE("GPL");
