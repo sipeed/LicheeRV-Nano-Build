@@ -23,7 +23,7 @@ then
 		then
 			cat /boot/usb.idProduct > idProduct
 		else
-			echo 0x1009 > idProduct
+			echo 0x2110 > idProduct
 		fi
 		mkdir -p strings/0x409
 		if [ -e /boot/usb.serialnumber ]
