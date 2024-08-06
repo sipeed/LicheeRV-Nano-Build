@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 if [ "$1" = "start" ]
 then
 	. /etc/profile
@@ -17,20 +18,50 @@ then
 		then
 			cat /boot/usb.idVendor > idVendor
 		else
-			echo 0x3346 > idVendor
+			echo 0x359F > idVendor
 		fi
 		if [ -e /boot/usb.idProduct ]
 		then
 			cat /boot/usb.idProduct > idProduct
 		else
-			echo 0x2110 > idProduct
+			echo 0x2120 > idProduct
+		fi
+		if [ -e /boot/usb.bcdDevice ]
+		then
+			cat /boot/usb.bcdDevice > bcdDevice
+		else
+			echo 0x0300 > bcdDevice
+		fi
+		if [ -e /boot/usb.bcdUSB ]
+		then
+			cat /boot/usb.bcdUSB > bcdUSB
+		else
+			echo 0x0200 > bcdUSB
+		fi
+		if [ -e /boot/usb.bDeviceClass ]
+		then
+			cat /boot/usb.bDeviceClass > bDeviceClass
+		else
+			echo 0xef > bDeviceClass
+		fi
+		if [ -e /boot/usb.bDeviceSubClass ]
+		then
+			cat /boot/usb.bDeviceSubClass > bDeviceSubClass
+		else
+			echo 0x02 > bDeviceSubClass
+		fi
+		if [ -e /boot/usb.bDeviceProtocol ]
+		then
+			cat /boot/usb.bDeviceProtocol > bDeviceProtocol
+		else
+			echo 0x01 > bDeviceProtocol
 		fi
 		mkdir -p strings/0x409
 		if [ -e /boot/usb.serialnumber ]
 		then
 			cat /boot/usb.serialnumber > strings/0x409/serialnumber
 		else
-			echo '0123456789ABCDEF' > strings/0x409/serialnumber
+			echo '20240808' > strings/0x409/serialnumber
 		fi
 		if [ -e /boot/usb.manufacturer ]
 		then
@@ -48,26 +79,23 @@ then
 		if [ -e /boot/usb.GS0 ]
 		then
 			mkdir -p functions/acm.GS0
-			if [ ! -e functions/acm.GS0 ]
-			then
-				ln -s functions/acm.GS0 configs/c.1/
-			fi
+			rm -rf configs/c.1/acm.GS0
+			ln -s functions/acm.GS0 configs/c.1/
 		fi
 		if [ -e /boot/usb.rndis0 ]
 		then
 			mkdir -p functions/rndis.usb0
-			if [ ! -e functions/rndis.usb0 ]
-			then
-				ln -s functions/rndis.usb0 configs/c.1/
-			fi
+			rm -rf configs/c.1/rndis.usb0
+			ln -s functions/rndis.usb0 configs/c.1/
+			echo e0 > /sys/kernel/config/usb_gadget/g0/functions/rndis.usb0/class
+			echo 01 > /sys/kernel/config/usb_gadget/g0/functions/rndis.usb0/subclass
+			echo 03 > /sys/kernel/config/usb_gadget/g0/functions/rndis.usb0/protocol
 		fi
 		if [ -e /boot/usb.disk0 ]
 		then
 			mkdir -p functions/mass_storage.disk0
-			if [ ! -e functions/rndis.usb0 ]
-			then
-				ln -s functions/mass_storage.disk0 configs/c.1/
-			fi
+			rm -rf configs/c.1/mass_storage.disk0
+			ln -s functions/mass_storage.disk0 configs/c.1/
 			echo 1 > functions/mass_storage.disk0/lun.0/removable
 			if [ -e /boot/usb.disk0.ro ]
 			then
