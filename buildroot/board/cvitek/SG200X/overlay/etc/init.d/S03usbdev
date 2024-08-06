@@ -11,7 +11,7 @@ then
 	then
 		echo "usb mode: device"
 		cd /sys/kernel/config/usb_gadget
-		mkdir g0
+		mkdir -p g0
 		cd g0
 		if [ -e /boot/usb.idVendor ]
 		then
@@ -25,7 +25,7 @@ then
 		else
 			echo 0x1009 > idProduct
 		fi
-		mkdir strings/0x409
+		mkdir -p strings/0x409
 		if [ -e /boot/usb.serialnumber ]
 		then
 			cat /boot/usb.serialnumber > strings/0x409/serialnumber
@@ -44,21 +44,30 @@ then
 		else
 			echo 'licheervnano' > strings/0x409/product
 		fi
-		mkdir configs/c.1
+		mkdir -p configs/c.1
 		if [ -e /boot/usb.GS0 ]
 		then
-			mkdir functions/acm.GS0
-			ln -s functions/acm.GS0 configs/c.1/
+			mkdir -p functions/acm.GS0
+			if [ ! -e functions/acm.GS0 ]
+			then
+				ln -s functions/acm.GS0 configs/c.1/
+			fi
 		fi
 		if [ -e /boot/usb.rndis0 ]
 		then
-			mkdir functions/rndis.usb0
-			ln -s functions/rndis.usb0 configs/c.1/
+			mkdir -p functions/rndis.usb0
+			if [ ! -e functions/rndis.usb0 ]
+			then
+				ln -s functions/rndis.usb0 configs/c.1/
+			fi
 		fi
 		if [ -e /boot/usb.disk0 ]
 		then
-			mkdir functions/mass_storage.disk0
-			ln -s functions/mass_storage.disk0 configs/c.1/
+			mkdir -p functions/mass_storage.disk0
+			if [ ! -e functions/rndis.usb0 ]
+			then
+				ln -s functions/mass_storage.disk0 configs/c.1/
+			fi
 			echo 1 > functions/mass_storage.disk0/lun.0/removable
 			if [ -e /boot/usb.disk0.ro ]
 			then
