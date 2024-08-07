@@ -82,15 +82,24 @@ then
 			rm -rf configs/c.1/acm.GS0
 			ln -s functions/acm.GS0 configs/c.1/
 		fi
-		if [ -e /boot/usb.rndis0 ]
+		if [ -e /boot/usb.ncm0 ]
+		then
+			mkdir -p functions/ncm.usb0
+			rm -rf configs/c.1/ncm.usb0
+			ln -s functions/ncm.usb0 configs/c.1/
+			echo 02 > functions/rndis.usb0/class
+			echo 0d > functions/rndis.usb0/subclass
+			echo 00 > functions/rndis.usb0/protocol
+		elif [ -e /boot/usb.rndis0 ]
 		then
 			mkdir -p functions/rndis.usb0
 			rm -rf configs/c.1/rndis.usb0
 			ln -s functions/rndis.usb0 configs/c.1/
-			echo e0 > /sys/kernel/config/usb_gadget/g0/functions/rndis.usb0/class
-			echo 01 > /sys/kernel/config/usb_gadget/g0/functions/rndis.usb0/subclass
-			echo 03 > /sys/kernel/config/usb_gadget/g0/functions/rndis.usb0/protocol
+			echo e0 > functions/rndis.usb0/class
+			echo 01 > functions/rndis.usb0/subclass
+			echo 03 > functions/rndis.usb0/protocol
 		fi
+
 		if [ -e /boot/usb.disk0 ]
 		then
 			mkdir -p functions/mass_storage.disk0
@@ -125,3 +134,4 @@ then
 	echo '' > /sys/kernel/config/usb_gadget/g0/UDC
 	echo host > /proc/cviusb/otg_role
 fi
+
