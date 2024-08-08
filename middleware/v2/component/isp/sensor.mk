@@ -78,6 +78,7 @@ sensor-$(CONFIG_SENSOR_NEXTCHIP_N6)          += nextchip_n6
 sensor-$(CONFIG_SENSOR_OV_OS04A10)           += ov_os04a10
 sensor-$(CONFIG_SENSOR_OV_OS04C10)           += ov_os04c10
 sensor-$(CONFIG_SENSOR_OV_OS08A20)           += ov_os08a20
+sensor-$(CONFIG_SENSOR_OV_OV2685)            += ov_ov2685
 sensor-$(CONFIG_SENSOR_OV_OV4689)            += ov_ov4689
 sensor-$(CONFIG_SENSOR_OV_OV5647)            += ov_ov5647
 sensor-$(CONFIG_SENSOR_OV_OV6211)            += ov_ov6211

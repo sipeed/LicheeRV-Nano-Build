@@ -101,6 +101,9 @@ ov_os04c10:
 ov_os08a20:
 	$(call MAKE_SENSOR, ${@})
 
+ov_ov2685:
+	$(call MAKE_SENSOR, ${@})
+
 ov_ov4689:
 	$(call MAKE_SENSOR, ${@})
 

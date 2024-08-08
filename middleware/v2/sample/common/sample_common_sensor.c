@@ -219,6 +219,8 @@ static const char *snsr_type_name[SAMPLE_SNS_TYPE_BUTT] = {
 	"VIVO_MCS369Q_4M_30FPS_12BIT",
 	"VIVO_MM308M2_2M_25FPS_8BIT",
 	"LONTIUM_LT6911_2M_60FPS_8BIT",
+	"GCORE_GC4653_MIPI_720P_60FPS_10BIT",
+	"GCORE_OV2685_MIPI_1600x1200_30FPS_10BIT",
 	/* ------ LINEAR END ------*/
 
 	/* ------ WDR 2TO1 BEGIN ------*/
@@ -531,6 +533,12 @@ CVI_S32 SAMPLE_COMM_SNS_GetSize(SAMPLE_SNS_TYPE_E enMode, PIC_SIZE_E *penSize)
 		*penSize = PIC_1080P;
 		break;
 #endif
+	case GCORE_GC4653_MIPI_720P_60FPS_10BIT:
+		*penSize = PIC_720P;
+		break;
+	case GCORE_OV2685_MIPI_1600x1200_30FPS_10BIT:
+		*penSize = PIC_1600x1200;
+		break;
 	default:
 		s32Ret = CVI_FAILURE;
 		break;
@@ -886,16 +894,9 @@ CVI_S32 SAMPLE_COMM_SNS_GetDevAttr(SAMPLE_SNS_TYPE_E enSnsType, VI_DEV_ATTR_S *p
 	case GCORE_GC1084_SLAVE_MIPI_1M_30FPS_10BIT:
 	case GCORE_GC4653_MIPI_4M_30FPS_10BIT:
 	case GCORE_GC4653_SLAVE_MIPI_4M_30FPS_10BIT:
-		pstViDevAttr->enBayerFormat = BAYER_FORMAT_RG;
-		// pstViDevAttr->enBayerFormat = BAYER_FORMAT_GB;
-		break;
-		// omnivision
-	case OV_OS04A10_MIPI_4M_1440P_30FPS_12BIT:
-	case OV_OS04A10_MIPI_4M_1440P_30FPS_10BIT_WDR2TO1:
 	case TECHPOINT_TP2850_MIPI_2M_30FPS_8BIT:
 	case TECHPOINT_TP2850_MIPI_4M_30FPS_8BIT:
-		// pstViDevAttr->enBayerFormat = BAYER_FORMAT_RG;
-		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GB;
+		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GR;
 		break;
 	case SOI_K06_MIPI_4M_25FPS_10BIT:
 		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GB;
@@ -904,6 +905,12 @@ CVI_S32 SAMPLE_COMM_SNS_GetDevAttr(SAMPLE_SNS_TYPE_E enSnsType, VI_DEV_ATTR_S *p
 		pstViDevAttr->enDataSeq = VI_DATA_SEQ_UYVY;
 		pstViDevAttr->enInputDataType = VI_DATA_TYPE_YUV;
 		pstViDevAttr->enIntfMode = VI_MODE_MIPI_YUV422;
+		pstViDevAttr->enBayerFormat = BAYER_FORMAT_BG;
+		break;
+	case GCORE_GC4653_MIPI_720P_60FPS_10BIT:
+		pstViDevAttr->enBayerFormat = BAYER_FORMAT_GR;
+		break;
+	case GCORE_OV2685_MIPI_1600x1200_30FPS_10BIT:
 		pstViDevAttr->enBayerFormat = BAYER_FORMAT_BG;
 		break;
 	default:
@@ -1129,23 +1136,24 @@ CVI_S32 SAMPLE_COMM_SNS_GetIspAttrBySns(SAMPLE_SNS_TYPE_E enSnsType, ISP_PUB_ATT
 	case GCORE_GC1084_SLAVE_MIPI_1M_30FPS_10BIT:
 	case GCORE_GC4653_MIPI_4M_30FPS_10BIT:
 	case GCORE_GC4653_SLAVE_MIPI_4M_30FPS_10BIT:
-		pstPubAttr->enBayer = BAYER_RGGB;
-		break;
-		// omnivision
-	case OV_OS04A10_MIPI_4M_1440P_30FPS_12BIT:
-	case OV_OS04A10_MIPI_4M_1440P_30FPS_10BIT_WDR2TO1:
 	case TECHPOINT_TP2850_MIPI_2M_30FPS_8BIT:
 	case TECHPOINT_TP2850_MIPI_4M_30FPS_8BIT:
 		// on licheervnano
-		pstPubAttr->enBayer = BAYER_BGGR;
-		// pstPubAttr->enBayer = BAYER_RGGB;
-		//pstPubAttr->enBayer = BAYER_GRBG;
+		pstPubAttr->enBayer = BAYER_RGGB;
 		break;
 #ifdef ARCH_CV182X
 	case SOI_F23_MIPI_2M_30FPS_10BIT:
 		pstPubAttr->enBayer = BAYER_BGRGI;
 	break;
 #endif
+	case GCORE_GC4653_MIPI_720P_60FPS_10BIT:
+		pstPubAttr->enBayer = BAYER_GRBG;
+		pstPubAttr->f32FrameRate = 60;
+		break;
+	case GCORE_OV2685_MIPI_1600x1200_30FPS_10BIT:
+		pstPubAttr->enBayer = BAYER_BGGR;
+		pstPubAttr->f32FrameRate = 30;
+		break;
 	default:
 		pstPubAttr->enBayer = BAYER_BGGR;
 		break;
@@ -1239,6 +1247,7 @@ CVI_VOID *SAMPLE_COMM_SNS_GetSnsObj(SAMPLE_SNS_TYPE_E enSnsType)
 		return &stSnsGc4023_Obj;
 #endif
 #if defined(SENSOR_GCORE_GC4653)
+	case GCORE_GC4653_MIPI_720P_60FPS_10BIT:
 	case GCORE_GC4653_MIPI_4M_30FPS_10BIT:
 		return &stSnsGc4653_Obj;
 #endif
@@ -1315,6 +1324,11 @@ CVI_VOID *SAMPLE_COMM_SNS_GetSnsObj(SAMPLE_SNS_TYPE_E enSnsType)
 	case OV_OS08A20_SLAVE_MIPI_8M_30FPS_10BIT:
 	case OV_OS08A20_SLAVE_MIPI_8M_30FPS_10BIT_WDR2TO1:
 		pSnsObj = &stSnsOs08a20_Slave_Obj;
+		break;
+#endif
+#if defined(SENSOR_OV_OV2685)
+	case GCORE_OV2685_MIPI_1600x1200_30FPS_10BIT:
+		pSnsObj = &stSnsOv2685_Obj;
 		break;
 #endif
 #if defined(SENSOR_OV_OV4689)
