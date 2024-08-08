@@ -39,6 +39,9 @@
 #define HYN_TP_OPEN_TX_DROP_RATIO      25
 #define HYN_TP_SHORT_RX_TX_RESISTANCE  600
 
+#define vfs_write(fp, buf, len, pos) kernel_write(fp, buf, len, pos)
+#define vfs_read(fp, buf, len, pos) kernel_read(fp, buf, len, pos)
+
 #if HYN_AUTO_FACTORY_TEST_EN
 static char factory_test[512];
 static int hyn_factory_touch_test(void);
@@ -1762,11 +1765,11 @@ static ssize_t hyn_tprwreg_store(struct device *dev,struct device_attribute *att
 		HYN_INFO("register(0x%x).\n",regaddr);
 
 /**********************************************
-		//0-ascll-0x30:2¨¦?¡ä¡ã?¡À?o?
-		//1-ascll-0x31:1?¡À??D??
-		//2-ascll-0x32:¡ä¨°?a?D??
-		//3-ascll-0x33:?¡ä??D???
-		//4-ascll-0x34:¨¦y????¨¨?1¨¬?t
+		//0-ascll-0x30:2ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½?o?
+		//1-ascll-0x31:1?ï¿½ï¿½??D??
+		//2-ascll-0x32:ï¿½ä¨°?a?D??
+		//3-ascll-0x33:?ï¿½ï¿½??D???
+		//4-ascll-0x34:ï¿½ï¿½y????ï¿½ï¿½?1ï¿½ï¿½?t
 		//5-ascll-0x35:
 		//6-ascll-0x36:
 		//7-ascll-0x37:
@@ -1805,9 +1808,9 @@ static ssize_t hyn_tprwreg_store(struct device *dev,struct device_attribute *att
 		HYN_INFO("register(0x%02x).\n",regaddr);
 		
 /**********************************************
-		//11-ascll-0x3131: ¨¦¨¨??1¡è¡Á¡Â?¡ê¨º?1
+		//11-ascll-0x3131: ï¿½ï¿½ï¿½ï¿½??1ï¿½ï¿½ï¿½ï¿½ï¿½?ï¿½ê¨º?1
 		***
-		//19-ascll-0x3139: ¨¦¨¨??1¡è¡Á¡Â?¡ê¨º?9
+		//19-ascll-0x3139: ï¿½ï¿½ï¿½ï¿½??1ï¿½ï¿½ï¿½ï¿½ï¿½?ï¿½ê¨º?9
 ****************************************/
 		if((regaddr>>8)==0x31){ 
 			if((regaddr&0xff)==0x30){			
@@ -2132,4 +2135,4 @@ void hyn_release_sysfs(struct i2c_client *client)
 
 
 // I dont known
-MODULE_LICENSE("NOP");
+MODULE_LICENSE("GPL");

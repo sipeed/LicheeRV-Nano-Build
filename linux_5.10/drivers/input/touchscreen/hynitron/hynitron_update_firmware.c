@@ -4066,4 +4066,4 @@ int hyn_detect_bootloader(struct i2c_client *client)
 
 
 // I dont known
-MODULE_LICENSE("NOP");
+MODULE_LICENSE("GPL");
