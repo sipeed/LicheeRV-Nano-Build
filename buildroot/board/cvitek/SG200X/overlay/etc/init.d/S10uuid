@@ -45,32 +45,4 @@ then
 	ip link set eth0 address ${new_ethmac}
 	ifconfig eth0 up
 	echo "ethernet mac address: ${new_ethmac}"
-
-	if [ -e /boot/usb.ncm0 ]
-	then
-		if [ -e /boot/usb.ncm0.mac ]
-		then
-			new_mac=$(cat /boot/usb.ncm0.mac)
-		else
-			new_mac=$(hex2mac 48da356e$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
-		fi
-		ifconfig usb0 down
-		ip link set usb0 address ${new_mac}
-		ifconfig usb0 up
-		echo "ncm mac address: ${new_mac}"
-	fi
-
-	if [ -e /boot/usb.rndis0 ]
-	then
-		if [ -e /boot/usb.rndis0.mac ]
-		then
-			new_rndismac=$(cat /boot/usb.rndis0.mac)
-		else
-			new_rndismac=$(hex2mac 48da356e$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
-		fi
-		ifconfig usb0 down
-		ip link set usb0 address ${new_rndismac}
-		ifconfig usb0 up
-		echo "rndis mac address: ${new_rndismac}"
-	fi
 fi
