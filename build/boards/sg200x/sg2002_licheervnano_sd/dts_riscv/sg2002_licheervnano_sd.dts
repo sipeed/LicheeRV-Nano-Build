@@ -129,8 +129,8 @@
                 display-coords = <0 0 480 640>;
                 hynitron,display-coords = <368 552>;
                 pos-swap = <0>;
-                posx-reverse = <0>;
-                posy-reverse = <0>;
+                posx-reverse = <1>;
+                posy-reverse = <1>;
                 status = "okay";
         };
 };
