@@ -11,6 +11,8 @@
 #include <linux/io.h>
 #include <linux/cv180x_efuse.h>
 
+// #define NEW_ETH_DETECT
+
 #define REG_EPHY_TOP_WRAP 0x03009800
 #define REG_EPHY_BASE 0x03009000
 #define EPHY_EFUSE_TXECHORC_FLAG 0x00000100 // bit 8
@@ -19,8 +21,11 @@
 
 #define CVI_INT_EVENTS \
 	(CVI_LNK_STS_CHG_INT_MSK | CVI_MGC_PKT_DET_INT_MSK)
+
+#ifdef NEW_ETH_DETECT
 static u32 link_status;
 static u32 retry_time;
+#endif
 static int cv182xa_phy_config_intr(struct phy_device *phydev)
 {
 	return 0;
@@ -33,6 +38,7 @@ static int cv182xa_phy_ack_interrupt(struct phy_device *phydev)
 
 static int cv182xa_read_status(struct phy_device *phydev)
 {
+#ifdef NEW_ETH_DETECT
 	u32 lp_val, lp_val_cap, cap_val, cap_val_temp, i, ramdom_cap;
 	u32 get_random;
 	static void __iomem *ADC3_register;
@@ -44,7 +50,9 @@ static int cv182xa_read_status(struct phy_device *phydev)
 			pr_err("ioremap failed!!!");
 		ADC2_register = ADC3_register + 4;
 	}
+#endif
 	int err = genphy_read_status(phydev);
+#ifdef NEW_ETH_DETECT
 	// pr_notice("link status=%x, retry_time=%x\n", phydev->link, retry_time);
 	if (retry_time > 0)
 		retry_time--;
@@ -144,6 +152,7 @@ static int cv182xa_read_status(struct phy_device *phydev)
 		}
 		phy_write(phydev, 0x1f, 0x0);
 	}
+#endif
 	pr_debug("%s, speed=%d, duplex=%d, ", __func__, phydev->speed, phydev->duplex);
 	pr_debug("pasue=%d, asym_pause=%d, autoneg=%d ", phydev->pause, phydev->asym_pause, phydev->autoneg);
 
@@ -406,6 +415,7 @@ static int cv182xa_phy_config_init(struct phy_device *phydev)
 	// select LED_LNK/SPD/DPX out to LED_PAD
 	writel((readl(reg_ephy_base + 0x68) & ~0x0f00), reg_ephy_base + 0x68);
 
+#ifdef NEW_ETH_DETECT
 // led pol
 	// Switch to MII-page0
 	writel(0x0, reg_ephy_base + 0x7c);
@@ -416,7 +426,7 @@ static int cv182xa_phy_config_init(struct phy_device *phydev)
 	writel((readl(reg_ephy_base + 0x4c) | 0x0700), reg_ephy_base + 0x4c);
 	//printk("ethernet: reg_ephy_base + 0x4c %lx\n\n\n",readl(reg_ephy_base + 0x4c));
 	// printk(KERN_EMERG "---------------\n");
-
+#endif
 	// Switch to MII-page19
 	writel(0x1300, reg_ephy_base + 0x7c);
 	writel(0x0012, reg_ephy_base + 0x58);
@@ -457,8 +467,10 @@ static int cv182xa_phy_config_init(struct phy_device *phydev)
 	// switch to MDIO control by ETH_MAC
 	writel(0x0000, reg_ephy_top_wrap + 4);
 
+#ifdef NEW_ETH_DETECT
 	link_status = 0;
 	retry_time = 0;
+#endif
 	iounmap(reg_ephy_base);
 err_ephy_mem_2:
 	iounmap(reg_ephy_top_wrap);
