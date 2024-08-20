@@ -1,0 +1,5 @@
+config BR2_PACKAGE_AXP2101
+    bool "axp2101"
+    help
+      If you say Y here you get support for the X-Powers AXP2101 power
+      management ICs (PMICs) controlled with I2C.
