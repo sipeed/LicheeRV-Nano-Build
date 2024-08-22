@@ -23,22 +23,13 @@ extern "C" {
 #endif
 
 enum ov2685_linear_regs_e {
-	LINEAR_EXP_H,       //0x0202 bit[13:8]
-	LINEAR_EXP_L,       //0x0203
-	LINEAR_AGAIN_L,     //0x02b3
-	LINEAR_AGAIN_H,     //0x02b4 bit[10:8]
-	LINEAR_COL_AGAIN_H, //0x02b8 bit[13:8]
-	LINEAR_COL_AGAIN_L, //0x02b9
-	LINEAR_AGAIN_MAG1,  //0x0515
-	LINEAR_AGAIN_MAG2,  //0x0519
-	LINEAR_AGAIN_MAG3,  //0x02d9
-	LINEAR_DGAIN_H,     //0x020e bit[9:6]
-	LINEAR_DGAIN_L,     //0x020f bit[5:0]
-	LINEAR_VTS_H,       //0x0341 bit[13:8]
-	LINEAR_VTS_L,       //0x0342
-	LINEAR_FRAME_BUF_ON,//0x031D
-	LINEAR_FLIP_MIRROR,
-	LINEAR_FRAME_BUF_OFF,//0x031D
+	LINEAR_EXP_0,
+	LINEAR_EXP_1,
+	LINEAR_EXP_2,
+	LINEAR_AGAIN_0,
+	LINEAR_AGAIN_1,
+	LINEAR_VTS_0,
+	LINEAR_VTS_1,
 	LINEAR_REGS_NUM
 };
 
@@ -80,6 +71,7 @@ extern void ov2685_standby(VI_PIPE ViPipe);
 extern void ov2685_restart(VI_PIPE ViPipe);
 extern int  ov2685_write_register(VI_PIPE ViPipe, int addr, int data);
 extern int  ov2685_read_register(VI_PIPE ViPipe, int addr);
+extern void ov2685_mirror_flip(VI_PIPE ViPipe, ISP_SNS_MIRRORFLIP_TYPE_E eSnsMirrorFlip);
 extern int  ov2685_probe(VI_PIPE ViPipe);
 
 #ifdef __cplusplus
