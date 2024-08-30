@@ -1,0 +1,31 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Starting kvmtest: "
+    if [ -e /boot/kvmtest ]
+    then
+	    touch /tmp/kvmtest
+    fi
+    if [ ! -e /tmp/kvmtest ]
+    then
+	exit 0
+else
+	sleep 1
+    fi
+    (nice -n 17 /mnt/system/usr/bin/test_mmf 12 &> /dev/null) &
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+  ;;
+  stop)
+    printf "Stopping kvmtest: "
+    rm /tmp/kvmtest
+    killall kvmtest
+    echo "OK"
+  ;;
+  restart)
+    printf "Restart kvmtest: "
+    $(realpath ${0}) stop
+    $(realpath ${0}) start
+    echo "OK"
+  ;;
+esac
