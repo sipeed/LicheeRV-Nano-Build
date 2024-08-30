@@ -4,11 +4,14 @@
 
 if [ "${1}" = start ]
 then
-	# use all sdcard free space for data
-	parted -s /dev/mmcblk0 "resizepart 2 -0"
-	echo "yes
-	100%
-	" | parted ---pretend-input-tty /dev/mmcblk0 "resizepart 2 100%"
-	# resize data filesystem
-	(resize2fs /dev/mmcblk0p2) &
+	if [ ! -e /boot/usb.disk0 ]
+	then
+		# use all sdcard free space for data
+		parted -s /dev/mmcblk0 "resizepart 2 -0"
+		echo "yes
+		100%
+		" | parted ---pretend-input-tty /dev/mmcblk0 "resizepart 2 100%"
+		# resize data filesystem
+		(resize2fs /dev/mmcblk0p2) &
+	fi
 fi
