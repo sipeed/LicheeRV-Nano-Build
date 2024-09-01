@@ -2836,7 +2836,11 @@ void cviCopyMotionMap(void *handle, cviEncOnePicCfg *pPicCfg, void *phandle)
 		mlv_info->vpss_grp = 0;
 		cvi_vc_get_motion_tbl((void *) mlv_info);
 		pPicCfg->picMotionLevel = mlv_info->m_lv_i.mlv_i.mlv_i_level;
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 		pPicCfg->picDciLv = mlv_info->m_lv_i.dci_lv;
+#else
+		pPicCfg->picDciLv = 0;
+#endif
 		pPicCfg->picMotionMapSize = MO_TBL_SIZE;
 		memcpy(pPicCfg->picMotionMap, mlv_info->m_lv_i.mlv_i.mlv_i_table, MO_TBL_SIZE);
 	}

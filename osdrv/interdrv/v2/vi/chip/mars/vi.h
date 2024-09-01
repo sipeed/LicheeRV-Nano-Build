@@ -1527,9 +1527,11 @@ static int _vi_clk_ctrl(struct cvi_vi_dev *vdev, u8 enable);
 #endif
 static inline void vi_err_wake_up_th(struct cvi_vi_dev *vdev, enum cvi_isp_raw err_raw);
 static inline void _post_rgbmap_update(struct isp_ctx *ctx, const enum cvi_isp_raw raw_num, const u32 frm_num);
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 static void vi_motion_level_calc(struct cvi_vi_dev *vdev, enum cvi_isp_raw raw_num,
 				 uint8_t *motion_table, uint8_t *motion_lv);
 static void vi_dci_calc(struct cvi_vi_dev *vdev, enum cvi_isp_raw raw_num, uint32_t *dci_lv);
+#endif
 void _postraw_outbuf_enq(struct cvi_vi_dev *vdev, const enum cvi_isp_raw raw_num);
 void isp_fill_rgbmap(struct isp_ctx *ctx, enum cvi_isp_raw raw_num, const u8 chn_num);
 struct cvi_isp_buf *_cvi_isp_next_buf(struct cvi_vi_dev *vdev, const u8 chn_num);

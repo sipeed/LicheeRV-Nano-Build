@@ -5968,6 +5968,7 @@ int vi_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		rc = 0;
 		break;
 	}
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 	case VI_CB_MOTION_CALC:
 	{
 		struct mlv_wrap_i_s *mlv = (struct mlv_wrap_i_s *)arg;
@@ -5975,6 +5976,7 @@ int vi_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 		vi_dci_calc(vdev, mlv->raw_num, &mlv->dci_lv);
 		break;
 	}
+#endif
 	default:
 		break;
 	}
@@ -6032,6 +6034,7 @@ static void vi_motion_dbg(struct cvi_vi_dev *vdev, struct vb_s *blk)
 	vi_pr(VI_DBG, "motion_level=%d, dci_level=%d\n", blk->buf.motion_lv, blk->buf.dci_lv);
 }
 
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 static void vi_motion_level_calc(struct cvi_vi_dev *vdev, enum cvi_isp_raw raw_num,
 				 uint8_t *motion_table, uint8_t *motion_lv)
 {
@@ -6135,6 +6138,7 @@ static void vi_dci_calc(struct cvi_vi_dev *vdev, enum cvi_isp_raw raw_num, uint3
 	if (dci_means)
 		*dci_lv = 511 - *dci_lv / dci_means;
 }
+#endif
 
 #ifdef VI_PROFILE
 static void _vi_update_chnRealFrameRate(VI_CHN_STATUS_S *pstViChnStatus)
@@ -6228,9 +6232,12 @@ static int _vi_event_handler_thread(void * arg)
 			}
 
 			if (!gViCtx->pipeAttr[chn.s32ChnId].bYuvBypassPath) {
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 				vi_motion_level_calc(vdev, b.chnId, vb->buf.motion_table, &vb->buf.motion_lv);
 				vi_dci_calc(vdev, b.chnId, &vb->buf.dci_lv);
-				//vi_fill_mlv_info((struct vb_s *)blk, 0, NULL, true);
+#else
+				vi_fill_mlv_info(vb, 0, NULL, true);
+#endif
 				vi_fill_dis_info(vb);
 				vi_motion_dbg(vdev, vb);
 			}

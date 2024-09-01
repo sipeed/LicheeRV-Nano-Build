@@ -1137,7 +1137,11 @@ static CVI_VOID _vpss_online_set_mlv_info(struct vb_s *blk, struct cvi_vpss_ctx 
 	CVI_U8 temp;
 
 	blk->buf.motion_lv = g_mlv_i[snr_num].mlv_i.mlv_i_level;
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 	blk->buf.dci_lv    = g_mlv_i[snr_num].dci_lv;
+#else
+	blk->buf.dci_lv    = 0;
+#endif
 	memcpy(blk->buf.motion_table, g_mlv_i[snr_num].mlv_i.mlv_i_table, sizeof(blk->buf.motion_table));
 
 	in_ctu_w = ALIGN(ctx->stGrpAttr.u32MaxW, 64) >> 6;
@@ -2541,8 +2545,10 @@ static CVI_VOID vpss_handle_online_frame_done(struct vpss_handler_ctx *ctx, VPSS
 	VpssChn = 0;
 	mutex_lock(&vpssCtx[workingGrp]->lock);
 
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 	m_w_i.raw_num = workingGrp;
 	_vpss_call_cb(E_MODULE_VI, VI_CB_MOTION_CALC, &m_w_i);
+#endif
 	vpss_set_mlv_info(workingGrp, &m_w_i);
 
 	do {
@@ -5232,7 +5238,9 @@ CVI_VOID vpss_set_mlv_info(CVI_U8 snr_num, struct mlv_wrap_i_s *p_m_lv_i)
 		return;
 	}
 	g_mlv_i[snr_num].mlv_i.mlv_i_level = p_m_lv_i->mlv_i.mlv_i_level;
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 	g_mlv_i[snr_num].dci_lv = p_m_lv_i->dci_lv;
+#endif
 	memcpy(g_mlv_i[snr_num].mlv_i.mlv_i_table, p_m_lv_i->mlv_i.mlv_i_table,
 	      sizeof(g_mlv_i[snr_num].mlv_i.mlv_i_table));
 }
@@ -5244,7 +5252,9 @@ CVI_VOID vpss_get_mlv_info(CVI_U8 snr_num, struct mlv_wrap_i_s *p_m_lv_i)
 		return;
 	}
 	p_m_lv_i->mlv_i.mlv_i_level = g_mlv_i[snr_num].mlv_i.mlv_i_level;
+#ifdef WANT_VI_MOTION_LEVEL_CALC
 	p_m_lv_i->dci_lv = g_mlv_i[snr_num].dci_lv;
+#endif
 	memcpy(p_m_lv_i->mlv_i.mlv_i_table, g_mlv_i[snr_num].mlv_i.mlv_i_table,
 	      sizeof(g_mlv_i[snr_num].mlv_i.mlv_i_table));
 }
