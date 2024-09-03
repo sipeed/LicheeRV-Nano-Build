@@ -1,0 +1,4 @@
+config BR2_PACKAGE_MAIX_CDK
+	bool "maix-cdk"
+	help
+	  maix cdk
