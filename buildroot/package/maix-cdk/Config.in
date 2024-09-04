@@ -1,4 +1,7 @@
 config BR2_PACKAGE_MAIX_CDK
 	bool "maix-cdk"
+	select BR2_PACKAGE_HOST_CMAKE
+	select BR2_PACKAGE_HOST_PYTHON3
+	select BR2_PACKAGE_HOST_PYTHON3_SSL
 	help
 	  maix cdk
