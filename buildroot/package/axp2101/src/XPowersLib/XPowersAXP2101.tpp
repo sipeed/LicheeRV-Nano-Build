@@ -330,12 +330,12 @@ public:
         return getRegisterBit(XPOWERS_AXP2101_STATUS2, 3) == 0 && isVbusGood();
     }
 
-    xpowers_chg_status_t getChargerStatus(void)
+    uint8_t getChargerStatus(void)
     {
         int val = readRegister(XPOWERS_AXP2101_STATUS2);
         if (val == -1)return XPOWERS_AXP2101_CHG_STOP_STATE;
         val &= 0x07;
-        return (xpowers_chg_status_t)val;
+        return (uint8_t)val;
     }
 
     /*
@@ -472,12 +472,12 @@ public:
     }
 
     // Linear Charger Vsys voltage dpm
-    void setLinearChargerVsysDpm(xpower_chg_dpm_t opt)
+    void setLinearChargerVsysDpm(uint8_t opt)
     {
         int val = readRegister(XPOWERS_AXP2101_MIN_SYS_VOL_CTRL);
         if (val == -1)return;
         val &= 0x8F;
-        writeRegister(XPOWERS_AXP2101_MIN_SYS_VOL_CTRL, val | (opt << 4));
+        writeRegister(XPOWERS_AXP2101_MIN_SYS_VOL_CTRL, opt);
     }
 
     uint8_t getLinearChargerVsysDpm(void)
@@ -490,12 +490,12 @@ public:
 
     // Set the minimum common working voltage of the PMU VBUS input,
     // below this value will turn off the PMU
-    void setVbusVoltageLimit(xpower_vbus_vol_limit_t opt)
+    bool setVbusVoltageLimit(uint8_t opt)
     {
         int val = readRegister(XPOWERS_AXP2101_INPUT_VOL_LIMIT_CTRL);
-        if (val == -1)return;
+        if (val == -1)return false;
         val &= 0xF0;
-        writeRegister(XPOWERS_AXP2101_INPUT_VOL_LIMIT_CTRL, val | (opt & 0x0F));
+        return 0 == writeRegister(XPOWERS_AXP2101_INPUT_VOL_LIMIT_CTRL, val | (opt & 0x0F));
     }
 
     uint8_t getVbusVoltageLimit(void)
@@ -2357,8 +2357,8 @@ public:
         int val;
         switch (mode) {
         case XPOWERS_CHG_LED_OFF:
-        // clrRegisterBit(XPOWERS_AXP2101_CHGLED_SET_CTRL, 0);
-        // break;
+            clrRegisterBit(XPOWERS_AXP2101_CHGLED_SET_CTRL, 0);
+            break;
         case XPOWERS_CHG_LED_BLINK_1HZ:
         case XPOWERS_CHG_LED_BLINK_4HZ:
         case XPOWERS_CHG_LED_ON:
@@ -2399,7 +2399,7 @@ public:
      * @param  opt: 25 * opt
      * @retval None
      */
-    void setPrechargeCurr(xpowers_prechg_t opt)
+    void setPrechargeCurr(uint8_t opt)
     {
         int val = readRegister(XPOWERS_AXP2101_IPRECHG_SET);
         if (val == -1)return;
@@ -2443,7 +2443,7 @@ public:
      * @note   Charging termination of current limit
      * @retval
      */
-    void setChargerTerminationCurr(xpowers_axp2101_chg_iterm_t opt)
+    void setChargerTerminationCurr(uint8_t opt)
     {
         int val = readRegister(XPOWERS_AXP2101_ITERM_CHG_SET_CTRL);
         if (val == -1)return;

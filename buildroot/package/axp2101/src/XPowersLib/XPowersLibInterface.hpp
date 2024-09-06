@@ -300,6 +300,23 @@ public:
      */
     virtual bool isChannelAvailable(uint8_t channel);
 
+    virtual void setPrechargeCurr(uint8_t opt) = 0;
+    virtual void disableChargerTerminationLimit(void) = 0;
+
+    virtual bool setVbusVoltageLimit(uint8_t opt) = 0;
+    virtual uint8_t getVbusVoltageLimit(void) = 0;
+
+    virtual bool isStandby(void) = 0;
+    virtual bool isVbusGood(void) = 0;
+    virtual uint8_t getChargerStatus(void) = 0;
+    virtual void enableCellbatteryCharge(void) = 0;
+    virtual void enableGauge(void) = 0;
+    virtual void disableGauge(void) = 0;
+    virtual void setLinearChargerVsysDpm(uint8_t opt) = 0;
+    virtual void disablePwronShutPMIC(void) = 0;
+
+    virtual void fuelGaugeControl(bool writeROM, bool enable) = 0;
+    virtual void printIntRegister() = 0;
 
     //battery
     /**
@@ -420,7 +437,6 @@ public:
     * @retval   Mask value corresponds to xpowers_axpxxx_irq_t ,
     */
     virtual uint64_t getIrqStatus() = 0;
-
 
     /**
      * @brief  Clear interrupt controller state.
@@ -597,8 +613,9 @@ public:
     *              parameters in "XPowersParams.hpp"
     */
     virtual void setChargingLedMode(uint8_t mode) = 0;
-
-
+    virtual void setChargerTerminationCurr(uint8_t opt) = 0;
+    virtual void disableDieOverTempDetect(void) = 0;
+    virtual void resetGauge(void) = 0;
 
     // PMU PEKEY settings
     /**

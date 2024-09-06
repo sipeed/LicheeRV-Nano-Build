@@ -1,0 +1,31 @@
+#!/bin/sh
+
+if ! command -v i2cget &> /dev/null
+then
+    echo "i2cdetect not find, please install i2c-tools"
+    exit 1
+fi
+
+pmu_version=$(i2cget -y 4 0x34 0x03)
+pmu_version=$((pmu_version & 0xCF))
+
+chip_id_1=$(printf "%d" 0x47)
+chip_id_2=$(printf "%d" 0x4a)
+
+if [ "$pmu_version" -eq "$chip_id_1" ] || [ "$pmu_version" -eq "$chip_id_2" ]; then
+    case "$1" in
+    start)
+        exec /usr/bin/axp2101
+        echo "Starting PMU: OK\n"
+    ;;
+    stop)
+        runlevel=$(cat /run/runlevel | awk '{ print $1 }')
+        if [ "$runlevel" = "0" ]; then
+            printf "Stopping PMU\n"
+            value=$(i2cget -y 4 0x34 0x10)
+            value=$((value | 0x01))
+            i2cset -y 4 0x34 0x10 $value
+        fi
+    ;;
+    esac
+fi
