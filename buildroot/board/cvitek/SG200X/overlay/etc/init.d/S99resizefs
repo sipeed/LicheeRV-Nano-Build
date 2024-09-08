@@ -4,12 +4,7 @@
 
 if [ "${1}" = start ]
 then
-	disk=
-	if [ -e /boot/usb.disk0 ]
-	then
-		disk=$(cat /boot/usb.disk0)
-	fi
-	if [ "${disk}" != "/dev/mmcblk0p3" ]
+	if [ ! -e /boot/usb.disk0 ]
 	then
 		# use all sdcard free space for data
 		parted -s /dev/mmcblk0 "resizepart 2 -0"
