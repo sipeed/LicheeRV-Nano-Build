@@ -11,6 +11,8 @@ NANOKVM_SG200X_SITE = https://cdn.sipeed.com/nanokvm
 
 NANOKVM_SG200X_DEPENDENCIES += maix-cdk
 
+NANOKVM_SG200X_EXT_OVERLAY = $(BR2_ROOTFS_OVERLAY)
+
 define NANOKVM_SG200X_EXTRACT_CMDS
 	$(UNZIP) -d $(@D) \
 		$(NANOKVM_SG200X_DL_DIR)/$(NANOKVM_SG200X_SOURCE)
@@ -26,6 +28,9 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	mkdir -pv $(TARGET_DIR)/etc/init.d/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(TARGET_DIR)/kvmapp/system/init.d/ $(TARGET_DIR)/etc/init.d/
 	rm -f $(TARGET_DIR)/kvmapp/version
+	if [ -e $(NANOKVM_SG200X_EXT_OVERLAY)/etc/init.d ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(TARGET_DIR)/kvmapp/system/init.d/ $(NANOKVM_SG200X_EXT_OVERLAY)/etc/init.d/ ; \
+	fi
 endef
 
 $(eval $(generic-package))
