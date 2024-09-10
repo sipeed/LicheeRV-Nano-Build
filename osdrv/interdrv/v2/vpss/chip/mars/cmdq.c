@@ -42,10 +42,6 @@ void cmdQ_set_package(struct cmdq_set_reg *set, u32 addr, u32 data)
 	set->data = data;
 	set->addr = addr >> 2;
 	set->byte_mask = 0xf;
-	set->intr_end = 0;
-	set->intr_int = 0;
-	set->intr_last = 0;
-	set->intr_rsv = 0;
 	set->action = CMDQ_SET_REG;
 }
 

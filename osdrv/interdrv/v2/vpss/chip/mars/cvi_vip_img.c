@@ -143,8 +143,8 @@ int img_s_input(struct cvi_img_vdev *idev, CVI_U32 i)
 	}
 
 	CVI_TRACE_VPSS(CVI_DBG_DEBUG, "img(%d:%d:%d), input=%d, fmt=%d, csc=%d, is_online_from_isp=%d\n",
-			idev->dev_idx, idev->img_type, idev->input_type, input,
-			cfg->fmt, cfg->csc, idev->is_online_from_isp);
+			idev->dev_idx, idev->img_type, idev->input_type,
+			cfg->fmt, cfg->csc, input, idev->is_online_from_isp);
 
 	return rc;
 }
@@ -246,8 +246,6 @@ int cvi_img_streamoff(struct cvi_img_vdev *idev, bool isForce)
 	idev->is_tile = false;
 	idev->is_work_on_r_tile = true;
 	idev->img_sb_cfg.sb_mode = 0;
-	idev->isp_triggered = false;
-	idev->next_job_grp = 0;
 	return rc;
 }
 

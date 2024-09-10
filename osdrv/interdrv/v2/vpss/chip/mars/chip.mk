@@ -1,7 +1,7 @@
 CONFIG_SCLR_TEST = 0
 CONFIG_CVI_LOG = 1
 CONFIG_REG_DUMP = 1
-CONFIG_TILE_MODE = 1
+CONFIG_TILE_MODE = 0
 CONFIG_RGN_EX = 0
 
 soph_vpss-objs += chip/$(CHIP_CODE)/cvi_vip_img.o \

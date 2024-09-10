@@ -49,7 +49,7 @@ struct vpss_vc_sbm_flow_cfg {
 
 struct vpss_grp_mlv_info {
 	u16 vpss_grp;
-	struct mlv_wrap_i_s m_lv_i;
+	struct mlv_i_s m_lv_i;
 };
 
 enum VPSS_CB_CMD {

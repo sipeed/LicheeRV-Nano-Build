@@ -12,10 +12,8 @@ extern struct lmap_cfg g_lmp_cfg[ISP_PRERAW_VIRT_MAX];
 void ispblk_preraw_fe_config(struct isp_ctx *ctx, enum cvi_isp_raw raw_num)
 {
 	uintptr_t preraw_fe;
-	uint32_t width = ctx->isp_pipe_cfg[raw_num].is_mux ?
-				ctx->isp_pipe_cfg[raw_num].csibdg_width : ctx->isp_pipe_cfg[raw_num].crop.w;
-	uint32_t height = ctx->isp_pipe_cfg[raw_num].is_mux ?
-				ctx->isp_pipe_cfg[raw_num].csibdg_height : ctx->isp_pipe_cfg[raw_num].crop.h;
+	uint32_t width = ctx->isp_pipe_cfg[raw_num].crop.w;
+	uint32_t height = ctx->isp_pipe_cfg[raw_num].crop.h;
 	union REG_PRE_RAW_FE_PRE_RAW_CTRL raw_ctrl;
 	union REG_PRE_RAW_FE_PRE_RAW_FRAME_SIZE  frm_size;
 	union REG_PRE_RAW_FE_LE_RGBMAP_GRID_NUMBER  rgbmap_le;
@@ -424,7 +422,6 @@ void ispblk_isptop_config(struct isp_ctx *ctx)
 	//err int
 	ev2_en.bits.FRAME_ERR_ENABLE	= 1;
 	ev2_en.bits.INT_DMA_ERR_ENABLE	= 1;
-	ev2_en.bits.CMDQ_INT_ENABLE	= 1;
 
 	//scenario_ctrl mode
 	//single sensor
@@ -462,10 +459,6 @@ void ispblk_isptop_config(struct isp_ctx *ctx)
 	scene_ctrl.bits.HW_AUTO_ENABLE		= 0;
 	// set the position of the beginning of YUV suggested by HW
 	scene_ctrl.bits.DCI_RGB0YUV1		= 0;
-
-	/*when 3/4channel yuv sensor, need use fe0 csi0/1/2/3, so close fe0 dma_share function*/
-	scene_ctrl.bits.FE_DMA_SHARE_ENABLE	=
-		(ctx->isp_pipe_cfg[ISP_PRERAW_A].muxMode > VI_WORK_MODE_2Multiplex) ? 0 : 1;
 
 	ISP_WR_REG(isptopb, REG_ISP_TOP_T, INT_EVENT0, 0xffffffff);
 	ISP_WR_REG(isptopb, REG_ISP_TOP_T, INT_EVENT1, 0xffffffff);

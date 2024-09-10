@@ -25,11 +25,11 @@ struct isp_tuning_cfg tuning_buf_addr;
 static void *vi_tuning_ptr[ISP_PRERAW_VIRT_MAX];
 
 struct vi_clut_idx {
-	u32		clut_tbl_idx[TUNING_NODE_NUM];
+	u32		clut_tbl_idx;
 	spinlock_t	clut_idx_lock;
 };
 
-struct vi_clut_idx gClutIdx[ISP_PRERAW_VIRT_MAX];
+struct vi_clut_idx gClutIdx;
 
 /*******************************************************************************
  *	Tuning modules update
@@ -179,40 +179,28 @@ void vi_tuning_clut_update(
 	ispblk_clut_tun_cfg(ctx, clut_cfg, raw_num);
 
 	//Record the clut tbl idx written into HW for ISP MW.
-	spin_lock_irqsave(&gClutIdx[raw_num].clut_idx_lock, flags);
-	gClutIdx[raw_num].clut_tbl_idx[tun_idx] = clut_cfg->tbl_idx;
-	spin_unlock_irqrestore(&gClutIdx[raw_num].clut_idx_lock, flags);
+	spin_lock_irqsave(&gClutIdx.clut_idx_lock, flags);
+	gClutIdx.clut_tbl_idx = clut_cfg->tbl_idx;
+	spin_unlock_irqrestore(&gClutIdx.clut_idx_lock, flags);
 }
 
-int vi_tuning_get_clut_tbl_idx(enum cvi_isp_raw raw_num, int tun_idx)
+int vi_tuning_get_clut_tbl_idx(void)
 {
 	unsigned long flags;
 	u32 tbl_idx = 0;
 
-	if (tun_idx >= TUNING_NODE_NUM || tun_idx < 0) {
-		vi_pr(VI_WARN, "illegal tun_idx(%d)\n", tun_idx);
-		return -1;
-	}
-
 	//Return clut tbl idx to ISP MW that currently is written into ISP HW.
-	spin_lock_irqsave(&gClutIdx[raw_num].clut_idx_lock, flags);
-	tbl_idx = gClutIdx[raw_num].clut_tbl_idx[tun_idx];
-	spin_unlock_irqrestore(&gClutIdx[raw_num].clut_idx_lock, flags);
+	spin_lock_irqsave(&gClutIdx.clut_idx_lock, flags);
+	tbl_idx = gClutIdx.clut_tbl_idx;
+	spin_unlock_irqrestore(&gClutIdx.clut_idx_lock, flags);
 
 	return tbl_idx;
 }
 
 int vi_tuning_sw_init(void)
 {
-	enum cvi_isp_raw raw_num;
-	u8 i = 0;
-
-	for (raw_num = ISP_PRERAW_A; raw_num < ISP_PRERAW_VIRT_MAX; raw_num++) {
-		for (i = 0; i < TUNING_NODE_NUM; i++) {
-			gClutIdx[raw_num].clut_tbl_idx[i] = 0;
-		}
-		spin_lock_init(&gClutIdx[raw_num].clut_idx_lock);
-	}
+	gClutIdx.clut_tbl_idx = 0;
+	spin_lock_init(&gClutIdx.clut_idx_lock);
 
 	return 0;
 }
@@ -507,9 +495,9 @@ void postraw_tuning_update(
 			ispblk_clut_tun_cfg(ctx, clut_cfg, raw_num);
 
 			//Record the clut tbl idx written into HW for ISP MW.
-			spin_lock_irqsave(&gClutIdx[raw_num].clut_idx_lock, flags);
-			gClutIdx[raw_num].clut_tbl_idx[tun_idx] = clut_cfg->tbl_idx;
-			spin_unlock_irqrestore(&gClutIdx[raw_num].clut_idx_lock, flags);
+			spin_lock_irqsave(&gClutIdx.clut_idx_lock, flags);
+			gClutIdx.clut_tbl_idx = clut_cfg->tbl_idx;
+			spin_unlock_irqrestore(&gClutIdx.clut_idx_lock, flags);
 		}
 	}
 
@@ -657,8 +645,7 @@ void ispblk_cacp_tun_cfg(
 			wdata.raw = 0;
 			wdata.bits.CACP_MEM_D = cfg->ca_y_ratio_lut[i];
 			wdata.bits.CACP_MEM_W = 1;
-			ISP_WR_BITS(cacp, REG_CA_T, REG_04, CACP_MEM_D, wdata.bits.CACP_MEM_D);
-			ISP_WR_BITS(cacp, REG_CA_T, REG_04, CACP_MEM_W, wdata.bits.CACP_MEM_W);
+			ISP_WR_REG(cacp, REG_CA_T, REG_04, wdata.raw);
 		}
 	} else { //cp mode
 		for (i = 0; i < 256; i++) {
@@ -666,8 +653,7 @@ void ispblk_cacp_tun_cfg(
 			wdata.bits.CACP_MEM_D = ((cfg->cp_y_lut[i] << 16) |
 					(cfg->cp_u_lut[i] << 8) | (cfg->cp_v_lut[i]));
 			wdata.bits.CACP_MEM_W = 1;
-			ISP_WR_BITS(cacp, REG_CA_T, REG_04, CACP_MEM_D, wdata.bits.CACP_MEM_D);
-			ISP_WR_BITS(cacp, REG_CA_T, REG_04, CACP_MEM_W, wdata.bits.CACP_MEM_W);
+			ISP_WR_REG(cacp, REG_CA_T, REG_04, wdata.raw);
 		}
 	}
 
@@ -985,23 +971,13 @@ void ispblk_clut_tun_cfg(
 	struct cvi_vip_isp_clut_config *cfg,
 	const enum cvi_isp_raw raw_num)
 {
-	uintptr_t clut = ctx->phys_regs[ISP_BLK_ID_CLUT];
-
 	if (!cfg->update)
 		return;
 
-	ISP_WR_BITS(clut, REG_ISP_CLUT_T, CLUT_CTRL, CLUT_ENABLE, cfg->enable);
-
 	if (cfg->is_update_partial) { //partail update table
 		ispblk_clut_partial_update(ctx, cfg, raw_num);
-	} else {
-		if (!cfg->enable)
-			return;
-#if defined(__SOC_PHOBOS__)
+	} else if (!(_is_all_online(ctx) || (_is_fe_be_online(ctx) && ctx->is_slice_buf_on))) {
 		ispblk_clut_config(ctx, cfg->enable, cfg->r_lut, cfg->g_lut, cfg->b_lut);
-#else
-		ispblk_clut_cmdq_config(ctx, raw_num, cfg->enable, cfg->r_lut, cfg->g_lut, cfg->b_lut);
-#endif
 	}
 }
 

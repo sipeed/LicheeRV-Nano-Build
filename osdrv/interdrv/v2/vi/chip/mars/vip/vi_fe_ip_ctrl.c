@@ -186,13 +186,10 @@ void ispblk_csidbg_dma_wr_en(struct isp_ctx *ctx, const enum cvi_isp_raw raw_num
 void ispblk_csibdg_wdma_crop_config(struct isp_ctx *ctx, const enum cvi_isp_raw raw_num, struct vi_rect crop, u8 en)
 {
 	uintptr_t csibdg;
-	enum cvi_isp_raw hw_raw;
 
-	hw_raw = find_hw_raw_num(raw_num);
-
-	if (hw_raw == ISP_PRERAW_A) {
+	if (raw_num == ISP_PRERAW_A) {
 		csibdg = ctx->phys_regs[ISP_BLK_ID_CSIBDG0];
-	} else if (hw_raw == ISP_PRERAW_B) {
+	} else if (raw_num == ISP_PRERAW_B) {
 		csibdg = ctx->phys_regs[ISP_BLK_ID_CSIBDG1];
 	} else {
 		csibdg = ctx->phys_regs[ISP_BLK_ID_CSIBDG2]; // REG_ISP_CSI_BDG_DVP_T
@@ -211,21 +208,15 @@ void ispblk_csibdg_wdma_crop_config(struct isp_ctx *ctx, const enum cvi_isp_raw 
 		ISP_WR_BITS(csibdg, REG_ISP_CSI_BDG_T, WDMA_CH1_VERT_CROP, ST_CH1_VERT_CROP_START, crop.y);
 		ISP_WR_BITS(csibdg, REG_ISP_CSI_BDG_T, WDMA_CH1_VERT_CROP, ST_CH1_VERT_CROP_END, crop.y + crop.h - 1);
 	}
-
-	vi_pr(VI_DBG, "Preraw_%d, crop_x:y:w:h=%d:%d:%d:%d\n", raw_num,
-			crop.x,	crop.y, crop.w, crop.h);
 }
 
 void ispblk_csibdg_update_size(struct isp_ctx *ctx, enum cvi_isp_raw raw_num)
 {
 	uintptr_t csibdg;
-	enum cvi_isp_raw hw_raw;
 
-	hw_raw = find_hw_raw_num(raw_num);
-
-	if (hw_raw == ISP_PRERAW_A) {
+	if (raw_num == ISP_PRERAW_A) {
 		csibdg = ctx->phys_regs[ISP_BLK_ID_CSIBDG0];
-	} else if (hw_raw == ISP_PRERAW_B) {
+	} else if (raw_num == ISP_PRERAW_B) {
 		csibdg = ctx->phys_regs[ISP_BLK_ID_CSIBDG1];
 	} else {
 		csibdg = ctx->phys_regs[ISP_BLK_ID_CSIBDG2];
@@ -253,17 +244,10 @@ void ispblk_csibdg_crop_update(struct isp_ctx *ctx, enum cvi_isp_raw raw_num, bo
 		csibdg = ctx->phys_regs[ISP_BLK_ID_CSIBDG2];
 	}
 
-	/*mipi switch crop by csibdg wdma, use csibdg_width/height*/
-	crop.x = ctx->isp_pipe_cfg[raw_num].is_mux ? 0
-		: (ctx->isp_pipe_cfg[raw_num].crop.x == 0) ? 0 : ctx->isp_pipe_cfg[raw_num].crop.x;
-	crop.y = ctx->isp_pipe_cfg[raw_num].is_mux ? 0
-		: (ctx->isp_pipe_cfg[raw_num].crop.y == 0) ? 0 : ctx->isp_pipe_cfg[raw_num].crop.y;
-
-	crop.w = ctx->isp_pipe_cfg[raw_num].is_mux ? ctx->isp_pipe_cfg[raw_num].csibdg_width - 1
-		: (ctx->isp_pipe_cfg[raw_num].crop.x + ctx->isp_pipe_cfg[raw_num].crop.w) - 1;
-
-	crop.h = ctx->isp_pipe_cfg[raw_num].is_mux ? ctx->isp_pipe_cfg[raw_num].csibdg_height - 1
-		: (ctx->isp_pipe_cfg[raw_num].crop.y + ctx->isp_pipe_cfg[raw_num].crop.h) - 1;
+	crop.x = (ctx->isp_pipe_cfg[raw_num].crop.x == 0) ? 0 : ctx->isp_pipe_cfg[raw_num].crop.x;
+	crop.y = (ctx->isp_pipe_cfg[raw_num].crop.y == 0) ? 0 : ctx->isp_pipe_cfg[raw_num].crop.y;
+	crop.w = (ctx->isp_pipe_cfg[raw_num].crop.x + ctx->isp_pipe_cfg[raw_num].crop.w) - 1;
+	crop.h = (ctx->isp_pipe_cfg[raw_num].crop.y + ctx->isp_pipe_cfg[raw_num].crop.h) - 1;
 
 	ISP_WR_BITS(csibdg, REG_ISP_CSI_BDG_T, CH0_CROP_EN, CH0_CROP_EN, en);
 	ISP_WR_BITS(csibdg, REG_ISP_CSI_BDG_T, CH0_HORZ_CROP, CH0_HORZ_CROP_START, crop.x);
@@ -293,6 +277,7 @@ int ispblk_csibdg_config(struct isp_ctx *ctx, enum cvi_isp_raw raw_num)
 	union REG_ISP_CSI_BDG_INTERRUPT_CTRL int_ctrl;
 	enum cvi_isp_raw raw;
 
+	//if raw_num > ISP_PRERAW_MAX - 1, means use vir raw;
 	raw = find_hw_raw_num(raw_num);
 
 	if (raw == ISP_PRERAW_A) {
@@ -552,7 +537,7 @@ void ispblk_tnr_rgbmap_chg(struct isp_ctx *ctx, enum cvi_isp_raw raw_num, const 
 	//if raw_num > ISP_PRERAW_MAX - 1, means use vir raw;
 	raw = find_hw_raw_num(raw_num);
 
-	if (g_rgbmap_chg_pre[raw_num][chn_num] == false && !ctx->isp_pipe_cfg[raw].is_mux)
+	if (g_rgbmap_chg_pre[raw_num][chn_num] == false)
 		return;
 
 	if (raw == ISP_PRERAW_A) {

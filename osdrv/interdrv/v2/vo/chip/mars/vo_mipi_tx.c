@@ -31,7 +31,7 @@ int dump_reg = 1;
 /*
  * macro definition
  */
-#define MIPI_TX_DEV_NAME "cvi-mipi-tx"
+#define MIPI_TX_DEV_NAME "mipi-tx"
 #define MIPI_TX_PROC_NAME "vo_mipi_tx"
 
 #define CVI_VIP_MIPI_TX_INFO(fmt, arg...)								\

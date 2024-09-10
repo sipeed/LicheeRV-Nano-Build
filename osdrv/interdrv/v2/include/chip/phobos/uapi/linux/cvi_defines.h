@@ -346,15 +346,8 @@ extern "C" {
 
 #ifdef  __SOC_MARS__
 #define VPSS_MAX_PHY_CHN_NUM     4	/* sc_d, sc_v1, sc_v2, sc_v3 */
-#define SC_D_MAX_LIMIT           1920
-#define SC_V1_MAX_LIMIT          2880
-#define SC_V2_MAX_LIMIT          1920
-#define SC_V3_MAX_LIMIT          1280
 #else
 #define VPSS_MAX_PHY_CHN_NUM     3	/* sc_d, sc_v1, sc_v2 */
-#define SC_D_MAX_LIMIT           1280
-#define SC_V1_MAX_LIMIT          2880
-#define SC_V2_MAX_LIMIT          1920
 #endif
 #define VPSS_MAX_CHN_NUM         (VPSS_MAX_PHY_CHN_NUM)
 #define VPSS_MIN_IMAGE_WIDTH     32

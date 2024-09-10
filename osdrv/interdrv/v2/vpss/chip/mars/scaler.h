@@ -1193,7 +1193,6 @@ bool sclr_disp_tgen_enable(bool enable);
 bool sclr_disp_check_i80_enable(void);
 bool sclr_disp_check_tgen_enable(void);
 union sclr_disp_dbg_status sclr_disp_get_dbg_status(bool clr);
-int sclr_disp_get_axi_status(void);
 void sclr_disp_gamma_ctrl(bool enable, bool pre_osd);
 void sclr_disp_gamma_lut_update(const u8 *b, const u8 *g, const u8 *r);
 void sclr_disp_gamma_lut_read(struct sclr_disp_gamma_attr *gamma_attr);

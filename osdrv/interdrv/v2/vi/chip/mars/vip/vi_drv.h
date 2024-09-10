@@ -292,13 +292,6 @@ struct isp_dump_info {
 	uint32_t blk_size;
 };
 
-struct isp_cmdq_buf {
-	uint64_t phy_addr;
-	void *vir_addr;
-	uint32_t buf_size;
-	uint16_t cmd_idx;
-};
-
 struct isp_vblock_info {
 	uint32_t block_id;
 	uint32_t block_size;
@@ -388,7 +381,6 @@ struct _isp_cfg {
 	enum _VI_INTF_MODE_E	infMode;
 	enum _VI_WORK_MODE_E	muxMode;
 	enum _VI_YUV_DATA_SEQ_E enDataSeq;
-	struct isp_cmdq_buf	cmdq_buf;
 
 	uint32_t		is_patgen_en		: 1;
 	uint32_t		is_offline_preraw	: 1;
@@ -629,8 +621,6 @@ void ispblk_gamma_config(struct isp_ctx *ctx, bool en, uint8_t sel, uint16_t *da
 void ispblk_gamma_enable(struct isp_ctx *ctx, bool enable);
 void ispblk_clut_config(struct isp_ctx *ctx, bool en,
 				int16_t *r_lut, int16_t *g_lut, int16_t *b_lut);
-void ispblk_clut_cmdq_config(struct isp_ctx *ctx, const enum cvi_isp_raw raw_num, bool en,
-			int16_t *r_lut, int16_t *g_lut, int16_t *b_lut);
 void ispblk_rgbdither_config(struct isp_ctx *ctx, bool en, bool mod_en, bool histidx_en, bool fmnum_en);
 void ispblk_csc_config(struct isp_ctx *ctx);
 void ispblk_manr_config(struct isp_ctx *ctx, bool en);
@@ -725,7 +715,7 @@ void vi_tuning_drc_update(
 void vi_tuning_clut_update(
 	struct isp_ctx *ctx,
 	enum cvi_isp_raw raw_num);
-int vi_tuning_get_clut_tbl_idx(enum cvi_isp_raw raw_num, int tun_idx);
+int vi_tuning_get_clut_tbl_idx(void);
 int vi_tuning_sw_init(void);
 int vi_tuning_buf_setup(void);
 void vi_tuning_buf_release(void);

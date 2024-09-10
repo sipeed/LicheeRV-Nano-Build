@@ -1,6 +1,4 @@
 #include <vip/vi_drv.h>
-#include <sys.h>
-#include <cmdq.h>
 
 /****************************************************************************
  * Global parameters
@@ -392,67 +390,6 @@ void ispblk_rgbdither_config(struct isp_ctx *ctx, bool en, bool mod_en,
 	reg.bits.CROP_HEIGHTM1 = ctx->img_height - 1;
 
 	ISP_WR_REG(rgbdither, REG_ISP_RGB_DITHER_T, RGB_DITHER, reg.raw);
-}
-
-void ispblk_clut_cmdq_config(struct isp_ctx *ctx, const enum cvi_isp_raw raw_num, bool en,
-			int16_t *r_lut, int16_t *g_lut, int16_t *b_lut)
-{
-	uintptr_t clut = ctx->phys_regs[ISP_BLK_ID_CLUT];
-	uint16_t r_idx, g_idx, b_idx;
-	union REG_ISP_CLUT_CTRL      ctrl;
-	union REG_ISP_CLUT_PROG_ADDR prog_addr;
-	union REG_ISP_CLUT_PROG_DATA prog_data;
-	u32 clut_phy_reg = ISP_TOP_PHY_REG_BASE + ISP_BLK_BA_CLUT;
-	u32 idx = 0;
-	u16 cmd_idx = 0;
-
-	union cmdq_set *cmd_start = (union cmdq_set *)ctx->isp_pipe_cfg[raw_num].cmdq_buf.vir_addr;
-
-	sys_cache_invalidate(ctx->isp_pipe_cfg[raw_num].cmdq_buf.phy_addr,
-				  ctx->isp_pipe_cfg[raw_num].cmdq_buf.vir_addr,
-				  ctx->isp_pipe_cfg[raw_num].cmdq_buf.buf_size);
-
-	ctrl.raw = ISP_RD_REG(clut, REG_ISP_CLUT_T, CLUT_CTRL);
-	ctrl.bits.PROG_EN = 1;
-
-	cmdQ_set_package(&cmd_start[cmd_idx++].reg,
-			 clut_phy_reg + _OFST(REG_ISP_CLUT_T, CLUT_CTRL),
-			 ctrl.raw);
-
-	for (b_idx = 0; b_idx < 17; b_idx++) {
-		for (g_idx = 0; g_idx < 17; g_idx++) {
-			for (r_idx = 0; r_idx < 17; r_idx++) {
-				idx = b_idx * 289 + g_idx * 17 + r_idx;
-
-				prog_addr.raw = 0;
-				prog_addr.bits.SRAM_R_IDX = r_idx;
-				prog_addr.bits.SRAM_G_IDX = g_idx;
-				prog_addr.bits.SRAM_B_IDX = b_idx;
-				cmdQ_set_package(&cmd_start[cmd_idx++].reg,
-						 clut_phy_reg + _OFST(REG_ISP_CLUT_T, CLUT_PROG_ADDR),
-						 prog_addr.raw);
-
-				prog_data.raw = 0;
-				prog_data.bits.SRAM_WDATA = b_lut[idx] + (g_lut[idx] << 10) + (r_lut[idx] << 20);
-				prog_data.bits.SRAM_WR = 1;
-				cmdQ_set_package(&cmd_start[cmd_idx++].reg,
-						 clut_phy_reg + _OFST(REG_ISP_CLUT_T, CLUT_PROG_DATA),
-						 prog_data.raw);
-			}
-		}
-	}
-
-	ctrl.bits.CLUT_ENABLE = en;
-	ctrl.bits.PROG_EN = 0;
-	cmdQ_set_package(&cmd_start[cmd_idx++].reg,
-			clut_phy_reg + _OFST(REG_ISP_CLUT_T, CLUT_CTRL),
-			ctrl.raw);
-
-	sys_cache_flush(ctx->isp_pipe_cfg[raw_num].cmdq_buf.phy_addr,
-				ctx->isp_pipe_cfg[raw_num].cmdq_buf.vir_addr,
-				ctx->isp_pipe_cfg[raw_num].cmdq_buf.buf_size);
-
-	ctx->isp_pipe_cfg[raw_num].cmdq_buf.cmd_idx = cmd_idx;
 }
 
 void ispblk_clut_config(struct isp_ctx *ctx, bool en,

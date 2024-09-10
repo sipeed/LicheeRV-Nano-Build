@@ -244,7 +244,6 @@ struct cvi_vip_isp_smooth_raw_param {
 
 struct cvi_isp_sts_mem {
 	__u8			raw_num;
-	__u8			mem_sts_in_use;
 	struct cvi_vip_memblock af;
 	struct cvi_vip_memblock gms;
 	struct cvi_vip_memblock ae_le;

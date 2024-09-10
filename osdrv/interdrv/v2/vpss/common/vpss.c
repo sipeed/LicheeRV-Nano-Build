@@ -79,7 +79,7 @@ static struct cvi_vpss_ctx *vpssCtx[VPSS_MAX_GRP_NUM] = { [0 ... VPSS_MAX_GRP_NU
 static struct vpss_ext_ctx vpssExtCtx[VPSS_MAX_GRP_NUM];
 
 // Motion level for vcodec
-static struct mlv_wrap_i_s g_mlv_i[VI_MAX_DEV_NUM];
+static struct mlv_i_s g_mlv_i[VI_MAX_DEV_NUM];
 
 static CVI_U8 isp_bypass_frm[VI_MAX_CHN_NUM];
 
@@ -132,7 +132,7 @@ static inline CVI_S32 CHECK_VPSS_CHN_VALID(VPSS_GRP VpssGrp, VPSS_CHN VpssChn)
 	if (vpss_get_mode() == VPSS_MODE_SINGLE) {
 		if ((VpssChn >= VPSS_MAX_CHN_NUM) || (VpssChn < 0)) {
 			CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) invalid for VPSS-Single.\n",
-				VpssGrp, VpssChn);
+				       VpssGrp, VpssChn);
 			return CVI_ERR_VPSS_ILLEGAL_PARAM;
 		}
 	} else {
@@ -140,54 +140,6 @@ static inline CVI_S32 CHECK_VPSS_CHN_VALID(VPSS_GRP VpssGrp, VPSS_CHN VpssChn)
 			CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) invalid for VPSS-Dual(%d).\n"
 			, VpssGrp, VpssChn, vpssCtx[VpssGrp]->stGrpAttr.u8VpssDev);
 			return CVI_ERR_VPSS_ILLEGAL_PARAM;
-		}
-	}
-
-	return CVI_SUCCESS;
-}
-
-static inline CVI_S32 CHECK_VPSS_CHN_CAP_VALID(VPSS_GRP VpssGrp,
-	VPSS_CHN VpssChn, CVI_U32 u32MinHeight, CVI_U32 u32Width, CVI_U32 u32Height)
-{
-	#ifdef  __SOC_MARS__
-	/* sc_d, sc_v1, sc_v2, sc_v3 */
-	int sc_max_w[VPSS_MAX_PHY_CHN_NUM] = {SC_D_MAX_LIMIT, SC_V1_MAX_LIMIT,
-			SC_V2_MAX_LIMIT, SC_V3_MAX_LIMIT};
-	#else
-	/* sc_d, sc_v1, sc_v2 */
-	int sc_max_w[VPSS_MAX_PHY_CHN_NUM] = {SC_D_MAX_LIMIT, SC_V1_MAX_LIMIT,
-			SC_V2_MAX_LIMIT};
-	#endif
-	if ((u32Width < VPSS_MIN_IMAGE_WIDTH) || (u32Height < u32MinHeight)) {
-		CVI_TRACE_VPSS(CVI_DBG_ERR,
-			"Grp(%d) Chn(%d) u32Width(%d) or u32Height(%d) too small\n",
-			VpssGrp, VpssChn, u32Width, u32Height);
-		return CVI_ERR_VPSS_ILLEGAL_PARAM;
-	}
-	if (vpss_get_mode() == VPSS_MODE_SINGLE) {
-		if (vpssCtx[VpssGrp]->stGrpAttr.u32MaxW > 2 * sc_max_w[VpssChn]) {
-			CVI_TRACE_VPSS(CVI_DBG_ERR,
-				"Grp(%d) u32Width(%d) too large for VPSS-Single Chn(%d).\n",
-				VpssGrp, u32Width, VpssChn);
-			return CVI_ERR_VPSS_ILLEGAL_PARAM;
-		}
-	} else {
-		if (vpssCtx[VpssGrp]->chnNum == 1) {
-			if (vpssCtx[VpssGrp]->stGrpAttr.u32MaxW > 2 * sc_max_w[VpssChn]) {
-				CVI_TRACE_VPSS(CVI_DBG_ERR,
-					"Grp(%d) u32Width(%d) too large for VPSS-Dual(%d) Chn(%d)\n",
-					VpssGrp, u32Width, vpssCtx[VpssGrp]->stGrpAttr.u8VpssDev,
-					VpssChn);
-				return CVI_ERR_VPSS_ILLEGAL_PARAM;
-			}
-		} else {
-			if (vpssCtx[VpssGrp]->stGrpAttr.u32MaxW > 2 * sc_max_w[VpssChn+1]) {
-				CVI_TRACE_VPSS(CVI_DBG_ERR,
-					"Grp(%d) u32Width(%d) too large for VPSS-Dual(%d) Chn(%d)\n",
-					VpssGrp, u32Width, vpssCtx[VpssGrp]->stGrpAttr.u8VpssDev,
-					VpssChn);
-				return CVI_ERR_VPSS_ILLEGAL_PARAM;
-			}
 		}
 	}
 
@@ -573,62 +525,6 @@ static CVI_BOOL vpss_enable_handler_ctx(struct vpss_handler_ctx *ctx)
 	return CVI_FALSE;
 }
 
-static CVI_VOID _vpss_offline_set_mlv_info(struct vb_s *vb_in, struct cvi_buffer *buf,
-					   struct cvi_vpss_ctx *ctx, VPSS_CHN VpssChn)
-{
-	CVI_U32 x, y;
-	CVI_U32 fractional_bits = 8;
-	CVI_U32 x_scale, y_scale;
-	CVI_U32 src_x, src_y;
-	CVI_U32 in_ctu_w, in_ctu_h;
-	CVI_U32 out_ctu_w, out_ctu_h;
-	CVI_U32 opposite;
-	CVI_U8 temp;
-
-	in_ctu_w = ALIGN(vb_in->buf.size.u32Width, 64) >> 6;
-	in_ctu_h = ALIGN(vb_in->buf.size.u32Height, 64) >> 6;
-	out_ctu_w = ALIGN(ctx->stChnCfgs[VpssChn].stChnAttr.u32Width, 64) >> 6;
-	out_ctu_h = ALIGN(ctx->stChnCfgs[VpssChn].stChnAttr.u32Height, 64) >> 6;
-
-	x_scale = (in_ctu_w << fractional_bits) / out_ctu_w;
-	y_scale = (in_ctu_h << fractional_bits) / out_ctu_h;
-	for (y = 0; y < out_ctu_h; y++) {
-		for (x = 0; x < out_ctu_w; x++) {
-			src_x = (x * x_scale + (1 << fractional_bits) - 1) >> fractional_bits;
-			src_y = (y * y_scale + (1 << fractional_bits) - 1) >> fractional_bits;
-			src_x = (src_x >= in_ctu_w) ? in_ctu_w - 1 : src_x;
-			src_y = (src_y >= in_ctu_h) ? in_ctu_h - 1 : src_y;
-			buf->motion_table[y * out_ctu_w + x] =
-				vb_in->buf.motion_table[src_y * in_ctu_w + src_x];
-		}
-	}
-
-	// mirror
-	if (ctx->stChnCfgs[VpssChn].stChnAttr.bMirror) {
-		for (y = 0; y < out_ctu_h; y++) {
-			for (x = 0; x < out_ctu_w / 2; x++) {
-				opposite = out_ctu_w - 1 - x;
-				temp = buf->motion_table[y * out_ctu_w + x];
-				buf->motion_table[y * out_ctu_w + x] =
-					buf->motion_table[y * out_ctu_w + opposite];
-				buf->motion_table[y * out_ctu_w + opposite] = temp;
-			}
-		}
-	}
-
-	// flip
-	if (ctx->stChnCfgs[VpssChn].stChnAttr.bFlip) {
-		for (y = 0; y < out_ctu_h / 2; y++) {
-			for (x = 0; x < out_ctu_w; x++) {
-				opposite = (out_ctu_h - 1 - y) * out_ctu_w + x;
-				temp = buf->motion_table[y * out_ctu_w + x];
-				buf->motion_table[y * out_ctu_w + x] = buf->motion_table[opposite];
-				buf->motion_table[opposite] = temp;
-			}
-		}
-	}
-}
-
 static CVI_VOID _vpss_fill_cvi_buffer(MMF_CHN_S chn, struct vb_s *grp_vb_in,
 		uint64_t phy_addr, struct cvi_buffer *buf, struct cvi_vpss_ctx *ctx)
 {
@@ -663,10 +559,7 @@ static CVI_VOID _vpss_fill_cvi_buffer(MMF_CHN_S chn, struct vb_s *grp_vb_in,
 		buf->u64PTS = grp_vb_in->buf.u64PTS;
 		buf->frm_num = grp_vb_in->buf.frm_num;
 		buf->motion_lv = grp_vb_in->buf.motion_lv;
-		buf->dci_lv = grp_vb_in->buf.dci_lv;
 		memcpy(buf->motion_table, grp_vb_in->buf.motion_table, MO_TBL_SIZE);
-
-		_vpss_offline_set_mlv_info(grp_vb_in, buf, ctx, chn.s32ChnId);
 	}
 }
 
@@ -795,7 +688,7 @@ static CVI_S32 mod_jobs_enque_img_work(CVI_S32 dev_idx, struct cvi_buffer *buf)
 static CVI_S32 vpss_sb_qbuf(struct cvi_vpss_ctx *ctx, MMF_CHN_S chn, CVI_BOOL sb_vc_ready)
 {
 	struct VPSS_CHN_CFG *pstChnCfg;
-	struct cvi_buffer *buf = NULL;
+	struct cvi_buffer buf;
 
 	pstChnCfg = &ctx->stChnCfgs[chn.s32ChnId];
 
@@ -810,24 +703,17 @@ static CVI_S32 vpss_sb_qbuf(struct cvi_vpss_ctx *ctx, MMF_CHN_S chn, CVI_BOOL sb
 	if (!pstChnCfg->stBufWrap.bEnable || !pstChnCfg->bufWrapPhyAddr)
 		return CVI_FAILURE;
 
-	buf = kzalloc(sizeof(struct cvi_buffer), GFP_ATOMIC);
-	if (!buf) {
-		CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%lu)\n", sizeof(struct cvi_buffer));
-		return CVI_FAILURE;
-	}
-
 	_vpss_fill_sbm_buffer(pstChnCfg->stChnAttr.u32Width,
 			      pstChnCfg->stChnAttr.enPixelFormat,
 			      pstChnCfg->align,
 			      pstChnCfg->stBufWrap.u32BufLine,
 			      pstChnCfg->u32BufWrapDepth,
 			      pstChnCfg->bufWrapPhyAddr,
-			      buf);
+			      &buf);
 
 	chn.s32ChnId = get_dev_info_by_chn(chn, CHN_TYPE_OUT);
-	vpss_sc_sb_qbuf(vip_dev, buf, chn);
+	vpss_sc_sb_qbuf(vip_dev, &buf, chn);
 	vpss_sc_set_vc_sbm(vip_dev, chn, sb_vc_ready);
-	kfree(buf);
 
 	return CVI_SUCCESS;
 }
@@ -945,29 +831,22 @@ static CVI_S32 fill_buffers(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx, bool onl
 		// FIXME: assume only one in work queue
 		vb_in = container_of(buf, struct vb_s, buf);
 	} else if (!online_from_isp && vpssExtCtx[VpssGrp].sbm_cfg.sb_mode) {
+		struct cvi_buffer buf;
 		struct vpss_grp_sbm_cfg *sbm_cfg = &vpssExtCtx[VpssGrp].sbm_cfg;
 		SIZE_S size = {
 			.u32Width = ctx->stGrpAttr.u32MaxW,
 			.u32Height = ctx->stGrpAttr.u32MaxH};
-		struct cvi_buffer *buf = kzalloc(sizeof(struct cvi_buffer), GFP_ATOMIC);
-
-		if (!buf) {
-			CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%lu)\n", sizeof(struct cvi_buffer));
-			goto ERR_FILL_BUF;
-		}
 
 		dev_idx = get_dev_info_by_chn(chn, CHN_TYPE_IN);
 		if (dev_idx >= ARRAY_SIZE(vip_dev->img_vdev)) {
 			CVI_TRACE_VPSS(CVI_DBG_INFO, "invalid img dev_idx(%d)\n", dev_idx);
-			kfree(buf);
 			goto ERR_FILL_BUF;
 		}
 
 		size.u32Height = ((sbm_cfg->sb_size + 1) * 64) * (sbm_cfg->sb_nb + 1);
-		base_get_frame_info(ctx->stGrpAttr.enPixelFormat, size, buf,
+		base_get_frame_info(ctx->stGrpAttr.enPixelFormat, size, &buf,
 				    vpssExtCtx[VpssGrp].sbm_cfg.ion_paddr, 64);
-		vpss_img_sb_qbuf(&vip_dev->img_vdev[dev_idx], buf, &vpssExtCtx[VpssGrp].sbm_cfg);
-		kfree(buf);
+		vpss_img_sb_qbuf(&vip_dev->img_vdev[dev_idx], &buf, &vpssExtCtx[VpssGrp].sbm_cfg);
 	}
 
 	for (VpssChn = 0; VpssChn < ctx->chnNum; ++VpssChn) {
@@ -1118,70 +997,33 @@ static CVI_S32 hw_start(VPSS_GRP VpssGrp, CVI_BOOL onoff, CVI_BOOL isForce, stru
 	return s32Ret;
 }
 
-static void hw_reset(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx)
+static void hw_reset(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx, CVI_BOOL bToggleReset)
 {
+	union vip_sys_reset val;
+
 	release_buffers(VpssGrp, ctx);
-	hw_start(VpssGrp, CVI_FALSE, CVI_FALSE, ctx);
+
+	if (bToggleReset) {
+		val.raw = 0;
+		val.b.img_d = 1;
+		val.b.img_v = 1;
+		val.b.sc_top = 1;
+		val.b.sc_d = 1;
+		val.b.sc_v1 = 1;
+		val.b.sc_v2 = 1;
+		val.b.sc_v3 = 1;
+		vip_toggle_reset(val);
+	}
+
+	hw_start(VpssGrp, CVI_FALSE, bToggleReset, ctx);
 }
 
-static CVI_VOID _vpss_online_set_mlv_info(struct vb_s *blk, struct cvi_vpss_ctx *ctx, VPSS_CHN VpssChn)
+static CVI_VOID _vpss_online_set_mlv_info(struct vb_s *blk)
 {
 	CVI_U8 snr_num = blk->buf.dev_num;
-	CVI_U32 x, y;
-	CVI_U32 fractional_bits = 8;
-	CVI_U32 x_scale, y_scale;
-	CVI_U32 src_x, src_y;
-	CVI_U32 in_ctu_w, in_ctu_h;
-	CVI_U32 out_ctu_w, out_ctu_h;
-	CVI_U32 opposite;
-	CVI_U8 temp;
 
-	blk->buf.motion_lv = g_mlv_i[snr_num].mlv_i.mlv_i_level;
-	blk->buf.dci_lv    = g_mlv_i[snr_num].dci_lv;
-	memcpy(blk->buf.motion_table, g_mlv_i[snr_num].mlv_i.mlv_i_table, sizeof(blk->buf.motion_table));
-
-	in_ctu_w = ALIGN(ctx->stGrpAttr.u32MaxW, 64) >> 6;
-	in_ctu_h = ALIGN(ctx->stGrpAttr.u32MaxH, 64) >> 6;
-	out_ctu_w = ALIGN(ctx->stChnCfgs[VpssChn].stChnAttr.u32Width, 64) >> 6;
-	out_ctu_h = ALIGN(ctx->stChnCfgs[VpssChn].stChnAttr.u32Height, 64) >> 6;
-
-	x_scale = (in_ctu_w << fractional_bits) / out_ctu_w;
-	y_scale = (in_ctu_h << fractional_bits) / out_ctu_h;
-	for (y = 0; y < out_ctu_h; y++) {
-		for (x = 0; x < out_ctu_w; x++) {
-			src_x = (x * x_scale + (1 << fractional_bits) - 1) >> fractional_bits;
-			src_y = (y * y_scale + (1 << fractional_bits) - 1) >> fractional_bits;
-			src_x = (src_x >= in_ctu_w) ? in_ctu_w - 1 : src_x;
-			src_y = (src_y >= in_ctu_h) ? in_ctu_h - 1 : src_y;
-			blk->buf.motion_table[y * out_ctu_w + x] =
-				g_mlv_i[snr_num].mlv_i.mlv_i_table[src_y * in_ctu_w + src_x];
-		}
-	}
-
-	// mirror
-	if (ctx->stChnCfgs[VpssChn].stChnAttr.bMirror) {
-		for (y = 0; y < out_ctu_h; y++) {
-			for (x = 0; x < out_ctu_w / 2; x++) {
-				opposite = out_ctu_w - 1 - x;
-				temp = blk->buf.motion_table[y * out_ctu_w + x];
-				blk->buf.motion_table[y * out_ctu_w + x] =
-					blk->buf.motion_table[y * out_ctu_w + opposite];
-				blk->buf.motion_table[y * out_ctu_w + opposite] = temp;
-			}
-		}
-	}
-
-	// flip
-	if (ctx->stChnCfgs[VpssChn].stChnAttr.bFlip) {
-		for (y = 0; y < out_ctu_h / 2; y++) {
-			for (x = 0; x < out_ctu_w; x++) {
-				opposite = (out_ctu_h - 1 - y) * out_ctu_w + x;
-				temp = blk->buf.motion_table[y * out_ctu_w + x];
-				blk->buf.motion_table[y * out_ctu_w + x] = blk->buf.motion_table[opposite];
-				blk->buf.motion_table[opposite] = temp;
-			}
-		}
-	}
+	blk->buf.motion_lv = g_mlv_i[snr_num].mlv_i_level;
+	memcpy(blk->buf.motion_table, g_mlv_i[snr_num].mlv_i_table, sizeof(blk->buf.motion_table));
 }
 
 static CVI_S32 _vpss_online_get_dpcm_wr_crop(CVI_U8 snr_num,
@@ -2299,18 +2141,9 @@ static CVI_S32 _notify_vc_sb_mode(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx,
 	struct VPSS_CHN_CFG *stChnCfg;
 	struct base_exe_m_cb exe_cb;
 	CVI_BOOL bEnable = CVI_FALSE;
-	struct venc_send_frm_info *send_frm;
-	struct cvi_buffer *buf;
-	struct cvi_buffer *buf1;
-
-	send_frm = kzalloc(sizeof(struct venc_send_frm_info), GFP_ATOMIC);
-	if (!send_frm) {
-		CVI_TRACE_VPSS(CVI_DBG_ERR, "fail to kzalloc(%lu)\n", sizeof(struct venc_send_frm_info));
-		return CVI_ERR_VPSS_NOMEM;
-	}
-
-	buf = &send_frm->stInFrmBuf;
-	buf1 = &send_frm->stInFrmBuf1;
+	struct venc_send_frm_info send_frm;
+	struct cvi_buffer *buf = &send_frm.stInFrmBuf;
+	struct cvi_buffer *buf1 = &send_frm.stInFrmBuf1;
 
 	for (VpssChn = 0; VpssChn < ctx->chnNum; ++VpssChn) {
 		stChnCfg = &ctx->stChnCfgs[VpssChn];
@@ -2342,7 +2175,7 @@ static CVI_S32 _notify_vc_sb_mode(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx,
 					      stChnCfg->bufWrapPhyAddr,
 					      buf);
 			if (VpssGrp < ARRAY_SIZE(g_mlv_i))
-				memcpy(buf->motion_table, g_mlv_i[VpssGrp].mlv_i.mlv_i_table,
+				memcpy(buf->motion_table, g_mlv_i[VpssGrp].mlv_i_table,
 				       sizeof(buf->motion_table));
 		} else if (sbChCnt == 1) {
 			_vpss_fill_sbm_buffer(stChnCfg->stChnAttr.u32Width,
@@ -2353,7 +2186,7 @@ static CVI_S32 _notify_vc_sb_mode(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx,
 					      stChnCfg->bufWrapPhyAddr,
 					      buf1);
 			if (VpssGrp < ARRAY_SIZE(g_mlv_i))
-				memcpy(buf1->motion_table, g_mlv_i[VpssGrp].mlv_i.mlv_i_table,
+				memcpy(buf1->motion_table, g_mlv_i[VpssGrp].mlv_i_table,
 				       sizeof(buf1->motion_table));
 		}
 		bEnable = CVI_TRUE;
@@ -2364,7 +2197,7 @@ static CVI_S32 _notify_vc_sb_mode(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx,
 	if (bEnable) {
 
 		if (cmd_id >= VCODEC_CB_MAX)
-			goto cmd_err;
+			return CVI_FAILURE;
 
 		buf->size.u32Height = ctx->stChnCfgs[chn.s32ChnId].stChnAttr.u32Height;
 
@@ -2372,24 +2205,23 @@ static CVI_S32 _notify_vc_sb_mode(VPSS_GRP VpssGrp, struct cvi_vpss_ctx *ctx,
 			buf1->size.u32Height = ctx->stChnCfgs[chn1.s32ChnId].stChnAttr.u32Height;
 		}
 
-		send_frm->vpss_grp = VpssGrp;
-		send_frm->vpss_chn = chn.s32ChnId;
+		send_frm.vpss_grp = VpssGrp;
+		send_frm.vpss_chn = chn.s32ChnId;
 		if (sbChCnt == 2)
-			send_frm->vpss_chn1 = chn1.s32ChnId;
+			send_frm.vpss_chn1 = chn1.s32ChnId;
 		else
-			send_frm->vpss_chn1 = 0xFFFFFFFF;
+			send_frm.vpss_chn1 = 0xFFFFFFFF;
 
-		send_frm->sb_nb = ctx->stChnCfgs[chn.s32ChnId].u32BufWrapDepth;
-		send_frm->isOnline = online_from_isp;
+		send_frm.sb_nb = ctx->stChnCfgs[chn.s32ChnId].u32BufWrapDepth;
+		send_frm.isOnline = online_from_isp;
 		exe_cb.callee = E_MODULE_VCODEC;
 		exe_cb.caller = E_MODULE_VPSS;
 		exe_cb.cmd_id = cmd_id;
-		exe_cb.data   = (void *)send_frm;
+		exe_cb.data    = (void *)&send_frm;
 
 		ret = base_exe_module_cb(&exe_cb);
 	}
-cmd_err:
-	kfree(send_frm);
+
 	return ret;
 }
 
@@ -2532,7 +2364,6 @@ static CVI_VOID vpss_handle_online_frame_done(struct vpss_handler_ctx *ctx, VPSS
 	CVI_U8 u8ChnMask;
 	struct vb_s *vb;
 	CVI_BOOL vc_sbm_enabled = _is_vc_sbm_enabled(workingGrp, vpss_ctx);
-	static struct mlv_wrap_i_s m_w_i;
 
 	vpssCtx[workingGrp]->stGrpWorkStatus.u32RecvCnt++;
 	u8ChnMask = _vpss_get_chn_mask_by_dev(workingGrp, ctx->IntMask[workingGrp]);
@@ -2540,10 +2371,6 @@ static CVI_VOID vpss_handle_online_frame_done(struct vpss_handler_ctx *ctx, VPSS
 
 	VpssChn = 0;
 	mutex_lock(&vpssCtx[workingGrp]->lock);
-
-	m_w_i.raw_num = workingGrp;
-	_vpss_call_cb(E_MODULE_VI, VI_CB_MOTION_CALC, &m_w_i);
-	vpss_set_mlv_info(workingGrp, &m_w_i);
 
 	do {
 		if (vpss_ctx->stChnCfgs[VpssChn].stBufWrap.bEnable &&
@@ -2600,7 +2427,7 @@ static CVI_VOID vpss_handle_online_frame_done(struct vpss_handler_ctx *ctx, VPSS
 		vb->buf.u64PTS = u64PTS;
 		vb->buf.frm_num = vip_dev->img_vdev[ctx->img_idx].frame_number[workingGrp];
 		vb->buf.dev_num = workingGrp;
-		_vpss_online_set_mlv_info(vb, vpss_ctx, VpssChn);
+		_vpss_online_set_mlv_info(vb);
 
 		// check if there is rgn_ex need to do on this chn
 		//if (vpss_ctx->stChnCfgs[VpssChn].rgn_ex_cfg.num_of_rgn_ex > 0
@@ -2651,60 +2478,11 @@ static CVI_VOID vpss_handle_online_frame_done(struct vpss_handler_ctx *ctx, VPSS
 	_update_vpss_grp_proc(workingGrp, duration, HwDuration);
 }
 
-static CVI_VOID vpss_sbm_err_handle(struct vpss_handler_ctx *ctx)
-{
-	CVI_S32 dev_idx = ctx->img_idx;
-	struct cvi_vpss_ctx *vpss_ctx;
-	VPSS_GRP workingGrp;
-	CVI_U32 i, input_type;
-	unsigned long flags_job;
-	union vip_sys_reset val;
-
-	// sclr_check_register();
-	workingGrp = vip_dev->img_vdev[dev_idx].job_grp;
-
-	CVI_TRACE_VPSS(CVI_DBG_ERR, "img(%d) grp(%d) vi err\n", dev_idx, workingGrp);
-
-	img_g_input(&vip_dev->img_vdev[dev_idx], &input_type);
-	val.raw = 0;
-	val.b.img_d = 1;
-	val.b.img_v = 1;
-	val.b.sc_top = 1;
-	val.b.sc_d = 1;
-	val.b.sc_v1 = 1;
-	val.b.sc_v2 = 1;
-	val.b.sc_v3 = 1;
-	vip_toggle_reset(val);
-
-	for (i = 0; i < VPSS_ONLINE_NUM; i++) {
-		if (!(ctx->online_chkMask & BIT(i)))
-			continue;
-		vpss_ctx = &ctx->vpssCtxWork[i];
-		release_buffers(i, vpss_ctx);
-		hw_start(i, CVI_FALSE, CVI_TRUE, vpss_ctx);
-		ctx->isr_evt[i] = 0;
-		vpssExtCtx[i].grp_state = GRP_STATE_IDLE;
-	}
-	img_s_input(&vip_dev->img_vdev[dev_idx], input_type);
-
-	vpss_ctx = &ctx->vpssCtxWork[workingGrp];
-	_notify_vc_sb_mode(workingGrp, vpss_ctx, VCODEC_CB_SKIP_FRM, CVI_TRUE);
-
-	spin_lock_irqsave(&ctx->lock, flags_job);
-	atomic_set(&ctx->events, 0);
-	ctx->reset_done = true;
-	ctx->workingMask = 0;
-	spin_unlock_irqrestore(&ctx->lock, flags_job);
-
-	CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss reset done\n");
-	wake_up_interruptible(&ctx->vi_reset_wait);
-	usleep_range(100, 200);
-}
-
 static CVI_VOID vpss_handle_online(struct vpss_handler_ctx *ctx)
 {
 	VPSS_GRP workingGrp;
 	struct cvi_vpss_ctx *vpss_ctx;
+	CVI_S32 dev_idx;
 	CVI_U64 duration64;
 	struct timespec64 time;
 	CVI_U32 state;
@@ -2732,9 +2510,35 @@ static CVI_VOID vpss_handle_online(struct vpss_handler_ctx *ctx)
 			ctx->u8VpssDev, events, workingGrp,
 			vpssExtCtx[workingGrp].grp_state);
 
+	dev_idx = ctx->img_idx;
+
 	//sbm err handle
 	if (events & CTX_EVENT_VI_ERR) {
-		vpss_sbm_err_handle(ctx);
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "img(%d:%d:%d) grp(%d) vi err\n",
+			dev_idx,
+			vip_dev->img_vdev[dev_idx].img_type,
+			vip_dev->img_vdev[dev_idx].input_type, workingGrp);
+
+		// sclr_check_register();
+		ctx->isr_evt[workingGrp] = 0;
+
+		img_g_input(&vip_dev->img_vdev[dev_idx], &i);
+		hw_reset(workingGrp, vpss_ctx, CVI_TRUE);
+		_notify_vc_sb_mode(workingGrp, vpss_ctx, VCODEC_CB_SKIP_FRM, CVI_TRUE);
+		img_s_input(&vip_dev->img_vdev[dev_idx], i);
+
+		spin_lock_irqsave(&ctx->lock, flags_job);
+		atomic_set(&ctx->events, 0);
+		ctx->reset_done = true;
+		ctx->workingMask = 0;
+		spin_unlock_irqrestore(&ctx->lock, flags_job);
+		vpssExtCtx[workingGrp].grp_state = GRP_STATE_IDLE;
+
+		hw_start(workingGrp, CVI_TRUE, CVI_FALSE, vpss_ctx);
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "vpss reset done\n");
+		wake_up_interruptible(&ctx->vi_reset_wait);
+		usleep_range(100, 200);
+		//return;
 	} else if (events & CTX_EVENT_EOF) {
 		if (!vpssCtx[workingGrp] || !vpssCtx[workingGrp]->isStarted) {
 			spin_lock_irqsave(&ctx->lock, flags_job);
@@ -2747,7 +2551,10 @@ static CVI_VOID vpss_handle_online(struct vpss_handler_ctx *ctx)
 	//frame done
 	if (vpssExtCtx[workingGrp].grp_state & (GRP_STATE_HW_STARTED|GRP_STATE_BUF_FILLED)) {
 		if (events & CTX_EVENT_EOF) {
-			CVI_TRACE_VPSS(CVI_DBG_DEBUG, "grp(%d) eof\n", workingGrp);
+			CVI_TRACE_VPSS(CVI_DBG_DEBUG, "img(%d:%d:%d) grp(%d) eof\n",
+				dev_idx,
+				vip_dev->img_vdev[dev_idx].img_type,
+				vip_dev->img_vdev[dev_idx].input_type, workingGrp);
 
 			spin_lock_irqsave(&ctx->lock, flags_job);
 			ctx->isr_evt[workingGrp]--;
@@ -2846,7 +2653,7 @@ static CVI_S32 vpss_try_schedule_offline(struct vpss_handler_ctx *ctx)
 	if (hw_start(workingGrp, CVI_FALSE, CVI_FALSE, vpss_ctx) != CVI_SUCCESS) {
 		CVI_TRACE_VPSS(CVI_DBG_ERR, "grp(%d) stop before run NG.\n", workingGrp);
 		_release_vpss_waitq(chn, CHN_TYPE_IN);
-		hw_reset(workingGrp, vpss_ctx);
+		hw_reset(workingGrp, vpss_ctx, CVI_FALSE);
 		vpssCtx[workingGrp]->stGrpWorkStatus.u32StartFailCnt++;
 		goto vpss_next_job;
 	}
@@ -2876,7 +2683,7 @@ static CVI_S32 vpss_try_schedule_offline(struct vpss_handler_ctx *ctx)
 
 	if (hw_start(workingGrp, CVI_TRUE, CVI_FALSE, vpss_ctx) != CVI_SUCCESS) {
 		CVI_TRACE_VPSS(CVI_DBG_ERR, "grp(%d) run NG.\n", workingGrp);
-		hw_reset(workingGrp, vpss_ctx);
+		hw_reset(workingGrp, vpss_ctx, CVI_FALSE);
 		vpssCtx[workingGrp]->stGrpWorkStatus.u32StartFailCnt++;
 		goto vpss_next_job;
 	}
@@ -3059,7 +2866,7 @@ static void vpss_handle_offline(struct vpss_handler_ctx *ctx)
 				ctx->workingGrp = VPSS_MAX_GRP_NUM;
 				ctx->workingMask = 0;
 				vpssExtCtx[workingGrp].grp_state = GRP_STATE_IDLE;
-				hw_reset(workingGrp, &ctx->vpssCtxWork[0]);
+				hw_reset(workingGrp, &ctx->vpssCtxWork[0], CVI_FALSE);
 			} else {
 				// keep waiting
 			}
@@ -3830,10 +3637,11 @@ CVI_S32 vpss_set_chn_attr(VPSS_GRP VpssGrp, VPSS_CHN VpssChn, const VPSS_CHN_ATT
 		return ret;
 
 	u32MinHeight = IS_FMT_YUV420(pstChnAttr->enPixelFormat) ? 2 : 1;
-
-	ret = CHECK_VPSS_CHN_CAP_VALID(VpssGrp, VpssChn, u32MinHeight, pstChnAttr->u32Width, pstChnAttr->u32Height);
-	if (ret != CVI_SUCCESS)
-		return ret;
+	if ((pstChnAttr->u32Width < VPSS_MIN_IMAGE_WIDTH) || (pstChnAttr->u32Height < u32MinHeight)) {
+		CVI_TRACE_VPSS(CVI_DBG_ERR, "Grp(%d) Chn(%d) u32Width(%d) or u32Height(%d) too small\n"
+			, VpssGrp, VpssChn, pstChnAttr->u32Width, pstChnAttr->u32Height);
+		return CVI_ERR_VPSS_ILLEGAL_PARAM;
+	}
 
 	if (!memcmp(&vpssCtx[VpssGrp]->stChnCfgs[VpssChn].stChnAttr, pstChnAttr, sizeof(*pstChnAttr))) {
 		CVI_TRACE_VPSS(CVI_DBG_INFO, "Grp(%d) Chn(%d) attr not changed\n", VpssGrp, VpssChn);
@@ -5225,28 +5033,25 @@ VPSS_MODE_E vpss_get_mode(void)
 	return stVPSSMode.enMode;
 }
 
-CVI_VOID vpss_set_mlv_info(CVI_U8 snr_num, struct mlv_wrap_i_s *p_m_lv_i)
+CVI_VOID vpss_set_mlv_info(CVI_U8 snr_num, struct mlv_i_s *p_m_lv_i)
 {
 	if (snr_num >= ARRAY_SIZE(g_mlv_i)) {
 		CVI_TRACE_VPSS(CVI_DBG_INFO, "snr_num(%d) out of range\n", snr_num);
 		return;
 	}
-	g_mlv_i[snr_num].mlv_i.mlv_i_level = p_m_lv_i->mlv_i.mlv_i_level;
-	g_mlv_i[snr_num].dci_lv = p_m_lv_i->dci_lv;
-	memcpy(g_mlv_i[snr_num].mlv_i.mlv_i_table, p_m_lv_i->mlv_i.mlv_i_table,
-	      sizeof(g_mlv_i[snr_num].mlv_i.mlv_i_table));
+
+	g_mlv_i[snr_num].mlv_i_level = p_m_lv_i->mlv_i_level;
+	memcpy(g_mlv_i[snr_num].mlv_i_table, p_m_lv_i->mlv_i_table, sizeof(g_mlv_i[snr_num].mlv_i_table));
 }
 
-CVI_VOID vpss_get_mlv_info(CVI_U8 snr_num, struct mlv_wrap_i_s *p_m_lv_i)
+CVI_VOID vpss_get_mlv_info(CVI_U8 snr_num, struct mlv_i_s *p_m_lv_i)
 {
 	if (snr_num >= ARRAY_SIZE(g_mlv_i)) {
 		CVI_TRACE_VPSS(CVI_DBG_ERR, "snr_num(%d) out of range\n", snr_num);
 		return;
 	}
-	p_m_lv_i->mlv_i.mlv_i_level = g_mlv_i[snr_num].mlv_i.mlv_i_level;
-	p_m_lv_i->dci_lv = g_mlv_i[snr_num].dci_lv;
-	memcpy(p_m_lv_i->mlv_i.mlv_i_table, g_mlv_i[snr_num].mlv_i.mlv_i_table,
-	      sizeof(g_mlv_i[snr_num].mlv_i.mlv_i_table));
+	p_m_lv_i->mlv_i_level = g_mlv_i[snr_num].mlv_i_level;
+	memcpy(p_m_lv_i->mlv_i_table, g_mlv_i[snr_num].mlv_i_table, sizeof(g_mlv_i[snr_num].mlv_i_table));
 }
 
 CVI_VOID vpss_set_isp_bypassfrm(CVI_U8 snr_num, CVI_U8 bypass_frm)

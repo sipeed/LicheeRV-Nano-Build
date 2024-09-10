@@ -1,6 +1,5 @@
 soph_vi-objs += chip/$(CHIP_CODE)/vi.o \
 				chip/$(CHIP_CODE)/vi_ext.o \
-				chip/$(CHIP_CODE)/cmdq.o \
 				chip/$(CHIP_CODE)/vi_sdk_layer.o \
 				chip/$(CHIP_CODE)/vi_isp_buf_ctrl.o \
 				chip/$(CHIP_CODE)/vi_raw_dump.o \

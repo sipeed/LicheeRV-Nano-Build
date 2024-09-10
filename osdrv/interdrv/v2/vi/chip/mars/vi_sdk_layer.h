@@ -21,8 +21,6 @@ struct cvi_isp_buf {
 /*****************************************************************************
  *  vi function prototype for vi sdk layer
  ****************************************************************************/
-int vi_get_ion_buf(struct cvi_vi_dev *vdev);
-int vi_free_ion_buf(struct cvi_vi_dev *vdev);
 int vi_create_thread(struct cvi_vi_dev *vdev, enum E_VI_TH th_id);
 void vi_destory_thread(struct cvi_vi_dev *vdev, enum E_VI_TH th_id);
 int vi_start_streaming(struct cvi_vi_dev *vdev);

@@ -6,10 +6,10 @@
 extern u32 vpss_log_lv;
 
 #define CVI_DBG_ERR        1   /* error conditions                     */
-#define CVI_DBG_WARN       2   /* warning conditions                   */
-#define CVI_DBG_NOTICE     3   /* normal but significant condition     */
-#define CVI_DBG_INFO       4   /* informational                        */
-#define CVI_DBG_DEBUG      5   /* debug-level messages                 */
+#define CVI_DBG_WARN       3   /* warning conditions                   */
+#define CVI_DBG_NOTICE     7   /* normal but significant condition     */
+#define CVI_DBG_INFO       0xf   /* informational                        */
+#define CVI_DBG_DEBUG      0xff   /* debug-level messages                 */
 
 #if defined(CONFIG_CVI_LOG)
 #define CVI_TRACE_VPSS(level, fmt, ...) \

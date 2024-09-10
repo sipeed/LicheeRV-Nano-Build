@@ -35,7 +35,8 @@
 #include "sclr_test.h"
 
 
-u32 vpss_log_lv = CVI_DBG_WARN;
+//u32 vpss_log_lv = CVI_DBG_WARN;
+u32 vpss_log_lv = 0;
 int single_vb;
 int debug;
 int vip_clk_freq;
@@ -311,7 +312,6 @@ CVI_VOID vpss_img_sb_qbuf(struct cvi_img_vdev *idev, struct cvi_buffer *buf, str
 	}
 }
 
-//#define CONFIG_TILE_MODE
 #if defined(CONFIG_TILE_MODE)
 static void img_left_tile_cfg(struct cvi_img_vdev *idev, bool sc_need_check[])
 {
@@ -381,7 +381,6 @@ static void cvi_img_device_run(struct cvi_img_vdev *idev, bool sc_need_check[])
 {
 	struct cvi_vip_dev *bdev = NULL;
 	u8 i;
-	bool is_left_tile = false;
 	struct sclr_top_cfg *top_cfg = sclr_top_get_cfg();
 	struct sclr_img_in_sb_cfg *img_sb_cfg = &idev->img_sb_cfg;
 
@@ -392,26 +391,22 @@ static void cvi_img_device_run(struct cvi_img_vdev *idev, bool sc_need_check[])
 	bdev = container_of(idev, struct cvi_vip_dev, img_vdev[idev->dev_idx]);
 
 	// only update hw if not-tile or at left-tile
-	if (!idev->is_tile || !idev->is_work_on_r_tile) {
-		if (!(debug & BIT(2)) && idev->clk)
-			clk_enable(idev->clk);
+	if (!(debug & BIT(2)) && idev->clk)
+		clk_enable(idev->clk);
 
-		cvi_img_update(idev, &idev->vpss_grp_cfg[idev->job_grp]);
-		for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
-			if (sc_need_check[i]) {
-				cvi_sc_device_run(&bdev->sc_vdev[i], idev->is_tile,
-					idev->is_work_on_r_tile,
-					idev->job_grp);
-				top_cfg->sclr_enable[i] = true;
-			} else {
-				if (bdev->sc_vdev[i].img_src == idev->dev_idx)
-					top_cfg->sclr_enable[i] = false;
-			}
+	cvi_img_update(idev, &idev->vpss_grp_cfg[idev->job_grp]);
+	for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
+		if (sc_need_check[i]) {
+			cvi_sc_device_run(&bdev->sc_vdev[i], idev->is_tile, idev->is_work_on_r_tile,
+				idev->job_grp);
+			top_cfg->sclr_enable[i] = true;
+		} else {
+			if (bdev->sc_vdev[i].img_src == idev->dev_idx)
+				top_cfg->sclr_enable[i] = false;
 		}
 	}
 
-	sclr_img_set_dwa_to_sclr_sb(idev->img_type, img_sb_cfg->sb_mode,
-		img_sb_cfg->sb_size, img_sb_cfg->sb_nb);
+	sclr_img_set_dwa_to_sclr_sb(idev->img_type, img_sb_cfg->sb_mode, img_sb_cfg->sb_size, img_sb_cfg->sb_nb);
 
 	if (img_sb_cfg->sb_mode) {
 		CVI_TRACE_VPSS(CVI_DBG_DEBUG, "update img-sbm-buf: 0x%llx-0x%llx-0x%llx\n",
@@ -419,8 +414,7 @@ static void cvi_img_device_run(struct cvi_img_vdev *idev, bool sc_need_check[])
 				(unsigned long long)idev->sb_phy_addr[1],
 				(unsigned long long)idev->sb_phy_addr[2]);
 
-		sclr_img_set_addr(idev->img_type, idev->sb_phy_addr[0],
-			idev->sb_phy_addr[1], idev->sb_phy_addr[2]);
+		sclr_img_set_addr(idev->img_type, idev->sb_phy_addr[0], idev->sb_phy_addr[1], idev->sb_phy_addr[2]);
 	} else if (!idev->is_online_from_isp) {
 		struct vpss_img_buffer *b = cvi_vip_next_buf((struct cvi_base_vdev *)idev);
 
@@ -440,52 +434,15 @@ static void cvi_img_device_run(struct cvi_img_vdev *idev, bool sc_need_check[])
 	idev->job_flags |= TRANS_RUNNING;
 	//spin_unlock_irqrestore(&dev->job_lock, flags);
 
-	if (idev->is_tile) {
-		is_left_tile = !idev->is_work_on_r_tile;
-		if (!idev->is_work_on_r_tile) {
-			idev->tile_mode = 0;
-			for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
-				if (!sc_need_check[i])
-					continue;
-				bdev->sc_vdev[i].tile_mode = sclr_tile_cal_size(i,
-					idev->is_online_from_isp,
-					&idev->post_para);
-				idev->tile_mode |= bdev->sc_vdev[i].tile_mode;
-			}
-			if (!(idev->tile_mode & SCL_TILE_LEFT)) {
-				CVI_TRACE_VPSS(CVI_DBG_INFO, "Only right tile.\n");
-				idev->is_work_on_r_tile = true;
-			}
-			if (!(idev->tile_mode & SCL_TILE_RIGHT))
-				CVI_TRACE_VPSS(CVI_DBG_INFO, "Only left tile.\n");
-		}
-		if (idev->tile_mode & SCL_TILE_LEFT)
-			img_left_tile_cfg(idev, sc_need_check);
-		else if (idev->tile_mode & SCL_TILE_RIGHT)
-			img_right_tile_cfg(idev, sc_need_check);
-
-		if (debug & BIT(1)) {
-			idev->tile_mode = SCL_TILE_LEFT;
-			for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
-				if (!sc_need_check[i])
-					continue;
-				bdev->sc_vdev[i].tile_mode = SCL_TILE_LEFT;
-			}
-		}
-	}
-
-
 	sclr_img_checksum_en(idev->img_type, true);
 
 	sclr_top_set_cfg(top_cfg);
-	if (!idev->is_tile || is_left_tile)
-		ktime_get_ts64(&idev->ts_start);
+	ktime_get_ts64(&idev->ts_start);
 
 	if (!bdev->disp_online)
 		sclr_img_start(idev->img_type);
 
-	CVI_TRACE_VPSS(CVI_DBG_WARN, "****img(%d) grp(%d) start****\n",
-		idev->dev_idx, idev->job_grp);
+	CVI_TRACE_VPSS(CVI_DBG_WARN, "****img(%d) grp(%d) start****\n", idev->dev_idx, idev->job_grp);
 }
 
 u8 _gop_get_bpp(enum sclr_gop_format fmt)
@@ -624,25 +581,25 @@ bool cvi_vip_online_check_sc_rdy(struct cvi_img_vdev *idev, u8 grp_id)
 	u8 i, workq_num;
 	bool sc_enable = false;
 	bool sc_ready = false;
+	struct cvi_img_vdev tmp_idev;
+
+	bdev = container_of(idev, struct cvi_vip_dev, img_vdev[idev->dev_idx]);
+	tmp_idev = *idev;
+	tmp_idev.job_grp = grp_id;	// snr_num
+	cvi_img_get_sc_bound(&tmp_idev, sc_need_check);
 
 	//check stream on
 	if (!atomic_read(&idev->is_streaming)) {
 		return false;
 	}
-
-	bdev = container_of(idev, struct cvi_vip_dev, img_vdev[idev->dev_idx]);
-
-	spin_lock_irqsave(&idev->job_lock, flags_job);
-	idev->job_grp = grp_id;	// snr_num
-	cvi_img_get_sc_bound(idev, sc_need_check);
-
 	for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
 		if (!sc_need_check[i])
 			continue;
 		if (!atomic_read(&bdev->sc_vdev[i].is_streaming))
-			goto job_unlock;
+			return false;
 	}
 
+	spin_lock_irqsave(&idev->job_lock, flags_job);
 	if (!cvi_vip_job_is_queued(idev)) {
 		sc_ready = true;
 		goto job_unlock;
@@ -721,17 +678,6 @@ int cvi_vip_try_schedule(struct cvi_img_vdev *idev, u8 grp_id)
 	bool sc_need_check[CVI_VIP_SC_MAX] = { [0 ... CVI_VIP_SC_MAX - 1] = false };
 	bool sc_locked[CVI_VIP_SC_MAX] = { [0 ... CVI_VIP_SC_MAX - 1] = false };
 	bool sc_enable = false;
-	bool tile = false;
-
-	#ifdef  __SOC_MARS__
-	/* sc_d, sc_v1, sc_v2, sc_v3 */
-	int sc_max_w[VPSS_MAX_PHY_CHN_NUM] = {SC_D_MAX_LIMIT, SC_V1_MAX_LIMIT,
-			SC_V2_MAX_LIMIT, SC_V3_MAX_LIMIT};
-	#else
-	/* sc_d, sc_v1, sc_v2 */
-	int sc_max_w[VPSS_MAX_PHY_CHN_NUM] = {SC_D_MAX_LIMIT, SC_V1_MAX_LIMIT,
-			SC_V2_MAX_LIMIT};
-	#endif
 
 	//CVI_TRACE_VPSS(CVI_DBG_DEBUG, "img(%d:%d:%d), grp_id=%d, check_img_buffer=%d\n",
 	//		idev->dev_idx, idev->img_type, idev->input_type, grp_id, check_img_buffer);
@@ -765,20 +711,6 @@ int cvi_vip_try_schedule(struct cvi_img_vdev *idev, u8 grp_id)
 	idev->job_grp = grp_id;	// snr_num
 	cvi_img_get_sc_bound(idev, sc_need_check);
 
-	tile = (idev->vpss_grp_cfg[grp_id].crop.width > SCL_MAX_WIDTH) ||
-			idev->post_para.is_tile;
-
-	for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
-		if ((bdev->sc_vdev[i].vpss_chn_cfg[grp_id].dst_rect.width > sc_max_w[i])
-			&& sc_need_check[i] && !idev->is_online_from_isp) {
-			tile = true;
-			CVI_TRACE_VPSS(CVI_DBG_INFO,
-				"sc-%d chnattr.w:%d > sc_max:%d ,go to tile mode\n", i,
-				bdev->sc_vdev[i].vpss_chn_cfg[grp_id].dst_rect.width,
-				sc_max_w[i]);
-		}
-	}
-
 	// check sc's queue if bounding
 	for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
 		if (!sc_need_check[i])
@@ -803,7 +735,7 @@ int cvi_vip_try_schedule(struct cvi_img_vdev *idev, u8 grp_id)
 			vpss_notify_wkup_evt(idev->dev_idx);
 			goto sc_unlock;
 		}
-		if ((bdev->sc_vdev[i].num_rdy[grp_id] == 0) && !idev->is_tile) {
+		if (bdev->sc_vdev[i].num_rdy[grp_id] == 0) {
 			if (idev->is_online_from_isp) {
 				atomic_cmpxchg(&bdev->sc_vdev[i].buf_empty[grp_id], 0, 1);
 				if (debug & BIT(3))
@@ -818,21 +750,8 @@ int cvi_vip_try_schedule(struct cvi_img_vdev *idev, u8 grp_id)
 		goto img_unlock;
 	}
 
-	if (tile && sc_need_check[CVI_VIP_SC_D] && bdev->disp_online) {
-		CVI_TRACE_VPSS(CVI_DBG_WARN, "tile can't work if disp online.\n");
-		goto sc_unlock;
-	}
-
 	// job status update
-	idev->is_tile = idev->is_online_from_isp ? false : tile;
-	CVI_TRACE_VPSS(CVI_DBG_WARN, "grp_id:%d  tile mode:%d.\n",grp_id, tile);
-
-	if (idev->is_tile) {
-		if (idev->is_online_from_isp)
-			idev->is_work_on_r_tile = !idev->post_para.is_left_tile;
-		else
-			idev->is_work_on_r_tile ^= true;
-	}
+	idev->is_tile = false;
 
 	for (i = CVI_VIP_SC_D; i < CVI_VIP_SC_MAX; ++i) {
 		if (!sc_locked[i])
@@ -947,12 +866,6 @@ void cvi_vip_job_finish(struct cvi_img_vdev *idev)
 
 	idev->job_flags &= ~(TRANS_QUEUED);
 
-	if (!idev->is_online_from_isp) {
-		if (idev->tile_mode & SCL_TILE_RIGHT) {
-			cvi_vip_try_schedule(idev, 0);
-		}
-	}
-
 	if (idev->is_online_from_isp && idev->isp_triggered) {
 		tasklet_hi_schedule(&idev->job_work);
 	}
@@ -1060,6 +973,7 @@ int vpss_core_cb(void *dev, enum ENUM_MODULES_ID caller, u32 cmd, void *arg)
 	{
 		struct sc_cfg_cb *post_para = (struct sc_cfg_cb *)arg;
 
+		vpss_set_mlv_info(post_para->snr_num, &post_para->m_lv_i);
 		if (single_vb == 1) {
 			post_para->bypass_num = 0;
 		}

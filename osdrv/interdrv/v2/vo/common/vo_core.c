@@ -168,7 +168,7 @@ static int vo_core_probe(struct platform_device *pdev)
 			/* IP register base address */
 			res = platform_get_resource(pdev, IORESOURCE_MEM, i);
 			dev->reg_base[i] = devm_ioremap_resource(&pdev->dev, res);
-			CVI_TRACE_VO(CVI_DBG_INFO, "res-reg: start: 0x%llx, end: 0x%llx, virt-addr(%p).\n",
+			vo_pr(VO_INFO, "res-reg: start: 0x%llx, end: 0x%llx, virt-addr(%px).\n",
 					res->start, res->end, dev->reg_base[i]);
 
 			if (IS_ERR(dev->reg_base)) {
@@ -184,7 +184,7 @@ static int vo_core_probe(struct platform_device *pdev)
 			dev_err(&pdev->dev, "No IRQ resource for %s\n", CVI_VO_IRQ_NAME);
 			return -ENODEV;
 		}
-		CVI_TRACE_VO(CVI_DBG_INFO, "irq(%d) for %s get from platform driver.\n",
+		vo_pr(VO_INFO, "irq(%d) for %s get from platform driver.\n",
 				dev->irq_num, CVI_VO_IRQ_NAME);
 #endif
 
@@ -261,7 +261,7 @@ static int vo_core_remove(struct platform_device *pdev)
 	dev_set_drvdata(&pdev->dev, NULL);
 
 err_destroy_instance:
-	CVI_TRACE_VO(CVI_DBG_INFO, "%s -\n", __func__);
+	vo_pr(VO_INFO, "%s -\n", __func__);
 
 	return ret;
 }

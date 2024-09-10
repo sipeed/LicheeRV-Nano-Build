@@ -37,7 +37,7 @@ extern struct cvi_vo_ctx *gVoCtx;
 static inline CVI_S32 CHECK_VO_LAYER_DISABLE(VO_LAYER VoLayer)
 {
 	if (gVoCtx->is_layer_enable[VoLayer]) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) already enabled.\n", VoLayer);
+		vo_pr(VO_ERR, "VoLayer(%d) already enabled.\n", VoLayer);
 		return CVI_ERR_VO_VIDEO_NOT_DISABLED;
 	}
 
@@ -48,7 +48,7 @@ static inline CVI_S32 CHECK_VO_LAYER_DISABLE(VO_LAYER VoLayer)
 static inline CVI_S32 CHECK_VO_LAYER_VALID(VO_LAYER VoLayer)
 {
 	if (VoLayer >= VO_MAX_LAYER_NUM) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) invalid.\n", VoLayer);
+		vo_pr(VO_ERR, "VoLayer(%d) invalid.\n", VoLayer);
 		return CVI_ERR_VO_INVALID_LAYERID;
 	}
 
@@ -59,7 +59,7 @@ static inline CVI_S32 CHECK_VO_LAYER_ENABLE(VO_LAYER VoLayer)
 {
 
 	if (!gVoCtx->is_layer_enable[VoLayer]) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) not enable.\n", VoLayer);
+		vo_pr(VO_ERR, "VoLayer(%d) not enable.\n", VoLayer);
 		return CVI_ERR_VO_VIDEO_NOT_ENABLED;
 	}
 
@@ -69,7 +69,7 @@ static inline CVI_S32 CHECK_VO_LAYER_ENABLE(VO_LAYER VoLayer)
 static inline CVI_S32 CHECK_VO_DEV_VALID(VO_DEV VoDev)
 {
 	if ((VoDev >= VO_MAX_DEV_NUM) || (VoDev < 0)) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "VoDev(%d) invalid.\n", VoDev);
+		vo_pr(VO_ERR, "VoDev(%d) invalid.\n", VoDev);
 		return CVI_ERR_VO_INVALID_DEVID;
 	}
 
@@ -78,11 +78,11 @@ static inline CVI_S32 CHECK_VO_DEV_VALID(VO_DEV VoDev)
 static inline CVI_S32 CHECK_VO_CHN_VALID(VO_LAYER VoLayer, VO_CHN VoChn)
 {
 	if ((VoLayer >= VO_MAX_LAYER_NUM) || (VoLayer < 0)) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) invalid.\n", VoLayer);
+		vo_pr(VO_ERR, "VoLayer(%d) invalid.\n", VoLayer);
 		return CVI_ERR_VO_INVALID_LAYERID;
 	}
 	if ((VoChn >= VO_MAX_CHN_NUM) || (VoChn < 0)) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "VoChn(%d) invalid.\n", VoChn);
+		vo_pr(VO_ERR, "VoChn(%d) invalid.\n", VoChn);
 		return CVI_ERR_VO_INVALID_CHNID;
 	}
 
@@ -92,7 +92,7 @@ static inline CVI_S32 CHECK_VO_CHN_VALID(VO_LAYER VoLayer, VO_CHN VoChn)
 static inline CVI_S32 CHECK_VO_CHN_ENABLE(VO_LAYER VoLayer, VO_CHN VoChn)
 {
 	if (!gVoCtx->is_chn_enable[VoLayer][VoChn]) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "VoLayer(%d) VoChn(%d) isn't enabled yet.\n", VoLayer, VoChn);
+		vo_pr(VO_ERR, "VoLayer(%d) VoChn(%d) isn't enabled yet.\n", VoLayer, VoChn);
 		return CVI_ERR_VO_CHN_NOT_ENABLED;
 	}
 
@@ -105,7 +105,7 @@ static inline CVI_S32 MOD_CHECK_NULL_PTR(MOD_ID_E mod, const void *ptr)
 		return CVI_FAILURE;
 
 	if (!ptr) {
-		CVI_TRACE_VO(CVI_DBG_ERR, "NULL pointer\n");
+		vo_pr(VO_ERR, "NULL pointer\n");
 		return CVI_ERR_VO_NULL_PTR;
 	}
 	return CVI_SUCCESS;
