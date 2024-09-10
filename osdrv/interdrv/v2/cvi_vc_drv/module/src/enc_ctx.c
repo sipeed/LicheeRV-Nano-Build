@@ -1023,7 +1023,7 @@ static CVI_S32 vidEnc_enc_one_pic(CVI_VOID *ctx,
 	if (pEncCtx->base.rcMode <= RC_MODE_AVBR) {
 		if (blk) {
 			pPicCfg->picMotionLevel = blk->buf.motion_lv;
-			pPicCfg->picDciLv = blk->buf.dci_lv;
+			pPicCfg->picDciLv = 0;
 			pPicCfg->picMotionMap = mtable;
 			pPicCfg->picMotionMapSize = MO_TBL_SIZE;
 			memcpy(mtable, blk->buf.motion_table, MO_TBL_SIZE);
