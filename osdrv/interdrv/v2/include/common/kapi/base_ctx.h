@@ -78,11 +78,7 @@ typedef uint64_t VB_BLK;
 		(var) = (tvar))
 #endif
 
-#ifdef WANT_VI_MOTION_LEVEL_CALC
 #define MO_TBL_SIZE 2048
-#else
-#define MO_TBL_SIZE 256
-#endif
 
 struct mlv_i_s {
 	u8 mlv_i_level;
@@ -91,10 +87,8 @@ struct mlv_i_s {
 
 struct mlv_wrap_i_s {
 	struct mlv_i_s mlv_i;
-#ifdef WANT_VI_MOTION_LEVEL_CALC
 	u32 dci_lv;
 	u8 raw_num;
-#endif
 };
 
 struct mod_ctx_s {

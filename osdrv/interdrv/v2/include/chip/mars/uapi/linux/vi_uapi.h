@@ -184,11 +184,7 @@ struct vi_event {
 #endif
 };
 
-#ifdef WANT_VI_MOTION_LEVEL_CALC
 #define MO_TBL_SIZE 2048
-#else
-#define MO_TBL_SIZE 256
-#endif
 
 struct mlv_info_s {
 	__u8	sensor_num;
