@@ -35,8 +35,7 @@
 #include "sclr_test.h"
 
 
-//u32 vpss_log_lv = CVI_DBG_WARN;
-u32 vpss_log_lv = 0;
+u32 vpss_log_lv = CVI_DBG_WARN;
 int single_vb;
 int debug;
 int vip_clk_freq;

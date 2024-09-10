@@ -52,8 +52,7 @@
 /*******************************************************
  *  Global variables
  ******************************************************/
-//u32 vi_log_lv = VI_ERR | VI_WARN | VI_NOTICE | VI_INFO | VI_DBG;
-u32 vi_log_lv = 0;
+u32 vi_log_lv = VI_ERR | VI_WARN | VI_NOTICE | VI_INFO | VI_DBG;
 module_param(vi_log_lv, int, 0644);
 
 #ifdef PORTING_TEST //test only

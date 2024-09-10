@@ -43,8 +43,7 @@
 /*******************************************************
  *  Global variables
  ******************************************************/
-//u32 vo_log_lv = CVI_DBG_WARN;
-u32 vo_log_lv = 0;
+u32 vo_log_lv = CVI_DBG_WARN;
 int smooth;
 int debug;
 int job_init;
