@@ -283,7 +283,7 @@ static void touch_updata(u8 idx,u8 event)
         input_mt_report_slot_state(dev, MT_TOOL_FINGER, 1);
         input_report_abs(dev, ABS_MT_TRACKING_ID, rep_frame->pos_info[idx].pos_id);
         input_report_abs(dev, ABS_MT_POSITION_X, rep_frame->pos_info[idx].pos_x);
-        input_report_abs(dev, ABS_MT_POSITION_Y, rep_frame->pos_info[idx].pos_y+25);
+        input_report_abs(dev, ABS_MT_POSITION_Y, rep_frame->pos_info[idx].pos_y);
         input_report_abs(dev, ABS_MT_TOUCH_MAJOR, zpress>>3);
         input_report_abs(dev, ABS_MT_WIDTH_MAJOR, zpress>>3);
         input_report_abs(dev, ABS_MT_PRESSURE, zpress);

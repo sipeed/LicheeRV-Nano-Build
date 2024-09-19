@@ -8,7 +8,8 @@ then
 	then
 		echo "load cst7xx touchscreen driver"
 		insmod /mnt/system/ko/hynitron_touch_new.ko
-	else
+	elif [ "$panel_value" = "st7701_hd228001c31" ]
+	then
 		echo "load cst3xx touchscreen driver"
 		insmod /mnt/system/ko/hynitron_touch.ko
 	fi
