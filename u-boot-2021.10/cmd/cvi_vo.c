@@ -225,7 +225,7 @@ static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const ar
 			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_480x854;
 			panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_480x854;
 			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x854);
-		} else if (strcmp(panel_name,"MaixCam_Pro") == 0) { // 2.4 inch // g
+		} else if (strcmp(panel_name,"st7701_lct024bsi20") == 0) { // 2.4 inch // g
 			panel_desc.panel_name = "D240SI31";
 			panel_desc.dev_cfg = &dev_cfg_d240si31;
 			panel_desc.hs_timing_cfg = &hs_timing_cfg_d240si31;		// g
