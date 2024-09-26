@@ -4,7 +4,7 @@ if [ "$1" = "start" ]
 then
 	. /etc/profile
 	panel_value=$(grep '^panel=' /boot/uEnv.txt | cut -d '=' -f 2)
-	if [ "$panel_value" = "MaixCam_Pro" ]
+	if [ "$panel_value" = "st7701_lct024bsi20" ]
 	then
 		echo "load cst7xx touchscreen driver"
 		insmod /mnt/system/ko/hynitron_touch_new.ko
