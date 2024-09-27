@@ -1,0 +1,4 @@
+config BR2_PACKAGE_TAILSCALE_RISCV64
+	bool "tailscale-riscv64"
+	help
+	  tailscale for riscv64
