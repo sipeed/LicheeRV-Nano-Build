@@ -338,8 +338,9 @@ int is_file_exist(char* name);
 #endif
 int aicbsp_resv_mem_init(void);
 int aicbsp_resv_mem_deinit(void);
+extern char* aic_default_fw_path;
 
-#define AICBSP_FW_PATH              CONFIG_AIC_FW_PATH
+#define AICBSP_FW_PATH              aic_default_fw_path
 #define AICBSP_FW_PATH_MAX          200
 
 #define RAM_FMAC_FW_ADDR                    0x00120000

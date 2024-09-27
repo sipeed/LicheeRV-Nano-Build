@@ -54,9 +54,9 @@ static bool aicbsp_load_fw_in_fdrv = false;
 #define FW_PATH_MAX 200
 
 //#ifdef CONFIG_PLATFORM_UBUNTU
-//static const char* aic_default_fw_path = "/lib/firmware/aic8800_sdio";
+char* aic_default_fw_path = "/usr/lib/firmware/aic8800_sdio/aic8800";
 //#else
-static const char* aic_default_fw_path = CONFIG_AIC_FW_PATH;
+//static const char* aic_default_fw_path = CONFIG_AIC_FW_PATH;
 //#endif
 char aic_fw_path[FW_PATH_MAX];
 module_param_string(aic_fw_path, aic_fw_path, FW_PATH_MAX, 0660);
@@ -313,6 +313,7 @@ static int aicbsp_sdio_probe(struct sdio_func *func,
 	if(sdiodev->chipid == PRODUCT_ID_AIC8800DC || sdiodev->chipid == PRODUCT_ID_AIC8800DW){
 		dev_set_drvdata(&sdiodev->func_msg->dev, bus_if);
 		printk("the device is PRODUCT_ID_AIC8800DC \n");
+		aic_default_fw_path = "/usr/lib/firmware/aic8800_sdio/aic8800DC";
 	}
 	dev_set_drvdata(&func->dev, bus_if);
 	sdiodev->dev = &func->dev;

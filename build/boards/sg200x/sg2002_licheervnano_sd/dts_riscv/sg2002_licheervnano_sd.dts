@@ -231,12 +231,12 @@
                 reg_names = "core_mem";
                 src-frequency = <375000000>;
                 min-frequency = <400000>; // 400Khz
-                max-frequency = <50000000>; // 50Mhz
+                //max-frequency = <50000000>; // 50Mhz
                 //max-frequency = <45000000>; // 45Mhz
                 //max-frequency = <40000000>; // 40Mhz
                 //max-frequency = <35000000>; // 35Mhz
                 //max-frequency = <30000000>; // 30Mhz
-                //max-frequency = <25000000>; // 25Mhz
+                max-frequency = <25000000>; // 25Mhz
                 //max-frequency = <20000000>; // 20Mhz
                 //max-frequency = <15000000>; // 15Mhz
                 //max-frequency = <10000000>; // 10Mhz
