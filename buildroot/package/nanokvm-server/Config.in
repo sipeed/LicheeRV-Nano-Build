@@ -1,0 +1,5 @@
+config BR2_PACKAGE_NANOKVM_SERVER
+	bool "nanokvm-server"
+	depends on BR2_PACKAGE_HOST_GO_TARGET_ARCH_SUPPORTS
+	help
+	  nanokvm server
