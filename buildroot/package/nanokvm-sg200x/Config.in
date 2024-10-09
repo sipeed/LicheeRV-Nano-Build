@@ -1,4 +1,5 @@
 config BR2_PACKAGE_NANOKVM_SG200X
 	bool "nanokvm-sg200x"
+	select BR2_PACKAGE_NANOKVM_SERVER
 	help
 	  nanokvm web server for sg200x

@@ -18,6 +18,7 @@ define NANOKVM_SG200X_EXTRACT_CMDS
 		$(NANOKVM_SG200X_DL_DIR)/$(NANOKVM_SG200X_SOURCE)
 	mv $(@D)/$(NANOKVM_SG200X_BASE) $(@D)/kvmapp
 	rm -f ${@D}/kvmapp/server/NanoKVM-Server
+	rm -rf ${@D}//kvmapp/server/web/
 endef
 
 define NANOKVM_SG200X_INSTALL_TARGET_CMDS
