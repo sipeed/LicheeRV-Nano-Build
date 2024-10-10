@@ -28,6 +28,9 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	echo -n 720 > $(TARGET_DIR)/kvmapp/kvm/res
 	echo 30 > $(TARGET_DIR)/kvmapp/kvm/fps
 	rm -f $(TARGET_DIR)/kvmapp/system/ko/*.ko
+	if [ "X$(BR2_PACKAGE_TAILSCALE_RISCV64)" != "Xy" ]; then \
+		rm -f $(TARGET_DIR)/kvmapp/system/init.d/S??tailscaled ; \
+	fi
 	mkdir -pv $(TARGET_DIR)/etc/init.d/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(TARGET_DIR)/kvmapp/system/init.d/ $(TARGET_DIR)/etc/init.d/
 	rm -f $(TARGET_DIR)/kvmapp/version

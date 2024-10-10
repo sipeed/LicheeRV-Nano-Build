@@ -37,6 +37,12 @@ define NANOKVM_SERVER_BUILD_CMDS
 endef
 
 define NANOKVM_SERVER_INSTALL_TARGET_CMDS
+	if [ "X$(BR2_PACKAGE_TAILSCALE_RISCV64)" = "Xy" ]; then \
+		rm -f $(TARGET_DIR)/etc/tailscale_disabled ; \
+	else \
+		mkdir -pv $(TARGET_DIR)/etc/ ; \
+		touch $(TARGET_DIR)/etc/tailscale_disabled ; \
+	fi
 	mkdir -pv $(TARGET_DIR)/kvmapp/
 	touch $(TARGET_DIR)/kvmapp/force_dl_lib
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/

@@ -1,0 +1,130 @@
+From 25935d837fc2a36e619e17e26e214bb8c056d949 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Thu, 10 Oct 2024 02:28:33 +0200
+Subject: [PATCH] server: tailscale: add flag to disable
+
+---
+ server/service/network/tailscale.go | 58 +++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
+
+diff --git a/server/service/network/tailscale.go b/server/service/network/tailscale.go
+index 1d390d6..4aaf655 100644
+--- a/server/service/network/tailscale.go
++++ b/server/service/network/tailscale.go
+@@ -20,6 +20,7 @@ import (
+ const (
+ 	TailscalePath  = "/usr/bin/tailscale"
+ 	TailscaledPath = "/usr/sbin/tailscaled"
++	TailscaleDisabledPath = "/etc/tailscale_disabled"
+ )
+ 
+ type TailscaleStatus struct {
+@@ -38,6 +39,11 @@ type TailscaleStatus struct {
+ func (s *Service) InstallTailscale(c *gin.Context) {
+ 	var rsp proto.Response
+ 
++	if disabled := isTailscaleDisabled(); disabled {
++		rsp.OkRsp(c)
++		return
++	}
++
+ 	if exist := isTailscaleExist(); exist {
+ 		rsp.OkRsp(c)
+ 		return
+@@ -96,6 +102,14 @@ func (s *Service) InstallTailscale(c *gin.Context) {
+ func (s *Service) LoginTailscale(c *gin.Context) {
+ 	var rsp proto.Response
+ 
++	if disabled := isTailscaleDisabled(); disabled {
++		rsp.OkRspWithData(c, &proto.LoginTailscaleRsp{
++			Status: "notLogin",
++			Url:    "about:blank",
++		})
++		return
++	}
++
+ 	status, err := getTailscaleStatus()
+ 	if err != nil {
+ 		_ = runTailscale()
+@@ -136,6 +150,11 @@ func (s *Service) LoginTailscale(c *gin.Context) {
+ func (s *Service) LogoutTailscale(c *gin.Context) {
+ 	var rsp proto.Response
+ 
++	if disabled := isTailscaleDisabled(); disabled {
++		rsp.OkRsp(c)
++		return
++	}
++
+ 	cmd := exec.Command("sh", "-c", "tailscale logout")
+ 	err := cmd.Run()
+ 	if err != nil {
+@@ -151,6 +170,12 @@ func (s *Service) GetTailscaleStatus(c *gin.Context) {
+ 	var rsp proto.Response
+ 	var data proto.GetTailscaleStatusRsp
+ 
++	if disabled := isTailscaleDisabled(); disabled {
++		data.Status = "notLogin"
++		rsp.OkRspWithData(c, data)
++		return
++	}
++
+ 	if exist := isTailscaleExist(); !exist {
+ 		data.Status = "notInstall"
+ 		rsp.OkRspWithData(c, data)
+@@ -194,6 +219,13 @@ func (s *Service) UpdateTailscaleStatus(c *gin.Context) {
+ 	var req proto.UpdateTailscaleStatusReq
+ 	var rsp proto.Response
+ 
++	if disabled := isTailscaleDisabled(); disabled {
++		data := &proto.UpdateTailscaleStatusRsp{}
++		data.Status = "running"
++		rsp.OkRspWithData(c, data)
++		return
++	}
++
+ 	if err := proto.ParseFormRequest(c, &req); err != nil {
+ 		rsp.ErrRsp(c, -1, "invalid arguments")
+ 		return
+@@ -228,6 +260,12 @@ func (s *Service) UpdateTailscaleStatus(c *gin.Context) {
+ 	log.Debugf("tailscale %s success", req.Command)
+ }
+ 
++func isTailscaleDisabled() bool {
++	_, err := os.Stat(TailscaleDisabledPath)
++
++	return err == nil
++}
++
+ func isTailscaleExist() bool {
+ 	_, err1 := os.Stat(TailscalePath)
+ 	_, err2 := os.Stat(TailscaledPath)
+@@ -253,6 +291,26 @@ func runTailscale() error {
+ func getTailscaleStatus() (TailscaleStatus, error) {
+ 	var status TailscaleStatus
+ 
++	if disabled := isTailscaleDisabled(); disabled {
++		template := `{
++  "BackendState": "%s",
++  "Self": {
++    "HostName": "%s",
++    "TailscaleIPs": null,
++    "InEngine": false
++  },
++  "CurrentTailnet": null,
++  "ClientVersion": null
++}`
++		hostname, err := os.Hostname()
++		if err != nil {
++			hostname = "localhost"
++		}
++		output := []byte(fmt.Sprintf(template, "NeedsLogin", hostname))
++		err = json.Unmarshal(output, &status)
++		return status, err
++	}
++
+ 	command := "tailscale status --json"
+ 	cmd := exec.Command("sh", "-c", command)
+ 	output, err := cmd.CombinedOutput()
+-- 
+2.34.1
+
