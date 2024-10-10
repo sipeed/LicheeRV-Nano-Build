@@ -27,6 +27,7 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/kvmapp/ $(TARGET_DIR)/kvmapp/
 	echo -n 720 > $(TARGET_DIR)/kvmapp/kvm/res
 	echo 30 > $(TARGET_DIR)/kvmapp/kvm/fps
+	rm -f $(TARGET_DIR)/kvmapp/system/ko/*.ko
 	mkdir -pv $(TARGET_DIR)/etc/init.d/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(TARGET_DIR)/kvmapp/system/init.d/ $(TARGET_DIR)/etc/init.d/
 	rm -f $(TARGET_DIR)/kvmapp/version
