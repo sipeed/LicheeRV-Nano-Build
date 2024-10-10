@@ -37,6 +37,8 @@ define NANOKVM_SERVER_BUILD_CMDS
 endef
 
 define NANOKVM_SERVER_INSTALL_TARGET_CMDS
+	mkdir -pv $(TARGET_DIR)/kvmapp/
+	touch $(TARGET_DIR)/kvmapp/force_dl_lib
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/NanoKVM-Server $(TARGET_DIR)/kvmapp/server/
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/web/
