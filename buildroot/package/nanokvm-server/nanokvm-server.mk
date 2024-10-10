@@ -24,13 +24,15 @@ HOST_COREPACK = $(HOST_NODEJS_BIN_ENV) $(HOST_DIR)/bin/corepack
 
 NANOKVM_SERVER_GOMOD = server
 
-# todo: build web, kvm_stream and kvm_system from source
+# todo: build kvm_stream and kvm_system from source
 define NANOKVM_SERVER_BUILD_CMDS
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
-	GOPROXY=direct $(GO_BIN) mod tidy ; \
-	GOARCH=riscv64 GOOS=linux $(GO_BIN) build ; \
+	GOPROXY=direct $(GO_BIN) mod tidy
+	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
+	GOARCH=riscv64 GOOS=linux $(GO_BIN) build
 	cd $(@D)/web ; \
-	$(HOST_COREPACK) pnpm install ; \
+	$(HOST_COREPACK) pnpm install
+	cd $(@D)/web ; \
 	$(HOST_COREPACK) pnpm build
 endef
 
