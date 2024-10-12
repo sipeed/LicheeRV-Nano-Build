@@ -3,6 +3,7 @@
 #define AXP2101_SLAVE_ADDRESS                            (0x34)
 
 #define XPOWERS_AXP2101_CHIP_ID                          (0x4A)
+#define XPOWERS_AXP2101_CHIP_ID_2                        (0x47)
 
 #define XPOWERS_AXP2101_STATUS1                          (0x00)
 #define XPOWERS_AXP2101_STATUS2                          (0x01)
