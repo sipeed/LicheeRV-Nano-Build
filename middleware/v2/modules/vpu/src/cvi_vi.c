@@ -1466,7 +1466,11 @@ CVI_S32 CVI_VI_EnableChn(VI_PIPE ViPipe, VI_CHN ViChn)
 			pthread_attr_setschedparam(&attr, &param);
 			pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
 
-			pthread_create(&gViDbgTH.vi_dbg_thread, &attr, (void *)vi_dbg_handler, NULL);
+			setenv("VI_DBG_HANDLER_ENABLE", "0", 0);
+			char *value = getenv("VI_DBG_HANDLER_ENABLE");
+			if (atoi(value)) {
+				pthread_create(&gViDbgTH.vi_dbg_thread, &attr, (void *)vi_dbg_handler, NULL);
+			}
 		}
 	}
 
