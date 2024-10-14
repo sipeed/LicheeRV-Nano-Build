@@ -1520,7 +1520,10 @@ CVI_S32 CVI_VI_DisableChn(VI_PIPE ViPipe, VI_CHN ViChn)
 				return CVI_ERR_VI_FAILED_NOT_ENABLED;
 			}
 
-			pthread_join(gViDbgTH.vi_dbg_thread, NULL);
+			char *value = getenv("VI_DBG_HANDLER_ENABLE");
+			if (atoi(value)) {
+				pthread_join(gViDbgTH.vi_dbg_thread, NULL);
+			}
 
 			s32Ret = _cvi_vi_freeIonBuf();
 			if (s32Ret != CVI_SUCCESS) {
