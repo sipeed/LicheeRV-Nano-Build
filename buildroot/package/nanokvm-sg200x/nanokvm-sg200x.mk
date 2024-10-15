@@ -32,6 +32,15 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_MAIXCAM_LIB) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_MAIXCAM_LIB) $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 	fi
+	if [ -e $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/libmaixcam_lib.so -a \
+	     -e $(TARGET_DIR)/kvmapp/kvm_system/kvm_stream -a \
+	   ! -e $(TARGET_DIR)/kvmapp/kvm_stream ]; then \
+		rm -rf $(TARGET_DIR)/kvmapp/jpg_stream/ ; \
+		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_stream/ ; \
+		mv $(TARGET_DIR)/kvmapp/kvm_system/kvm_stream  $(TARGET_DIR)/kvmapp/kvm_stream/ ; \
+		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_stream/dl_lib/ ; \
+		rsync -avpPxH $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ $(TARGET_DIR)/kvmapp/kvm_stream/dl_lib/ ; \
+	fi
 	rm -f $(TARGET_DIR)/kvmapp/system/ko/*.ko
 	if [ "X$(BR2_PACKAGE_TAILSCALE_RISCV64)" != "Xy" ]; then \
 		rm -f $(TARGET_DIR)/kvmapp/system/init.d/S??tailscaled ; \
