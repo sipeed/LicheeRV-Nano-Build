@@ -11,9 +11,52 @@ NANOKVM_SG200X_SITE = https://cdn.sipeed.com/nanokvm
 
 NANOKVM_SG200X_DEPENDENCIES += nanokvm-server
 
-NANOKVM_SG200X_EXT_MIDDLEWARE = ../../../../middleware
-NANOKVM_SG200X_EXT_MAIXCAM_LIB = v2/sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
+NANOKVM_SG200X_EXT_MIDDLEWARE = ../../../../middleware/v2
+NANOKVM_SG200X_EXT_MAIXCAM_LIB = sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
 NANOKVM_SG200X_EXT_OVERLAY = $(BR2_ROOTFS_OVERLAY)
+
+NANOKVM_SG200X_REQUIRED_LIBS = \
+	libae.so \
+	libaf.so \
+	libawb.so \
+	libcvi_bin_isp.so \
+	libcvi_bin.so \
+	libcvi_ive.so \
+	libini.so \
+	libisp_algo.so \
+	libisp.so \
+	libmipi_tx.so \
+	libmisc.so \
+	libraw_dump.so \
+	libsys.so \
+	libvdec.so \
+	libvenc.so
+
+NANOKVM_SG200X_VPU_LIBS = \
+	libosdc.so \
+	libvpu.so \
+	libgdc.so \
+	librgn.so \
+	libvi.so \
+	libvo.so \
+	libvpss.so
+
+NANOKVM_SG200X_UNUSED_LIBS = \
+	libcli.so \
+	libjson-c.so.5 \
+	libcvi_ispd2.so \
+	libaaccomm2.so \
+	libaacdec2.so \
+	libaacenc2.so \
+	libaacsbrdec2.so \
+	libaacsbrenc2.so \
+	libcvi_RES1.so \
+	libcvi_VoiceEngine.so \
+	libcvi_audio.so \
+	libcvi_ssp.so \
+	libcvi_vqe.so \
+	libdnvqe.so \
+	libtinyalsa.so
 
 define NANOKVM_SG200X_EXTRACT_CMDS
 	$(UNZIP) -d $(@D) \
@@ -32,6 +75,18 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_MAIXCAM_LIB) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_MAIXCAM_LIB) $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 	fi
+	for l in $(NANOKVM_SG200X_REQUIRED_LIBS) ; do \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/$$l $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
+	done
+	for l in $(NANOKVM_SG200X_VPU_LIBS) ; do \
+		if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/$$l ]; then \
+			rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/$$l $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
+		fi ; \
+	done
+	for l in $(NANOKVM_SG200X_UNUSED_LIBS) ; do \
+		rm -f $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
+		ln -s libmisc.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
+	done
 	if [ -e $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/libmaixcam_lib.so -a \
 	     -e $(TARGET_DIR)/kvmapp/kvm_system/kvm_stream -a \
 	   ! -e $(TARGET_DIR)/kvmapp/kvm_stream ]; then \
