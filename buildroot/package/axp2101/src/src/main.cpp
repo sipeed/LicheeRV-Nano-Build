@@ -222,6 +222,7 @@ int main(int argc, char* argv[])
     PMU->setPowerKeyPressOffTime(XPOWERS_POWEROFF_4S);
     // Set the button power-on press time
     PMU->setPowerKeyPressOnTime(XPOWERS_POWERON_128MS);
+    PMU->enableLongPressShutdown();
 
     PMU->disableTSPinMeasure();
     PMU->enableVbusVoltageMeasure();

@@ -616,6 +616,7 @@ public:
     virtual void setChargerTerminationCurr(uint8_t opt) = 0;
     virtual void disableDieOverTempDetect(void) = 0;
     virtual void resetGauge(void) = 0;
+    virtual void enableLongPressShutdown(void) = 0;
 
     // PMU PEKEY settings
     /**
