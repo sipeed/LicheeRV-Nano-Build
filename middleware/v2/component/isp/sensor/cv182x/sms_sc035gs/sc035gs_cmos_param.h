@@ -38,14 +38,18 @@ static const SC035GS_MODE_S g_astSC035GS_mode[SC035GS_MODE_NUM] = {
 				.u32Height = 480,
 			},
 		},
-		.f32MaxFps = 120,
-		.f32MinFps = 1.25, /* 515 * 120 / 0xFFFF */
+		.f32MaxFps = 240,
+		.f32MinFps = 0.31, /* 515 * 120 / 0xFFFF */
 		.u32HtsDef = 1136,	// 0x320c/d 036b=878 0470=1136
-		.u32VtsDef = 528,	// 0x320e/f 02ab=683 0210=528
+		.u32VtsDef = 86,	// 0x320e/f 02ab=683 0210=528
+		// .u32VtsDef = 68,	// 0x320e/f 02ab=683 0210=528
+		// .u32VtsDef = 512,	// 0x320e/f 30fps
+		// .u32VtsDef = 256,	// 0x320e/f 60fps
+		// .u32VtsDef = 128,	// 0x320e/f 120fps
 		.stExp[0] = {
 			.u16Min = 1,
-			.u16Max = 677 << 4,// (vts - 6) * 16
-			.u16Def = 400 << 4,
+			.u16Max = 80 << 4,// (vts - 6) * 16
+			.u16Def = 40 << 4,
 			.u16Step = 1,
 		},
 		.stAgain[0] = {
@@ -101,7 +105,7 @@ struct combo_dev_attr_s sc035gs_rx_attr = {
 	.mac_clk = RX_MAC_CLK_600M,
 	.mipi_attr = {
 		.raw_data_type = RAW_DATA_10BIT,
-		.lane_id = {4, 3, 2, -1, -1},
+		.lane_id = {4, 3, -1, -1, -1},
 		.pn_swap = {0, 0, 0, 0, 0},
 		.wdr_mode = CVI_MIPI_WDR_MODE_NONE,
 		.dphy = {
