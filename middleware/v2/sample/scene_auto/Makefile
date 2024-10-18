@@ -34,7 +34,7 @@ LIBS += -lnanomsg
 endif
 
 EXTRA_CFLAGS = $(INCS) $(DEFS)
-EXTRA_LDFLAGS = $(LIBS) -lpthread -lm -lini
+EXTRA_LDFLAGS = $(LIBS) -lpthread -lm -lini -latomic
 
 .PHONY : clean all
 all: $(TARGET)
