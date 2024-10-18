@@ -22,13 +22,13 @@
 
 #define D240SI31_VACT		640
 #define D240SI31_VSA		10
-#define D240SI31_VBP		12
-#define D240SI31_VFP		3
+#define D240SI31_VBP		30
+#define D240SI31_VFP		30
 
 #define D240SI31_HACT		480
 #define D240SI31_HSA		48
-#define D240SI31_HBP		64
-#define D240SI31_HFP		16
+#define D240SI31_HBP		30
+#define D240SI31_HFP		30
 
 #define DXQ_PIXEL_CLK(x) ((x##_VACT + x##_VSA + x##_VBP + x##_VFP) \
 	* (x##_HACT + x##_HSA + x##_HBP + x##_HFP) * 60 / 1000)
