@@ -45,7 +45,7 @@ index fb93bd1..a2868a4 100644
  	}
  
 +	if force {
-+		_ = os.Remove(LibForceDl)
++		_ = os.Remove(libForceDl)
 +	}
 +
  	rsp.OkRsp(c)
@@ -55,7 +55,7 @@ index fb93bd1..a2868a4 100644
  }
  
 +func forceDownloadLib() (bool, error) {
-+	_, err := os.Stat(LibForceDl)
++	_, err := os.Stat(libForceDl)
 +
 +	if err == nil {
 +		return true, nil
@@ -69,18 +69,18 @@ index fb93bd1..a2868a4 100644
 +}
 +
  func isLibExist() (bool, error) {
- 	libPath := fmt.Sprintf("%s/%s", LibDir, LibName)
+ 	libPath := fmt.Sprintf("%s/%s", libDir, libName)
  	_, err := os.Stat(libPath)
 diff --git a/server/service/application/service.go b/server/service/application/service.go
 index dea03c0..1686df0 100644
 --- a/server/service/application/service.go
 +++ b/server/service/application/service.go
 @@ -10,6 +10,7 @@ const (
- 	Backup      = "/root/old"
- 	LibDir      = "/kvmapp/kvm_system/dl_lib"
- 	LibName     = "libmaixcam_lib.so"
-+	LibForceDl  = "/kvmapp/force_dl_lib"
- 	VersionFile = "/kvmapp/version"
+ 	backup      = "/root/old"
+ 	libDir      = "/kvmapp/kvm_system/dl_lib"
+ 	libName     = "libmaixcam_lib.so"
++	libForceDl  = "/kvmapp/force_dl_lib"
+ 	versionFile = "/kvmapp/version"
  )
  
 -- 

@@ -13,12 +13,12 @@ index 1d390d6..4aaf655 100644
 +++ b/server/service/network/tailscale.go
 @@ -20,6 +20,7 @@ import (
  const (
- 	TailscalePath  = "/usr/bin/tailscale"
- 	TailscaledPath = "/usr/sbin/tailscaled"
-+	TailscaleDisabledPath = "/etc/tailscale_disabled"
- )
+ 	tailscalePath  = "/usr/bin/tailscale"
+ 	tailscaledPath = "/usr/sbin/tailscaled"
++	tailscaleDisabledPath = "/etc/tailscale_disabled"
  
- type TailscaleStatus struct {
+ 	backendStateRunning    = "Running"
+ 	backendStateNeedsLogin = "NeedsLogin"
 @@ -38,6 +39,11 @@ type TailscaleStatus struct {
  func (s *Service) InstallTailscale(c *gin.Context) {
  	var rsp proto.Response
@@ -37,7 +37,7 @@ index 1d390d6..4aaf655 100644
  
 +	if disabled := isTailscaleDisabled(); disabled {
 +		rsp.OkRspWithData(c, &proto.LoginTailscaleRsp{
-+			Status: "notLogin",
++			Status: responseStateNeedsLogin,
 +			Url:    "about:blank",
 +		})
 +		return
@@ -63,13 +63,13 @@ index 1d390d6..4aaf655 100644
  	var data proto.GetTailscaleStatusRsp
  
 +	if disabled := isTailscaleDisabled(); disabled {
-+		data.Status = "notLogin"
++		data.Status = responseStateNeedsLogin
 +		rsp.OkRspWithData(c, data)
 +		return
 +	}
 +
  	if exist := isTailscaleExist(); !exist {
- 		data.Status = "notInstall"
+ 		data.Status = responseStateNotInstalled
  		rsp.OkRspWithData(c, data)
 @@ -194,6 +219,13 @@ func (s *Service) UpdateTailscaleStatus(c *gin.Context) {
  	var req proto.UpdateTailscaleStatusReq
@@ -77,7 +77,7 @@ index 1d390d6..4aaf655 100644
  
 +	if disabled := isTailscaleDisabled(); disabled {
 +		data := &proto.UpdateTailscaleStatusRsp{}
-+		data.Status = "running"
++		data.Status = responseStateRunning
 +		rsp.OkRspWithData(c, data)
 +		return
 +	}
@@ -90,14 +90,14 @@ index 1d390d6..4aaf655 100644
  }
  
 +func isTailscaleDisabled() bool {
-+	_, err := os.Stat(TailscaleDisabledPath)
++	_, err := os.Stat(tailscaleDisabledPath)
 +
 +	return err == nil
 +}
 +
  func isTailscaleExist() bool {
- 	_, err1 := os.Stat(TailscalePath)
- 	_, err2 := os.Stat(TailscaledPath)
+ 	_, err1 := os.Stat(tailscalePath)
+ 	_, err2 := os.Stat(tailscaledPath)
 @@ -253,6 +291,26 @@ func runTailscale() error {
  func getTailscaleStatus() (TailscaleStatus, error) {
  	var status TailscaleStatus
@@ -117,7 +117,7 @@ index 1d390d6..4aaf655 100644
 +		if err != nil {
 +			hostname = "localhost"
 +		}
-+		output := []byte(fmt.Sprintf(template, "NeedsLogin", hostname))
++		output := []byte(fmt.Sprintf(template, backendStateNeedsLogin, hostname))
 +		err = json.Unmarshal(output, &status)
 +		return status, err
 +	}
