@@ -12,6 +12,7 @@ NANOKVM_SG200X_SITE = https://cdn.sipeed.com/nanokvm
 NANOKVM_SG200X_DEPENDENCIES += nanokvm-server
 
 NANOKVM_SG200X_EXT_MIDDLEWARE = ../../../../middleware/v2
+NANOKVM_SG200X_EXT_KVM_SYSTEM = sample/kvm_system/kvm_system
 NANOKVM_SG200X_EXT_MAIXCAM_LIB = sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
 NANOKVM_SG200X_EXT_OVERLAY = $(BR2_ROOTFS_OVERLAY)
 
@@ -72,6 +73,9 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/kvmapp/ $(TARGET_DIR)/kvmapp/
 	echo -n 720 > $(TARGET_DIR)/kvmapp/kvm/res
 	echo 30 > $(TARGET_DIR)/kvmapp/kvm/fps
+	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_SYSTEM) ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_SYSTEM) $(TARGET_DIR)/kvmapp/kvm_system/ ; \
+	fi
 	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_MAIXCAM_LIB) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_MAIXCAM_LIB) $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 	fi
