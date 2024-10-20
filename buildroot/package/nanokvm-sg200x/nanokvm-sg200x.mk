@@ -71,8 +71,12 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SG200X_PKGDIR)/overlay/ $(TARGET_DIR)/
 	mkdir -pv $(TARGET_DIR)/kvmapp/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/kvmapp/ $(TARGET_DIR)/kvmapp/
-	echo -n 720 > $(TARGET_DIR)/kvmapp/kvm/res
+	echo 0 > $(TARGET_DIR)/kvmapp/kvm/now_fps
 	echo 30 > $(TARGET_DIR)/kvmapp/kvm/fps
+	echo -n 80 > $(TARGET_DIR)/kvmapp/kvm/qlty
+	echo -n 720 > $(TARGET_DIR)/kvmapp/kvm/res
+	echo mjpeg > $(TARGET_DIR)/kvmapp/kvm/type
+	echo 0 > $(TARGET_DIR)/kvmapp/kvm/state
 	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_SYSTEM) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_SYSTEM) $(TARGET_DIR)/kvmapp/kvm_system/ ; \
 	fi
