@@ -88,6 +88,14 @@ int cvi_board_init(void)
         mmio_write_32(0x030010E0, 0x0); // CMD
         mmio_write_32(0x030010E4, 0x0); // CLK
 
+        // spi2 pinmux
+        // mmio_write_32(0x030010D0, 0x1); // CS
+        // mmio_write_32(0x030010DC, 0x1); // MISO
+        // mmio_write_32(0x030010E0, 0x1); // MOSI
+        // mmio_write_32(0x030010E4, 0x1); // SCK
+        // mmio_write_32(0x030010D8, 0x3); // DC
+        // mmio_write_32(0x03001038, 0x3); // RESET
+
         // uart bluetooth
         mmio_write_32(0x03001070, 0x1); // GPIOA 28 UART1 TX
         mmio_write_32(0x03001074, 0x1); // GPIOA 29 UART1 RX
