@@ -13,6 +13,7 @@ NANOKVM_SG200X_DEPENDENCIES += nanokvm-server
 
 NANOKVM_SG200X_EXT_MIDDLEWARE = ../../../../middleware/v2
 NANOKVM_SG200X_EXT_KVM_SYSTEM = sample/kvm_system/kvm_system
+NANOKVM_SG200X_EXT_KVM_STREAM = sample/kvm_stream/kvm_stream
 NANOKVM_SG200X_EXT_MAIXCAM_LIB = sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
 NANOKVM_SG200X_EXT_OVERLAY = $(BR2_ROOTFS_OVERLAY)
 
@@ -103,6 +104,9 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 		mv $(TARGET_DIR)/kvmapp/kvm_system/kvm_stream  $(TARGET_DIR)/kvmapp/kvm_stream/ ; \
 		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_stream/dl_lib/ ; \
 		rsync -avpPxH $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ $(TARGET_DIR)/kvmapp/kvm_stream/dl_lib/ ; \
+	fi
+	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_STREAM) ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_STREAM) $(TARGET_DIR)/kvmapp/kvm_stream/ ; \
 	fi
 	rm -f $(TARGET_DIR)/kvmapp/system/ko/*.ko
 	if [ "X$(BR2_PACKAGE_TAILSCALE_RISCV64)" != "Xy" ]; then \
