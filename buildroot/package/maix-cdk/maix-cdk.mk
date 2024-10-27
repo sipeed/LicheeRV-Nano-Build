@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-MAIX_CDK_VERSION = be3115270a2cb369a6a16b560cb088777add2a77
+MAIX_CDK_VERSION = 5fff820584c5a520c021e1fdacba557eee456b0b
 MAIX_CDK_SITE = $(call github,sipeed,MaixCDK,$(MAIX_CDK_VERSION))
 
-MAIX_CDK_SAMPLE = camera_display
+MAIX_CDK_SAMPLE = rtsp_demo
 
 MAIX_CDK_DEPENDENCIES =\
 	host-cmake \
@@ -85,23 +85,69 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 endef
 MAIX_CDK_POST_EXTRACT_HOOKS += MAIX_CDK_POST_EXTRACT_FIXUP
 
-# todo: build maixcam_lib from source
 define MAIX_CDK_BUILD_CMDS
 	cd $(@D)/ ; \
 	$(HOST_DIR)/bin/python3 -m pip install -r requirements.txt
 	cd $(@D)/examples/$(MAIX_CDK_SAMPLE)/ ; \
 	$(HOST_DIR)/bin/maixcdk build -p maixcam
+	rm -rf $(@D)/projects/app_classifier/
+	rm -rf $(@D)/projects/app_detector/
+	rm -rf $(@D)/projects/app_self_learn_tracker/
+	rm -rf $(@D)/projects/app_speech/
+	if [ -e $(@D)/distapps.sh -a -e $(@D)/projects/build_all.sh ]; then \
+		chmod +x $(@D)/projects/build_all.sh ; \
+		cd $(@D)/projects/ ; \
+		PATH=$(BR_PATH) ./build_all.sh ; \
+	fi
+	rm -rf $(@D)/examples/bytetrack_demo/
+	rm -rf $(@D)/examples/nn_*/
+	rm -rf $(@D)/examples/rtsp_yolo_demo/
+	if [ -e $(@D)/examples/maix_bm8563/app.yaml ]; then \
+		sed -i s/bm8653/bm8563/g $(@D)/examples/maix_bm8563/app.yaml ; \
+	fi
+	if [ -e $(@D)/examples/i18n/app.yaml ]; then \
+		if grep -q 'id: i18n_demo' $(@D)/examples/i18n/app.yaml ; then \
+			mv $(@D)/examples/i18n $(@D)/examples/i18n_demo ; \
+		fi ; \
+	fi
+	if [ -e $(@D)/examples/peripheral_gpio/app.yaml ]; then \
+		if grep -q 'id: switch_led' $(@D)/examples/peripheral_gpio/app.yaml ; then \
+			mv $(@D)/examples/peripheral_gpio $(@D)/examples/switch_led ; \
+		fi ; \
+	fi
+	if [ -e $(@D)/distapps.sh -a -e $(@D)/test/test_examples/test_cases.sh ]; then \
+		chmod +x $(@D)/test/test_examples/test_cases.sh ; \
+		cd $(@D)/test/test_examples/ ; \
+		PATH=$(BR_PATH) ./test_cases.sh maixcam 0 ; \
+	fi
+	if [ -e $(@D)/distapps.sh ]; then \
+		chmod +x $(@D)/distapps.sh ; \
+		cd $(@D)/ ; \
+		PATH=$(BR_PATH) ./distapps.sh ; \
+	fi
 endef
 
 define MAIX_CDK_INSTALL_TARGET_CMDS
 	if [ ! -e ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/libmaixcam_lib.so ] ; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/components/maixcam_lib/lib/libmaixcam_lib.so ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/ ; \
 	fi
+	if [ -e ${@D}/dist/maixapp/lib -a ! -e ${@D}/dist/maixapp/lib/libmaixcam_lib.so ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/components/maixcam_lib/lib/libmaixcam_lib.so ${@D}/dist/maixapp/lib/ ; \
+	fi
 	mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/libmaixcam_lib.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
-	mkdir -pv $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/
+	mkdir -pv $(TARGET_DIR)/maixapp/lib
 	mkdir -pv $(TARGET_DIR)/maixapp/tmp
-	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/ $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/
+	if [ -e ${@D}/dist/maixapp ]; then \
+		mkdir -pv $(TARGET_DIR)/maixapp/ ; \
+		rsync -r --verbose --links --safe-links --hard-links ${@D}/dist/maixapp/ $(TARGET_DIR)/maixapp/ ; \
+	else \
+		mkdir -pv $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/ $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/ ; \
+		rm -rf $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/dl_lib ; \
+		ln -s ../lib $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/dl_lib ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/ $(TARGET_DIR)/maixapp/lib/ ; \
+	fi
 	#rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_PKGDIR)/overlay/ $(TARGET_DIR)/
 endef
 
