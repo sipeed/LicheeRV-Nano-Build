@@ -234,7 +234,7 @@ public:
 
     ~XPowersAXP2101()
     {
-        log_i("~XPowersAXP2101");
+        // log_i("~XPowersAXP2101");
         deinit();
     }
 
@@ -3045,7 +3045,7 @@ protected:
     {
         int res = 0;
         uint8_t data = 0, value = 0;
-        log_d("%s - HEX:0x%x \n", enable ? "ENABLE" : "DISABLE", opts);
+        // log_d("%s - HEX:0x%x \n", enable ? "ENABLE" : "DISABLE", opts);
         if (opts & 0x0000FF) {
             value = opts & 0xFF;
             // log_d("Write INT0: %x\n", value);

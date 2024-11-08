@@ -7,12 +7,10 @@ OBJ_O = $(patsubst %.cpp,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 
 TARGET = axp2101
 
-DEBUG = -DXPOWERS_NO_ERROR
-
 $(shell mkdir -p $(DIR_BIN))
 
 MSG = -g -O0 -Wall 
-CFLAGS += $(MSG) $(DEBUG)
+CFLAGS += $(MSG)
 
 ${TARGET}:${OBJ_O}
 	$(CXX) $(CFLAGS) $(OBJ_O) -o $@ $(LIB)

@@ -13,6 +13,7 @@
 
 #define I2C_BUS                 (4)
 #define AXP2101_SLAVE_ADDRESS   (0x34)
+#define APP_VERSION             "1.1.0"
 
 int i2c_dev = -1;
 XPowersLibInterface *PMU = NULL;
@@ -44,6 +45,7 @@ static int set_i2c_slave(int file, int addr)
 int main(int argc, char* argv[])
 {
     bool log_enabled = false;
+    bool version_enabled = false;
 
     printf("PMU: Init axp2101 pmu\n");
 
@@ -82,8 +84,19 @@ int main(int argc, char* argv[])
         std::string arg = argv[i];
         if (arg == "--log" || arg == "-l") {
             log_enabled = true;
-            break;
+        } else if (arg == "--version" || arg == "-v") {
+            version_enabled = true;
         }
+        break;
+    }
+
+    if (version_enabled) {
+        std::cout << "version: " << APP_VERSION << std::endl;
+        if (PMU != nullptr) {
+            delete PMU;
+            PMU = NULL;
+        }
+        return 0;
     }
 
     if (log_enabled) {
@@ -223,6 +236,8 @@ int main(int argc, char* argv[])
     // Set the button power-on press time
     PMU->setPowerKeyPressOnTime(XPOWERS_POWERON_128MS);
     PMU->enableLongPressShutdown();
+    PMU->enableIRQ(XPOWERS_AXP2101_PKEY_POSITIVE_IRQ);
+    PMU->enableIRQ(XPOWERS_AXP2101_PKEY_NEGATIVE_IRQ);
 
     PMU->disableTSPinMeasure();
     PMU->enableVbusVoltageMeasure();
