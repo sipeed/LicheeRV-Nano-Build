@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-AXP2101_VERSION = 1.0.0
+AXP2101_VERSION = 1.1.0
 AXP2101_SITE = $(TOPDIR)/package/axp2101/src
 AXP2101_SITE_METHOD = local
 AXP2101_CFLAGS = -Iinclude -IXPowersLib -IXPowersLib/REG -Wall -Wextra
