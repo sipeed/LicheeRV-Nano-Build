@@ -114,7 +114,7 @@ define NANOKVM_SERVER_INSTALL_TARGET_CMDS
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/NanoKVM-Server $(TARGET_DIR)/kvmapp/server/
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/dl_lib/
-	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/dl_lib/ $(TARGET_DIR)/kvmapp/server/dl_lib/
+	rsync -r --verbose --links --safe-links --hard-links ${@D}/server/dl_lib/ $(TARGET_DIR)/kvmapp/server/dl_lib/
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/web/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/web/dist/ $(TARGET_DIR)/kvmapp/server/web/
 endef
