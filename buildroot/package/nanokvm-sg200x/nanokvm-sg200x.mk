@@ -64,8 +64,7 @@ NANOKVM_SG200X_UNUSED_LIBS = \
 NANOKVM_SG200X_DUMMY_LIBS = \
 	libae.so \
 	libaf.so \
-	libawb.so \
-	libisp_algo.so
+	libawb.so
 
 define NANOKVM_SG200X_EXTRACT_CMDS
 	$(UNZIP) -d $(@D) \
@@ -114,11 +113,21 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 			ln -s libcvi_dummy.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
 		done ; \
 	fi
-	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/libcvi_bin_dummy.so ]; then \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/libcvi_bin_dummy.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
-		for l in libcvi_bin_isp.so ; do \
+	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/libcvi_bin_light.so -a \
+	     -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/libisp_light.so ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/libcvi_bin_light.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
+		for l in libcvi_bin.so ; do \
 			rm -f $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
-			ln -s libcvi_bin_dummy.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
+			ln -s libcvi_bin_light.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
+		done ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/libisp_light.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
+		for l in libcvi_bin_isp.so libisp.so ; do \
+			rm -f $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
+			ln -s libisp_light.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
+		done ; \
+		for l in libisp_algo.so ; do \
+			rm -f $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
+			ln -s libmisc.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
 		done ; \
 	fi
 	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_STREAM) ]; then \

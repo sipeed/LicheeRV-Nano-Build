@@ -73,8 +73,7 @@ NANOKVM_SERVER_UNUSED_LIBS = \
 NANOKVM_SERVER_DUMMY_LIBS = \
 	libae.so \
 	libaf.so \
-	libawb.so \
-	libisp_algo.so
+	libawb.so
 
 # todo: build kvm_stream and kvm_system from source
 define NANOKVM_SERVER_BUILD_CMDS
@@ -102,11 +101,21 @@ define NANOKVM_SERVER_BUILD_CMDS
 			ln -s libcvi_dummy.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
 		done ; \
 	fi
-	if [ -e ${@D}/$(NANOKVM_SERVER_EXT_MIDDLEWARE)/lib/libcvi_bin_dummy.so ]; then \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SERVER_EXT_MIDDLEWARE)/lib/libcvi_bin_dummy.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
-		for l in libcvi_bin_isp.so ; do \
+	if [ -e ${@D}/$(NANOKVM_SERVER_EXT_MIDDLEWARE)/lib/libcvi_bin_light.so -a \
+	     -e ${@D}/$(NANOKVM_SERVER_EXT_MIDDLEWARE)/lib/libisp_light.so ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SERVER_EXT_MIDDLEWARE)/lib/libcvi_bin_light.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
+		for l in libcvi_bin.so ; do \
 			rm -f $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
-			ln -s libcvi_bin_dummy.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
+			ln -s libcvi_bin_light.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
+		done ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SERVER_EXT_MIDDLEWARE)/lib/libisp_light.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
+		for l in libcvi_bin_isp.so libisp.so ; do \
+			rm -f $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
+			ln -s libisp_light.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
+		done ; \
+		for l in libisp_algo.so ; do \
+			rm -f $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
+			ln -s libmisc.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/$$l ; \
 		done ; \
 	fi
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
