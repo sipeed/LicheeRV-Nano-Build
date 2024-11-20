@@ -148,6 +148,8 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	fi
 	if [ -e $(TARGET_DIR)/kvmapp/server/dl_lib/libkvm.so ]; then \
 		rm -rf $(TARGET_DIR)/kvmapp/kvm_stream/ ; \
+		rm -rf $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
+		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 	fi
 	rm -f $(TARGET_DIR)/kvmapp/system/ko/*.ko
 	if [ "X$(BR2_PACKAGE_TAILSCALE_RISCV64)" != "Xy" ]; then \
