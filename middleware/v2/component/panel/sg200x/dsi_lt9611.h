@@ -5,7 +5,8 @@
 
 static struct combo_dev_cfg_s dev_cfg_lt9611_1920x1080_60Hz = {
 	.devno = 0,
-	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	// .lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_CLK, MIPI_TX_LANE_1, -1, -1},
 	.lane_pn_swap = {false, false, false, false, false},
 	.output_mode = OUTPUT_MODE_DSI_VIDEO,
 	.video_mode = BURST_MODE,
@@ -27,7 +28,8 @@ static struct combo_dev_cfg_s dev_cfg_lt9611_1920x1080_60Hz = {
 
 static struct combo_dev_cfg_s dev_cfg_lt9611_1920x1080_30Hz = {
 	.devno = 0,
-	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	// .lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_CLK, MIPI_TX_LANE_1, -1, -1},
 	.lane_pn_swap = {false, false, false, false, false},
 	.output_mode = OUTPUT_MODE_DSI_VIDEO,
 	.video_mode = BURST_MODE,
@@ -49,7 +51,8 @@ static struct combo_dev_cfg_s dev_cfg_lt9611_1920x1080_30Hz = {
 
 static struct combo_dev_cfg_s dev_cfg_lt9611_1280x720_60Hz = {
 	.devno = 0,
-	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	// .lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_CLK, MIPI_TX_LANE_1, -1, -1},
 	.lane_pn_swap = {false, false, false, false, false},
 	.output_mode = OUTPUT_MODE_DSI_VIDEO,
 	.video_mode = BURST_MODE,
@@ -71,7 +74,8 @@ static struct combo_dev_cfg_s dev_cfg_lt9611_1280x720_60Hz = {
 
 static struct combo_dev_cfg_s dev_cfg_lt9611_1024x768_60Hz = {
 	.devno = 0,
-	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	// .lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_CLK, MIPI_TX_LANE_1, -1, -1},
 	.lane_pn_swap = {false, false, false, false, false},
 	.output_mode = OUTPUT_MODE_DSI_VIDEO,
 	.video_mode = BURST_MODE,
@@ -93,7 +97,8 @@ static struct combo_dev_cfg_s dev_cfg_lt9611_1024x768_60Hz = {
 
 static struct combo_dev_cfg_s dev_cfg_lt9611_1280x1024_60Hz = {
 	.devno = 0,
-	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	// .lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_CLK, MIPI_TX_LANE_1, -1, -1},
 	.lane_pn_swap = {false, false, false, false, false},
 	.output_mode = OUTPUT_MODE_DSI_VIDEO,
 	.video_mode = BURST_MODE,
@@ -115,7 +120,8 @@ static struct combo_dev_cfg_s dev_cfg_lt9611_1280x1024_60Hz = {
 
 static struct combo_dev_cfg_s dev_cfg_lt9611_1600x1200_60Hz = {
 	.devno = 0,
-	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	// .lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_1, MIPI_TX_LANE_2, MIPI_TX_LANE_CLK, MIPI_TX_LANE_3},
+	.lane_id = {MIPI_TX_LANE_0, MIPI_TX_LANE_CLK, MIPI_TX_LANE_1, -1, -1},
 	.lane_pn_swap = {false, false, false, false, false},
 	.output_mode = OUTPUT_MODE_DSI_VIDEO,
 	.video_mode = BURST_MODE,

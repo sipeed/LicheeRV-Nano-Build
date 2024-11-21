@@ -62,6 +62,7 @@ typedef enum
 	DSI_PANEL_ST7701_HD228001C31_ALT0,
 	DSI_PANEL_ST7789V,
 	DSI_PANEL_ST7785M,
+	DSI_PANEL_D240SI31,
 	DSI_PANEL_MAX
 } DSI_PANEL_MODEL;
 
@@ -129,6 +130,7 @@ static const char* s_panel_model_type_arr[] = {
 	"ST7701_HD228001C31_ALT0",
 	"ST7789V",
 	"ST7785M",
+	"D240SI31",
 };
 
 int dsi_init(int devno, const struct dsc_instr *cmds, int size)
@@ -408,20 +410,20 @@ void SAMPLE_MIPI_SET_PANEL_DESC()
 			g_panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_480x800;
 			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x800);
 			break;
-                case DSI_PANEL_ST7701_HD228001C31:
-                        g_panel_desc.panel_name = "ST7701-368x552";
-                        g_panel_desc.dev_cfg = &dev_cfg_st7701_368x552;
-                        g_panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_368x552;
-                        g_panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_368x552;
-                        g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_368x552);
-                        break;
-	case DSI_PANEL_ST7701_HD228001C31_ALT0:
-                        g_panel_desc.panel_name = "ST7701-368x552-alt0";
-                        g_panel_desc.dev_cfg = &dev_cfg_st7701_368x552_alt0;
-                        g_panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_368x552_alt0;
-                        g_panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_368x552_alt0;
-                        g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_368x552_alt0);
-                        break;
+		case DSI_PANEL_ST7701_HD228001C31:
+			g_panel_desc.panel_name = "ST7701-368x552";
+			g_panel_desc.dev_cfg = &dev_cfg_st7701_368x552;
+			g_panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_368x552;
+			g_panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_368x552;
+			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_368x552);
+			break;
+		case DSI_PANEL_ST7701_HD228001C31_ALT0:
+			g_panel_desc.panel_name = "ST7701-368x552-alt0";
+			g_panel_desc.dev_cfg = &dev_cfg_st7701_368x552_alt0;
+			g_panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_368x552_alt0;
+			g_panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_368x552_alt0;
+			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_368x552_alt0);
+			break;
 		case DSI_PANEL_ST7785M:
 			g_panel_desc.panel_name = "ST77825M-240x320";
 			g_panel_desc.dev_cfg = &dev_cfg_st7785m_240x320;
@@ -430,12 +432,12 @@ void SAMPLE_MIPI_SET_PANEL_DESC()
 			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7785m_240x320);
 			break;
 		case DSI_PANEL_ZCT2133V1:
-                        g_panel_desc.panel_name = "ZCT2133V1-800x1280";
-                        g_panel_desc.dev_cfg = &dev_cfg_zct2133v1_800x1280;
-                        g_panel_desc.hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280;
-                        g_panel_desc.dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280;
-                        g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280);
-                        break;
+			g_panel_desc.panel_name = "ZCT2133V1-800x1280";
+			g_panel_desc.dev_cfg = &dev_cfg_zct2133v1_800x1280;
+			g_panel_desc.hs_timing_cfg = &hs_timing_cfg_zct2133v1_800x1280;
+			g_panel_desc.dsi_init_cmds = dsi_init_cmds_zct2133v1_800x1280;
+			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_zct2133v1_800x1280);
+			break;
 		case DSI_PANEL_HX8399_1080P:
 			g_panel_desc.panel_name = "HX8399_1080x1920";
 			g_panel_desc.dev_cfg = &dev_cfg_hx8399_1080x1920;
@@ -498,6 +500,13 @@ void SAMPLE_MIPI_SET_PANEL_DESC()
 			g_panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_480x854dxq;
 			g_panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_480x854dxq;
 			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_480x854dxq);
+			break;
+		case DSI_PANEL_D240SI31:
+			g_panel_desc.panel_name = "D240SI31";
+			g_panel_desc.dev_cfg = &dev_cfg_d240si31;
+			g_panel_desc.hs_timing_cfg = &hs_timing_cfg_d240si31;
+			g_panel_desc.dsi_init_cmds = dsi_init_cmds_d240si31;
+			g_panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_d240si31);
 			break;
 		case DSI_PANEL_HX8394_EVB:
 		default:
