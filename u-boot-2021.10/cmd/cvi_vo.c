@@ -165,6 +165,119 @@ static void dsi_panel_init(void)
 }
 #endif
 
+static int get_value_from_header(const char *filepath, const char *key, char *buffer, size_t buff_len)
+{
+#if defined(CONFIG_NAND_SUPPORT) || defined(CONFIG_SPI_FLASH)
+    const char *storage = "mmc 0:1"; // 假设 FAT 文件在 mmc 0:1
+	// const char *set_cmd = "mmc dev 0:1";
+#elif defined(CONFIG_EMMC_SUPPORT)
+	const char *storage = "mmc 1:1"; // 假设 FAT 文件在 mmc 1:1
+	// const char *set_cmd = "mmc dev 1:1";
+#else
+	const char *storage = "mmc 0:1";
+	// const char *set_cmd = "mmc dev 0:1";
+#endif
+    char *file_content;
+    char *line, *found_key, *value;
+    uint32_t filesize = 0;
+    int ret;
+
+    // // 清空输出 buffer
+    // memset(buffer, 0, buff_len);
+	// 设置当前 MMC 设备和分区
+    // snprintf(buffer, buff_len, set_cmd);
+    // ret = run_command(buffer, 0);
+    // if (ret) {
+    //     printf("Failed to set MMC device\n");
+    //     return -1;
+    // }
+
+    // 加载文件到固定内存区域 HEADER_ADDR
+    snprintf(buffer, buff_len, "fatload %s %p %s", storage, (void *)HEADER_ADDR, filepath);
+    ret = run_command(buffer, 0);
+    if (ret) {
+        printf("Failed to load file: %s\n", filepath);
+        return -1;
+    }
+
+    // 获取文件大小（存储在环境变量 filesize 中）
+    filesize = env_get_ulong("filesize", 16, 0);
+    if (filesize == 0 || filesize > 0x10000) { // 限制最大文件大小，防止内存溢出
+        printf("Invalid file size for %s\n", filepath);
+        return -1;
+    }
+
+    // 确保文件内容以 NULL 结尾（便于字符串处理）
+    file_content = (char *)HEADER_ADDR;
+    file_content[filesize] = '\0';
+
+    // 查找 key=value 的行
+    line = strtok(file_content, "\n");
+	buffer[0] = 0;
+    while (line) {
+        // 分割 key 和 value
+        char*split = strstr(line, "=");
+		if(split)
+		{
+			char *start = line;
+			while(*(start++) == ' '){}
+			found_key = start - 1;
+			char *end = split;
+			while(*(--end) == ' '){}
+			*(end+1) = '\0';
+			value = "";
+			start = split + 1;
+			while(1)
+			{
+				if (*start == ' ')
+				{
+					++start;
+					continue;
+				}
+				value = start;
+				break;
+			}
+			end = value;
+			while(1)
+			{
+				if(*end == 0 || *end == '\r' || *end == ' ')
+				{
+					*end = 0;
+					break;
+				}
+				if(end >= file_content + filesize)
+					break;
+				++end;
+			}
+
+			// 检查 key 是否匹配
+			if (strcmp(found_key, key) == 0) {
+				// 确保 value 非空并拷贝到输出 buffer
+				int str_len = strlen(value);
+				if(str_len == 0)
+				{
+					buffer[0] = 0;
+					return 0;
+				}
+				else if (str_len < buff_len) {
+					strncpy(buffer, value, buff_len - 1);
+					buffer[str_len] = '\0'; // 确保以 NULL 结尾
+					return 0; // 找到 key 且 value 非空
+				}
+				else
+				{
+					printf("key %s value too long: %s\n", found_key, value);
+					return -1;
+				}
+				break;
+        	}
+		}
+        line = strtok(NULL, "\n");
+    }
+
+    return -2; // 未找到 key 或 value 为空
+}
+
 /***************************************************/
 static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -185,9 +298,12 @@ static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const ar
 	if (*argv[3] == 0 || *endp != 0)
 		return CMD_RET_USAGE;
 	uclass_get_device(UCLASS_VIDEO, 0, &udev);
-
 	char *panel_name = NULL;
-	panel_name = env_get("panel");
+	char buff[255];
+	if(get_value_from_header("board", "panel", buff, sizeof(buff)) == 0)
+		panel_name = buff;
+	else
+		panel_name = env_get("panel");
 	if (panel_name != NULL) {
 		if (strcmp(panel_name,"zct2133v1") == 0) { // 7inch
 			panel_desc.panel_name = "zct2133v1-800x1280";
