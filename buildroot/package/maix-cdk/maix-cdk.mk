@@ -134,8 +134,8 @@ define MAIX_CDK_INSTALL_TARGET_CMDS
 	if [ -e ${@D}/dist/maixapp/lib -a ! -e ${@D}/dist/maixapp/lib/libmaixcam_lib.so ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/components/maixcam_lib/lib/libmaixcam_lib.so ${@D}/dist/maixapp/lib/ ; \
 	fi
-	mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/
-	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/libmaixcam_lib.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
+	#mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/
+	#rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/libmaixcam_lib.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/
 	mkdir -pv $(TARGET_DIR)/maixapp/lib
 	mkdir -pv $(TARGET_DIR)/maixapp/tmp
 	if [ -e ${@D}/dist/maixapp ]; then \
