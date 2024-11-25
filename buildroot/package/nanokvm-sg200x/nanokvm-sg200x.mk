@@ -145,6 +145,7 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	if [ -e ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_VISION) -a \
 	     -e $(TARGET_DIR)/kvmapp/server/dl_lib/libkvm.so ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_VISION) $(TARGET_DIR)/kvmapp/server/dl_lib/ ; \
+		chmod ugo+rx $(TARGET_DIR)/kvmapp/server/dl_lib/libkvm.so ; \
 	fi
 	if [ -e $(TARGET_DIR)/kvmapp/server/dl_lib/libkvm.so ]; then \
 		rm -rf $(TARGET_DIR)/kvmapp/kvm_stream/ ; \
