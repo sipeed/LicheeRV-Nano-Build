@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-MAIX_CDK_VERSION = 5fff820584c5a520c021e1fdacba557eee456b0b
+MAIX_CDK_VERSION = 3aba2fe3fa9de9f638bb9cb34eca0c2e0f5f3813
 MAIX_CDK_SITE = $(call github,sipeed,MaixCDK,$(MAIX_CDK_VERSION))
 
 MAIX_CDK_SAMPLE = rtsp_demo
