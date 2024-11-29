@@ -3,7 +3,14 @@
 if [ "$1" = "start" ]
 then
 	. /etc/profile
-	panel_value=$(grep '^panel=' /boot/uEnv.txt | cut -d '=' -f 2)
+	panel_value=""
+	if [ -e /boot/board ]
+	then
+		panel_value=$(grep '^panel=' /boot/board | cut -d '=' -f 2)
+	elif [ -e /boot/uEnv.txt ]
+	then
+		panel_value=$(grep '^panel=' /boot/uEnv.txt | cut -d '=' -f 2)
+	fi
 	if [ "$panel_value" = "st7701_lct024bsi20" ]
 	then
 		echo "load cst7xx touchscreen driver"

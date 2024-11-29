@@ -13,17 +13,19 @@ then
 		fi
 		echo 0 > $blpwm/enable
 		echo "10000" > ${blpwm}/period # 100KHZ
-		if [ -e /boot/uEnv.txt ]
+		panel_value=""
+		if [ -e /boot/board ]
 		then
-			hd22800=$(cat /boot/uEnv.txt | grep hd228001c31 | wc -l)
-			if [ "${hd22800}" -ne 0 ]
-			then
-				echo "2000" > ${blpwm}/duty_cycle # 20%
-			else
-				echo "9500" > ${blpwm}/duty_cycle
-			fi
+			panel_value=$(grep '^panel=' /boot/board | cut -d '=' -f 2)
+		elif [ -e /boot/uEnv.txt ]
+		then
+			panel_value=$(grep '^panel=' /boot/uEnv.txt | cut -d '=' -f 2)
+		fi
+		if [ "$panel_value" = "st7701_hd228001c31" ]
+		then
+			echo "2000" > ${blpwm}/duty_cycle # 20%
 		else
-			echo "9500" > ${blpwm}/duty_cycle
+			echo "9000" > ${blpwm}/duty_cycle
 		fi
 		echo 1 > $blpwm/enable
 	fi
