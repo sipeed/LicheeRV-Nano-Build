@@ -81,6 +81,9 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 	sed -i s/'^    filename: .*'/'    filename:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    path: .*'/'    path:'/g $(@D)/platforms/maixcam.yaml
 	sed -i 's|^    bin_path: .*|    bin_path: '$(realpath $(TOOLCHAIN_EXTERNAL_BIN))'|g' $(@D)/platforms/maixcam.yaml
+	sed -i 's|COMMAND python |COMMAND '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
+	sed -i 's|COMMAND python3 |COMMAND '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
+	sed -i 's|set.$${python} python3 |set($${python} '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
 endef
 MAIX_CDK_POST_EXTRACT_HOOKS += MAIX_CDK_POST_EXTRACT_FIXUP
 
