@@ -16,7 +16,6 @@ MAIX_CDK_DEPENDENCIES =\
 	host-python-pip \
 	host-python-setuptools
 
-MAIX_CDK_EXT_HOST_TOOLS = ../../../../host-tools
 MAIX_CDK_EXT_MIDDLEWARE = ../../../../middleware
 MAIX_CDK_EXT_MAIXCAM_LIB = sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
 MAIX_CDK_EXT_OSDRV = ../../../../osdrv
@@ -81,7 +80,7 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 	sed -i s/'^    sha256sum: .*'/'    sha256sum:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    filename: .*'/'    filename:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    path: .*'/'    path:'/g $(@D)/platforms/maixcam.yaml
-	sed -i 's|^    bin_path: .*|    bin_path: '$(@D)/$(MAIX_CDK_EXT_HOST_TOOLS)'/gcc/riscv64-linux-musl-x86_64/bin|g' $(@D)/platforms/maixcam.yaml
+	sed -i 's|^    bin_path: .*|    bin_path: '$(realpath $(TOOLCHAIN_EXTERNAL_BIN))'|g' $(@D)/platforms/maixcam.yaml
 endef
 MAIX_CDK_POST_EXTRACT_HOOKS += MAIX_CDK_POST_EXTRACT_FIXUP
 
