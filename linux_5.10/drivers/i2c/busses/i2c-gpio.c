@@ -18,6 +18,20 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
+#include <linux/kernel.h>
+#include <linux/fs.h>
+#include <linux/sysfs.h>
+#include <linux/kobject.h>
+#include <linux/err.h>
+
+#define DEBUG_LOG_TAG 			"[i2c gpio]"
+#define DEBUG_LOG(fmt, ...)		printk(KERN_DEBUG DEBUG_LOG_TAG " " fmt, ##__VA_ARGS__)
+
+static int delay_us = -1;
+volatile int udelay_value = 0;
+struct kobject *udelay_v;
+struct i2c_algo_bit_data *udelay_data = NULL;
+
 struct i2c_gpio_private_data {
 	struct gpio_desc *sda;
 	struct gpio_desc *scl;
@@ -31,6 +45,49 @@ struct i2c_gpio_private_data {
 	u64 scl_irq_data;
 #endif
 };
+
+static void show_freq(void)
+{
+	switch(udelay_data->udelay) {
+	case 0:
+		DEBUG_LOG("Freq max ~ 750KHz for MaixCAM");
+		break;
+	case 1:
+		DEBUG_LOG("Freq 500KHz ~ 308KHz for MaixCAM");
+		break;
+	case 2:
+		DEBUG_LOG("Freq 250KHz");
+		break;
+	case 5:
+		DEBUG_LOG("Freq 100KHz");
+		break;
+	default:
+		DEBUG_LOG("Freq - Unknown");
+		break;
+	}
+}
+
+static ssize_t __udelay_show(struct kobject *kobj,
+                struct kobj_attribute *attr, char *buf)
+{
+    // DEBUG_LOG("Read udelay value: %d\n", udelay_value);
+	show_freq();
+	udelay_value = udelay_data->udelay;
+    return sprintf(buf, "%d", udelay_value);
+}
+
+static ssize_t __udelay_store(struct kobject *kobj,
+                struct kobj_attribute *attr,const char *buf, size_t count)
+{
+	// int old_value = udelay_value;
+    sscanf(buf,"%d",&udelay_value);
+	udelay_data->udelay = udelay_value;
+	// DEBUG_LOG("Write udelay value: %d --> %d\n", old_value, udelay_value);
+	// show_freq();
+    return count;
+}
+
+struct kobj_attribute sysfs_test_attr = __ATTR(udelay_v, 0664, __udelay_show, __udelay_store);
 
 /*
  * Toggle SDA by changing the output value of the pin. This is only
@@ -364,6 +421,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
 	struct device_node *np = dev->of_node;
 	enum gpiod_flags gflags;
 	int ret;
+	struct device *curr_dev;
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
@@ -420,6 +478,9 @@ static int i2c_gpio_probe(struct platform_device *pdev)
 		bit_data->getscl = i2c_gpio_getscl;
 	bit_data->getsda = i2c_gpio_getsda;
 
+	udelay_data = bit_data;
+
+	/* Get udelay from device tree */
 	if (pdata->udelay)
 		bit_data->udelay = pdata->udelay;
 	else if (pdata->scl_is_output_only)
@@ -431,6 +492,17 @@ static int i2c_gpio_probe(struct platform_device *pdev)
 		bit_data->timeout = pdata->timeout;
 	else
 		bit_data->timeout = HZ / 10;		/* 100 ms */
+
+	/* If `insmod ko udelay_value=x` (x>=0) */
+	if (delay_us >= 0) {
+		DEBUG_LOG("Get parameters from insmod: %d\n", delay_us);
+		bit_data->udelay = delay_us;
+	} else {
+		DEBUG_LOG("Get parameters from device tree: %d\n", bit_data->udelay);
+	}
+
+	DEBUG_LOG("delay us: %d\n", bit_data->udelay);
+	show_freq();
 
 	bit_data->data = priv;
 
@@ -464,6 +536,17 @@ static int i2c_gpio_probe(struct platform_device *pdev)
 
 	i2c_gpio_fault_injector_init(pdev);
 
+	/* Add udelay kobj */
+	curr_dev = &pdev->dev;
+	udelay_v = kobject_create_and_add("udelay_value", &curr_dev->kobj);
+	if(sysfs_create_file(udelay_v, &sysfs_test_attr.attr)){
+		DEBUG_LOG("Create sysfs file failed!\n");
+		kobject_put(udelay_v);
+        sysfs_remove_file(kernel_kobj, &sysfs_test_attr.attr);
+    }
+
+	udelay_value = udelay_data->udelay;
+
 	return 0;
 }
 
@@ -478,6 +561,10 @@ static int i2c_gpio_remove(struct platform_device *pdev)
 	adap = &priv->adap;
 
 	i2c_del_adapter(adap);
+
+	/* Remove udelay kobj */
+	kobject_put(udelay_v);
+    sysfs_remove_file(kernel_kobj, &sysfs_test_attr.attr);
 
 	return 0;
 }
@@ -499,6 +586,9 @@ static struct platform_driver i2c_gpio_driver = {
 	.probe		= i2c_gpio_probe,
 	.remove		= i2c_gpio_remove,
 };
+
+module_param(delay_us, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(delay_us, "An integer parameter for the i2c udelay");
 
 static int __init i2c_gpio_init(void)
 {
