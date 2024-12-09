@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	str_value=$(cat /sys/class/cvi-base/base_uid | awk '{print $2}')
+	first_uint=$(echo $str_value | cut -d'_' -f1)
+	second_uint=$(echo $str_value | cut -d'_' -f2)
+	result="$first_uint$second_uint"
+	echo $result > /device_key
+fi
+

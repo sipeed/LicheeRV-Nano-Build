@@ -1,0 +1,176 @@
+#!/bin/sh
+
+. /etc/profile
+
+gen_udhcpd_conf() {
+	interface=${1}
+	ipv4_prefix=${2}
+	echo "start ${ipv4_prefix}.100"
+	echo "end ${ipv4_prefix}.200"
+	echo "interface ${interface}"
+	echo "pidfile /var/run/udhcpd.${interface}.pid"
+	echo "lease_file /var/lib/misc/udhcpd.${interface}.leases"
+	echo "option subnet 255.255.255.0"
+	echo "option lease 864000"
+}
+
+hex2mac() {
+	MAC=""
+	seq 2 2 12 | while read i
+	do
+		echo -n ${1} | head -c $i | tail -c 2
+		if [ $i != 12 ]
+		then
+			echo -n ':'
+		fi
+	done | tr '[:upper:]' '[:lower:]'
+}
+
+start() {
+	# S03usbdev start first
+	if [ -e /boot/usb.dev ]
+	then
+		rndis_ifname=usb0
+		# RNDIS
+		if [ -e /boot/usb.rndis ]
+		then
+			# mac
+			if [ -e /boot/usb.rndis.mac ]
+			then
+				new_rndismac=$(cat /boot/usb.rndis.mac)
+			else
+				new_rndismac=$(hex2mac 48da356f$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+			fi
+			ip link set $rndis_ifname address ${new_rndismac}
+			ifconfig $rndis_ifname up
+			echo "rndis mac address: ${new_rndismac}"
+
+			# dhcp
+			if [ ! -e /boot/rndis.nodhcpd ]
+			then
+				if [ -e /boot/rndis.ipv4_prefix ]
+				then
+					ipv4_prefix=`cat /boot/rndis.ipv4_prefix`
+				else
+					id2=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 2))
+					id3=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 4 | tail -c 2))
+					id3=$((id3 + 1))
+					if [ "$id2" = "$id3" ]
+					then
+						id2=$((id2 + 2))
+					fi
+					if [ "$id2" -ge 255 ]
+					then
+						id2=252
+					fi
+					if [ "$id3" -ge 255 ]
+					then
+						id3=251
+					fi
+					ipv4_prefix=10.$id2.$id3
+				fi
+				gen_udhcpd_conf $rndis_ifname "${ipv4_prefix}"  > /etc/udhcpd.${rndis_ifname}.conf
+				ip addr add $ipv4_prefix.1/24 dev $rndis_ifname
+				udhcpd -S /etc/udhcpd.${rndis_ifname}.conf
+			fi
+			echo "RNDIS DHCP OK"
+			rndis_ifname=usb1
+		fi
+
+		# CDC NCM
+		if [ -e /boot/usb.ncm ]
+		then
+			# mac
+			if [ -e /boot/usb.ncm.mac ]
+			then
+				new_mac=$(cat /boot/usb.ncm.mac)
+			else
+				new_mac=$(hex2mac 48da356e$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+			fi
+			ip link set $rndis_ifname address ${new_mac}
+			ifconfig $rndis_ifname up
+			echo "ncm mac address: ${new_mac}"
+
+			# dhcp
+			if [ ! -e /boot/ncm.nodhcpd ]
+			then
+				if [ -e /boot/ncm.ipv4_prefix ]
+				then
+					ipv4_prefix=`cat /boot/ncm.ipv4_prefix`
+				else
+					id2=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 2))
+					id3=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 4 | tail -c 2))
+					if [ "$id2" = "$id3" ]
+					then
+						id2=$((id2 + 1))
+					fi
+					if [ "$id2" -ge 255 ]
+					then
+						id2=253
+					fi
+					if [ "$id3" -ge 255 ]
+					then
+						id3=254
+					fi
+					ipv4_prefix=10.$id2.$id3
+				fi
+				gen_udhcpd_conf $rndis_ifname "${ipv4_prefix}"  > /etc/udhcpd.${rndis_ifname}.conf
+				ip addr add $ipv4_prefix.1/24 dev $rndis_ifname
+				udhcpd -S /etc/udhcpd.${rndis_ifname}.conf
+			fi
+			echo "CDC NCM DHCP OK"
+		fi
+	fi
+}
+
+stop() {
+	# first card
+	if [ -e /var/run/udhcpd.usb0.pid ]
+	then
+		kill $(cat "/var/run/udhcpd.usb0.pid")
+		rm /var/run/udhcpd.usb0.pid || true
+	fi
+	pnum=$(ps -ef|grep udhcpd|grep -v grep| grep udhcpd.usb0.conf | awk '{print $1}' | wc -l)
+	if [ x$pnum != x0 ]
+	then
+		ps -ef|grep udhcpd|grep -v grep| grep udhcpd.usb0.conf | awk '{print $1}'|xargs kill -2 || true
+	fi
+	usb0_info=$(ip link |grep usb0)
+	if [ -n "$usb0_info" ]
+	then
+		ifconfig usb0 down
+	fi
+
+	# second card
+	if [ -e /var/run/udhcpd.usb1.pid ]
+	then
+		kill $(cat /var/run/udhcpd.usb1.pid)
+		rm /var/run/udhcpd.usb1.pid || true
+	fi
+	pnum=$(ps -ef|grep udhcpd|grep -v grep| grep udhcpd.usb1.conf | awk '{print $1}' | wc -l)
+	if [ x$pnum != x0 ]
+	then
+		ps -ef|grep udhcpd|grep -v grep| grep udhcpd.usb1.conf | awk '{print $1}'|xargs kill -2 || true
+	fi
+	usb0_info=$(ip link |grep usb1)
+	if [ -n "$usb0_info" ]
+	then
+		ifconfig usb1 down
+	fi
+}
+
+restart() {
+	stop
+	start
+}
+
+if [ "${1}" = "start" ]
+then
+	start
+elif [ "${1}" = "stop" ]
+then
+	stop
+elif [ "${1}" = "restart" ]
+then
+	restart
+fi
