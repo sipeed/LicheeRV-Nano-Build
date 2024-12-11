@@ -1,4 +1,5 @@
 config BR2_PACKAGE_TAILSCALE_RISCV64
 	bool "tailscale-riscv64"
+	depends on BR2_PACKAGE_HOST_GO_TARGET_ARCH_SUPPORTS
 	help
 	  tailscale for riscv64
