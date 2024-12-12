@@ -76,6 +76,13 @@ then
 			echo 'licheervnano' > strings/0x409/product
 		fi
 		mkdir -p configs/c.1
+		# uvc
+		if [ -e /boot/usb.uvc ]
+		then
+			/etc/init.d/uvc_tool.sh mount /boot/usb.uvc
+			/etc/init.d/uvc_tool.sh server
+		fi
+
 		if [ -e /boot/usb.GS0 ]
 		then
 			mkdir -p functions/acm.GS0
@@ -168,6 +175,14 @@ fi
 
 if [ "$1" = "stop" ]
 then
+	echo '' > /sys/kernel/config/usb_gadget/g0/UDC
+	echo host > /proc/cviusb/otg_role
+	# uvc
+	if [ -e /sys/kernel/config/usb_gadget/g0/configs/c.1/uvc.usb0 ]
+	then
+		/etc/init.d/uvc_tool.sh unmount
+	fi
+
 	# rndis
 	if [ -e /sys/kernel/config/usb_gadget/g0/configs/c.1/rndis.usb0 ]
 	then
@@ -181,7 +196,5 @@ then
 		unlink /sys/kernel/config/usb_gadget/g0/configs/c.1/ncm.usb0
 		rmdir /sys/kernel/config/usb_gadget/g0/functions/ncm.usb0
 	fi
-	echo '' > /sys/kernel/config/usb_gadget/g0/UDC
-	echo host > /proc/cviusb/otg_role
 fi
 
