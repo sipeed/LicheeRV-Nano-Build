@@ -72,6 +72,12 @@ parse_uvc_config() {
 		' "$input_file")
 	fi
 
+	# 如果没有解析到任何数据，或者文件不可读取，则返回默认值 / If no data is parsed or file is unreadable, return default values
+	if [ -z "$parsed_data" ]; then
+		echo "Warn: No valid config, using default instead." 1>&2  # 输出到标准错误 / Output to stderr
+		parsed_data="mjpg 640 360"$'\n'"yuyv 640 360"
+	fi
+
 	# 确保至少包含 'mjpg' 和 'yuyv' 格式 / Ensure at least one 'mjpg' and 'yuyv' format exists
 	has_mjpg=$(echo "$parsed_data" | grep -w "mjpg")
 	has_yuyv=$(echo "$parsed_data" | grep -w "yuyv")
@@ -84,12 +90,6 @@ parse_uvc_config() {
 	if [ -z "$has_yuyv" ]; then
 		echo "Warn: No 'yuyv' config found, adding default 'yuyv 640 360'." 1>&2
 		parsed_data="$parsed_data"$'\n'"yuyv 640 360"
-	fi
-
-	# 如果没有解析到任何数据，或者文件不可读取，则返回默认值 / If no data is parsed or file is unreadable, return default values
-	if [ -z "$parsed_data" ]; then
-		echo "Warn: No valid config, using default instead." 1>&2  # 输出到标准错误 / Output to stderr
-		parsed_data="mjpg 640 360"$'\n'"yuyv 640 360"
 	fi
 
 	echo "$parsed_data"  # 返回解析的数据 / Return the parsed data
