@@ -6,7 +6,7 @@ supported_formats="yuyv mjpg"
 
 # 支持的分辨率，可以通过修改这个变量自定义支持的分辨率
 # Supported resolutions, you can customize the list by modifying this variable
-supported_resolutions="640x360 1280x720 1920x1080"
+supported_resolutions="480x320 640x360 640x480 1280x720 1920x1080"
 
 
 parse_uvc_config() {
