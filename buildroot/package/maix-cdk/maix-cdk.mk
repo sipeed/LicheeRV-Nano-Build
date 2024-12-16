@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-MAIX_CDK_VERSION = 63735ac3d34c507b52ec530b558dc8e0d55de958
+MAIX_CDK_VERSION = 8ec9107d6592161066a0f811ae455be3051db20a
 MAIX_CDK_SITE = $(call github,sipeed,MaixCDK,$(MAIX_CDK_VERSION))
 
 MAIX_CDK_SAMPLE = rtsp_demo
@@ -106,6 +106,9 @@ define MAIX_CDK_BUILD_CMDS
 	rm -rf $(@D)/examples/rtsp_yolo_demo/
 	if [ -e $(@D)/examples/maix_bm8563/app.yaml ]; then \
 		sed -i s/bm8653/bm8563/g $(@D)/examples/maix_bm8563/app.yaml ; \
+	fi
+	if [ -e $(@D)/examples/mlx90640/app.yaml ]; then \
+		sed -i s/mlx90640_$$/mlx90640/g $(@D)/examples/mlx90640/app.yaml ; \
 	fi
 	if [ -e $(@D)/examples/i18n/app.yaml ]; then \
 		if grep -q 'id: i18n_demo' $(@D)/examples/i18n/app.yaml ; then \
