@@ -242,21 +242,31 @@ case "$1" in
 		unmount_uvc_configfs
         ;;
 	"server")
-		(	
-			echo "Waiting for UDC start..."
-			while [ -z "$(cat /sys/kernel/config/usb_gadget/g0/UDC)" ]; do
-				echo -n "."
-				sleep 1
-			done
-			sleep 3	# necessary delay time
-			echo -e "\nServer is starting..."  # 输出选择了 server 模式 / Output that the server mode is selected
-			echo -e "===============================\n\n\n"
-			# 在这里添加你希望在 server 模式下执行的其他操作 / Add other operations you want to perform in server mode here
-			/etc/init.d/uvc-gadget-server.elf  -u /dev/$(basename /sys/class/udc/*/device/gadget/video4linux/video*)  -d -i /bin/cat_224.jpg 
-		) >/tmp/uvc-gadget.log 2>&1 &
+		if [ -z "$(fuser /etc/init.d/uvc-gadget-server.elf)" ]; then
+			(	
+				echo "Waiting for UDC start..."
+				while [ -z "$(cat /sys/kernel/config/usb_gadget/g0/UDC)" ]; do
+					echo -n "."
+					sleep 1
+				done
+				sleep 3	# necessary delay time
+				if [ -z "$(fuser /etc/init.d/uvc-gadget-server.elf)" ]; then
+					echo -e "\nServer is starting..."  # 输出选择了 server 模式 / Output that the server mode is selected
+					echo -e "===============================\n\n\n"
+					# 在这里添加你希望在 server 模式下执行的其他操作 / Add other operations you want to perform in server mode here
+					/etc/init.d/uvc-gadget-server.elf  -u /dev/$(basename /sys/class/udc/*/device/gadget/video4linux/video*)  -d -i /bin/cat_224.jpg 
+				else
+					echo -e "\nServer has started..."
+					echo -e "===============================\n\n\n"
+				fi
+			) >/tmp/uvc-gadget.log 2>&1 &
+		fi
+	;;
+	"stop_server")
+		fuser -k /etc/init.d/uvc-gadget-server.elf
 	;;
 	*)
-		echo "Usage: $0 {mount <file>|unmount|server}"  # 提示正确的使用方式 / Prompt the correct usage
+		echo "Usage: $0 {mount <file>|unmount|server|stop_server}"  # 提示正确的使用方式 / Prompt the correct usage
 	;;
 esac
 
