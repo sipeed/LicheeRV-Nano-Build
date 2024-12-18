@@ -6,7 +6,7 @@ supported_formats="yuyv mjpg"
 
 # 支持的分辨率，可以通过修改这个变量自定义支持的分辨率
 # Supported resolutions, you can customize the list by modifying this variable
-supported_resolutions="480x320 640x360 640x480 1280x720 1920x1080"
+supported_resolutions="480x320 640x360 640x480 1280x720 1920x1080 2560x1440"
 
 
 parse_uvc_config() {
@@ -72,25 +72,23 @@ parse_uvc_config() {
 		' "$input_file")
 	fi
 
-	# 如果没有解析到任何数据，或者文件不可读取，则返回默认值 / If no data is parsed or file is unreadable, return default values
-	if [ -z "$parsed_data" ]; then
-		echo "Warn: No valid config, using default instead." 1>&2  # 输出到标准错误 / Output to stderr
-		parsed_data="mjpg 640 360"$'\n'"yuyv 640 360"
-	fi
-
 	# 确保至少包含 'mjpg' 和 'yuyv' 格式 / Ensure at least one 'mjpg' and 'yuyv' format exists
 	has_mjpg=$(echo "$parsed_data" | grep -w "mjpg")
 	has_yuyv=$(echo "$parsed_data" | grep -w "yuyv")
 
 	if [ -z "$has_mjpg" ]; then
-		echo "Warn: No 'mjpg' config found, adding default 'mjpg 640 360'." 1>&2
-		parsed_data="$parsed_data"$'\n'"mjpg 640 360"
+		default_mjpg=$'\nmjpg 480x320\nmjpg 640x360\nmjpg 640x480\nmjpg 1280x720\nmjpg 1920x1080\nmjpg 2560x1440\n'
+        echo "Warn: No 'mjpg' config found, adding default: $default_mjpg" 1>&2
+		parsed_data="$parsed_data""$(echo "$default_mjpg" | sed 's/x/ /g')"
 	fi
 
 	if [ -z "$has_yuyv" ]; then
-		echo "Warn: No 'yuyv' config found, adding default 'yuyv 640 360'." 1>&2
-		parsed_data="$parsed_data"$'\n'"yuyv 640 360"
+		default_yuyv=$'\nyuyv 480x320\nyuyv 640x360\nyuyv 640x480\nyuyv 1280x720\nyuyv 1920x1080\nyuyv 2560x1440\n'
+        echo "Warn: No 'yuyv' config found, adding default: $default_yuyv" 1>&2
+		parsed_data="$parsed_data""$(echo "$default_yuyv" | sed 's/x/ /g')"
 	fi
+
+	parsed_data=$(echo "$parsed_data" | sed '/^$/d')  # 删除空行
 
 	echo "$parsed_data"  # 返回解析的数据 / Return the parsed data
 }
@@ -244,21 +242,31 @@ case "$1" in
 		unmount_uvc_configfs
         ;;
 	"server")
-		(	
-			echo "Waiting for UDC start..."
-			while [ -z "$(cat /sys/kernel/config/usb_gadget/g0/UDC)" ]; do
-				echo -n "."
-				sleep 1
-			done
-			sleep 2	# necessary delay time
-			echo -e "\nServer is starting..."  # 输出选择了 server 模式 / Output that the server mode is selected
-			echo -e "===============================\n\n\n"
-			# 在这里添加你希望在 server 模式下执行的其他操作 / Add other operations you want to perform in server mode here
-			/etc/init.d/uvc-gadget-server.elf  -u /dev/$(basename /sys/class/udc/*/device/gadget/video4linux/video*)  -d -i /bin/cat_224.jpg 
-		) >/tmp/uvc-gadget.log 2>&1 &
+		if [ -z "$(fuser /etc/init.d/uvc-gadget-server.elf)" ]; then
+			(	
+				echo "Waiting for UDC start..."
+				while [ -z "$(cat /sys/kernel/config/usb_gadget/g0/UDC)" ]; do
+					echo -n "."
+					sleep 1
+				done
+				sleep 3	# necessary delay time
+				if [ -z "$(fuser /etc/init.d/uvc-gadget-server.elf)" ]; then
+					echo -e "\nServer is starting..."  # 输出选择了 server 模式 / Output that the server mode is selected
+					echo -e "===============================\n\n\n"
+					# 在这里添加你希望在 server 模式下执行的其他操作 / Add other operations you want to perform in server mode here
+					/etc/init.d/uvc-gadget-server.elf  -u /dev/$(basename /sys/class/udc/*/device/gadget/video4linux/video*)  -d -i /bin/cat_224.jpg 
+				else
+					echo -e "\nServer has started..."
+					echo -e "===============================\n\n\n"
+				fi
+			) >/tmp/uvc-gadget.log 2>&1 &
+		fi
+	;;
+	"stop_server")
+		fuser -k /etc/init.d/uvc-gadget-server.elf
 	;;
 	*)
-		echo "Usage: $0 {mount <file>|unmount|server}"  # 提示正确的使用方式 / Prompt the correct usage
+		echo "Usage: $0 {mount <file>|unmount|server|stop_server}"  # 提示正确的使用方式 / Prompt the correct usage
 	;;
 esac
 
