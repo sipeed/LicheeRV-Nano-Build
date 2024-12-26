@@ -14,7 +14,23 @@ MAIX_CDK_DEPENDENCIES =\
 	host-pkgconf \
 	host-python3 \
 	host-python-pip \
-	host-python-setuptools
+	host-python-setuptools \
+	alsa-lib \
+	ffmpeg \
+	harfbuzz \
+	opencv4
+
+MAIX_CDK_TOOLCHAIN_BIN := $(TOOLCHAIN_EXTERNAL_BIN)
+MAIX_CDK_TOOLCHAIN_LDFLAGS := $(TARGET_LDFLAGS)
+MAIX_CDK_TOOLCHAIN_PREFIX := $(TOOLCHAIN_EXTERNAL_PREFIX)
+
+# maixcam pre-built binaries are only for riscv64
+# MaixCDK searches for "musl" or "glibc" in toolchain path
+MAIX_CDK_TOOLCHAIN_ARCH := $(BR2_ARCH)
+MAIX_CDK_TOOLCHAIN_LIBC := $(findstring musl,$(realpath $(MAIX_CDK_TOOLCHAIN_BIN)))
+
+MAIX_CDK_HARFBUZZ_VER = 8.2.1
+MAIX_CDK_OPENCV_VER = 4.9.0
 
 MAIX_CDK_EXT_MIDDLEWARE = ../../../../middleware
 MAIX_CDK_EXT_MAIXCAM_LIB = sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
@@ -76,11 +92,26 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 	if [ -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/$(MAIX_CDK_EXT_MAIXCAM_LIB) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/$(MAIX_CDK_EXT_MAIXCAM_LIB) ${@D}/components/maixcam_lib/lib/ ; \
 	fi
+	if [ "$(MAIX_CDK_TOOLCHAIN_ARCH)-$(MAIX_CDK_TOOLCHAIN_LIBC)" != "riscv64-musl" ]; then \
+		sed -i 's|set(alsa_lib_dir "lib")|set(alsa_lib_dir "$(TARGET_DIR)/usr/lib")|g' $(@D)/components/3rd_party/alsa_lib/CMakeLists.txt ; \
+		sed -i 's|set(alsa_lib_include_dir "include")|set(alsa_lib_include_dir "$(TARGET_DIR)/usr/include")|g' $(@D)/components/3rd_party/alsa_lib/CMakeLists.txt ; \
+		sed -i 's|set(src_path "$${ffmpeg_unzip_path}/ffmpeg")|set(src_path "$(TARGET_DIR)/usr")|g' $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
+		sed -i 's|                            $${src_path}/lib/libswscale.so|                            $${src_path}/lib/libswscale.so\n                            $${src_path}/lib/libz.so.1\n                            $${src_path}/lib/libbz2.so.1.0\n                            $${src_path}/lib/libssl.so.3\n                            $${src_path}/lib/libcrypto.so.3|g' $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
+		sed -i s/'default n'/'default y'/g $(@D)/components/3rd_party/opencv/Kconfig ; \
+		mkdir -pv $(@D)/dl/extracted/harfbuzz_srcs/harfbuzz-$(MAIX_CDK_HARFBUZZ_VER)/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../harfbuzz-$(HARFBUZZ_VERSION)/ $(@D)/dl/extracted/harfbuzz_srcs/harfbuzz-$(MAIX_CDK_HARFBUZZ_VER)/ ; \
+		mkdir -pv $(@D)/dl/extracted/opencv/opencv4/opencv-$(MAIX_CDK_OPENCV_VER)/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../opencv4-$(OPENCV4_VERSION)/ $(@D)/dl/extracted/opencv/opencv4/opencv-$(MAIX_CDK_OPENCV_VER)/ ; \
+		sed -i /'list.APPEND ADD_REQUIREMENTS cvi_tpu.'/d $(@D)/components/maixcam_lib/CMakeLists.txt ; \
+	fi
 	sed -i s/'^    url: .*'/'    url:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    sha256sum: .*'/'    sha256sum:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    filename: .*'/'    filename:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    path: .*'/'    path:'/g $(@D)/platforms/maixcam.yaml
-	sed -i 's|^    bin_path: .*|    bin_path: '$(realpath $(TOOLCHAIN_EXTERNAL_BIN))'|g' $(@D)/platforms/maixcam.yaml
+	sed -i 's|^    bin_path: .*|    bin_path: '$(realpath $(MAIX_CDK_TOOLCHAIN_BIN))'|g' $(@D)/platforms/maixcam.yaml
+	sed -i "s|^    prefix: .*|    prefix: $(MAIX_CDK_TOOLCHAIN_PREFIX)-|g" $(@D)/platforms/maixcam.yaml
+	sed -i "s|^    c_flags: .*|    c_flags: $(TARGET_LDFLAGS)|g" $(@D)/platforms/maixcam.yaml
+	sed -i "s|^    cxx_flags: .*|    cxx_flags: $(TARGET_LDFLAGS)|g" $(@D)/platforms/maixcam.yaml
 	sed -i 's|COMMAND python |COMMAND '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
 	sed -i 's|COMMAND python3 |COMMAND '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
 	sed -i 's|set.$${python} python3 |set($${python} '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
