@@ -1,0 +1,25 @@
+From 3220370590a7efe5b8b2721838ad0e79fb9c46ff Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Thu, 26 Dec 2024 01:58:35 +0100
+Subject: [PATCH 2/3] peripheral: spi: use size_t for data size
+
+---
+ components/peripheral/port/maixcam/maix_spi.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/peripheral/port/maixcam/maix_spi.cpp b/components/peripheral/port/maixcam/maix_spi.cpp
+index 89527cc..030059b 100755
+--- a/components/peripheral/port/maixcam/maix_spi.cpp
++++ b/components/peripheral/port/maixcam/maix_spi.cpp
+@@ -197,7 +197,7 @@ namespace maix::peripheral::spi
+         if (read_len <= 0)
+             return nullptr;
+ 
+-        unsigned long w_size = 0;
++        size_t w_size = 0;
+         if (nullptr != data)
+             w_size = data->size();
+         size_t len = std::max(w_size, static_cast<size_t>(read_len));
+-- 
+2.34.1
+
