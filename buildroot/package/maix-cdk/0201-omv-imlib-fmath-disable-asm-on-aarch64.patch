@@ -1,0 +1,25 @@
+From b711dacb71fd6d7c1b40927d7d2a1097e02d6b71 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Fri, 27 Dec 2024 17:14:46 +0100
+Subject: [PATCH] omv: imlib: fmath: disable asm on aarch64
+
+---
+ components/3rd_party/omv/omv/imlib/fmath.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/3rd_party/omv/omv/imlib/fmath.c b/components/3rd_party/omv/omv/imlib/fmath.c
+index c08c34f..1b3e71b 100644
+--- a/components/3rd_party/omv/omv/imlib/fmath.c
++++ b/components/3rd_party/omv/omv/imlib/fmath.c
+@@ -19,7 +19,7 @@ const float __atanf_lut[4] = {
+     +0.9997878412794807f     //p1
+ };
+ 
+-#if (__ARM_ARCH < 7)
++#if (__ARM_ARCH < 7) || defined(__aarch64__)
+ #include <math.h>
+ float OMV_ATTR_ALWAYS_INLINE fast_sqrtf(float x) {
+     return sqrtf(x);
+-- 
+2.34.1
+
