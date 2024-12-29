@@ -20,14 +20,10 @@ MAIX_CDK_DEPENDENCIES =\
 	harfbuzz \
 	opencv4
 
-MAIX_CDK_TOOLCHAIN_BIN := $(TOOLCHAIN_EXTERNAL_BIN)
-MAIX_CDK_TOOLCHAIN_LDFLAGS := $(TARGET_LDFLAGS)
-MAIX_CDK_TOOLCHAIN_PREFIX := $(TOOLCHAIN_EXTERNAL_PREFIX)
-
 # maixcam pre-built binaries are only for riscv64
 # MaixCDK searches for "musl" or "glibc" in toolchain path
 MAIX_CDK_TOOLCHAIN_ARCH := $(BR2_ARCH)
-MAIX_CDK_TOOLCHAIN_LIBC := $(findstring musl,$(realpath $(MAIX_CDK_TOOLCHAIN_BIN)))
+MAIX_CDK_TOOLCHAIN_LIBC := $(findstring musl,$(realpath $(TOOLCHAIN_EXTERNAL_BIN)))
 
 MAIX_CDK_HARFBUZZ_VER = 8.2.1
 MAIX_CDK_OPENCV_VER = 4.9.0
@@ -104,21 +100,21 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../opencv4-$(OPENCV4_VERSION)/ $(@D)/dl/extracted/opencv/opencv4/opencv-$(MAIX_CDK_OPENCV_VER)/ ; \
 		sed -i /'list.APPEND ADD_REQUIREMENTS cvi_tpu.'/d $(@D)/components/maixcam_lib/CMakeLists.txt ; \
 	fi
+endef
+MAIX_CDK_POST_EXTRACT_HOOKS += MAIX_CDK_POST_EXTRACT_FIXUP
+
+define MAIX_CDK_BUILD_CMDS
 	sed -i s/'^    url: .*'/'    url:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    sha256sum: .*'/'    sha256sum:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    filename: .*'/'    filename:'/g $(@D)/platforms/maixcam.yaml
 	sed -i s/'^    path: .*'/'    path:'/g $(@D)/platforms/maixcam.yaml
-	sed -i 's|^    bin_path: .*|    bin_path: '$(realpath $(MAIX_CDK_TOOLCHAIN_BIN))'|g' $(@D)/platforms/maixcam.yaml
-	sed -i "s|^    prefix: .*|    prefix: $(MAIX_CDK_TOOLCHAIN_PREFIX)-|g" $(@D)/platforms/maixcam.yaml
+	sed -i 's|^    bin_path: .*|    bin_path: '$(realpath $(TOOLCHAIN_EXTERNAL_BIN))'|g' $(@D)/platforms/maixcam.yaml ; \
+	sed -i "s|^    prefix: .*|    prefix: $(TOOLCHAIN_EXTERNAL_PREFIX)-|g" $(@D)/platforms/maixcam.yaml
 	sed -i "s|^    c_flags: .*|    c_flags: $(TARGET_LDFLAGS)|g" $(@D)/platforms/maixcam.yaml
 	sed -i "s|^    cxx_flags: .*|    cxx_flags: $(TARGET_LDFLAGS)|g" $(@D)/platforms/maixcam.yaml
 	sed -i 's|COMMAND python |COMMAND '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
 	sed -i 's|COMMAND python3 |COMMAND '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
 	sed -i 's|set.$${python} python3 |set($${python} '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
-endef
-MAIX_CDK_POST_EXTRACT_HOOKS += MAIX_CDK_POST_EXTRACT_FIXUP
-
-define MAIX_CDK_BUILD_CMDS
 	cd $(@D)/ ; \
 	$(HOST_DIR)/bin/python3 -m pip install -r requirements.txt
 	cd $(@D)/examples/$(MAIX_CDK_SAMPLE)/ ; \
