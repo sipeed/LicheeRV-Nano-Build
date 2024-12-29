@@ -28,9 +28,9 @@ MAIX_CDK_TOOLCHAIN_LIBC := $(findstring musl,$(realpath $(TOOLCHAIN_EXTERNAL_BIN
 MAIX_CDK_HARFBUZZ_VER = 8.2.1
 MAIX_CDK_OPENCV_VER = 4.9.0
 
-MAIX_CDK_EXT_MIDDLEWARE = ../../../../middleware
+MAIX_CDK_EXT_MIDDLEWARE = $(realpath $(TOPDIR)/../middleware)
 MAIX_CDK_EXT_MAIXCAM_LIB = sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
-MAIX_CDK_EXT_OSDRV = ../../../../osdrv
+MAIX_CDK_EXT_OSDRV = $(realpath $(TOPDIR)/../osdrv)
 
 MAIX_CDK_MIDDLEWARE = components/3rd_party/sophgo-middleware/sophgo-middleware
 
@@ -39,18 +39,18 @@ MAIX_CDK_MAIXCAM_DIST = examples/$(MAIX_CDK_SAMPLE)/dist/$(MAIX_CDK_SAMPLE)_rele
 define MAIX_CDK_POST_EXTRACT_FIXUP
 	mv $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2 $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2-cdk
 	mkdir $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2
-	if [ -e $(@D)/$(MAIX_CDK_EXT_MIDDLEWARE)/Makefile -a ! -e $(@D)/$(MAIX_CDK_EXT_MIDDLEWARE)/v2/Makefile ]; then \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_EXT_MIDDLEWARE)/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
+	if [ -e $(MAIX_CDK_EXT_MIDDLEWARE)/Makefile -a ! -e $(MAIX_CDK_EXT_MIDDLEWARE)/v2/Makefile ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_MIDDLEWARE)/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
 	else \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_EXT_MIDDLEWARE)/v2/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_MIDDLEWARE)/v2/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
 	fi
 	mkdir $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi
-	if [ -e $(@D)/$(MAIX_CDK_EXT_OSDRV)/interdrv/include -a ! -e $(@D)/$(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include ]; then \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_EXT_OSDRV)/interdrv/include/common/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_EXT_OSDRV)/interdrv/include/chip/mars/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
+	if [ -e $(MAIX_CDK_EXT_OSDRV)/interdrv/include -a ! -e $(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_OSDRV)/interdrv/include/common/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_OSDRV)/interdrv/include/chip/mars/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
 	else \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include/common/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include/chip/mars/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include/common/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include/chip/mars/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
 	fi
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2-cdk/sample/vio/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/sample/vio/
 	if [ -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/lib/libcvi_dnvqe.so -a ! -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/lib/libdnvqe.so ]; then \
