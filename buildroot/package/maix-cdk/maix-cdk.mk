@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-MAIX_CDK_VERSION = 8ec9107d6592161066a0f811ae455be3051db20a
+MAIX_CDK_VERSION = 04fa210e368ce0dfa3b7660b048bea41e94a3ebc
 MAIX_CDK_SITE = $(call github,sipeed,MaixCDK,$(MAIX_CDK_VERSION))
 
 MAIX_CDK_SAMPLE = rtsp_demo
@@ -123,6 +123,9 @@ define MAIX_CDK_BUILD_CMDS
 	rm -rf $(@D)/projects/app_detector/
 	rm -rf $(@D)/projects/app_self_learn_tracker/
 	rm -rf $(@D)/projects/app_speech/
+	if [ -e $(@D)/projects/app_uvc_camera/main/CMakeLists.txt ]; then \
+		sed -i s/'basic nn vision'/'basic vision'/g $(@D)/projects/app_uvc_camera/main/CMakeLists.txt ; \
+	fi
 	if [ -e $(@D)/distapps.sh -a -e $(@D)/projects/build_all.sh ]; then \
 		chmod +x $(@D)/projects/build_all.sh ; \
 		cd $(@D)/projects/ ; \
