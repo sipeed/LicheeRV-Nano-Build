@@ -353,6 +353,12 @@ static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const ar
 			panel_desc.hs_timing_cfg = &hs_timing_cfg_st7701_d310t9362v1_480x800;
 			panel_desc.dsi_init_cmds = dsi_init_cmds_st7701_d310t9362v1_480x800;
 			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_st7701_d310t9362v1_480x800);		// g
+		} else if (strcmp(panel_name,"tt049amn10a") == 0) {
+			panel_desc.panel_name = "TT049-1920x1080";
+			panel_desc.dev_cfg = &dev_cfg_tt049amn10a_1920x1080;
+			panel_desc.hs_timing_cfg = &hs_timing_cfg_tt049amn10a_1920x1080;
+			panel_desc.dsi_init_cmds = dsi_init_cmds_tt049amn10a_1920x1080;
+			panel_desc.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_tt049amn10a_1920x1080);		// g
 		} else {
 			printf("panel %s not found\n\r", panel_name);
 		}

@@ -11,6 +11,8 @@
 #include <sbi_utils/fdt/fdt_helper.h>
 #include <sbi_utils/reset/fdt_reset.h>
 
+#include <sbi/sbi_console.h>
+
 extern struct fdt_reset fdt_reset_sifive;
 extern struct fdt_reset fdt_reset_htif;
 extern struct fdt_reset fdt_reset_thead;
@@ -30,7 +32,10 @@ int fdt_reset_init(void)
 	const struct fdt_match *match;
 	void *fdt = sbi_scratch_thishart_arg1_ptr();
 
+	sbi_puts("fdt_reset_init\n");
+
 	for (pos = 0; pos < array_size(reset_drivers); pos++) {
+		sbi_printf("pos: %d\n", pos);
 		drv = reset_drivers[pos];
 
 		noff = fdt_find_match(fdt, -1, drv->match_table, &match);

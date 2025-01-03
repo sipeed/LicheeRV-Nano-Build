@@ -22,6 +22,10 @@
 #include <sbi_utils/ipi/fdt_ipi.h>
 #include <sbi_utils/reset/fdt_reset.h>
 
+#include <sbi/sbi_system.h>
+
+#include <sbi/riscv_io.h>
+
 extern const struct platform_override sifive_fu540;
 
 static const struct platform_override *special_platforms[] = {
@@ -30,6 +34,43 @@ static const struct platform_override *special_platforms[] = {
 
 static const struct platform_override *generic_plat = NULL;
 static const struct fdt_match *generic_plat_match = NULL;
+
+
+static int cv_system_reset_check(u32 type, u32 reason)
+{
+	return 1;
+}
+
+#define REG_RTC_BASE		0x05026000
+  #define RTC_EN_WARM_RST_REQ	0xCC
+
+#define REG_RTC_CTRL_BASE	0x05025000
+  #define RTC_CTRL0_UNLOCKKEY	0x4
+  #define RTC_CTRL0				0x8
+
+static void cv_system_reset(u32 type, u32 reason)
+{
+	u32 val;
+
+	writel(0x01, (volatile void *)(REG_RTC_BASE + RTC_EN_WARM_RST_REQ));
+	while (readl((volatile void *)(REG_RTC_BASE + RTC_EN_WARM_RST_REQ)) != 0x01)
+		;
+	writel(0xAB18, (volatile void *)(REG_RTC_CTRL_BASE + RTC_CTRL0_UNLOCKKEY));
+	val = readl((volatile void *)(REG_RTC_CTRL_BASE + RTC_CTRL0));
+	val |= (0xFFFF0800 | (0x1 << 4));
+	writel(val, (volatile void *)(REG_RTC_CTRL_BASE + RTC_CTRL0));
+
+	while (1)
+		;
+}
+
+static struct sbi_system_reset_device cv_reset = {
+	.name = "cv_reset",
+	.system_reset_check = cv_system_reset_check,
+	.system_reset = cv_system_reset
+};
+
+
 
 static void fw_platform_lookup_special(void *fdt, int root_offset)
 {
@@ -125,10 +166,14 @@ static int generic_early_init(bool cold_boot)
 			return rc;
 	}
 
+	if (cold_boot)
+		sbi_system_reset_set_device(&cv_reset);
+
 	if (!cold_boot)
 		return 0;
 
-	return fdt_reset_init();
+	//return fdt_reset_init();
+	return 0;
 }
 
 static int generic_final_init(bool cold_boot)

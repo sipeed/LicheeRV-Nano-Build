@@ -256,9 +256,12 @@ int load_monitor(int retry, uint64_t *monitor_entry)
 		panic_handler();
 	}
 
+	NOTICE("loading monitor image\n");
+
 	ret = p_rom_api_load_image((void *)(uintptr_t)fip_param2.monitor_runaddr, fip_param2.monitor_loadaddr,
 				   fip_param2.monitor_size, retry);
 	if (ret < 0) {
+		NOTICE("error loading monitor image\n");
 		return ret;
 	}
 
@@ -332,15 +335,15 @@ int load_loader_2nd(int retry, uint64_t *loader_2nd_entry)
 
 	crc = p_rom_api_image_crc(image_buf + cksum_offset, loader_2nd_header->size - cksum_offset);
 	if (crc != loader_2nd_header->cksum) {
-		ERROR("loader_2nd_cksum (0x%x/0x%x)\n", crc, loader_2nd_header->cksum);
-		return -1;
+		WARN("loader_2nd_cksum (0x%x/0x%x)\n", crc, loader_2nd_header->cksum);
+		//return -1;
 	}
 
 	ret = dec_verify_image(image_buf + cksum_offset, loader_2nd_header->size - cksum_offset,
 			       sizeof(struct loader_2nd_header) - cksum_offset, fip_param1);
 	if (ret < 0) {
-		ERROR("verify loader 2nd (%d)\n", ret);
-		return ret;
+		WARN("verify loader 2nd (%d)\n", ret);
+		//return ret;
 	}
 
 	time_records->load_loader_2nd_end = read_time_ms();
@@ -384,17 +387,28 @@ int load_rest(enum CHIP_CLK_MODE mode)
 
 	// Init sys PLL and switch clocks to PLL
 	sys_pll_init(mode);
+	NOTICE("load_rest\n");
 
 retry_from_flash:
 	for (retry = 0; retry < p_rom_api_get_number_of_retries(); retry++) {
-		if (load_blcp_2nd(retry) < 0)
+		if (load_blcp_2nd(retry) < 0) {
+			NOTICE("error loading blcp_2nd\n");
 			continue;
+		}
 
-		if (load_monitor(retry, &monitor_entry) < 0)
+		if (load_monitor(retry, &monitor_entry) < 0) {
+			NOTICE("error loading monitor\n");
 			continue;
+		}
 
-		if (load_loader_2nd(retry, &loader_2nd_entry) < 0)
+		NOTICE("monitor loaded\n");
+
+		if (load_loader_2nd(retry, &loader_2nd_entry) < 0) {
+			NOTICE("error loading loader_2nd\n");
 			continue;
+		}
+
+		NOTICE("2nd loaded\n");
 
 		break;
 	}
@@ -413,6 +427,8 @@ retry_from_flash:
 			panic_handler();
 		}
 	}
+
+	NOTICE("bs\n");
 
 	sync_cache();
 	console_flush();

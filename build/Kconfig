@@ -18,6 +18,16 @@ config ARCH
 	help
 	  Arch define.
 
+menu "assshat"
+
+config CUSTOM_KERNEL
+	string "Custom kernel bin to load from OpenSBI"
+	default ""
+	help
+	  yes
+
+endmenu
+
 menu "Compile-time checks and compiler options"
 
 config CROSS_COMPILE

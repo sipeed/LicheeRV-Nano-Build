@@ -1,9 +1,17 @@
 opensbi: export CROSS_COMPILE=$(CONFIG_CROSS_COMPILE_SDK)
+ifneq ($(CONFIG_CUSTOM_KERNEL),"")
+opensbi:
+	$(call print_target)
+	${Q}$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} PLATFORM=generic PLATFORM_DEFCONFIG=platform/generic/configs/defconfig \
+	    FW_PAYLOAD_PATH=$(CONFIG_CUSTOM_KERNEL) FW_TEXT_START=0x80000000 \
+	    FW_FDT_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/arch/riscv/dts/${CHIP}_${BOARD}.dtb
+else
 opensbi: u-boot-build
 	$(call print_target)
-	${Q}$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} PLATFORM=generic \
-	    FW_PAYLOAD_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot-raw.bin \
+	${Q}$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} PLATFORM=generic PLATFORM_DEFCONFIG=platform/generic/configs/defconfig \
+	    FW_PAYLOAD_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/u-boot-raw.bin FW_TEXT_START=0x80000000 \
 	    FW_FDT_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/arch/riscv/dts/${CHIP}_${BOARD}.dtb
+endif
 
 opensbi-clean:
 	$(call print_target)
@@ -26,6 +34,17 @@ fsbl%: export ARCH=$(call qstrip,${CONFIG_ARCH})
 fsbl%: export OD_CLK_SEL=${CONFIG_OD_CLK_SEL}
 fsbl%: export VC_CLK_OVERDRIVE=${CONFIG_VC_CLK_OVERDRIVE}
 fsbl%: export TPU_PERF_MODE=$(shell if [ "${CONFIG_CHIP_cv1812cp}" = "y" ] || [ "${CONFIG_CHIP_sg2002}" = "y" ]; then echo "y";else echo "n";fi)
+ifneq ($(CONFIG_CUSTOM_KERNEL),"")
+# build uboot for dtb
+fsbl-build: u-boot-build memory-map
+	$(call print_target)
+	${Q}mkdir -p ${FSBL_PATH}/build
+	${Q}ln -snrf -t ${FSBL_PATH}/build ${CVI_BOARD_MEMMAP_H_PATH}
+	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH} BLCP_2ND_PATH=${BLCP_2ND_PATH} \
+		LOADER_2ND_PATH=$(CONFIG_CUSTOM_KERNEL)
+	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/
+	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/fip_spl.bin
+else
 fsbl-build: u-boot-build memory-map
 	$(call print_target)
 	${Q}mkdir -p ${FSBL_PATH}/build
@@ -40,6 +59,7 @@ ifeq (${CONFIG_UBOOT_SPL_CUSTOM},y)
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/fip_spl.bin
 else
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/fip_spl.bin
+endif
 endif
 
 fsbl-clean: rtos-clean

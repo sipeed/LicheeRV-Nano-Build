@@ -33,6 +33,7 @@ struct panel_desc_s {
 #include "dsi_st7701_hd228001c31.h"
 #include "dsi_d240si31.h"
 #include "dsi_st7701_d310t9362v1.h"
+#include "dsi_tt049amn10a.h"
 
 #ifdef MIPI_PANEL_HX8394
 #include "dsi_hx8394_evb.h"
@@ -218,6 +219,14 @@ static struct panel_desc_s panel_desc = {
 #include "lvds_ek79202.h"
 static struct panel_desc_s panel_desc = {
 	.lvds_cfg = &lvds_ek79202_cfg
+};
+#elif defined(MIPI_PANEL_TT049AMN10A)
+static struct panel_desc_s panel_desc = {
+	.panel_name = "TT049-1920x1080",
+	.dev_cfg = &dev_cfg_tt049amn10a_1920x1080,
+	.hs_timing_cfg = &hs_timing_cfg_tt049amn10a_1920x1080,
+	.dsi_init_cmds = dsi_init_cmds_tt049amn10a_1920x1080,
+	.dsi_init_cmds_size = ARRAY_SIZE(dsi_init_cmds_tt049amn10a_1920x1080)
 };
 #else
 #include "dsi_hx8394_evb.h"

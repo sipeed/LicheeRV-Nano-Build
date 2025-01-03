@@ -484,8 +484,8 @@ class FIP:
 
         e = self.ldr_2nd_hdr["MAGIC"]
         magic = loader_2nd[e.addr : e.end]
-        if magic != LOADER_2ND_MAGIC_ORIG:
-            raise ValueError("loader_2nd's magic should be %r, but %r" % (LOADER_2ND_MAGIC_ORIG, magic))
+        #if magic != LOADER_2ND_MAGIC_ORIG:
+            #raise ValueError("loader_2nd's magic should be %r, but %r" % (LOADER_2ND_MAGIC_ORIG, magic))
 
         self.compress_algo = args.compress
         self.body2["LOADER_2ND"].content = loader_2nd
@@ -588,7 +588,8 @@ class FIP:
         elif magic in LOADER_2ND_MAGIC_LIST:
             logging.info("loader_2nd is already compressed")
         else:
-            raise ValueError("unknown loader_2nd magic (%r)", magic)
+            #raise ValueError("unknown loader_2nd magic (%r)", magic)
+            logging.info("loader_2nd unknown, will not compress")
 
         self.body2["LOADER_2ND"].content = self.pad(hdr + body, IMAGE_ALIGN)
 
