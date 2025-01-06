@@ -1,0 +1,35 @@
+From ae80885b8a790cdd0ee7c8927e835b5f4e61b637 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Mon, 6 Jan 2025 00:57:05 +0100
+Subject: [PATCH] vision: camera: do not fail if i2c4 is missing
+
+---
+ components/vision/port/maixcam/maix_camera_mmf.cpp | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/components/vision/port/maixcam/maix_camera_mmf.cpp b/components/vision/port/maixcam/maix_camera_mmf.cpp
+index ba467c2..76dc2f2 100644
+--- a/components/vision/port/maixcam/maix_camera_mmf.cpp
++++ b/components/vision/port/maixcam/maix_camera_mmf.cpp
+@@ -253,10 +253,16 @@ namespace maix::camera
+ 		}
+         int retry_count = 0;
+         char name[30];
+-        peripheral::i2c::I2C i2c_obj(4, peripheral::i2c::Mode::MASTER);
++        peripheral::i2c::I2C *i2c_obj;
++        try {
++            i2c_obj = new peripheral::i2c::I2C(4, peripheral::i2c::Mode::MASTER);
++        } catch (const std::exception &e) {
++            snprintf(name, sizeof(name), "gcore_gc4653");
++            return {false, name};
++        }
+ 
+ _retry:
+-        std::vector<int> addr_list = i2c_obj.scan();
++        std::vector<int> addr_list = i2c_obj->scan();
+         for (size_t i = 0; i < addr_list.size(); i++) {
+             // log::info("i2c4 addr: 0x%02x", addr_list[i]);
+             switch (addr_list[i]) {
+-- 
+2.34.1
+

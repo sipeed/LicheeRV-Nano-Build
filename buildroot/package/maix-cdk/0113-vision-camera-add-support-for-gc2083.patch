@@ -1,0 +1,81 @@
+From 65c2db1153ffa3379a99b6c5c4a9ea05edb62817 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Mon, 6 Jan 2025 01:30:03 +0100
+Subject: [PATCH] vision: camera: add support for gc2083
+
+---
+ .../vision/port/maixcam/maix_camera_mmf.cpp   | 34 +++++++++++++++++--
+ 1 file changed, 31 insertions(+), 3 deletions(-)
+
+diff --git a/components/vision/port/maixcam/maix_camera_mmf.cpp b/components/vision/port/maixcam/maix_camera_mmf.cpp
+index 76dc2f2..548937c 100644
+--- a/components/vision/port/maixcam/maix_camera_mmf.cpp
++++ b/components/vision/port/maixcam/maix_camera_mmf.cpp
+@@ -253,12 +253,14 @@ namespace maix::camera
+ 		}
+         int retry_count = 0;
+         char name[30];
+-        peripheral::i2c::I2C *i2c_obj;
++        peripheral::i2c::I2C *i2c_obj = nullptr;
+         try {
+             i2c_obj = new peripheral::i2c::I2C(4, peripheral::i2c::Mode::MASTER);
+         } catch (const std::exception &e) {
+-            snprintf(name, sizeof(name), "gcore_gc4653");
+-            return {false, name};
++            i2c_obj = nullptr;
++        }
++        if (!i2c_obj) {
++             i2c_obj = new peripheral::i2c::I2C(2, peripheral::i2c::Mode::MASTER);
+         }
+ 
+ _retry:
+@@ -282,6 +284,10 @@ _retry:
+                     // log::info("find ov_os04a10, addr %#x", addr_list[i]);
+                     snprintf(name, sizeof(name), "ov_os04a10");
+                     return {true, name};
++                case 0x37:
++                    // log::info("find gcore_gc2083, addr %#x", addr_list[i]);
++                    snprintf(name, sizeof(name), "gcore_gc2083");
++                    return {true, name};
+                 case 0x48:// fall through
+                 case 0x3c:
+                     // log::info("find ov_ov2685, addr %#x", addr_list[i]);
+@@ -487,6 +493,17 @@ _retry:
+                 vi_format = PIXEL_FORMAT_NV21;
+                 vi_vpss_format = PIXEL_FORMAT_NV21;
+                 err::check_bool_raise(!CVI_BIN_SetBinName(WDR_MODE_NONE, "/mnt/cfg/param/cvi_sdr_bin.os04a10"), "set config path failed!");
++            } else if (!strcmp(sensor_name, "gcore_gc2083")) {
++                sensor_cfg.sns_type = GCORE_GC2083_MIPI_2M_30FPS_10BIT;
++                sensor_cfg.lane_id = {1, 0, 2, -1, -1};
++                sensor_cfg.pn_swap = {0, 0, 0, 0, 0};
++                sensor_cfg.mclk_en = 1;
++                sensor_cfg.i2c_addr = 0x37;
++                sensor_cfg.exptime_max = 363636;
++                sensor_cfg.exptime_min = 33333;
++                vi_format = PIXEL_FORMAT_NV21;
++                vi_vpss_format = PIXEL_FORMAT_NV21;
++                err::check_bool_raise(!CVI_BIN_SetBinName(WDR_MODE_NONE, "/mnt/cfg/param/cvi_sdr_bin_GC208"), "set config path failed!");
+             } else { // default is gcore_gc4653
+                 if (width <= 1280 && height <= 720 && fps > 30) {
+                     sensor_cfg.sns_type = GCORE_GC4653_MIPI_720P_60FPS_10BIT;
+@@ -546,6 +563,17 @@ _retry:
+                 vi_format = PIXEL_FORMAT_NV21;
+                 vi_vpss_format = PIXEL_FORMAT_NV21;
+                 err::check_bool_raise(!CVI_BIN_SetBinName(WDR_MODE_NONE, "/mnt/cfg/param/cvi_sdr_bin.os04a10"), "set config path failed!");
++            } else if (!strcmp(sensor_name, "gcore_gc2083")) {
++                sensor_cfg.sns_type = GCORE_GC2083_MIPI_2M_30FPS_10BIT;
++                sensor_cfg.lane_id = {1, 0, 2, -1, -1};
++                sensor_cfg.pn_swap = {0, 0, 0, 0, 0};
++                sensor_cfg.mclk_en = 1;
++                sensor_cfg.i2c_addr = 0x37;
++                sensor_cfg.exptime_max = 363636;
++                sensor_cfg.exptime_min = 33333;
++                vi_format = PIXEL_FORMAT_NV21;
++                vi_vpss_format = PIXEL_FORMAT_NV21;
++                err::check_bool_raise(!CVI_BIN_SetBinName(WDR_MODE_NONE, "/mnt/cfg/param/cvi_sdr_bin_GC208"), "set config path failed!");
+             } else { // default is gcore_gc4653
+                 if (width <= 1280 && height <= 720 && fps > 30) {
+                     sensor_cfg.sns_type = GCORE_GC4653_MIPI_720P_60FPS_10BIT;
+-- 
+2.34.1
+
