@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-MAIX_CDK_VERSION = 04fa210e368ce0dfa3b7660b048bea41e94a3ebc
+MAIX_CDK_VERSION = 90fc41cb3f4cef55f380fd3d98f3fd29c8d5a612
 MAIX_CDK_SITE = $(call github,sipeed,MaixCDK,$(MAIX_CDK_VERSION))
 
 MAIX_CDK_SAMPLE = rtsp_demo
@@ -53,6 +53,14 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include/chip/mars/uapi/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi/ ; \
 	fi
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2-cdk/sample/vio/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/sample/vio/
+	sed -i s/' dummy isp_light '/' '/g $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/modules/Makefile
+	rm -rf $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/modules/dummy/
+	rm -rf $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/modules/isp_light/
+	if grep -q stSnsGc02m1_Obj $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/sample/common/sample_common_sensor.c ; then \
+		if ! grep -q stSnsGc02m1_Obj $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/include/cvi_sns_ctrl.h ; then \
+			sed -i s/stSnsGc02m1b_Obj/stSnsGc02m1_Obj/g $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/include/cvi_sns_ctrl.h ; \
+		fi ; \
+	fi
 	if [ ! -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/lib/3rd/libcli.so ]; then \
 		sed -i /'$${mmf_lib_dir}.3rd.libcli.so'/d $(@D)/components/3rd_party/sophgo-middleware/CMakeLists.txt ; \
 		sed -i /'$${mmf_lib_dir}.3rd.libcli.so'/d $(@D)/components/maixcam_lib/CMakeLists.txt ; \
