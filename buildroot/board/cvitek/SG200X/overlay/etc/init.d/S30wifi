@@ -76,13 +76,8 @@ start() {
 		then
 			cp /boot/hostapd.conf /etc/hostapd.conf
 		else
-			if [ -e /boot/cvi_base_uid ]; then
-				id2=$(printf "%d" 0x$(sha512sum /boot/cvi_base_uid | head -c 2))
-				id3=$(printf "%d" 0x$(sha512sum /boot/cvi_base_uid | head -c 4 | tail -c 2))
-			else
-				id2=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 2))
-				id3=$(printf "%d" 0x$(sha512sum /sys/class/cvi-base/base_uid | head -c 4 | tail -c 2))
-			fi
+			id2=$(printf "%d" 0x$(sha512sum /device_key | head -c 2))
+			id3=$(printf "%d" 0x$(sha512sum /device_key | head -c 4 | tail -c 2))
 			if [ "$id2" = "$id3" ]
 			then
 				id2=$((id2 + 1))

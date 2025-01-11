@@ -27,11 +27,7 @@ case "$1" in
 	    fi
 	    echo "soc temp: $soc_temp" | fbbar 32 $colorfg $colorbg
 	    colorfg=0xFFFFFFFF
-      if [ -e /boot/cvi_base_uid ]; then
-        echo "soc id: $(cat /boot/cvi_base_uid)" | fbbar 48 $colorfg $colorbg
-      else
-        echo "soc id: $(cat /sys/class/cvi-base/base_uid)" | fbbar 48 $colorfg $colorbg
-      fi
+      echo "soc id: $(cat /device_key)" | fbbar 48 $colorfg $colorbg
       sleep 1
     done
     ) &

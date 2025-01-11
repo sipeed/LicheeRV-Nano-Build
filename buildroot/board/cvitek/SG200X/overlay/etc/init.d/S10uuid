@@ -19,11 +19,7 @@ then
 		prefix=$(cat /boot/hostname.prefix)
 	fi
 	old_hostname=$(cat /etc/hostname)
-	if [ -e /boot/cvi_base_uid ]; then
-		new_hostname=${prefix}-$(sha512sum /boot/cvi_base_uid | head -c 4)
-	else
-		new_hostname=${prefix}-$(sha512sum /sys/class/cvi-base/base_uid | head -c 4)
-	fi
+	new_hostname=${prefix}-$(sha512sum /device_key | head -c 4)
 
 	if [ -e /boot/hostname ]
 	then
@@ -42,11 +38,7 @@ then
 	then
 		new_ethmac=$(cat /boot/ethmac)
 	else
-		if [ -e /boot/cvi_base_uid ]; then
-			new_ethmac=$(hex2mac 48da356f$(sha512sum /boot/cvi_base_uid  | head -c 4))
-		else
-			new_ethmac=$(hex2mac 48da356f$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
-		fi
+		new_ethmac=$(hex2mac 48da356f$(sha512sum /device_key  | head -c 4))
 	fi
 
 	ifconfig eth0 down
