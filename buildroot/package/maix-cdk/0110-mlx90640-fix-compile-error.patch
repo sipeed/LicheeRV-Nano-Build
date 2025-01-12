@@ -1,0 +1,60 @@
+From ce3b543d3455431346881800191e7f016cf54b1c Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sat, 11 Jan 2025 22:54:14 +0100
+Subject: [PATCH] [mlx90640] fix compile error
+
+---
+ components/ext_devs/ext_dev_mlx90640/CMakeLists.txt | 4 ++--
+ examples/mlx90640/main/CMakeLists.txt               | 2 +-
+ projects/app_thermal_camera/main/CMakeLists.txt     | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/components/ext_devs/ext_dev_mlx90640/CMakeLists.txt b/components/ext_devs/ext_dev_mlx90640/CMakeLists.txt
+index 365f9c5..2b99515 100644
+--- a/components/ext_devs/ext_dev_mlx90640/CMakeLists.txt
++++ b/components/ext_devs/ext_dev_mlx90640/CMakeLists.txt
+@@ -1,13 +1,13 @@
+ 
+ list(APPEND ADD_INCLUDE "include")
+-list(APPEND ADD_PRIVATE_INCLUDE "src/mlx90640_lib")
++list(APPEND ADD_INCLUDE "src/mlx90640_lib")
+ 
+ 
+ append_srcs_dir(ADD_SRCS "src")
+ append_srcs_dir(ADD_SRCS "src/mlx90640_lib")
+ 
+ 
+-list(APPEND ADD_REQUIREMENTS basic peripheral vision)
++list(APPEND ADD_REQUIREMENTS basic peripheral vision ext_dev)
+ 
+ # if (PLATFORM_LINUX)
+ #     append_srcs_dir(ADD_SRCS "port/linux")
+diff --git a/examples/mlx90640/main/CMakeLists.txt b/examples/mlx90640/main/CMakeLists.txt
+index 94fb7f8..be43164 100644
+--- a/examples/mlx90640/main/CMakeLists.txt
++++ b/examples/mlx90640/main/CMakeLists.txt
+@@ -23,7 +23,7 @@ append_srcs_dir(ADD_SRCS "src")       # append source file in src dir to var ADD
+ ###############################################
+ 
+ ###### Add required/dependent components ######
+-list(APPEND ADD_REQUIREMENTS basic ext_dev)
++list(APPEND ADD_REQUIREMENTS basic ext_dev_mlx90640)
+ ###############################################
+ 
+ ###### Add link search path for requirements/libs ######
+diff --git a/projects/app_thermal_camera/main/CMakeLists.txt b/projects/app_thermal_camera/main/CMakeLists.txt
+index 8f2bed7..adfac50 100644
+--- a/projects/app_thermal_camera/main/CMakeLists.txt
++++ b/projects/app_thermal_camera/main/CMakeLists.txt
+@@ -16,7 +16,7 @@ append_srcs_dir(ADD_SRCS "app" "assets")
+ ###############################################
+ 
+ ###### Add required/dependent components ######
+-list(APPEND ADD_REQUIREMENTS basic lvgl ext_dev)
++list(APPEND ADD_REQUIREMENTS basic lvgl ext_dev_mlx90640)
+ ###############################################
+ 
+ ###### Add link search path for requirements/libs ######
+-- 
+2.34.1
+
