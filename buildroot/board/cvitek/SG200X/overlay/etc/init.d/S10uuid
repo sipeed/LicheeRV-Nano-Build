@@ -19,7 +19,7 @@ then
 		prefix=$(cat /boot/hostname.prefix)
 	fi
 	old_hostname=$(cat /etc/hostname)
-	new_hostname=${prefix}-$(sha512sum /device_key | head -c 4)
+	new_hostname=${prefix}-$(sha512sum /device_key_legacy | head -c 4)
 
 	if [ -e /boot/hostname ]
 	then
@@ -38,7 +38,7 @@ then
 	then
 		new_ethmac=$(cat /boot/ethmac)
 	else
-		new_ethmac=$(hex2mac 48da356f$(sha512sum /device_key  | head -c 4))
+		new_ethmac=$(hex2mac 48da356f$(sha512sum /device_key_legacy  | head -c 4))
 	fi
 
 	ifconfig eth0 down

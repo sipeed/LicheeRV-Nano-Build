@@ -7,5 +7,7 @@ then
 	second_uint=$(echo $str_value | cut -d'_' -f2)
 	result="$first_uint$second_uint"
 	echo $result > /device_key
+	# for compatibility with previous network mac addr
+	echo /sys/class/cvi-base/base_uid > /device_key_legacy
 fi
 

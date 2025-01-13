@@ -27,7 +27,7 @@ case "$1" in
 	    fi
 	    echo "soc temp: $soc_temp" | fbbar 32 $colorfg $colorbg
 	    colorfg=0xFFFFFFFF
-      echo "soc id: $(cat /device_key)" | fbbar 48 $colorfg $colorbg
+      echo "soc id: $(cat /device_key_legacy)" | fbbar 48 $colorfg $colorbg
       sleep 1
     done
     ) &
