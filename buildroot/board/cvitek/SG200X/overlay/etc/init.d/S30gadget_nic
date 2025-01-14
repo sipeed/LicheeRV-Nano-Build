@@ -39,7 +39,7 @@ start() {
 			then
 				new_rndismac=$(cat /boot/usb.rndis.mac)
 			else
-				new_rndismac=$(hex2mac 48da356f$(sha512sum /device_key | head -c 4))
+				new_rndismac=$(hex2mac 48da356f$(sha512sum /device_key_legacy | head -c 4))
 			fi
 			ip link set $rndis_ifname address ${new_rndismac}
 			ifconfig $rndis_ifname up
@@ -52,8 +52,8 @@ start() {
 				then
 					ipv4_prefix=`cat /boot/rndis.ipv4_prefix`
 				else
-					id2=$(printf "%d" 0x$(sha512sum /device_key | head -c 2))
-					id3=$(printf "%d" 0x$(sha512sum /device_key | head -c 4 | tail -c 2))
+					id2=$(printf "%d" 0x$(sha512sum /device_key_legacy | head -c 2))
+					id3=$(printf "%d" 0x$(sha512sum /device_key_legacy | head -c 4 | tail -c 2))
 					id3=$((id3 + 1))
 					if [ "$id2" = "$id3" ]
 					then
@@ -85,7 +85,7 @@ start() {
 			then
 				new_mac=$(cat /boot/usb.ncm.mac)
 			else
-				new_mac=$(hex2mac 48da356e$(sha512sum /device_key | head -c 4))
+				new_mac=$(hex2mac 48da356e$(sha512sum /device_key_legacy | head -c 4))
 			fi
 			ip link set $rndis_ifname address ${new_mac}
 			ifconfig $rndis_ifname up
@@ -98,8 +98,8 @@ start() {
 				then
 					ipv4_prefix=`cat /boot/ncm.ipv4_prefix`
 				else
-					id2=$(printf "%d" 0x$(sha512sum /device_key | head -c 2))
-					id3=$(printf "%d" 0x$(sha512sum /device_key | head -c 4 | tail -c 2))
+					id2=$(printf "%d" 0x$(sha512sum /device_key_legacy | head -c 2))
+					id3=$(printf "%d" 0x$(sha512sum /device_key_legacy | head -c 4 | tail -c 2))
 					if [ "$id2" = "$id3" ]
 					then
 						id2=$((id2 + 1))
