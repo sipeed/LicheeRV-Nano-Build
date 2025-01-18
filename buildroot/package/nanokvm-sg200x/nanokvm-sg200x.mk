@@ -152,6 +152,12 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 		rm -rf $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 	fi
+	if [ -e $(TARGET_DIR)/kvmapp/server/kvm_system ]; then \
+		mv $(TARGET_DIR)/kvmapp/server/kvm_system $(TARGET_DIR)/kvmapp/kvm_system/ ; \
+	else \
+		sed -i 's|# cp -r /kvmapp/server|cp -r /kvmapp/server|g' $(TARGET_DIR)/kvmapp/system/init.d/S95nanokvm ; \
+		sed -i 's|# /tmp/server/NanoKVM-Server|/tmp/server/NanoKVM-Server|g' $(TARGET_DIR)/kvmapp/system/init.d/S95nanokvm ; \
+	fi
 	rm -f $(TARGET_DIR)/kvmapp/system/ko/*.ko
 	if [ "X$(BR2_PACKAGE_TAILSCALE_RISCV64)" != "Xy" ]; then \
 		rm -f $(TARGET_DIR)/kvmapp/system/init.d/S??tailscaled ; \
