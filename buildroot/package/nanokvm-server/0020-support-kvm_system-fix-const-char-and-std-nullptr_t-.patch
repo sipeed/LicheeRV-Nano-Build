@@ -1,0 +1,53 @@
+From 9ca04cdc9f39f51e890ad9d4ed1ee6c53689d738 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Fri, 17 Jan 2025 22:40:52 +0100
+Subject: [PATCH] support: kvm_system: fix 'const char' and 'std::nullptr_t'
+ comparsion
+
+---
+ support/kvm_system/main/lib/system_state/system_state.cpp | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/support/kvm_system/main/lib/system_state/system_state.cpp b/support/kvm_system/main/lib/system_state/system_state.cpp
+index be0461f..953a805 100644
+--- a/support/kvm_system/main/lib/system_state/system_state.cpp
++++ b/support/kvm_system/main/lib/system_state/system_state.cpp
+@@ -13,7 +13,7 @@ int get_ip_addr(ip_addr_t ip_type)
+ 	switch (ip_type){
+ 		case ETH_IP: // eth_addr
+ 			if(strcmp(ip_address()["eth0"].c_str(), (char*)kvm_sys_state.eth_addr) != 0){
+-				if(*(ip_address()["eth0"].c_str()) == NULL){
++				if(*(ip_address()["eth0"].c_str()) == 0){
+ 					printf("can`t get ip addr\r\n");
+ 					kvm_sys_state.eth_addr[0] = 0;
+ 					return 0;
+@@ -28,7 +28,7 @@ int get_ip_addr(ip_addr_t ip_type)
+ 			return 1;
+ 		case WiFi_IP: // wifi_addr
+ 			if(strcmp(ip_address()["wlan0"].c_str(), (char*)kvm_sys_state.wifi_addr) != 0){
+-				if(*(ip_address()["wlan0"].c_str()) == NULL){
++				if(*(ip_address()["wlan0"].c_str()) == 0){
+ 					printf("can`t get ip addr\r\n");
+ 					kvm_sys_state.wifi_addr[0] = 0;
+ 					return 0;
+@@ -42,7 +42,7 @@ int get_ip_addr(ip_addr_t ip_type)
+ 			}
+ 			return 1;
+ 		case Tailscale_IP: // tail_addr
+-			if(*(ip_address()["tailscale0"].c_str()) == NULL){
++			if(*(ip_address()["tailscale0"].c_str()) == 0){
+ 				printf("can`t get ip addr\r\n");
+ 				kvm_sys_state.tail_addr[0] = 0;
+ 				return 0;
+@@ -55,7 +55,7 @@ int get_ip_addr(ip_addr_t ip_type)
+ 			printf("\r\n");
+ 			return 1;
+ 		case RNDIS_IP: // rndis_addr
+-			if(*(ip_address()["usb0"].c_str()) == NULL){
++			if(*(ip_address()["usb0"].c_str()) == 0){
+ 				printf("can`t get ip addr\r\n");
+ 				kvm_sys_state.rndis_addr[0] = 0;
+ 				return 0;
+-- 
+2.34.1
+

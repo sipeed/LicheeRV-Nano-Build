@@ -4,10 +4,15 @@
 #
 ################################################################################
 
-NANOKVM_SERVER_VERSION = 85f6447a16cc2591c6459b7d3dfda4d4cb75e98c
+NANOKVM_SERVER_VERSION = 1db304a5f36e07974ee93bce2758779d5f66fdc5
 NANOKVM_SERVER_SITE = $(call github,sipeed,NanoKVM,$(NANOKVM_SERVER_VERSION))
 
 NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3 opencv4
+
+ifeq ($(BR2_PACKAGE_MAIX_CDK),y)
+# Use MaixCDK to build kvm_system.
+NANOKVM_SERVER_DEPENDENCIES += maix-cdk
+endif
 
 GO_BIN = $(HOST_DIR)/bin/go
 
@@ -137,6 +142,13 @@ define NANOKVM_SERVER_BUILD_CMDS
 	$(HOST_COREPACK) pnpm install
 	cd $(@D)/web ; \
 	$(HOST_COREPACK) pnpm build
+	if [ -e $(@D)/support/kvm_system -a -e $(HOST_DIR)/bin/maixcdk ]; then \
+		rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system ; \
+		rsync -avpPxH $(@D)/support/kvm_system $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
+		cd $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/ ; \
+		$(HOST_DIR)/bin/maixcdk build -p maixcam ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/dist/kvm_system_release/kvm_system $(@D)/$(NANOKVM_SERVER_GOMOD)/ ; \
+	fi
 endef
 
 define NANOKVM_SERVER_INSTALL_TARGET_CMDS
@@ -150,6 +162,9 @@ define NANOKVM_SERVER_INSTALL_TARGET_CMDS
 	#touch $(TARGET_DIR)/kvmapp/force_dl_lib
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/NanoKVM-Server $(TARGET_DIR)/kvmapp/server/
+	if [ -e ${@D}/server/kvm_system ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/kvm_system $(TARGET_DIR)/kvmapp/server/ ; \
+	fi
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/dl_lib/
 	rsync -r --verbose --links --safe-links --hard-links ${@D}/server/dl_lib/ $(TARGET_DIR)/kvmapp/server/dl_lib/
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/web/
