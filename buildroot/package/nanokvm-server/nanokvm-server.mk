@@ -147,7 +147,7 @@ define NANOKVM_SERVER_BUILD_CMDS
 		rsync -avpPxH $(@D)/support/kvm_system $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
 		cd $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/ ; \
 		$(HOST_DIR)/bin/maixcdk build -p maixcam ; \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/dist/kvm_system_release/kvm_system $(@D)/$(NANOKVM_SERVER_GOMOD)/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/dist/kvm_system_release/kvm_system $(@D)/support/kvm_system/ ; \
 	fi
 endef
 
@@ -162,8 +162,11 @@ define NANOKVM_SERVER_INSTALL_TARGET_CMDS
 	#touch $(TARGET_DIR)/kvmapp/force_dl_lib
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/NanoKVM-Server $(TARGET_DIR)/kvmapp/server/
-	if [ -e ${@D}/server/kvm_system ]; then \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/kvm_system $(TARGET_DIR)/kvmapp/server/ ; \
+	if [ -e ${@D}/support/kvm_system/kvm_system ]; then \
+		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/support/kvm_system/kvm_system $(TARGET_DIR)/kvmapp/kvm_system/ ; \
+	else \
+		rm -f $(TARGET_DIR)/kvmapp/kvm_system/kvm_system ; \
 	fi
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/dl_lib/
 	rsync -r --verbose --links --safe-links --hard-links ${@D}/server/dl_lib/ $(TARGET_DIR)/kvmapp/server/dl_lib/
