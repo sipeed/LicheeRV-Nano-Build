@@ -76,6 +76,12 @@ endef
 
 define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SG200X_PKGDIR)/overlay/ $(TARGET_DIR)/
+	if [ -e $(TARGET_DIR)/kvmapp/kvm_system/kvm_system ]; then \
+		rm -f ${@D}/kvmapp/kvm_system/kvm_system ; \
+		touch ${@D}/.maixcdk_kvm_system ; \
+	else \
+		rm -f ${@D}/.maixcdk_kvm_system ; \
+	fi
 	mkdir -pv $(TARGET_DIR)/kvmapp/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/kvmapp/ $(TARGET_DIR)/kvmapp/
 	echo 0 > $(TARGET_DIR)/kvmapp/kvm/now_fps
@@ -85,7 +91,7 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	echo mjpeg > $(TARGET_DIR)/kvmapp/kvm/type
 	echo 0 > $(TARGET_DIR)/kvmapp/kvm/state
 	mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/
-	if [ -e $(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_SYSTEM) ]; then \
+	if [ -e $(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_SYSTEM) -a ! -e ${@D}/.maixcdk_kvm_system ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SG200X_EXT_MIDDLEWARE)/$(NANOKVM_SG200X_EXT_KVM_SYSTEM) $(TARGET_DIR)/kvmapp/kvm_system/ ; \
 	fi
 	mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/
@@ -152,9 +158,7 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 		rm -rf $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
 	fi
-	if [ -e $(TARGET_DIR)/kvmapp/server/kvm_system ]; then \
-		mv $(TARGET_DIR)/kvmapp/server/kvm_system $(TARGET_DIR)/kvmapp/kvm_system/ ; \
-	else \
+	if [ ! -e ${@D}/.maixcdk_kvm_system ]; then \
 		sed -i 's|# cp -r /kvmapp/server|cp -r /kvmapp/server|g' $(TARGET_DIR)/kvmapp/system/init.d/S95nanokvm ; \
 		sed -i 's|# /tmp/server/NanoKVM-Server|/tmp/server/NanoKVM-Server|g' $(TARGET_DIR)/kvmapp/system/init.d/S95nanokvm ; \
 	fi
