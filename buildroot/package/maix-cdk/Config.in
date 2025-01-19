@@ -8,4 +8,20 @@ config BR2_PACKAGE_MAIX_CDK
 	select BR2_PACKAGE_HARFBUZZ
 	select BR2_PACKAGE_OPENCV4
 	help
-	  maix cdk
+	  MaixCDK.
+
+if BR2_PACKAGE_MAIX_CDK
+
+config BR2_PACKAGE_MAIX_CDK_ALL_PROJECTS
+	bool "All MaixCDK projects"
+	default y
+	help
+	  Build all MaixCDK projects.
+
+config BR2_PACKAGE_MAIX_CDK_ALL_EXAMPLES
+	bool "All MaixCDK examples"
+	default n
+	help
+	  Build all MaixCDK examples.
+
+endif

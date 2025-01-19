@@ -138,7 +138,7 @@ define MAIX_CDK_BUILD_CMDS
 	if [ -e $(@D)/projects/app_uvc_camera/main/CMakeLists.txt ]; then \
 		sed -i s/'basic nn vision'/'basic vision'/g $(@D)/projects/app_uvc_camera/main/CMakeLists.txt ; \
 	fi
-	if [ -e $(@D)/distapps.sh -a -e $(@D)/projects/build_all.sh ]; then \
+	if [ "X$(BR2_PACKAGE_MAIX_CDK_ALL_PROJECTS)" = "Xy" -a -e $(@D)/distapps.sh -a -e $(@D)/projects/build_all.sh ]; then \
 		chmod +x $(@D)/projects/build_all.sh ; \
 		cd $(@D)/projects/ ; \
 		PATH=$(BR_PATH) ./build_all.sh ; \
@@ -162,7 +162,7 @@ define MAIX_CDK_BUILD_CMDS
 			mv $(@D)/examples/peripheral_gpio $(@D)/examples/switch_led ; \
 		fi ; \
 	fi
-	if [ -e $(@D)/distapps.sh -a -e $(@D)/test/test_examples/test_cases.sh ]; then \
+	if [ "X$(BR2_PACKAGE_MAIX_CDK_ALL_EXAMPLES)" = "Xy" -a -e $(@D)/distapps.sh -a -e $(@D)/test/test_examples/test_cases.sh ]; then \
 		chmod +x $(@D)/test/test_examples/test_cases.sh ; \
 		cd $(@D)/test/test_examples/ ; \
 		PATH=$(BR_PATH) ./test_cases.sh maixcam 0 ; \
