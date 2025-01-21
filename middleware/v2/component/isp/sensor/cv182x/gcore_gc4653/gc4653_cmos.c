@@ -783,7 +783,7 @@ static CVI_S32 sensor_rx_attr(VI_PIPE ViPipe, SNS_COMBO_DEV_ATTR_S *pstRxAttr)
 			pstRxAttr->mclk.freq = CAMPLL_FREQ_27M;
 		} else {
 			int fps = atoi(value);
-			if (fps == 80) {
+			if (fps >= 80) {
 				pstRxAttr->mclk.freq = CAMPLL_FREQ_37P125M;
 			} else {
 				pstRxAttr->mclk.freq = CAMPLL_FREQ_27M;

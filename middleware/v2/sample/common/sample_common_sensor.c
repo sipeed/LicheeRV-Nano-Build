@@ -221,6 +221,7 @@ static const char *snsr_type_name[SAMPLE_SNS_TYPE_BUTT] = {
 	"LONTIUM_LT6911_2M_60FPS_8BIT",
 	"GCORE_GC4653_MIPI_720P_60FPS_10BIT",
 	"GCORE_OV2685_MIPI_1600x1200_30FPS_10BIT",
+	"OV_OS04A10_MIPI_4M_720P90_12BIT"
 	/* ------ LINEAR END ------*/
 
 	/* ------ WDR 2TO1 BEGIN ------*/
@@ -534,6 +535,7 @@ CVI_S32 SAMPLE_COMM_SNS_GetSize(SAMPLE_SNS_TYPE_E enMode, PIC_SIZE_E *penSize)
 		break;
 #endif
 	case GCORE_GC4653_MIPI_720P_60FPS_10BIT:
+	case OV_OS04A10_MIPI_4M_720P90_12BIT:
 		*penSize = PIC_720P;
 		break;
 	case GCORE_OV2685_MIPI_1600x1200_30FPS_10BIT:
@@ -974,7 +976,7 @@ CVI_S32 SAMPLE_COMM_SNS_GetYuvBypassSts(SAMPLE_SNS_TYPE_E enSnsType)
  * funciton : Get ISP attr info by diffrent sensor
  ******************************************************************************/
 CVI_S32 SAMPLE_COMM_SNS_GetIspAttrBySns(SAMPLE_SNS_TYPE_E enSnsType, ISP_PUB_ATTR_S *pstPubAttr)
-{
+{printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
 	CVI_S32 s32Ret = CVI_SUCCESS;
 	PIC_SIZE_E enPicSize;
 	SIZE_S stSize;
@@ -988,13 +990,16 @@ CVI_S32 SAMPLE_COMM_SNS_GetIspAttrBySns(SAMPLE_SNS_TYPE_E enSnsType, ISP_PUB_ATT
 	pstPubAttr->stSnsSize.u32Height = stSize.u32Height;
 	pstPubAttr->stWndRect.u32Width = stSize.u32Width;
 	pstPubAttr->stWndRect.u32Height = stSize.u32Height;
-
+printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
 	// WDR mode
 	if (enSnsType >= SAMPLE_SNS_TYPE_LINEAR_BUTT)
 		pstPubAttr->enWDRMode = WDR_MODE_2To1_LINE;
-
+printf(" ================== [%s][%d] enSnsType:%d\r\n", __func__, __LINE__, enSnsType);
 	// FPS
 	switch (enSnsType) {
+	case OV_OS04A10_MIPI_4M_720P90_12BIT:printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
+		pstPubAttr->f32FrameRate = 130;printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
+		break;
 	case CVSENS_CV4001_MIPI_4M_1440P_15FPS_WDR2TO1:
 		pstPubAttr->f32FrameRate = 15;
 		break;
@@ -1288,6 +1293,7 @@ CVI_VOID *SAMPLE_COMM_SNS_GetSnsObj(SAMPLE_SNS_TYPE_E enSnsType)
 #endif
 #if defined(SENSOR_OV_OS04A10)
 	case OV_OS04A10_MIPI_4M_1440P_30FPS_12BIT:
+	case OV_OS04A10_MIPI_4M_720P90_12BIT:
 	case OV_OS04A10_MIPI_4M_1440P_30FPS_10BIT_WDR2TO1:
 		pSnsObj = &stSnsOs04a10_Obj;
 		break;
