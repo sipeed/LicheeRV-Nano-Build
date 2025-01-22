@@ -976,7 +976,7 @@ CVI_S32 SAMPLE_COMM_SNS_GetYuvBypassSts(SAMPLE_SNS_TYPE_E enSnsType)
  * funciton : Get ISP attr info by diffrent sensor
  ******************************************************************************/
 CVI_S32 SAMPLE_COMM_SNS_GetIspAttrBySns(SAMPLE_SNS_TYPE_E enSnsType, ISP_PUB_ATTR_S *pstPubAttr)
-{printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
+{
 	CVI_S32 s32Ret = CVI_SUCCESS;
 	PIC_SIZE_E enPicSize;
 	SIZE_S stSize;
@@ -990,15 +990,15 @@ CVI_S32 SAMPLE_COMM_SNS_GetIspAttrBySns(SAMPLE_SNS_TYPE_E enSnsType, ISP_PUB_ATT
 	pstPubAttr->stSnsSize.u32Height = stSize.u32Height;
 	pstPubAttr->stWndRect.u32Width = stSize.u32Width;
 	pstPubAttr->stWndRect.u32Height = stSize.u32Height;
-printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
+
 	// WDR mode
 	if (enSnsType >= SAMPLE_SNS_TYPE_LINEAR_BUTT)
 		pstPubAttr->enWDRMode = WDR_MODE_2To1_LINE;
-printf(" ================== [%s][%d] enSnsType:%d\r\n", __func__, __LINE__, enSnsType);
+
 	// FPS
 	switch (enSnsType) {
-	case OV_OS04A10_MIPI_4M_720P90_12BIT:printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
-		pstPubAttr->f32FrameRate = 130;printf(" ================== [%s][%d]\r\n", __func__, __LINE__);
+	case OV_OS04A10_MIPI_4M_720P90_12BIT:
+		pstPubAttr->f32FrameRate = 90;
 		break;
 	case CVSENS_CV4001_MIPI_4M_1440P_15FPS_WDR2TO1:
 		pstPubAttr->f32FrameRate = 15;
