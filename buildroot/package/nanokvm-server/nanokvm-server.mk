@@ -7,7 +7,7 @@
 NANOKVM_SERVER_VERSION = 1db304a5f36e07974ee93bce2758779d5f66fdc5
 NANOKVM_SERVER_SITE = $(call github,sipeed,NanoKVM,$(NANOKVM_SERVER_VERSION))
 
-NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3 opencv4
+NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3
 
 ifeq ($(BR2_PACKAGE_MAIX_CDK),y)
 # Use MaixCDK to build kvm_system.
@@ -135,8 +135,8 @@ define NANOKVM_SERVER_BUILD_CMDS
 	GOPROXY=direct GOSUMDB="sum.golang.org" $(GO_BIN) mod tidy
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	sed -i 's|-L../dl_lib -lkvm|-L../dl_lib -L$(TARGET_DIR)/usr/lib -lkvm|g' common/cgo.go ; \
-	sed -i s/' -lkvm$$'/' -lkvm -lmaixcam_lib -latomic -lae -laf -lawb -lcvi_bin -lcvi_bin_isp -lini -lisp -lisp_algo -lsys -lvdec -lvenc -lvpu'/g common/cgo.go ; \
-	sed -i s/'-lmaixcam_lib -latomic'/'-lmaixcam_lib -ljpeg -lopencv_calib3d -lopencv_core -lopencv_dnn -lopencv_features2d -lopencv_flann -lopencv_gapi -lopencv_imgcodecs -lopencv_imgproc -lopencv_objdetect -lopencv_video -lpng -lprotobuf -lsharpyuv -ltbb -ltiff -lwebp -lz -latomic'/g common/cgo.go ; \
+	sed -i s/' -lkvm$$'/' -lkvm -lmaixcam_lib -latomic -lae -laf -lawb -lcvi_bin -lcvi_bin_isp -lini -lisp -lisp_algo -lsys -lvdec -lvenc -lvpu'/g common/cgo.go
+	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	CGO_ENABLED=1 $(NANOKVM_SERVER_GO_ENV) $(GO_BIN) build -x -ldflags="-extldflags '-Wl,-rpath,\$$ORIGIN/dl_lib'"
 	cd $(@D)/web ; \
 	$(HOST_COREPACK) pnpm install
