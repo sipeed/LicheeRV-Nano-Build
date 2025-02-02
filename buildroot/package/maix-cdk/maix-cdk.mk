@@ -130,7 +130,7 @@ define MAIX_CDK_BUILD_CMDS
 	cd $(@D)/ ; \
 	$(HOST_DIR)/bin/python3 -m pip install -r requirements.txt
 	cd $(@D)/examples/$(MAIX_CDK_SAMPLE)/ ; \
-	$(HOST_DIR)/bin/maixcdk build -p maixcam
+	PATH=$(BR_PATH) $(HOST_DIR)/bin/maixcdk build -p maixcam
 	rm -rf $(@D)/projects/app_classifier/
 	rm -rf $(@D)/projects/app_detector/
 	rm -rf $(@D)/projects/app_self_learn_tracker/
