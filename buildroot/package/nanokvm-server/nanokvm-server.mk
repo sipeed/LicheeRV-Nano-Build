@@ -29,6 +29,9 @@ HOST_NODEJS_BIN_ENV = $(HOST_CONFIGURE_OPTS) \
 
 HOST_COREPACK = $(HOST_NODEJS_BIN_ENV) $(HOST_DIR)/bin/corepack
 
+NANOKVM_SERVER_PNPM_VERSION = 9.15.5
+NANOKVM_SERVER_PNPM_SHA_SUM = cb1f6372ef64e2ba352f2f46325adead1c99ff8f
+
 NANOKVM_SERVER_GOMOD = server
 
 NANOKVM_SERVER_EXT_MIDDLEWARE = $(realpath $(TOPDIR)/../middleware/v2)
@@ -139,6 +142,8 @@ define NANOKVM_SERVER_BUILD_CMDS
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	CGO_ENABLED=1 $(NANOKVM_SERVER_GO_ENV) $(GO_BIN) build -x -ldflags="-extldflags '-Wl,-rpath,\$$ORIGIN/dl_lib'"
 	cd $(@D)/web ; \
+	$(HOST_COREPACK) install -g pnpm@$(NANOKVM_SERVER_PNPM_VERSION)+sha1.$(NANOKVM_SERVER_PNPM_SHA_SUM) ; \
+	$(HOST_COREPACK) use pnpm@$(NANOKVM_SERVER_PNPM_VERSION) ; \
 	$(HOST_COREPACK) pnpm install
 	cd $(@D)/web ; \
 	$(HOST_COREPACK) pnpm build
