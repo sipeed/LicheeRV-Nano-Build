@@ -146,7 +146,7 @@ define NANOKVM_SERVER_BUILD_CMDS
 		rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system ; \
 		rsync -avpPxH $(@D)/support/kvm_system $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
 		cd $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/ ; \
-		$(HOST_DIR)/bin/maixcdk build -p maixcam ; \
+		PATH=$(BR_PATH) $(HOST_DIR)/bin/maixcdk build -p maixcam ; \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/dist/kvm_system_release/kvm_system $(@D)/support/kvm_system/ ; \
 	fi
 endef
