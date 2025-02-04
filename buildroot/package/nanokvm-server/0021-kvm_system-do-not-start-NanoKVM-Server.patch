@@ -1,0 +1,36 @@
+From ee222a9b90b0a80e1a0ddad9f5bb05be39f225d0 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Tue, 4 Feb 2025 02:56:51 +0100
+Subject: [PATCH] kvm_system: do not start NanoKVM-Server
+
+---
+ .../kvm_system/main/lib/system_init/system_init.cpp | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/support/kvm_system/main/lib/system_init/system_init.cpp b/support/kvm_system/main/lib/system_init/system_init.cpp
+index f0c4cd3..7e5f57d 100644
+--- a/support/kvm_system/main/lib/system_init/system_init.cpp
++++ b/support/kvm_system/main/lib/system_init/system_init.cpp
+@@ -149,19 +149,6 @@ void init_upadte(void)
+ 			update_resolv_conf();
+ 		}
+ 	}
+-
+-	// libmaixcam_lib.so
+-	if(access("/kvmapp/kvm_system/dl_lib/libmaixcam_lib.so", F_OK) == 0){
+-		// exist
+-		system("cp -f /kvmapp/kvm_system/dl_lib/libmaixcam_lib.so /kvmapp/server/dl_lib");
+-	} else {
+-		printf("kvm_system not exist lib!\n");
+-	}
+-	system("sync");
+-	system("killall NanoKVM-Server");
+-	system("rm -r /tmp/server");
+-	system("cp -r /kvmapp/server /tmp/");
+-	system("/tmp/server/NanoKVM-Server &");
+ }
+ 
+ void first_start(void)
+-- 
+2.34.1
+
