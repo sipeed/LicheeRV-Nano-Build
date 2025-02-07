@@ -1,0 +1,82 @@
+From 86c80c3308fca7f6fcb8a502b6861bb0c3efe2c0 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sat, 11 Jan 2025 16:30:55 +0100
+Subject: [PATCH] vision: camera: add support for gc2083
+
+---
+ .../vision/port/maixcam/maix_camera_mmf.cpp   | 26 +++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
+
+diff --git a/components/3rd_party/sophgo-middleware/CMakeLists.txt b/components/3rd_party/sophgo-middleware/CMakeLists.txt
+index 44eabee..85b70b8 100644
+--- a/components/3rd_party/sophgo-middleware/CMakeLists.txt
++++ b/components/3rd_party/sophgo-middleware/CMakeLists.txt
+@@ -20,6 +20,7 @@ append_srcs_dir(middleware_src_dir  ${middleware_src_path}/v2/sample/common
+                                     ${middleware_src_path}/v2/component/isp/sensor/sg200x/lontium_lt6911
+                                     ${middleware_src_path}/v2/component/isp/sensor/sg200x/ov_os04a10
+                                     ${middleware_src_path}/v2/component/isp/sensor/sg200x/gcore_gc02m1
++                                    ${middleware_src_path}/v2/component/isp/sensor/sg200x/gcore_gc2083
+                                     )
+ list(APPEND ADD_SRCS        ${middleware_src_dir})
+ set_property(SOURCE ${middleware_src_dir} PROPERTY GENERATED 1)
+@@ -72,4 +72,5 @@ list(APPEND ADD_DEFINITIONS_PRIVATE -DSENSOR_OV_OV2685)
+ list(APPEND ADD_DEFINITIONS_PRIVATE -DSENSOR_LONTIUM_LT6911)
+ list(APPEND ADD_DEFINITIONS_PRIVATE -DSENSOR_OV_OS04A10)
+ list(APPEND ADD_DEFINITIONS_PRIVATE -DSENSOR_GCORE_GC02M1)
++list(APPEND ADD_DEFINITIONS_PRIVATE -DSENSOR_GCORE_GC2083)
+ register_component(DYNAMIC)
+\ No newline at end of file
+diff --git a/components/vision/port/maixcam/maix_camera_mmf.cpp b/components/vision/port/maixcam/maix_camera_mmf.cpp
+index e8b348f..7db069c 100644
+--- a/components/vision/port/maixcam/maix_camera_mmf.cpp
++++ b/components/vision/port/maixcam/maix_camera_mmf.cpp
+@@ -335,8 +335,8 @@ _retry:
+                     snprintf(name, sizeof(name), "ov_os04a10");
+                     return {true, name};
+                 case 0x37:
+-                    // log::info("find ov_os04a10, addr %#x", addr_list[i]);
+-                    snprintf(name, sizeof(name), "gcore_gc02m1");
++                    // log::info("find gcore_gc2083, addr %#x", addr_list[i]);
++                    snprintf(name, sizeof(name), "gcore_gc2083");
+                     return {true, name};
+                 case 0x48:// fall through
+                 case 0x3c:
+@@ -540,6 +540,17 @@ _retry:
+                 sensor_cfg.exptime_min = 33333;
+                 vi_format = PIXEL_FORMAT_NV21;
+                 vi_vpss_format = PIXEL_FORMAT_NV21;
++            } else if (!strcmp(sensor_name, "gcore_gc2083")) {
++                sensor_cfg.sns_type = GCORE_GC2083_MIPI_2M_30FPS_10BIT;
++                sensor_cfg.lane_id = {1, 0, 2, -1, -1};
++                sensor_cfg.pn_swap = {0, 0, 0, 0, 0};
++                sensor_cfg.mclk_en = 1;
++                sensor_cfg.i2c_addr = 0x37;
++                sensor_cfg.exptime_max = 363636;
++                sensor_cfg.exptime_min = 33333;
++                vi_format = PIXEL_FORMAT_NV21;
++                vi_vpss_format = PIXEL_FORMAT_NV21;
++                err::check_bool_raise(!CVI_BIN_SetBinName(WDR_MODE_NONE, "/mnt/cfg/param/cvi_sdr_bin_GC2083"), "set config path failed!");
+             } else { // default is gcore_gc4653
+                 if (width <= 1280 && height <= 720 && fps > 30) {
+                     sensor_cfg.sns_type = GCORE_GC4653_MIPI_720P_60FPS_10BIT;
+@@ -609,6 +620,17 @@ _retry:
+                 sensor_cfg.exptime_min = 33333;
+                 vi_format = PIXEL_FORMAT_NV21;
+                 vi_vpss_format = PIXEL_FORMAT_NV21;
++            } else if (!strcmp(sensor_name, "gcore_gc2083")) {
++                sensor_cfg.sns_type = GCORE_GC2083_MIPI_2M_30FPS_10BIT;
++                sensor_cfg.lane_id = {1, 0, 2, -1, -1};
++                sensor_cfg.pn_swap = {0, 0, 0, 0, 0};
++                sensor_cfg.mclk_en = 1;
++                sensor_cfg.i2c_addr = 0x37;
++                sensor_cfg.exptime_max = 363636;
++                sensor_cfg.exptime_min = 33333;
++                vi_format = PIXEL_FORMAT_NV21;
++                vi_vpss_format = PIXEL_FORMAT_NV21;
++                err::check_bool_raise(!CVI_BIN_SetBinName(WDR_MODE_NONE, "/mnt/cfg/param/cvi_sdr_bin_GC2083"), "set config path failed!");
+             } else { // default is gcore_gc4653
+                 if (width <= 1280 && height <= 720 && fps > 30) {
+                     sensor_cfg.sns_type = GCORE_GC4653_MIPI_720P_60FPS_10BIT;
+-- 
+2.34.1
+

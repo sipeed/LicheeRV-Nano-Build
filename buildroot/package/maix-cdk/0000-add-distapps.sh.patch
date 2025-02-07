@@ -1,0 +1,61 @@
+From 41f213a4fff2ea878ee888c99d38ed47cbe93476 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sun, 27 Oct 2024 07:24:26 +0100
+Subject: [PATCH] add distapps.sh
+
+---
+ distapps.sh | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+ create mode 100755 distapps.sh
+
+diff --git a/distapps.sh b/distapps.sh
+new file mode 100755
+index 0000000..723b1d7
+--- /dev/null
++++ b/distapps.sh
+@@ -0,0 +1,42 @@
++#!/bin/sh
++m=`dirname $0`
++t=${m}/dist
++rm -rf ${t}/maixapp/
++mkdir -p ${t}
++t=${t}/maixapp
++mkdir ${t}
++mkdir ${t}/lib
++mkdir ${t}/tmp
++l=${t}/lib
++echo "projects:"
++for d in $m/projects/app_* ; do
++  a=`dirname $d`
++  b=`basename $d | cut -d '_' -f 2-`
++  #if [ ! -e ${d}/dist/${b}_release/${b} ]; then
++  if [  -e ${a}/apps/${b}/${b} ]; then
++    echo $b
++    mkdir ${t}/${b}
++    rsync -avpPxH ${a}/apps/${b}/ ${t}/${b}/
++    chmod +x ${t}/${b}/${b}
++    if [ -d ${t}/${b}/dl_lib ]; then
++      rsync -avpPxH ${a}/apps/${b}/dl_lib/ ${l}/
++      rm -rf ${t}/${b}/dl_lib/
++      ln -s ../lib ${t}/${b}/dl_lib
++    fi
++  fi
++done
++echo "examples:"
++for d in $m/examples/* ; do
++  b=`basename $d`
++  if [  -e ${d}/dist/${b}_release/${b} ]; then
++    echo $b
++    mkdir ${t}/${b}
++    rsync -avpPxH ${d}/dist/${b}_release/ ${t}/${b}/
++    chmod +x ${t}/${b}/${b}
++    if [ -d ${t}/${b}/dl_lib ]; then
++      rsync -avpPxH ${d}/dist/${b}_release/dl_lib/ ${l}/
++      rm -rf ${t}/${b}/dl_lib/
++      ln -s ../lib ${t}/${b}/dl_lib
++   fi
++  fi
++done
+-- 
+2.34.1
+
