@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-NANOKVM_SERVER_VERSION = 9caf34e64139681f3fe58ba5e16914c3b90f32eb
+NANOKVM_SERVER_VERSION = 6eb4a4ea6254f465a47f9881d13934c686649061
 NANOKVM_SERVER_SITE = $(call github,sipeed,NanoKVM,$(NANOKVM_SERVER_VERSION))
 
 NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3
@@ -133,6 +133,7 @@ define NANOKVM_SERVER_BUILD_CMDS
 	     -e $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm.so ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_KVM_VISION) $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
 		chmod ugo+rx $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm.so ; \
+		rm -f $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm_mmf.so ; \
 	fi
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	GOPROXY=direct GOSUMDB="sum.golang.org" $(GO_BIN) mod tidy
