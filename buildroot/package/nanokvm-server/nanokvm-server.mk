@@ -35,6 +35,7 @@ NANOKVM_SERVER_PNPM_SHA_SUM = cb1f6372ef64e2ba352f2f46325adead1c99ff8f
 NANOKVM_SERVER_GOMOD = server
 
 NANOKVM_SERVER_EXT_MIDDLEWARE = $(realpath $(TOPDIR)/../middleware/v2)
+NANOKVM_SERVER_EXT_KVM_MMF = sample/test_mmf/kvm_mmf/release.linux/libkvm_mmf.so
 NANOKVM_SERVER_EXT_KVM_VISION = sample/test_mmf/kvm_vision/release.linux/libkvm.so
 NANOKVM_SERVER_EXT_MAIXCAM_LIB = sample/test_mmf/maixcam_lib/release.linux/libmaixcam_lib.so
 
@@ -89,7 +90,9 @@ NANOKVM_SERVER_DUMMY_LIBS = \
 define NANOKVM_SERVER_BUILD_CMDS
 	mkdir -pv $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/
 	rm -f $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libopencv_*.so*
-	if [ -e $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_MAIXCAM_LIB) ]; then \
+	if [ -e $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_KVM_MMF) ]; then \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_KVM_MMF) $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
+	elif [ -e $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_MAIXCAM_LIB) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_MAIXCAM_LIB) $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
 	fi
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SERVER_EXT_MIDDLEWARE)/lib/3rd/libini.so $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/
@@ -133,13 +136,16 @@ define NANOKVM_SERVER_BUILD_CMDS
 	     -e $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm.so ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_KVM_VISION) $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
 		chmod ugo+rx $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm.so ; \
-		rm -f $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm_mmf.so ; \
 	fi
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	GOPROXY=direct GOSUMDB="sum.golang.org" $(GO_BIN) mod tidy
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	sed -i 's|-L../dl_lib -lkvm|-L../dl_lib -L$(TARGET_DIR)/usr/lib -lkvm|g' common/cgo.go ; \
 	sed -i s/' -lkvm$$'/' -lkvm -lmaixcam_lib -latomic -lae -laf -lawb -lcvi_bin -lcvi_bin_isp -lini -lisp -lisp_algo -lsys -lvdec -lvenc -lvpu'/g common/cgo.go
+	if [ -e $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm_mmf.so ]; then \
+		cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
+		sed -i s/'maixcam_lib'/'kvm_mmf'/g common/cgo.go ; \
+	fi
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	CGO_ENABLED=1 $(NANOKVM_SERVER_GO_ENV) $(GO_BIN) build -x -ldflags="-extldflags '-Wl,-rpath,\$$ORIGIN/dl_lib'"
 	cd $(@D)/web ; \
