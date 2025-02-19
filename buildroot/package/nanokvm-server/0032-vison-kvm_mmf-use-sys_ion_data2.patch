@@ -1,0 +1,48 @@
+From 11903edfbc2b46bb17af8efba631a86e21639b87 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Wed, 19 Feb 2025 19:09:47 +0100
+Subject: [PATCH 2/3] vison: kvm_mmf: use sys_ion_data2
+
+---
+ vision/components/kvm_mmf/src/kvm_mmf.cpp | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/vision/components/kvm_mmf/src/kvm_mmf.cpp b/vision/components/kvm_mmf/src/kvm_mmf.cpp
+index 054d812..b83cff6 100644
+--- a/vision/components/kvm_mmf/src/kvm_mmf.cpp
++++ b/vision/components/kvm_mmf/src/kvm_mmf.cpp
+@@ -11,6 +11,13 @@
+ #include <inttypes.h>
+ 
+ #include <fcntl.h>		/* low-level i/o */
++#ifdef __cplusplus
++extern "C" {
++#endif
++extern int ionFree(struct sys_ion_data *para);
++#ifdef __cplusplus
++}
++#endif
+ #include "cvi_buffer.h"
+ #include "cvi_ae_comm.h"
+ #include "cvi_awb_comm.h"
+@@ -297,7 +304,7 @@ static int _free_leak_memory_of_ion(void)
+ 			if (strcmp(buffer_name, "VI_DMA_BUF")
+ 				&& strcmp(buffer_name, "ISP_SHARED_BUFFER_0"))
+ 				continue;
+-			struct sys_ion_data_new ion_data = {
++			struct sys_ion_data2 ion_data = {
+ 				.cached = 1,
+ 				.dmabuf_fd = (uint32_t)-1,
+ 			};
+@@ -315,7 +322,7 @@ static int _free_leak_memory_of_ion(void)
+ 
+ 			printf("ion_data.size:%d, ion_data.addr_p:%#x, ion_data.name:%s\r\n", ion_data.size, (int)ion_data.addr_p, ion_data.name);
+ 
+-			int res = ionFree(&ion_data);
++			int res = ionFree((struct sys_ion_data *)&ion_data);
+ 			if (res) {
+ 				printf("ionFree failed! res:%#x\r\n", res);
+ 				mmf_deinit();
+-- 
+2.34.1
+
