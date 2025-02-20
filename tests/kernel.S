@@ -16,44 +16,13 @@ _start:
 .section .text.kernel
 main:
         lla s0, tjm
-        call _print
-        call _reset
-        ret
-
-# bad print func
-# expects base addr of string in t0
-_print:
-        # set counter to 0
-        add t0, s0, zero
-print_loop:
-        li a7, 0x1 # SBI_EXT_0_1_CONSOLE_PUTCHAR
-        lb a0, (t0)
-        beqz a0, done
-        ecall
-        addi t0, t0, 0x1
-        j print_loop
-done:
-        ret
-
-# reset function
-_reset:
-        #li a7, 0x53525354 # extid SBI_EXT_SRST
-        #li a6, 0x0 # funcid SBI_EXT_SRST_RESET
-        #li a0, 0x1 # SBI_SRST_RESET_TYPE_COLD_REBOOT
-        #li a1, 0x0 # SBI_SRST_RESET_REASON_NONE
-        #ecall
-
-        li a7, 0x8 # SBI_EXT_0_1_SHUTDOWN
-        ecall
-
-        # debug
-        lla s0, debug
-        call _print
+        #call _print
+        #call _reset
         ret
 
 .section .rodata
-tjm:
-        .incbin "tjm.txt"
+text:
+        .incbin "text.txt"
         .byte 0
 debug:
         .string "debug"

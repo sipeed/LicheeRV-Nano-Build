@@ -3,7 +3,7 @@ ifneq ($(CONFIG_CUSTOM_KERNEL),"")
 opensbi:
 	$(call print_target)
 	${Q}$(MAKE) -j${NPROC} -C ${OPENSBI_PATH} PLATFORM=generic PLATFORM_DEFCONFIG=platform/generic/configs/defconfig \
-	    FW_PAYLOAD_PATH=$(CONFIG_CUSTOM_KERNEL) FW_TEXT_START=0x80000000 \
+	    FW_PAYLOAD_PATH=${TOP_DIR}/$(CONFIG_CUSTOM_KERNEL) FW_TEXT_START=0x80000000 \
 	    FW_FDT_PATH=${UBOOT_PATH}/${UBOOT_OUTPUT_FOLDER}/arch/riscv/dts/${CHIP}_${BOARD}.dtb
 else
 opensbi: u-boot-build
@@ -41,7 +41,7 @@ fsbl-build: u-boot-build memory-map
 	${Q}mkdir -p ${FSBL_PATH}/build
 	${Q}ln -snrf -t ${FSBL_PATH}/build ${CVI_BOARD_MEMMAP_H_PATH}
 	${Q}$(MAKE) -j${NPROC} -C ${FSBL_PATH} O=${FSBL_OUTPUT_PATH} BLCP_2ND_PATH=${BLCP_2ND_PATH} \
-		LOADER_2ND_PATH=$(CONFIG_CUSTOM_KERNEL)
+		LOADER_2ND_PATH=${TOP_DIR}/$(CONFIG_CUSTOM_KERNEL)
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/
 	${Q}cp ${FSBL_OUTPUT_PATH}/fip.bin ${OUTPUT_DIR}/fip_spl.bin
 else
