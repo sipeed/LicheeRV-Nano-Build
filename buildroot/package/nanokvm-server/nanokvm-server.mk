@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-NANOKVM_SERVER_VERSION = b35542a44619aa68548ae1b1f5abd7fade948d97
+NANOKVM_SERVER_VERSION = e4367f0b69dbd06ee220d3a8ecd490fb92d85554
 NANOKVM_SERVER_SITE = $(call github,sipeed,NanoKVM,$(NANOKVM_SERVER_VERSION))
 
 NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3
