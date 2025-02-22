@@ -1,0 +1,237 @@
+From c74bba730f952a274b6cb92c52ea015c2b8a8e0d Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sat, 22 Feb 2025 17:05:25 +0100
+Subject: [PATCH] vison: kvm: show test picture if no input signal is detected
+
+---
+ vision/components/kvm/src/kvm_vision.cpp | 181 +++++++++++++++++++++++
+ 1 file changed, 181 insertions(+)
+
+diff --git a/vision/components/kvm/src/kvm_vision.cpp b/vision/components/kvm/src/kvm_vision.cpp
+index 0afd8f8..8f7af14 100644
+--- a/vision/components/kvm/src/kvm_vision.cpp
++++ b/vision/components/kvm/src/kvm_vision.cpp
+@@ -9,6 +9,9 @@
+  * // deinit时free全部内存
+  * // free 错内存时会炸的问题
+  */
++
++#include "cvi_buffer.h"
++
+ #include "kvm_vision.h"
+ 
+ #define default_venc_chn        1
+@@ -79,6 +82,7 @@ typedef struct {
+     uint8_t hdmi_reading_flag = 0;
+     uint8_t hdmi_mode = 0;
+     uint8_t vi_detect_state = 0;
++    image::Image *no_signal_img = NULL;
+ } kvmv_cfg_t;
+ 
+ typedef struct {
+@@ -138,6 +142,170 @@ kvmv_data_t* get_save_buffer()
+     return NULL;
+ }
+ 
++static void _rgb888_to_nv21(uint8_t* data, uint32_t w, uint32_t h, uint8_t* yuv)
++{
++    uint32_t row_bytes;
++    uint8_t* uv;
++    uint8_t* y;
++    uint8_t r, g, b;
++    uint8_t y_val, u_val, v_val;
++
++    uint8_t * img;
++    uint32_t i, j;
++    y = yuv;
++    uv = yuv + w * h;
++
++    row_bytes = (w * 3 );
++    h = h & ~1;
++    //先转换Y
++    for (i = 0; i < h; i++)
++    {
++	img = data + row_bytes * i;
++	for (j = 0; j <w; j++)
++	{
++	    r = *(img+3*j);
++	    g = *(img+3*j+1);
++	    b = *(img+3*j+2);
++	    if(r>=254&&g>=254&&b>=254)
++	    {
++		y_val=254;
++		*y++ = y_val;
++		continue;
++	    }
++	    y_val = (uint8_t)(((int)(299 * r) + (int)(597 * g) + (int)(114 * b)) / 1000);
++	    *y++ = y_val;
++	}
++    }
++    //转换uv
++    for (i = 0; i <h; i += 2)
++    {
++	img = data + row_bytes * i;
++	for (j = 0; j < w; j+=2)
++	{
++	    r = *(img+3*j);
++	    g = *(img+3*j+1);
++	    b = *(img+3*j+2);
++	    u_val= (uint8_t)(((int)(-168.7 * r) - (int)(331.3 * g) + (int)(500 * b) + 128000) / 1000);
++	    v_val= (uint8_t)(((int)(500 * r) - (int)(418.7 * g) - (int)(81.3 * b) + 128000) / 1000);
++	    *uv++ = v_val;
++	    *uv++ = u_val;
++	}
++   }
++}
++
++static uint8_t *_prepare_image(int width, int height, int format)
++{
++	switch (format) {
++	case PIXEL_FORMAT_RGB_888:
++	{
++		uint8_t *rgb_data = (uint8_t *)malloc(width * height * 3);
++		int x_oft = 0;
++		int remain_width = width;
++		int segment_width = width / 6;
++		int idx = 0;
++		while (remain_width > 0) {
++			int seg_w = (remain_width > segment_width) ? segment_width : remain_width;
++			uint8_t r,g,b;
++			switch (idx) {
++			case 0: r = 0xff, g = 0x00, b = 0x00; break;
++			case 1: r = 0x00, g = 0xff, b = 0x00; break;
++			case 2: r = 0x00, g = 0x00, b = 0xff; break;
++			case 3: r = 0xff, g = 0xff, b = 0x00; break;
++			case 4: r = 0xff, g = 0x00, b = 0xff; break;
++			case 5: r = 0x00, g = 0xff, b = 0xff; break;
++			default: r = 0x00, g = 0x00, b = 0x00; break;
++			}
++			idx ++;
++			for (int i = 0; i < height; i ++) {
++				for (int j = 0; j < seg_w; j ++) {
++					rgb_data[(i * width + x_oft + j) * 3 + 0] = r;
++					rgb_data[(i * width + x_oft + j) * 3 + 1] = g;
++					rgb_data[(i * width + x_oft + j) * 3 + 2] = b;
++				}
++			}
++			x_oft += seg_w;
++			remain_width -= seg_w;
++		}
++
++		for (int i = 0; i < height; i ++) {
++			uint8_t *buff = &rgb_data[(i * width + i) * 3];
++			buff[0] = 0xff;
++			buff[1] = 0xff;
++			buff[2] = 0xff;
++		}
++		for (int i = 0; i < height; i ++) {
++			uint8_t *buff = &rgb_data[(i * width + i + width - height) * 3];
++			buff[0] = 0xff;
++			buff[1] = 0xff;
++			buff[2] = 0xff;
++		}
++
++		return rgb_data;
++	}
++	case PIXEL_FORMAT_ARGB_8888:
++	{
++		uint8_t *rgb_data = (uint8_t *)malloc(width * height * 4);
++		memset(rgb_data, 0x00, width * height * 4);
++		int x_oft = 0;
++		int remain_width = width;
++		int segment_width = width / 6;
++		int idx = 0;
++		while (remain_width > 0) {
++			int seg_w = (remain_width > segment_width) ? segment_width : remain_width;
++			uint8_t r,g,b,a;
++			switch (idx) {
++			case 0: r = 0xff, g = 0x00, b = 0x00; a = 0x10; break;
++			case 1: r = 0x00, g = 0xff, b = 0x00; a = 0x20; break;
++			case 2: r = 0x00, g = 0x00, b = 0xff; a = 0x40; break;
++			case 3: r = 0xff, g = 0xff, b = 0x00; a = 0x60; break;
++			case 4: r = 0xff, g = 0x00, b = 0xff; a = 0x80; break;
++			case 5: r = 0x00, g = 0xff, b = 0xff; a = 0xA0; break;
++			default: r = 0x00, g = 0x00, b = 0x00; a = 0xC0; break;
++			}
++			idx ++;
++			for (int i = 0; i < height; i ++) {
++				for (int j = 0; j < seg_w; j ++) {
++					rgb_data[(i * width + x_oft + j) * 4 + 0] = r;
++					rgb_data[(i * width + x_oft + j) * 4 + 1] = g;
++					rgb_data[(i * width + x_oft + j) * 4 + 2] = b;
++					rgb_data[(i * width + x_oft + j) * 4 + 3] = a;
++				}
++			}
++			x_oft += seg_w;
++			remain_width -= seg_w;
++		}
++
++		// for (int i = 0; i < height; i ++) {
++		// 	uint8_t *buff = &rgb_data[(i * width + i) * 4];
++		// 	buff[0] = 0xff;
++		// 	buff[1] = 0xff;
++		// 	buff[2] = 0xff;
++		// }
++		// for (int i = 0; i < height; i ++) {
++		// 	uint8_t *buff = &rgb_data[(i * width + i + width - height) * 4];
++		// 	buff[0] = 0xff;
++		// 	buff[1] = 0xff;
++		// 	buff[2] = 0xff;
++		// }
++
++		return rgb_data;
++	}
++	case PIXEL_FORMAT_NV21:
++	{
++		uint8_t *rgb_data = _prepare_image(width, height, PIXEL_FORMAT_RGB_888);
++		uint8_t *nv21 = (uint8_t *)malloc(width * height * 3 / 2);
++		_rgb888_to_nv21(rgb_data, width, height, nv21);
++		free(rgb_data);
++		return nv21;
++	}
++	break;
++	default:
++		debug("[kvmv]%s: Only support PIXEL_FORMAT_RGB_888\r\n", __func__);
++		break;
++	}
++	return NULL;
++}
++
+ // ====HDMI RES==================================================
+ 
+ uint16_t hdmi_res_list[][2] = {
+@@ -1408,11 +1576,22 @@ int kvmv_read_img(uint16_t _width, uint16_t _height, uint8_t _type, uint16_t _ql
+         if (kvmv_cfg.reinit_flag == 1) { 
+             cam->hmirror(1);
+             cam->vflip(1);
++            if (kvmv_cfg.no_signal_img != NULL) delete kvmv_cfg.no_signal_img;
++            kvmv_cfg.no_signal_img = new image::Image(kvmv_cfg.vpss_width, kvmv_cfg.vpss_height, image::Format::FMT_YVU420SP);
++            if (kvmv_cfg.no_signal_img) {
++                uint8_t *rgb_data = _prepare_image(kvmv_cfg.no_signal_img->width(), kvmv_cfg.no_signal_img->height(), PIXEL_FORMAT_RGB_888);
++                _rgb888_to_nv21(rgb_data, kvmv_cfg.no_signal_img->width(), kvmv_cfg.no_signal_img->height(), (uint8_t*)kvmv_cfg.no_signal_img->data());
++                free(rgb_data);
++            }
++
+ 			kvmv_cfg.reinit_flag = 0;
+         }
+         // debug("[kvmv]befor read img: %d \r\n", (int)(time::time_ms() - start_time));
+         image::Image *img = cam->read();
+         // debug("[kvmv]read img: %d \r\n", (int)(time::time_ms() - start_time));
++        if(img == NULL && kvmv_cfg.no_signal_img != NULL) {
++                img = kvmv_cfg.no_signal_img->copy();
++        }
+         if(img != NULL){
+ 			if(kvmv_cfg.cam_state == 0) {
+ 				kvmv_cfg.cam_state = 1;
+@@ -1729,6 +1729,8 @@ void free_all_kvmv_data()
+     if(kvmv_PPS_buffer.p_img_data != NULL) free(kvmv_PPS_buffer.p_img_data);
+     kvmv_SPS_buffer.p_img_data = NULL;
+     kvmv_PPS_buffer.p_img_data = NULL;
++    if (kvmv_cfg.no_signal_img != NULL) delete kvmv_cfg.no_signal_img;
++    kvmv_cfg.no_signal_img = NULL;
+ }
+ 
+ void kvmv_deinit()
+-- 
+2.34.1
+
