@@ -5,13 +5,13 @@ Subject: [PATCH] support: kvm_system: fix 'const char' and 'std::nullptr_t'
  comparsion
 
 ---
- support/kvm_system/main/lib/system_state/system_state.cpp | 8 ++++----
+ support/sg2002/kvm_system/main/lib/system_state/system_state.cpp | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/support/kvm_system/main/lib/system_state/system_state.cpp b/support/kvm_system/main/lib/system_state/system_state.cpp
+diff --git a/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp b/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp
 index be0461f..953a805 100644
---- a/support/kvm_system/main/lib/system_state/system_state.cpp
-+++ b/support/kvm_system/main/lib/system_state/system_state.cpp
+--- a/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp
++++ b/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp
 @@ -13,7 +13,7 @@ int get_ip_addr(ip_addr_t ip_type)
  	switch (ip_type){
  		case ETH_IP: // eth_addr

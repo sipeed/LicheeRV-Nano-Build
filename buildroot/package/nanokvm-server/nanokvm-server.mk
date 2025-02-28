@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-NANOKVM_SERVER_VERSION = 7bd7b77fa9f96d7424d22d148e6d846a75a9984d
+NANOKVM_SERVER_VERSION = 594c205a29bf92176785e5e19809103a6f4d2e0b
 NANOKVM_SERVER_SITE = $(call github,sipeed,NanoKVM,$(NANOKVM_SERVER_VERSION))
 
 NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3
@@ -88,6 +88,11 @@ NANOKVM_SERVER_DUMMY_LIBS = \
 	libawb.so
 
 define NANOKVM_SERVER_BUILD_CMDS
+	if [ -e $(@D)/kvmapp ]; then \
+		rm -f $(@D)/kvmapp/jpg_stream/jpg_stream ; \
+		rm -rf $(@D)/kvmapp/kvm_system/ ; \
+		rm -rf $(@D)/kvmapp/system/ko/ ; \
+	fi
 	mkdir -pv $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/
 	rm -f $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libopencv_*.so*
 	if [ -e $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_KVM_MMF) ]; then \
@@ -137,16 +142,16 @@ define NANOKVM_SERVER_BUILD_CMDS
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_KVM_VISION) $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
 		chmod ugo+rx $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm.so ; \
 	fi
-	if [ -e $(@D)/vision/components -a -e $(HOST_DIR)/bin/maixcdk ]; then \
+	if [ -e $(@D)/vision/sg2002/components -a -e $(HOST_DIR)/bin/maixcdk ]; then \
 		if [ ! -e $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/_off/vision ]; then \
 			mkdir $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/_off ; \
 			mv $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/vision $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/_off/ ; \
 		else \
 			rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/vision ; \
 		fi ; \
-		rsync -avpPxH $(@D)/vision/components/ $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/ ; \
+		rsync -avpPxH $(@D)/vision/sg2002/components/ $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/ ; \
 		rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_vision_test ; \
-		rsync -avpPxH $(@D)/vision/kvm_vision_test $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
+		rsync -avpPxH $(@D)/vision/sg2002/kvm_vision_test $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
 		cd $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_vision_test/ ; \
 		PATH=$(BR_PATH) $(HOST_DIR)/bin/maixcdk build -p maixcam ; \
 		rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/vision ; \
@@ -154,12 +159,12 @@ define NANOKVM_SERVER_BUILD_CMDS
 		rmdir $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/_off ; \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_vision_test/dist/kvm_vision_test_release/dl_lib/libkvm*.so ${@D}/server/dl_lib/ ; \
 	fi
-	if [ -e $(@D)/support/kvm_system -a -e $(HOST_DIR)/bin/maixcdk ]; then \
+	if [ -e $(@D)/support/sg2002/kvm_system -a -e $(HOST_DIR)/bin/maixcdk ]; then \
 		rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system ; \
-		rsync -avpPxH $(@D)/support/kvm_system $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
+		rsync -avpPxH $(@D)/support/sg2002/kvm_system $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
 		cd $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/ ; \
 		PATH=$(BR_PATH) $(HOST_DIR)/bin/maixcdk build -p maixcam ; \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/dist/kvm_system_release/kvm_system $(@D)/support/kvm_system/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_system/dist/kvm_system_release/kvm_system $(@D)/support/sg2002/kvm_system/ ; \
 	fi
 	cd $(@D)/$(NANOKVM_SERVER_GOMOD) ; \
 	GOPROXY=direct GOSUMDB="sum.golang.org" $(GO_BIN) mod tidy
@@ -191,9 +196,9 @@ define NANOKVM_SERVER_INSTALL_TARGET_CMDS
 	#touch $(TARGET_DIR)/kvmapp/force_dl_lib
 	mkdir -pv $(TARGET_DIR)/kvmapp/server/
 	rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/server/NanoKVM-Server $(TARGET_DIR)/kvmapp/server/
-	if [ -e ${@D}/support/kvm_system/kvm_system ]; then \
+	if [ -e ${@D}/support/sg2002/kvm_system/kvm_system ]; then \
 		mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/ ; \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/support/kvm_system/kvm_system $(TARGET_DIR)/kvmapp/kvm_system/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/support/sg2002/kvm_system/kvm_system $(TARGET_DIR)/kvmapp/kvm_system/ ; \
 	else \
 		rm -f $(TARGET_DIR)/kvmapp/kvm_system/kvm_system ; \
 	fi
