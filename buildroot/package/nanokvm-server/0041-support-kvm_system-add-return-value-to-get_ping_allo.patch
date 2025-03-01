@@ -1,0 +1,33 @@
+From 3585f6dbb96eac2665d8ba2d7619164a2e93dc97 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sat, 1 Mar 2025 02:11:22 +0100
+Subject: [PATCH] support: kvm_system: add return value to get_ping_allow_state
+ and ion_free_space
+
+---
+ .../sg2002/kvm_system/main/lib/system_state/system_state.cpp  | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp b/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp
+index bf7e00e..4372dcd 100644
+--- a/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp
++++ b/support/sg2002/kvm_system/main/lib/system_state/system_state.cpp
+@@ -63,6 +63,8 @@ int get_ping_allow_state()
+ 	} else {
+ 		kvm_sys_state.ping_allow = 1;
+ 	}
++
++	return kvm_sys_state.ping_allow;
+ }
+ 
+ // net_port
+@@ -485,4 +487,6 @@ void kvm_update_tailscale_state(void)
+ uint8_t ion_free_space(void)
+ {
+ 	//cat /sys/kernel/debug/ion/cvi_carveout_heap_dump/summary | grep "usage rate:" | awk '{print $2}'
++
++	return 0;
+ }
+-- 
+2.34.1
+
