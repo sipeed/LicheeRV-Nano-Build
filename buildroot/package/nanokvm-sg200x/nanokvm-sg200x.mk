@@ -45,23 +45,6 @@ NANOKVM_SG200X_VPU_LIBS = \
 	libvo.so \
 	libvpss.so
 
-NANOKVM_SG200X_UNUSED_LIBS = \
-	libcli.so \
-	libjson-c.so.5 \
-	libcvi_ispd2.so \
-	libaaccomm2.so \
-	libaacdec2.so \
-	libaacenc2.so \
-	libaacsbrdec2.so \
-	libaacsbrenc2.so \
-	libcvi_RES1.so \
-	libcvi_VoiceEngine.so \
-	libcvi_audio.so \
-	libcvi_ssp.so \
-	libcvi_vqe.so \
-	libdnvqe.so \
-	libtinyalsa.so
-
 NANOKVM_SG200X_DUMMY_LIBS = \
 	libae.so \
 	libaf.so \
@@ -111,12 +94,6 @@ define NANOKVM_SG200X_INSTALL_TARGET_CMDS
 	for l in $(NANOKVM_SG200X_VPU_LIBS) ; do \
 		if [ -e $(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/$$l ]; then \
 			rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/$$l $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/ ; \
-		fi ; \
-	done
-	for l in $(NANOKVM_SG200X_UNUSED_LIBS) ; do \
-		if [ -e $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ]; then \
-			rm -f $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
-			ln -s libmisc.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/$$l ; \
 		fi ; \
 	done
 	if [ -e $(NANOKVM_SG200X_EXT_MIDDLEWARE)/lib/libcvi_dummy.so ]; then \
