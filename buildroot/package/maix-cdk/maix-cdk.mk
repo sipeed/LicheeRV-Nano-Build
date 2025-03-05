@@ -14,11 +14,15 @@ MAIX_CDK_DEPENDENCIES =\
 	host-pkgconf \
 	host-python3 \
 	host-python-pip \
-	host-python-setuptools \
+	host-python-setuptools
+
+ifeq ($(BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES),y)
+MAIX_CDK_DEPENDENCIES +=\
 	alsa-lib \
 	ffmpeg \
 	harfbuzz \
 	opencv4
+endif
 
 # maixcam pre-built binaries are only for riscv64
 # MaixCDK searches for "musl" or "glibc" in toolchain path
@@ -40,9 +44,9 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 	mv $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2 $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2-cdk
 	mkdir $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2
 	if [ -e $(MAIX_CDK_EXT_MIDDLEWARE)/Makefile -a ! -e $(MAIX_CDK_EXT_MIDDLEWARE)/v2/Makefile ]; then \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_MIDDLEWARE)/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
+		rsync -r --verbose --exclude=mod_tmp --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_MIDDLEWARE)/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
 	else \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_MIDDLEWARE)/v2/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
+		rsync -r --verbose --exclude=mod_tmp --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_EXT_MIDDLEWARE)/v2/ $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/ ; \
 	fi
 	mkdir $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/uapi
 	if [ -e $(MAIX_CDK_EXT_OSDRV)/interdrv/include -a ! -e $(MAIX_CDK_EXT_OSDRV)/interdrv/v2/include ]; then \
@@ -100,7 +104,7 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 	if [ -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/$(MAIX_CDK_EXT_MAIXCAM_LIB) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/$(MAIX_CDK_EXT_MAIXCAM_LIB) ${@D}/components/maixcam_lib/lib/ ; \
 	fi
-	if [ "$(MAIX_CDK_TOOLCHAIN_ARCH)-$(MAIX_CDK_TOOLCHAIN_LIBC)" != "riscv64-musl" ]; then \
+	if [ "X$(BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES)" = "Xy" -a "$(MAIX_CDK_TOOLCHAIN_ARCH)-$(MAIX_CDK_TOOLCHAIN_LIBC)" != "riscv64-musl" ]; then \
 		sed -i 's|set(alsa_lib_dir "lib")|set(alsa_lib_dir "$(TARGET_DIR)/usr/lib")|g' $(@D)/components/3rd_party/alsa_lib/CMakeLists.txt ; \
 		sed -i 's|set(alsa_lib_include_dir "include")|set(alsa_lib_include_dir "$(TARGET_DIR)/usr/include")|g' $(@D)/components/3rd_party/alsa_lib/CMakeLists.txt ; \
 		sed -i 's|set(src_path "$${ffmpeg_unzip_path}/ffmpeg")|set(src_path "$(TARGET_DIR)/usr")|g' $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
@@ -131,8 +135,10 @@ define MAIX_CDK_BUILD_CMDS
 	sed -i 's|set.$${python} python3 |set($${python} '$(HOST_DIR)/bin/python3' |g' $(@D)/tools/cmake/*.cmake
 	cd $(@D)/ ; \
 	$(HOST_DIR)/bin/python3 -m pip install -r requirements.txt
-	cd $(@D)/examples/$(MAIX_CDK_SAMPLE)/ ; \
-	PATH=$(BR_PATH) $(HOST_DIR)/bin/maixcdk build -p maixcam
+	if [ "X$(BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES)" = "Xy" ]; then \
+		cd $(@D)/examples/$(MAIX_CDK_SAMPLE)/ ; \
+		PATH=$(BR_PATH) $(HOST_DIR)/bin/maixcdk build -p maixcam ; \
+	fi
 	rm -rf $(@D)/projects/app_classifier/
 	rm -rf $(@D)/projects/app_detector/
 	rm -rf $(@D)/projects/app_self_learn_tracker/
@@ -169,7 +175,18 @@ define MAIX_CDK_BUILD_CMDS
 		cd $(@D)/test/test_examples/ ; \
 		PATH=$(BR_PATH) ./test_cases.sh maixcam 0 ; \
 	fi
-	if [ -e $(@D)/distapps.sh ]; then \
+	if [ "X$(BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES)" != "Xy" ]; then \
+		rm -rf $(@D)/components/3rd_party/alsa_lib/ ; \
+		rm -rf $(@D)/components/3rd_party/cvi_tpu/ ; \
+		rm -rf $(@D)/components/3rd_party/FFmpeg/ ; \
+		rm -rf $(@D)/components/3rd_party/harfbuzz/ ; \
+		rm -rf $(@D)/components/3rd_party/opencv/ ; \
+		rm -rf $(@D)/components/3rd_party/opencv_freetype/ ; \
+		rm -rf $(@D)/components/nn/ ; \
+		rm -rf $(@D)/components/vision_extra/ ; \
+		rm -rf $(@D)/examples/*/ ; \
+		rm -rf $(@D)/projects/*/ ; \
+	elif [ -e $(@D)/distapps.sh ]; then \
 		chmod +x $(@D)/distapps.sh ; \
 		cd $(@D)/ ; \
 		PATH=$(BR_PATH) ./distapps.sh ; \
@@ -177,27 +194,24 @@ define MAIX_CDK_BUILD_CMDS
 endef
 
 define MAIX_CDK_INSTALL_TARGET_CMDS
-	if [ ! -e ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/libmaixcam_lib.so ] ; then \
+	if [ -e  ${@D}/$(MAIX_CDK_MAIXCAM_DIST) -a ! -e ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/libmaixcam_lib.so ] ; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/components/maixcam_lib/lib/libmaixcam_lib.so ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/ ; \
 	fi
 	if [ -e ${@D}/dist/maixapp/lib -a ! -e ${@D}/dist/maixapp/lib/libmaixcam_lib.so ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/components/maixcam_lib/lib/libmaixcam_lib.so ${@D}/dist/maixapp/lib/ ; \
 	fi
-	#mkdir -pv $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/
-	#rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/libmaixcam_lib.so $(TARGET_DIR)/kvmapp/kvm_system/dl_lib/
-	mkdir -pv $(TARGET_DIR)/maixapp/lib
-	mkdir -pv $(TARGET_DIR)/maixapp/tmp
 	if [ -e ${@D}/dist/maixapp ]; then \
-		mkdir -pv $(TARGET_DIR)/maixapp/ ; \
+		mkdir -pv $(TARGET_DIR)/maixapp/tmp/ ; \
 		rsync -r --verbose --links --safe-links --hard-links ${@D}/dist/maixapp/ $(TARGET_DIR)/maixapp/ ; \
-	else \
+	elif [ -e  ${@D}/$(MAIX_CDK_MAIXCAM_DIST) ]; then \
+		mkdir -pv $(TARGET_DIR)/maixapp/lib/ ; \
+		mkdir -pv $(TARGET_DIR)/maixapp/tmp/ ; \
 		mkdir -pv $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/ ; \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/ $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/ ; \
 		rm -rf $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/dl_lib ; \
 		ln -s ../lib $(TARGET_DIR)/maixapp/$(MAIX_CDK_SAMPLE)/dl_lib ; \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links ${@D}/$(MAIX_CDK_MAIXCAM_DIST)/dl_lib/ $(TARGET_DIR)/maixapp/lib/ ; \
 	fi
-	#rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(MAIX_CDK_PKGDIR)/overlay/ $(TARGET_DIR)/
 endef
 
 $(eval $(generic-package))
