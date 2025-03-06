@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-NANOKVM_SERVER_VERSION = 8d8c57bc48a3db696e41adacc3dac176af956d34
+NANOKVM_SERVER_VERSION = 5c0f0980690ea273af4c71776a9b6d5371fdb9e7
 NANOKVM_SERVER_SITE = $(call github,sipeed,NanoKVM,$(NANOKVM_SERVER_VERSION))
 
 NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3
@@ -141,16 +141,16 @@ define NANOKVM_SERVER_BUILD_CMDS
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(NANOKVM_SERVER_EXT_MIDDLEWARE)/$(NANOKVM_SERVER_EXT_KVM_VISION) $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/ ; \
 		chmod ugo+rx $(@D)/$(NANOKVM_SERVER_GOMOD)/dl_lib/libkvm.so ; \
 	fi
-	if [ -e $(@D)/vision/sg2002/components -a -e $(HOST_DIR)/bin/maixcdk ]; then \
+	if [ -e $(@D)/support/sg2002/additional -a -e $(HOST_DIR)/bin/maixcdk ]; then \
 		if [ ! -e $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/_off/vision ]; then \
 			mkdir $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/_off ; \
 			mv $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/vision $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/_off/ ; \
 		else \
 			rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/vision ; \
 		fi ; \
-		rsync -avpPxH $(@D)/vision/sg2002/components/ $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/ ; \
+		rsync -avpPxH $(@D)/support/sg2002/additional/ $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/ ; \
 		rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_vision_test ; \
-		rsync -avpPxH $(@D)/vision/sg2002/kvm_vision_test $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
+		rsync -avpPxH $(@D)/support/sg2002/kvm_vision_test $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/ ; \
 		cd $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/examples/kvm_vision_test/ ; \
 		PATH=$(BR_PATH) $(HOST_DIR)/bin/maixcdk build -p maixcam ; \
 		rm -rf $(@D)/../maix-cdk-$(MAIX_CDK_VERSION)/components/vision ; \

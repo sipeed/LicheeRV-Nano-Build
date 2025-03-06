@@ -4,13 +4,13 @@ Date: Sun, 23 Feb 2025 18:11:09 +0100
 Subject: [PATCH] vison: kvm: use mmf_vi_aligned_width
 
 ---
- vision/sg2002/components/kvm/src/kvm_vision.cpp | 11 ++++++++---
+ support/sg2002/additional/kvm/src/kvm_vision.cpp | 11 ++++++++---
  1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/vision/sg2002/components/kvm/src/kvm_vision.cpp b/vision/sg2002/components/kvm/src/kvm_vision.cpp
+diff --git a/support/sg2002/additional/kvm/src/kvm_vision.cpp b/support/sg2002/additional/kvm/src/kvm_vision.cpp
 index b8c5b99..ecff9fe 100644
---- a/vision/sg2002/components/kvm/src/kvm_vision.cpp
-+++ b/vision/sg2002/components/kvm/src/kvm_vision.cpp
+--- a/support/sg2002/additional/kvm/src/kvm_vision.cpp
++++ b/support/sg2002/additional/kvm/src/kvm_vision.cpp
 @@ -1550,6 +1550,11 @@ int kvmv_read_img(uint16_t _width, uint16_t _height, uint8_t _type, uint16_t _ql
      uint8_t try_num = 0;
      do {

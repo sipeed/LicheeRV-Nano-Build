@@ -4,13 +4,13 @@ Date: Sat, 22 Feb 2025 17:05:25 +0100
 Subject: [PATCH] vison: kvm: show test picture if no input signal is detected
 
 ---
- vision/sg2002/components/kvm/src/kvm_vision.cpp | 181 +++++++++++++++++++++++
+ support/sg2002/additional/kvm/src/kvm_vision.cpp | 181 +++++++++++++++++++++++
  1 file changed, 181 insertions(+)
 
-diff --git a/vision/sg2002/components/kvm/src/kvm_vision.cpp b/vision/sg2002/components/kvm/src/kvm_vision.cpp
+diff --git a/support/sg2002/additional/kvm/src/kvm_vision.cpp b/support/sg2002/additional/kvm/src/kvm_vision.cpp
 index 0afd8f8..8f7af14 100644
---- a/vision/sg2002/components/kvm/src/kvm_vision.cpp
-+++ b/vision/sg2002/components/kvm/src/kvm_vision.cpp
+--- a/support/sg2002/additional/kvm/src/kvm_vision.cpp
++++ b/support/sg2002/additional/kvm/src/kvm_vision.cpp
 @@ -9,6 +9,9 @@
   * // deinit时free全部内存
   * // free 错内存时会炸的问题

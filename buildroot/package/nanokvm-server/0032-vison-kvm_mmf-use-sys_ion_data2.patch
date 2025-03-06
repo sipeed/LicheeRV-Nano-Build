@@ -4,13 +4,13 @@ Date: Wed, 19 Feb 2025 19:09:47 +0100
 Subject: [PATCH 2/3] vison: kvm_mmf: use sys_ion_data2
 
 ---
- vision/sg2002/components/kvm_mmf/src/kvm_mmf.cpp | 11 +++++++++--
+ support/sg2002/additional/kvm_mmf/src/kvm_mmf.cpp | 11 +++++++++--
  1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/vision/sg2002/components/kvm_mmf/src/kvm_mmf.cpp b/vision/sg2002/components/kvm_mmf/src/kvm_mmf.cpp
+diff --git a/support/sg2002/additional/kvm_mmf/src/kvm_mmf.cpp b/support/sg2002/additional/kvm_mmf/src/kvm_mmf.cpp
 index 054d812..b83cff6 100644
---- a/vision/sg2002/components/kvm_mmf/src/kvm_mmf.cpp
-+++ b/vision/sg2002/components/kvm_mmf/src/kvm_mmf.cpp
+--- a/support/sg2002/additional/kvm_mmf/src/kvm_mmf.cpp
++++ b/support/sg2002/additional/kvm_mmf/src/kvm_mmf.cpp
 @@ -11,6 +11,13 @@
  #include <inttypes.h>
  

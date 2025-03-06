@@ -4,17 +4,17 @@ Date: Wed, 19 Feb 2025 23:30:54 +0100
 Subject: [PATCH] vision: disable opencv
 
 ---
- vision/sg2002/components/vision/CMakeLists.txt       |  4 +++-
+ support/sg2002/additional/vision/CMakeLists.txt       |  4 +++-
  .../components/vision/include/maix_camera.hpp |  2 ++
- vision/sg2002/components/vision/src/maix_camera.cpp  |  4 ++++
- vision/sg2002/components/vision/src/maix_image.cpp   | 20 +++++++++++++++++++
+ support/sg2002/additional/vision/src/maix_camera.cpp  |  4 ++++
+ support/sg2002/additional/vision/src/maix_image.cpp   | 20 +++++++++++++++++++
  .../components/vision/src/maix_image_ops.cpp  |  2 ++
  5 files changed, 31 insertions(+), 1 deletion(-)
 
-diff --git a/vision/sg2002/components/vision/CMakeLists.txt b/vision/sg2002/components/vision/CMakeLists.txt
+diff --git a/support/sg2002/additional/vision/CMakeLists.txt b/support/sg2002/additional/vision/CMakeLists.txt
 index c683409..13edc3a 100644
---- a/vision/sg2002/components/vision/CMakeLists.txt
-+++ b/vision/sg2002/components/vision/CMakeLists.txt
+--- a/support/sg2002/additional/vision/CMakeLists.txt
++++ b/support/sg2002/additional/vision/CMakeLists.txt
 @@ -33,7 +33,8 @@ endif()
  
  
@@ -33,10 +33,10 @@ index c683409..13edc3a 100644
  ###############################################
  
  ############ Add static libs ##################
-diff --git a/vision/sg2002/components/vision/include/maix_camera.hpp b/vision/sg2002/components/vision/include/maix_camera.hpp
+diff --git a/support/sg2002/additional/vision/include/maix_camera.hpp b/support/sg2002/additional/vision/include/maix_camera.hpp
 index ef15de3..08a6cc9 100644
---- a/vision/sg2002/components/vision/include/maix_camera.hpp
-+++ b/vision/sg2002/components/vision/include/maix_camera.hpp
+--- a/support/sg2002/additional/vision/include/maix_camera.hpp
++++ b/support/sg2002/additional/vision/include/maix_camera.hpp
 @@ -16,7 +16,9 @@
  #include <map>
  #include <stdexcept>
@@ -47,10 +47,10 @@ index ef15de3..08a6cc9 100644
  
  /**
   * @brief maix.camera module, access camera device and get image from it
-diff --git a/vision/sg2002/components/vision/src/maix_camera.cpp b/vision/sg2002/components/vision/src/maix_camera.cpp
+diff --git a/support/sg2002/additional/vision/src/maix_camera.cpp b/support/sg2002/additional/vision/src/maix_camera.cpp
 index 8dab65c..3116164 100644
---- a/vision/sg2002/components/vision/src/maix_camera.cpp
-+++ b/vision/sg2002/components/vision/src/maix_camera.cpp
+--- a/support/sg2002/additional/vision/src/maix_camera.cpp
++++ b/support/sg2002/additional/vision/src/maix_camera.cpp
 @@ -64,6 +64,7 @@ namespace maix::camera
          return err::ERR_NONE;
      }
@@ -77,10 +77,10 @@ index 8dab65c..3116164 100644
              err::check_null_raise(img, "camera read failed");
              return img;
          } else {
-diff --git a/vision/sg2002/components/vision/src/maix_image.cpp b/vision/sg2002/components/vision/src/maix_image.cpp
+diff --git a/support/sg2002/additional/vision/src/maix_image.cpp b/support/sg2002/additional/vision/src/maix_image.cpp
 index 9405b4a..286ea2e 100644
---- a/vision/sg2002/components/vision/src/maix_image.cpp
-+++ b/vision/sg2002/components/vision/src/maix_image.cpp
+--- a/support/sg2002/additional/vision/src/maix_image.cpp
++++ b/support/sg2002/additional/vision/src/maix_image.cpp
 @@ -6,8 +6,10 @@
   */
  
@@ -203,10 +203,10 @@ index 9405b4a..286ea2e 100644
      }
 +#endif
  } // namespace maix::image
-diff --git a/vision/sg2002/components/vision/src/maix_image_ops.cpp b/vision/sg2002/components/vision/src/maix_image_ops.cpp
+diff --git a/support/sg2002/additional/vision/src/maix_image_ops.cpp b/support/sg2002/additional/vision/src/maix_image_ops.cpp
 index dd3eb17..c1e4c7e 100644
---- a/vision/sg2002/components/vision/src/maix_image_ops.cpp
-+++ b/vision/sg2002/components/vision/src/maix_image_ops.cpp
+--- a/support/sg2002/additional/vision/src/maix_image_ops.cpp
++++ b/support/sg2002/additional/vision/src/maix_image_ops.cpp
 @@ -9,7 +9,9 @@
  #include "maix_image_util.hpp"
  #include "maix_err.hpp"

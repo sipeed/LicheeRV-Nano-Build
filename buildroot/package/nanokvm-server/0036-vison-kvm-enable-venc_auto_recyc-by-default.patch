@@ -4,13 +4,13 @@ Date: Wed, 26 Feb 2025 02:44:18 +0100
 Subject: [PATCH] vison: kvm: enable venc_auto_recyc by default
 
 ---
- vision/sg2002/components/kvm/src/kvm_vision.cpp | 2 +-
+ support/sg2002/additional/kvm/src/kvm_vision.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/vision/sg2002/components/kvm/src/kvm_vision.cpp b/vision/sg2002/components/kvm/src/kvm_vision.cpp
+diff --git a/support/sg2002/additional/kvm/src/kvm_vision.cpp b/support/sg2002/additional/kvm/src/kvm_vision.cpp
 index 6642a99..7202a92 100644
---- a/vision/sg2002/components/kvm/src/kvm_vision.cpp
-+++ b/vision/sg2002/components/kvm/src/kvm_vision.cpp
+--- a/support/sg2002/additional/kvm/src/kvm_vision.cpp
++++ b/support/sg2002/additional/kvm/src/kvm_vision.cpp
 @@ -83,7 +83,7 @@ typedef struct {
      uint8_t hdmi_reading_flag = 0;
      uint8_t hdmi_mode = 0;

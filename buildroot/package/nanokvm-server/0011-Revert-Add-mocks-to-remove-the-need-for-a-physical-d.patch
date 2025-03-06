@@ -43,9 +43,7 @@ index 130e803..328342d 100644
 -      "public"
 -    ]
    }
--}
-\ No newline at end of file
-+}
+ }
 diff --git a/web/public/mockServiceWorker.js b/web/public/mockServiceWorker.js
 deleted file mode 100644
 index 6eb8052..0000000

@@ -4,19 +4,18 @@ Date: Wed, 19 Feb 2025 19:20:57 +0100
 Subject: [PATCH] vison: kvm_mmf: update middleware includes
 
 ---
- vision/sg2002/components/kvm_mmf/CMakeLists.txt | 37 ++++--------------------
+ support/sg2002/additional/kvm_mmf/CMakeLists.txt | 37 ++++--------------------
  1 file changed, 5 insertions(+), 32 deletions(-)
 
-diff --git a/vision/sg2002/components/kvm_mmf/CMakeLists.txt b/vision/sg2002/components/kvm_mmf/CMakeLists.txt
+diff --git a/support/sg2002/additional/kvm_mmf/CMakeLists.txt b/support/sg2002/additional/kvm_mmf/CMakeLists.txt
 index a0e5813..db3984c 100644
---- a/vision/sg2002/components/kvm_mmf/CMakeLists.txt
-+++ b/vision/sg2002/components/kvm_mmf/CMakeLists.txt
+--- a/support/sg2002/additional/kvm_mmf/CMakeLists.txt
++++ b/support/sg2002/additional/kvm_mmf/CMakeLists.txt
 @@ -5,7 +5,8 @@ list(APPEND ADD_INCLUDE "include")
+ list(APPEND ADD_INCLUDE "include")
+ 
  # sophgo-middleware
- set(middleware_version_str "${CONFIG_SOPHGO_MIDDLEWARE_VERSION_MAJOR}.${CONFIG_SOPHGO_MIDDLEWARE_VERSION_MINOR}.${CONFIG_SOPHGO_MIDDLEWARE_VERSION_PATCH}")
- set(middleware_unzip_path "${DL_EXTRACTED_PATH}/sophgo-middleware")
--set(middleware_src_path "${middleware_unzip_path}/sophgo-middleware-${middleware_version_str}")
-+set(middleware_src_path "${CMAKE_CURRENT_SOURCE_DIR}/../3rd_party/sophgo-middleware/sophgo-middleware")
+ set(middleware_src_path "${CMAKE_CURRENT_SOURCE_DIR}/../3rd_party/sophgo-middleware/sophgo-middleware")
 +list(APPEND ADD_DEFINITIONS -D__CV181X__)
  
  
