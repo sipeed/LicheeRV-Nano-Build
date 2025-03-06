@@ -1,0 +1,73 @@
+From 03db9c3a841ebae12b6a7074d4477636233a9eb6 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Thu, 6 Mar 2025 01:30:14 +0100
+Subject: [PATCH] fix merge "Add tooltips to menu"
+
+---
+ web/src/pages/desktop/menu/fullscreen/index.tsx | 6 ------
+ web/src/pages/desktop/menu/index.tsx            | 8 ++------
+ 2 files changed, 2 insertions(+), 12 deletions(-)
+
+diff --git a/web/src/pages/desktop/menu/fullscreen/index.tsx b/web/src/pages/desktop/menu/fullscreen/index.tsx
+index da81b34..7fa358a 100644
+--- a/web/src/pages/desktop/menu/fullscreen/index.tsx
++++ b/web/src/pages/desktop/menu/fullscreen/index.tsx
+@@ -1,12 +1,8 @@
+ import { useEffect, useState } from 'react';
+ import { MaximizeIcon, MinimizeIcon } from 'lucide-react';
+-import { useTranslation } from 'react-i18next';
+-import { Tooltip } from 'antd';
+ 
+ export const Fullscreen = () => {
+-  const { t } = useTranslation();
+   const [isFullscreen, setIsFullscreen] = useState(false);
+-  const [tooltipValue, setTooltipValue] = useState(t('fullscreen.toggle'));
+ 
+   useEffect(() => {
+     function onFullscreenChange() {
+@@ -31,13 +27,11 @@ export const Fullscreen = () => {
+   }
+ 
+   return (
+-    <Tooltip title={tooltipValue} placement="bottom">
+       <div
+         className="hidden h-[30px] w-[30px] cursor-pointer items-center justify-center rounded text-neutral-300 hover:bg-neutral-700 hover:text-white sm:flex"
+         onClick={handleFullscreen}
+       >
+         {isFullscreen ? <MinimizeIcon size={18} /> : <MaximizeIcon size={18} />}
+       </div>
+-    </Tooltip>
+   );
+ };
+diff --git a/web/src/pages/desktop/menu/index.tsx b/web/src/pages/desktop/menu/index.tsx
+index 534a3fa..a022a00 100644
+--- a/web/src/pages/desktop/menu/index.tsx
++++ b/web/src/pages/desktop/menu/index.tsx
+@@ -77,11 +77,8 @@ export const Menu = () => {
+             >
+               <XIcon size={20} />
+             </div>
+-          </div>
+-
+-          {!isMenuOpen && (
+           </Tooltip>
+-        </div>
++          </div>
+ 
+         {!isMenuOpen && (
+           <Tooltip title={t('menu.expand')} placement="bottom">
+@@ -91,10 +88,9 @@ export const Menu = () => {
+             >
+               <MenuIcon />
+             </div>
+-          )}
+-        </div>
+           </Tooltip>
+         )}
++        </div>
+       </div>
+     </Draggable>
+   );
+-- 
+2.34.1
+
