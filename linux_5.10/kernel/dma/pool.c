@@ -20,6 +20,10 @@ static unsigned long pool_size_dma32;
 static struct gen_pool *atomic_pool_kernel __ro_after_init;
 static unsigned long pool_size_kernel;
 
+#ifndef DEFAULT_DMA_COHERENT_POOL_SIZE
+#define DEFAULT_DMA_COHERENT_POOL_SIZE	SZ_1M
+#endif
+
 /* Size can be defined by the coherent_pool command line */
 static size_t atomic_pool_size;
 
@@ -198,7 +202,7 @@ static int __init dma_atomic_pool_init(void)
 	if (!atomic_pool_size) {
 		unsigned long pages = totalram_pages() / (SZ_1G / SZ_128K);
 		pages = min_t(unsigned long, pages, MAX_ORDER_NR_PAGES);
-		atomic_pool_size = max_t(size_t, pages << PAGE_SHIFT, SZ_128K);
+		atomic_pool_size = max_t(size_t, pages << PAGE_SHIFT, DEFAULT_DMA_COHERENT_POOL_SIZE);
 	}
 	INIT_WORK(&atomic_pool_work, atomic_pool_work_fn);
 
