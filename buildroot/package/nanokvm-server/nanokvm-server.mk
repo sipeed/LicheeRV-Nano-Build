@@ -6,6 +6,7 @@
 
 NANOKVM_SERVER_VERSION = 58d5ab2d37244b1e1a68b925a5c23c324c489ad3
 NANOKVM_SERVER_SITE = $(call github,sipeed,NanoKVM,$(NANOKVM_SERVER_VERSION))
+NANOKVM_SERVER_UPDATE_URL = https://cdn.sipeed.com/nanokvm
 
 NANOKVM_SERVER_DEPENDENCIES = host-go host-nodejs host-python3
 
@@ -13,6 +14,9 @@ ifeq ($(BR2_PACKAGE_MAIX_CDK),y)
 # Use MaixCDK to build kvm_system.
 NANOKVM_SERVER_DEPENDENCIES += maix-cdk
 endif
+
+NANOKVM_SERVER_TOOLCHAIN_ARCH := $(BR2_ARCH)
+NANOKVM_SERVER_TOOLCHAIN_LIBC := $(findstring musl,$(realpath $(TOOLCHAIN_EXTERNAL_BIN)))
 
 GO_BIN = $(HOST_DIR)/bin/go
 
