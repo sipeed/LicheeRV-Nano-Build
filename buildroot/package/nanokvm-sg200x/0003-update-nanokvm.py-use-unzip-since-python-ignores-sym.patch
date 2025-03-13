@@ -1,0 +1,27 @@
+From 4f4a5cebd9dbf55372ce1fed3c54fad8371f5772 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Thu, 13 Mar 2025 02:03:15 +0100
+Subject: [PATCH] update-nanokvm.py: use unzip since python ignores symlinks
+
+---
+ kvmapp/system/update-nanokvm.py       | 6 +++---
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/kvmapp/system/update-nanokvm.py b/kvmapp/system/update-nanokvm.py
+index 1260748..30b4825 100755
+--- a/kvmapp/system/update-nanokvm.py
++++ b/kvmapp/system/update-nanokvm.py
+@@ -43,8 +43,8 @@ def download_firmware():
+         for chunk in response.iter_content(chunk_size=1024):
+             f.write(chunk)
+ 
+-    with zipfile.ZipFile(zip_file, "r") as f:
+-        f.extractall(temporary)
++    unzip_cmd = f"unzip {zip_file} -d {temporary}"
++    os.system(unzip_cmd)
+ 
+     print("download firmware done")
+ 
+-- 
+2.34.1
+
