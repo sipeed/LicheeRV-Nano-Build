@@ -8,6 +8,6 @@ index 056508f..3bda390 100755
      /tmp/server/NanoKVM-Server &
 +
 +    /etc/init.d/S49ntp restart
-   ;;
+    ;;
+ 
    stop)
-     killall kvm_system
