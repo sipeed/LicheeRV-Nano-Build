@@ -1,0 +1,25 @@
+From eef42f3b83e856592932abd2adca19a55927742b Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sat, 22 Mar 2025 22:18:14 +0100
+Subject: [PATCH] Only compare frame difference if venc_type of both is mjpeg
+
+---
+ support/sg2002/additional/kvm/src/kvm_vision.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/support/sg2002/additional/kvm/src/kvm_vision.cpp b/support/sg2002/additional/kvm/src/kvm_vision.cpp
+index d8df2ff..d445728 100644
+--- a/support/sg2002/additional/kvm/src/kvm_vision.cpp
++++ b/support/sg2002/additional/kvm/src/kvm_vision.cpp
+@@ -1860,7 +1860,7 @@ int kvmv_read_img(uint16_t _width, uint16_t _height, uint8_t _type, uint16_t _ql
+             
+             if(frame_undetact_count == kvmv_cfg.frame_detact){
+                 frame_undetact_count = 0;
+-                if(frame_changed(img) == 0){
++                if(kvmv_cfg.venc_type == VENC_MJPEG && frame_changed(img) == 0){
+                     debug("[kvmv]frame not changed...\n");
+                     kvmv_cfg.stream_stop = 1;
+                     delete img;
+-- 
+2.34.1
+
