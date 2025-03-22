@@ -22,7 +22,7 @@ index 0afd8f8..8f7af14 100644
  
  #define default_venc_chn        1
 @@ -79,6 +82,7 @@ typedef struct {
-     uint8_t hdmi_mode = 0;
+     uint8_t hdmi_try_rounds = 0;
      uint8_t vi_detect_state = 0;
      uint8_t venc_auto_recyc = 1;
 +    image::Image *no_signal_img = NULL;
@@ -200,7 +200,7 @@ index 0afd8f8..8f7af14 100644
  // ====HDMI RES==================================================
  
  uint16_t hdmi_res_list[][2] = {
-@@ -1408,11 +1576,22 @@ int kvmv_read_img(uint16_t _width, uint16_t _height, uint8_t _type, uint16_t _ql
+@@ -1408,6 +1576,14 @@ int kvmv_read_img(uint16_t _width, uint16_t _height, uint8_t _type, uint16_t _ql
          if (kvmv_cfg.reinit_flag == 1) { 
              cam->hmirror(1);
              cam->vflip(1);
@@ -215,8 +215,10 @@ index 0afd8f8..8f7af14 100644
  			kvmv_cfg.reinit_flag = 0;
          }
          // debug("[kvmv]befor read img: %d \r\n", (int)(time::time_ms() - start_time));
-         image::Image *img = cam->read();
-         // debug("[kvmv]read img: %d \r\n", (int)(time::time_ms() - start_time));
+@@ -1438,6 +1606,9 @@
+             }
+         } 
+         
 +        if(img == NULL && kvmv_cfg.no_signal_img != NULL) {
 +                img = kvmv_cfg.no_signal_img->copy();
 +        }
@@ -224,9 +226,9 @@ index 0afd8f8..8f7af14 100644
  			if(kvmv_cfg.cam_state == 0) {
  				kvmv_cfg.cam_state = 1;
 @@ -1729,6 +1729,8 @@ void free_all_kvmv_data()
-     if(kvmv_PPS_buffer.p_img_data != NULL) free(kvmv_PPS_buffer.p_img_data);
-     kvmv_SPS_buffer.p_img_data = NULL;
-     kvmv_PPS_buffer.p_img_data = NULL;
+             kvmv_data_buffer[i].p_img_data = NULL;
+         }
+     }
 +    if (kvmv_cfg.no_signal_img != NULL) delete kvmv_cfg.no_signal_img;
 +    kvmv_cfg.no_signal_img = NULL;
  }
