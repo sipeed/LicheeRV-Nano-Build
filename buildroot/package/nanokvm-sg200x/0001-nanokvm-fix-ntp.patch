@@ -3,7 +3,7 @@ index 056508f..3bda390 100755
 --- a/kvmapp/system/init.d/S95nanokvm
 +++ b/kvmapp/system/init.d/S95nanokvm
 @@ -44,6 +44,8 @@ case "$1" in
-     
+ 
      cp -r /kvmapp/server /tmp/
      /tmp/server/NanoKVM-Server &
 +

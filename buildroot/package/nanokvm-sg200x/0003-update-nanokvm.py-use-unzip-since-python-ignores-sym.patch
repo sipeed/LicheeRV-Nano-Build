@@ -20,7 +20,7 @@ index 1260748..30b4825 100755
 +    unzip_cmd = f"unzip {zip_file} -d {temporary}"
 +    os.system(unzip_cmd)
  
-     print("download firmware done")
+     print("Completed downloading firmware.")
  
 -- 
 2.34.1
