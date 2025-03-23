@@ -11,8 +11,7 @@ diff --git a/support/sg2002/additional/kvm_mmf/CMakeLists.txt b/support/sg2002/a
 index a0e5813..db3984c 100644
 --- a/support/sg2002/additional/kvm_mmf/CMakeLists.txt
 +++ b/support/sg2002/additional/kvm_mmf/CMakeLists.txt
-@@ -5,7 +5,8 @@ list(APPEND ADD_INCLUDE "include")
- list(APPEND ADD_INCLUDE "include")
+@@ -4,6 +4,7 @@ list(APPEND ADD_INCLUDE "include")
  
  # sophgo-middleware
  set(middleware_src_path "${CMAKE_CURRENT_SOURCE_DIR}/../3rd_party/sophgo-middleware/sophgo-middleware")
