@@ -104,18 +104,22 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 	if [ -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/$(MAIX_CDK_EXT_MAIXCAM_LIB) ]; then \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/$(MAIX_CDK_EXT_MAIXCAM_LIB) ${@D}/components/maixcam_lib/lib/ ; \
 	fi
-	if [ "X$(BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES)" = "Xy" -a "$(MAIX_CDK_TOOLCHAIN_ARCH)-$(MAIX_CDK_TOOLCHAIN_LIBC)" != "riscv64-musl" ]; then \
+	@$(eval OPENCV4_SUFFIX=$(shell echo "$(OPENCV4_VERSION)" | cut -d '.' -f 1-2 | tr -d '.'))
+	if [ "X$(BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES)" = "Xy" -a "$(MAIX_CDK_OPENCV_VER)-$(MAIX_CDK_TOOLCHAIN_ARCH)-$(MAIX_CDK_TOOLCHAIN_LIBC)" != "$(OPENCV4_VERSION)-riscv64-musl" ]; then \
 		sed -i 's|set(alsa_lib_dir "lib")|set(alsa_lib_dir "$(TARGET_DIR)/usr/lib")|g' $(@D)/components/3rd_party/alsa_lib/CMakeLists.txt ; \
 		sed -i 's|set(alsa_lib_include_dir "include")|set(alsa_lib_include_dir "$(TARGET_DIR)/usr/include")|g' $(@D)/components/3rd_party/alsa_lib/CMakeLists.txt ; \
 		sed -i 's|set(src_path "$${ffmpeg_unzip_path}/ffmpeg")|set(src_path "$(TARGET_DIR)/usr")|g' $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
-		sed -i 's|                            $${src_path}/lib/libswscale.so|                            $${src_path}/lib/libswscale.so\n                            $${src_path}/lib/libz.so.1\n                            $${src_path}/lib/libbz2.so.1.0\n                            $${src_path}/lib/libssl.so.3\n                            $${src_path}/lib/libcrypto.so.3|g' $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
+		[ -e $(TARGET_DIR)/usr/lib/libavresample.so ] || sed -i /libavresample.so/d $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
+		sed -i 's|                            $${src_path}/lib/libswscale.so|                            $${src_path}/lib/libswscale.so\n                            $${src_path}/lib/liblzma.so\n                            $${src_path}/lib/libxml2.so\n                            $${src_path}/lib/libz.so\n                            $${src_path}/lib/libbz2.so\n                            $${src_path}/lib/libssl.so\n                            $${src_path}/lib/libcrypto.so|g' $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
 		sed -i s/'# list.APPEND ADD_REQUIREMENTS.$$'/'list(APPEND ADD_REQUIREMENTS alsa_lib)'/g $(@D)/components/3rd_party/FFmpeg/CMakeLists.txt ; \
 		sed -i s/'default n'/'default y'/g $(@D)/components/3rd_party/opencv/Kconfig ; \
 		sed -i s/'# list.APPEND ADD_REQUIREMENTS pthread dl atomic.$$'/'list(APPEND ADD_REQUIREMENTS pthread dl atomic)'/g $(@D)/components/3rd_party/opencv/CMakeLists.txt ; \
+		sed -i s/'version_str "$(MAIX_CDK_OPENCV_VER)"'/'version_str "$(OPENCV4_VERSION)"'/g $(@D)/components/3rd_party/opencv/CMakeLists.txt ; \
+		sed -i s/'so_suffix_number "4.."'/'so_suffix_number "$(OPENCV4_SUFFIX)"'/g $(@D)/components/3rd_party/opencv/CMakeLists.txt ; \
 		mkdir -pv $(@D)/dl/extracted/harfbuzz_srcs/harfbuzz-$(MAIX_CDK_HARFBUZZ_VER)/ ; \
 		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../harfbuzz-$(HARFBUZZ_VERSION)/ $(@D)/dl/extracted/harfbuzz_srcs/harfbuzz-$(MAIX_CDK_HARFBUZZ_VER)/ ; \
-		mkdir -pv $(@D)/dl/extracted/opencv/opencv4/opencv-$(MAIX_CDK_OPENCV_VER)/ ; \
-		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../opencv4-$(OPENCV4_VERSION)/ $(@D)/dl/extracted/opencv/opencv4/opencv-$(MAIX_CDK_OPENCV_VER)/ ; \
+		mkdir -pv $(@D)/dl/extracted/opencv/opencv4/opencv-$(OPENCV4_VERSION)/ ; \
+		rsync -r --verbose --copy-dirlinks --copy-links --hard-links $(@D)/../opencv4-$(OPENCV4_VERSION)/ $(@D)/dl/extracted/opencv/opencv4/opencv-$(OPENCV4_VERSION)/ ; \
 		sed -i /'list.APPEND ADD_REQUIREMENTS cvi_tpu.'/d $(@D)/components/maixcam_lib/CMakeLists.txt ; \
 	fi
 endef
