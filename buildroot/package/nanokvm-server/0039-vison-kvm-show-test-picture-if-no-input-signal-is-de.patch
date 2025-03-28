@@ -216,15 +216,15 @@ index 0afd8f8..8f7af14 100644
          }
          // debug("[kvmv]befor read img: %d \r\n", (int)(time::time_ms() - start_time));
 @@ -1438,6 +1606,9 @@
-             }
-         } 
+         image::Image *img = cam->read();
+         // debug("[kvmv]read img: %d \r\n", (int)(time::time_ms() - start_time));
          
 +        if(img == NULL && kvmv_cfg.no_signal_img != NULL) {
 +                img = kvmv_cfg.no_signal_img->copy();
 +        }
          if(img != NULL){
- 			if(kvmv_cfg.cam_state == 0) {
- 				kvmv_cfg.cam_state = 1;
+             // frame detect
+             if(_type == VENC_MJPEG && kvmv_cfg.frame_detact != 0){
 @@ -1729,6 +1729,8 @@ void free_all_kvmv_data()
              kvmv_data_buffer[i].p_img_data = NULL;
          }
