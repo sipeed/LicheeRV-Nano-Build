@@ -59,7 +59,7 @@
 
 - 安装编译依赖:
 ```
-sudo apt install pkg-config build-essential ninja-build automake autoconf libtool wget curl git gcc libssl-dev bc slib squashfs-tools android-sdk-libsparse-utils android-sdk-ext4-utils jq cmake python3-distutils tclsh scons parallel ssh-client tree python3-dev python3-pip device-tree-compiler libssl-dev ssh cpio squashfs-tools fakeroot libncurses5 flex bison dosfstools
+sudo apt install pkg-config build-essential ninja-build automake autoconf libtool wget curl git gcc libssl-dev bc slib squashfs-tools android-sdk-libsparse-utils android-sdk-ext4-utils jq cmake python3-distutils tclsh scons parallel ssh-client tree python3-dev python3-pip device-tree-compiler libssl-dev ssh cpio squashfs-tools fakeroot libncurses5 flex bison dosfstools mtools
 ```
 - 注意：cmake 最低版本要求为 `3.16.5`，而在 `Ubuntu 20.04` 中使用 apt 安装的 cmake 版本号为 `3.16.3`，不满足 SDK 的最低版本要求，因此需要手动安装最新版本。
 ```
