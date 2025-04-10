@@ -77,6 +77,10 @@ define MAIX_CDK_POST_EXTRACT_FIXUP
 		sed -i /'$${mmf_lib_dir}.3rd.libcli.so'/d $(@D)/components/3rd_party/sophgo-middleware/CMakeLists.txt ; \
 		sed -i /'$${mmf_lib_dir}.3rd.libcli.so'/d $(@D)/components/maixcam_lib/CMakeLists.txt ; \
 	fi
+	if [ ! -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/lib/libjson-c.so.5 ]; then \
+		sed -i /'$${mmf_lib_dir}.libjson-c.so.5'/d $(@D)/components/3rd_party/sophgo-middleware/CMakeLists.txt ; \
+		sed -i /'$${mmf_lib_dir}.libjson-c.so.5'/d $(@D)/components/maixcam_lib/CMakeLists.txt ; \
+	fi
 	if [ -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/lib/libcvi_dnvqe.so -a ! -e $(@D)/$(MAIX_CDK_MIDDLEWARE)/v2/lib/libdnvqe.so ]; then \
 		sed -i s/'libdnvqe.so'/'libcvi_dnvqe.so'/g $(@D)/components/3rd_party/sophgo-middleware/CMakeLists.txt ; \
 		sed -i s/'libdnvqe.so'/'libcvi_dnvqe.so'/g $(@D)/components/maixcam_lib/CMakeLists.txt ; \
