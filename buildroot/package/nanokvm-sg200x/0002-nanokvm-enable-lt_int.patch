@@ -1,0 +1,13 @@
+diff --git a/system/init.d/S15kvmhwd b/system/init.d/S15kvmhwd
+index 0b414e6..2799cfa 100755
+--- a/kvmapp/system/init.d/S15kvmhwd
++++ b/kvmapp/system/init.d/S15kvmhwd
+@@ -176,6 +176,8 @@ kvm_hw_detect(){
+ 
+ kvm_hw_init(){
+     FIND_FILE="/etc/kvm/hw"
++    rmmod /mnt/system/ko/soph_mipi_rx.ko
++    insmod /mnt/system/ko/soph_mipi_rx.ko lt_int=1
+     if [ `grep -c "alpha" $FIND_FILE` -ne '0' ]
+     then
+         echo "hw = alpha!"

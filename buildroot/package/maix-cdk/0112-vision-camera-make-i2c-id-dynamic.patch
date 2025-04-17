@@ -1,0 +1,73 @@
+From 35fab08e8c2ceed8f2dbcd111767b51e9c01be9e Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sat, 11 Jan 2025 16:29:12 +0100
+Subject: [PATCH] vision: camera: make i2c id dynamic
+
+---
+ .../vision/port/maixcam/maix_camera_mmf.cpp   | 20 ++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/components/vision/port/maixcam/maix_camera_mmf.cpp b/components/vision/port/maixcam/maix_camera_mmf.cpp
+index c60d098..e8b348f 100644
+--- a/components/vision/port/maixcam/maix_camera_mmf.cpp
++++ b/components/vision/port/maixcam/maix_camera_mmf.cpp
+@@ -19,6 +19,7 @@
+ namespace maix::camera
+ {
+     static bool set_regs_flag = false;
++    static int i2c_id = 4;
+ 
+     std::vector<std::string> list_devices()
+     {
+@@ -285,10 +286,19 @@ namespace maix::camera
+ 		}
+         int retry_count = 0;
+         char name[30];
+-        peripheral::i2c::I2C i2c_obj(4, peripheral::i2c::Mode::MASTER);
++        peripheral::i2c::I2C *i2c_obj = nullptr;
++        try {
++            i2c_obj = new peripheral::i2c::I2C(i2c_id, peripheral::i2c::Mode::MASTER);
++        } catch (const std::exception &e) {
++            i2c_obj = nullptr;
++        }
++        if (!i2c_obj) {
++             i2c_id = 2;
++             i2c_obj = new peripheral::i2c::I2C(i2c_id, peripheral::i2c::Mode::MASTER);
++        }
+ 
+ _retry:
+-        if (retry_count < 1) {
++        if (i2c_id == 4 && retry_count < 1) {
+             int mclk_id = _get_mclk_id();
+             if (mclk_id == 0) {
+                 system("devmem 0x0300116C 32 0x5"); // MIPI RX 4N PINMUX MCLK0
+@@ -304,7 +314,7 @@ _retry:
+             goto _retry;
+         }
+ 
+-        std::vector<int> addr_list = i2c_obj.scan();
++        std::vector<int> addr_list = i2c_obj->scan();
+         for (size_t i = 0; i < addr_list.size(); i++) {
+             // log::info("i2c4 addr: 0x%02x", addr_list[i]);
+             switch (addr_list[i]) {
+@@ -1589,7 +1599,7 @@ _error:
+     {
+         camera_priv_t *priv = (camera_priv_t *)_param;
+         (void)bit_width;
+-        peripheral::i2c::I2C i2c_obj(4, peripheral::i2c::Mode::MASTER);
++        peripheral::i2c::I2C i2c_obj(i2c_id, peripheral::i2c::Mode::MASTER);
+         uint8_t temp[1];
+         temp[0] = (uint8_t)data;
+         i2c_obj.writeto_mem(priv->i2c_addr, addr, temp, sizeof(temp), 16);
+@@ -1600,7 +1610,7 @@ _error:
+     {
+         camera_priv_t *priv = (camera_priv_t *)_param;
+         (void)bit_width;
+-        peripheral::i2c::I2C i2c_obj(4, peripheral::i2c::Mode::MASTER);
++        peripheral::i2c::I2C i2c_obj(i2c_id, peripheral::i2c::Mode::MASTER);
+         Bytes *data = i2c_obj.readfrom_mem(priv->i2c_addr, addr, 1, 16);
+         int out = -1;log::info("addr:%#x", priv->i2c_addr);
+         if (data) {
+-- 
+2.34.1
+

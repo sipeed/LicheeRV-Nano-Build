@@ -1,0 +1,50 @@
+From 21da43ab2f8d26a16cfb169b5707a20abe48111b Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Thu, 26 Dec 2024 05:28:44 +0100
+Subject: [PATCH] app_photos: fix PhotoVideoInfo ininitialization
+
+---
+ projects/app_photos/main/app/app.cpp | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/projects/app_photos/main/app/app.cpp b/projects/app_photos/main/app/app.cpp
+index 1f918ad..45a424f 100644
+--- a/projects/app_photos/main/app/app.cpp
++++ b/projects/app_photos/main/app/app.cpp
+@@ -316,11 +316,11 @@ public:
+                         std::string picture_full_path = picture_path + "/" + picture;
+                         if (_picture_path_is_valid(picture_full_path)) {
+                             std::string thumbnail_path = picture_path + "/.thumbnail/" + picture;
+-                            PhotoVideoInfo new_info = {
+-                                .type = 0,
+-                                .date = date,
+-                                .path = picture_full_path,
+-                                .thumbnail_path = thumbnail_path};
++                            PhotoVideoInfo new_info(
++                                0,
++                                date,
++                                picture_full_path,
++                                thumbnail_path);
+                             push_video_photo_info(date, new_info);
+                             // _print_video_photo_info(&new_info);
+                         }
+@@ -340,11 +340,11 @@ public:
+                             size_t pos = thumbnail_path.rfind(".mp4");
+                             if (pos != std::string::npos) {
+                                 thumbnail_path.replace(pos, 4, ".jpg");
+-                                PhotoVideoInfo new_info = {
+-                                    .type = 1,
+-                                    .date = date,
+-                                    .path = video_full_path,
+-                                    .thumbnail_path = thumbnail_path};
++                                PhotoVideoInfo new_info(
++                                    1,
++                                    date,
++                                    video_full_path,
++                                    thumbnail_path);
+                                 push_video_photo_info(date, new_info);
+                                 // _print_video_photo_info(&new_info);
+                             }
+-- 
+2.34.1
+
