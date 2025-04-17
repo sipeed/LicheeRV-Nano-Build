@@ -168,7 +168,33 @@ then
 			ln -s functions/hid.GS2 configs/c.1
 		fi
 
-		ls /sys/class/udc/ | cat > UDC
+		# adbd
+		if [ -e /boot/usb.adbd ]
+		then
+			echo 0x18d1 > idVendor  # google
+			mkdir -p configs/c.1/strings/0x409
+			echo "" > configs/c.1/strings/0x409/configuration
+			echo 0x80 > configs/c.1/bmAttributes
+			mkdir functions/ffs.adb
+			ln -s functions/ffs.adb configs/c.1/
+			mkdir -p /dev/usb-ffs/adb
+			mount -t functionfs adb /dev/usb-ffs/adb/
+			/usr/bin/adbd &
+			for i in $(seq 1 40); do
+				if [ -e /dev/usb-ffs/adb/ep2 ]; then
+					break
+				fi
+				sleep 0.1
+			done
+		fi
+		while true; do
+			ls /sys/class/udc/ | cat > UDC || true
+			res=$(cat UDC)
+			if [[ "x$res" != "x" ]]; then
+				break
+			fi
+			sleep 0.4
+		done
 		echo device > /proc/cviusb/otg_role
 	fi
 fi
