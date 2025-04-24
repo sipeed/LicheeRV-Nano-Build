@@ -435,6 +435,8 @@ static void process_fdt_options(const void *blob)
 #endif /* CONFIG_SYS_TEXT_BASE */
 }
 
+extern int get_value_from_header(const char *filepath, const char *key, char *buffer, size_t buff_len);
+
 const char *bootdelay_process(void)
 {
 	char *s;
@@ -442,8 +444,13 @@ const char *bootdelay_process(void)
 
 	bootcount_inc();
 
-	s = env_get("bootdelay");
-	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
+	char buff[64];
+	if (0 == get_value_from_header("uEnv.txt", "bootdelay", buff, sizeof(buff))) {
+		bootdelay = (int)simple_strtol(buff, NULL, 10);
+	} else {
+		s = env_get("bootdelay");
+		bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
+	}
 
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
