@@ -1,0 +1,37 @@
+From 41b264803974f080fec5d9826641a3f0aaaff320 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sun, 27 Oct 2024 08:09:34 +0100
+Subject: [PATCH] examples: decoder_demo/encode_demo: include fcntl.h
+
+---
+ examples/decoder_demo/main/src/main.cpp | 1 +
+ examples/encode_demo/main/src/main.cpp  | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/examples/decoder_demo/main/src/main.cpp b/examples/decoder_demo/main/src/main.cpp
+index 6c5b551..fe7f011 100644
+--- a/examples/decoder_demo/main/src/main.cpp
++++ b/examples/decoder_demo/main/src/main.cpp
+@@ -4,6 +4,7 @@
+ #include "sophgo_middleware.hpp"
+ using namespace maix;
+ extern "C" {
++#include <fcntl.h>
+ #include <libavformat/avformat.h>
+ #include <libavcodec/avcodec.h>
+ #include <libavutil/imgutils.h>
+diff --git a/examples/encode_demo/main/src/main.cpp b/examples/encode_demo/main/src/main.cpp
+index decb7b5..ed6fda0 100644
+--- a/examples/encode_demo/main/src/main.cpp
++++ b/examples/encode_demo/main/src/main.cpp
+@@ -10,6 +10,7 @@
+ using namespace maix;
+ 
+ extern "C" {
++#include <fcntl.h>
+ #include <libavformat/avformat.h>
+ #include <libavcodec/avcodec.h>
+ #include <stdio.h>
+-- 
+2.34.1
+

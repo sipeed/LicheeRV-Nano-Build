@@ -1,0 +1,27 @@
+From ccbe5e27f4f9d31da620d97b85fe9f33a5848d0f Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Wed, 1 Jan 2025 05:57:56 +0100
+Subject: [PATCH] app_uvc_camera: add -lrt on glibc builds
+
+---
+ projects/app_uvc_camera/main/CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/projects/app_uvc_camera/main/CMakeLists.txt b/projects/app_uvc_camera/main/CMakeLists.txt
+index 452f67b..4f6a8c9 100644
+--- a/projects/app_uvc_camera/main/CMakeLists.txt
++++ b/projects/app_uvc_camera/main/CMakeLists.txt
+@@ -52,6 +52,10 @@ list(APPEND ADD_REQUIREMENTS basic nn vision)
+ ############ Add static libs ##################
+ #### Update parent's variables like CMAKE_C_LINK_FLAGS
+ # set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,--start-group libmaix/libtest.a -ltest2 -Wl,--end-group" PARENT_SCOPE)
++if(NOT CONFIG_TOOLCHAIN_PATH MATCHES "musl")
++set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,--start-group -lrt -Wl,--end-group" PARENT_SCOPE)
++set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -Wl,--start-group -lrt -Wl,--end-group" PARENT_SCOPE)
++endif()
+ ###############################################
+ 
+ ######### Add files need to download #########
+-- 
+2.34.1
+

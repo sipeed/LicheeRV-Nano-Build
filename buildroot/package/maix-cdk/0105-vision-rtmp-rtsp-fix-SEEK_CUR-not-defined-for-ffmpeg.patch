@@ -1,0 +1,57 @@
+From e3e6abeb59c12612a6fd2795fdce90e29ffb0b21 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Thu, 26 Dec 2024 01:59:38 +0100
+Subject: [PATCH 3/3] vision: rtmp/rtsp: fix SEEK_CUR not defined for ffmpeg
+
+---
+ components/vision/port/maixcam/maix_rtmp_maixcam.cpp | 11 ++++++-----
+ components/vision/port/maixcam/maix_rtsp_maixcam.cpp |  2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/components/vision/port/maixcam/maix_rtmp_maixcam.cpp b/components/vision/port/maixcam/maix_rtmp_maixcam.cpp
+index 72adcc2..16e3da9 100644
+--- a/components/vision/port/maixcam/maix_rtmp_maixcam.cpp
++++ b/components/vision/port/maixcam/maix_rtmp_maixcam.cpp
+@@ -1,8 +1,3 @@
+-#include "maix_rtmp.hpp"
+-
+-#include "maix_video.hpp"
+-#include "maix_basic.hpp"
+-#include "sophgo_middleware.hpp"
+ #include <stdio.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -22,6 +17,12 @@ extern "C" {
+ #include <libswresample/swresample.h>
+ }
+ 
++#include "maix_rtmp.hpp"
++
++#include "maix_video.hpp"
++#include "maix_basic.hpp"
++#include "sophgo_middleware.hpp"
++
+ using namespace maix;
+ 
+ class RTMPClient
+diff --git a/components/vision/port/maixcam/maix_rtsp_maixcam.cpp b/components/vision/port/maixcam/maix_rtsp_maixcam.cpp
+index 9f82334..c1e2f4c 100644
+--- a/components/vision/port/maixcam/maix_rtsp_maixcam.cpp
++++ b/components/vision/port/maixcam/maix_rtsp_maixcam.cpp
+@@ -5,12 +5,12 @@
+  * @update 2023.9.8: Add framework, create this file.
+  */
+ 
++#include "maix_ffmpeg.hpp"
+ #include "maix_rtsp.hpp"
+ #include "maix_err.hpp"
+ #include "maix_basic.hpp"
+ #include "maix_audio.hpp"
+ #include "maix_video.hpp"
+-#include "maix_ffmpeg.hpp"
+ #include <dirent.h>
+ #include "sophgo_middleware.hpp"
+ #include "maix_rtsp_server.hpp"
+-- 
+2.34.1
+
