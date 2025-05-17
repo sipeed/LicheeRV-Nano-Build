@@ -1,0 +1,27 @@
+From 5f5f1ba6063cc54745913c65e1c4e083c0e6a54f Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Wed, 1 Jan 2025 08:00:20 +0100
+Subject: [PATCH] uvc_demo: add -lrt on glibc builds
+
+---
+ examples/uvc_demo/main/CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/examples/uvc_demo/main/CMakeLists.txt b/examples/uvc_demo/main/CMakeLists.txt
+index f79dc77..5bdc074 100644
+--- a/examples/uvc_demo/main/CMakeLists.txt
++++ b/examples/uvc_demo/main/CMakeLists.txt
+@@ -52,6 +52,10 @@ list(APPEND ADD_REQUIREMENTS vision)
+ ############ Add static libs ##################
+ #### Update parent's variables like CMAKE_C_LINK_FLAGS
+ # set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,--start-group libmaix/libtest.a -ltest2 -Wl,--end-group" PARENT_SCOPE)
++if(NOT CONFIG_TOOLCHAIN_PATH MATCHES "musl")
++set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,--start-group -lrt -Wl,--end-group" PARENT_SCOPE)
++set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -Wl,--start-group -lrt -Wl,--end-group" PARENT_SCOPE)
++endif()
+ ###############################################
+ 
+ ######### Add files need to download #########
+-- 
+2.34.1
+

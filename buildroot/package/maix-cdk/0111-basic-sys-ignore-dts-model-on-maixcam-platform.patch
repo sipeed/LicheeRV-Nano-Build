@@ -1,0 +1,25 @@
+From af308d33c3924bdb19c93afba0784f4dead5d36f Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Mon, 6 Jan 2025 00:51:25 +0100
+Subject: [PATCH] basic: sys: ignore dts model on maixcam platform
+
+---
+ components/basic/src/maix_sys.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/basic/src/maix_sys.cpp b/components/basic/src/maix_sys.cpp
+index 8ffc4e5..32720cb 100644
+--- a/components/basic/src/maix_sys.cpp
++++ b/components/basic/src/maix_sys.cpp
+@@ -260,7 +260,7 @@ namespace maix::sys
+                 // 包含 maixcam 或者 licheerv nano (不区分大小写，先把 model 转换为小写)
+                 std::string model_lower = model;
+                 std::transform(model.begin(), model.end(), model_lower.begin(), ::tolower);
+-                if (model_lower.find("maixcam") != std::string::npos || model_lower.find("licheerv nano") != std::string::npos)
++                //if (model_lower.find("maixcam") != std::string::npos || model_lower.find("licheerv nano") != std::string::npos)
+                 {
+                     fclose(file);
+                     auto it = _device_configs.find("id");
+-- 
+2.34.1
+

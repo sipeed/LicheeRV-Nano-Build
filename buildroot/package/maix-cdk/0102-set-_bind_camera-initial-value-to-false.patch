@@ -1,0 +1,25 @@
+From 56d7136f3068e8e0a1c9cc10571eb8601b6ffe96 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sat, 30 Nov 2024 00:39:36 +0100
+Subject: [PATCH] set _bind_camera initial value to false
+
+---
+ components/vision/port/maixcam/maix_video_mmf.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/components/vision/port/maixcam/maix_video_mmf.cpp b/components/vision/port/maixcam/maix_video_mmf.cpp
+index 7f0fc60..a99ba26 100644
+--- a/components/vision/port/maixcam/maix_video_mmf.cpp
++++ b/components/vision/port/maixcam/maix_video_mmf.cpp
+@@ -231,7 +231,7 @@ namespace maix::video
+         _need_capture = capture;
+         _capture_image = NULL;
+         _camera = NULL;
+-        _bind_camera = NULL;
++        _bind_camera = false;
+         _start_encode_ms = 0;
+         _encode_started = false;
+         _block = block;
+-- 
+2.34.1
+

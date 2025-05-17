@@ -1,0 +1,37 @@
+config BR2_PACKAGE_MAIX_CDK
+	bool "maix-cdk"
+	select BR2_PACKAGE_HOST_CMAKE
+	select BR2_PACKAGE_HOST_PYTHON3
+	select BR2_PACKAGE_HOST_PYTHON3_SSL
+	help
+	  MaixCDK.
+
+if BR2_PACKAGE_MAIX_CDK
+
+config BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES
+	bool "All MaixCDK dependencies"
+	default y
+	select BR2_PACKAGE_ALSA_LIB
+	select BR2_PACKAGE_FFMPEG
+	select BR2_PACKAGE_HARFBUZZ
+	select BR2_PACKAGE_OPENCV4
+	help
+	  Include all MaixCDK dependencies.
+
+endif
+
+if BR2_PACKAGE_MAIX_CDK_ALL_DEPENDENCIES
+
+config BR2_PACKAGE_MAIX_CDK_ALL_PROJECTS
+	bool "All MaixCDK projects"
+	default y
+	help
+	  Build all MaixCDK projects.
+
+config BR2_PACKAGE_MAIX_CDK_ALL_EXAMPLES
+	bool "All MaixCDK examples"
+	default n
+	help
+	  Build all MaixCDK examples.
+
+endif

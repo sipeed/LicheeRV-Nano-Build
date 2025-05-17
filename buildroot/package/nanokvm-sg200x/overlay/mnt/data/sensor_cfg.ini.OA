@@ -1,0 +1,34 @@
+[source]
+
+;type = SOURCE_USER_FE
+
+dev_num = 1
+
+; section for sensor
+
+[sensor]
+
+; sensor name
+name = OV_OS04A10_MIPI_4M_1440P_30FPS_12BIT
+
+bus_id = 4
+
+sns_i2c_addr = 36
+
+mipi_dev = 0
+
+lane_id = 2, 1, 3, 0, 4  
+
+pn_swap = 0, 0, 0, 0, 0
+
+mclk_en = 0
+
+mclk = 0
+
+;port = 0
+
+;pin = 2
+
+;pol = 1
+
+;fps = 30

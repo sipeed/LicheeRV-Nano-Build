@@ -2,16 +2,56 @@
 
 . /etc/profile
 
+# /boot/eth.nodhcp for example
+# ipaddr/net        gw[optional]
+# 192.168.0.101/24 192.168.0.1
+# 192.168.3.116/22  
+
+RESERVE_INET="192.168.0.1/24"
+
 start() {
 	printf "start ethernet: "
-	if [ ! -e /boot/eth.nodhcp ]
+	if [ -e /boot/eth.nodhcp ]
 	then
+		cat /boot/eth.nodhcp | while read inet gw
+		do
+		    addr=${inet%/*}
+		    netid=${inet#*/}
+		    [ -z $gw ] &&
+		    gw=$( echo $addr| ( IFS='.' read a b c d; echo $((
+		        (((((($a<<8)+$b)<<8)+$c)<<8)+$d)
+		            & (((1<<$netid)-1)<<(32-$netid))
+		        ))
+		    )) &&
+		    gw=$(($gw>>24&0xff)).$(($gw>>16&0xff)).$(($gw>>8&0xff)).$((1+( $gw>>0&0xff )))
+
+		    arping -Dqc2 -Ieth0 $addr || continue
+		    ip a add $inet brd + dev eth0
+		    ip r add default via $gw dev eth0
+		    cat > /etc/resolve.conf << EOF
+nameserver $gw
+nameserver 8.8.8.8
+nameserver 114.114.114.114
+EOF
+		    break
+		done &&
+		ip a show dev eth0|grep inet || (
+		    udhcpc -i eth0 -t 3 -T 1 -A 5 -b -p /run/udhcpc.eth0.pid &>/dev/null
+		    ip a show dev eth0|grep inet
+		) || (
+		    # failed to apply dynamic addr, need a available static addr to visit the LAN
+		    inet=$RESERVE_INET
+		    addr=${inet%/*}
+		    ip a add $inet brd + dev eth0
+		) || exit 1
+	else
 		(udhcpc -i eth0 -t 10 -T 1 -A 5 -b -p /run/udhcpc.eth0.pid) &
 	fi
 	echo "OK"
 }
 
 stop() {
+	[[ ! -e "/run/udhcpc.eth0.pid" ]] && echo "udhcpc is not running..." && exit 1
 	kill `cat /run/udhcpc.eth0.pid`
 	rm /run/udhcpc.eth0.pid
 }

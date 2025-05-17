@@ -1,0 +1,43 @@
+From 4778ca650d9cf43ecba917b260453baa350e5670 Mon Sep 17 00:00:00 2001
+From: scpcom <scpcom@gmx.de>
+Date: Sun, 23 Feb 2025 18:11:09 +0100
+Subject: [PATCH] vison: kvm: use mmf_vi_aligned_width
+
+---
+ support/sg2002/additional/kvm/src/kvm_vision.cpp | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/support/sg2002/additional/kvm/src/kvm_vision.cpp b/support/sg2002/additional/kvm/src/kvm_vision.cpp
+index b8c5b99..ecff9fe 100644
+--- a/support/sg2002/additional/kvm/src/kvm_vision.cpp
++++ b/support/sg2002/additional/kvm/src/kvm_vision.cpp
+@@ -1550,6 +1550,11 @@ int kvmv_read_img(uint16_t _width, uint16_t _height, uint8_t _type, uint16_t _ql
+     uint8_t try_num = 0;
+     do {
+         if(kvmv_cfg.vpss_width != _width || kvmv_cfg.vpss_height != _height){
++            uint16_t _new_width = _width;
++            uint16_t _new_height = _height;
++            int vi_al = mmf_vi_aligned_width(0);
++            if (vi_al > 0)
++                _new_width = ALIGN(_width, vi_al);
+             if(_width == 0 || _height == 0){
+                 // Follow the HDMI output
+                 kvmv_cfg.vpss_width = kvmv_cfg.vi_width;
+@@ -1561,11 +1566,11 @@ int kvmv_read_img(uint16_t _width, uint16_t _height, uint8_t _type, uint16_t _ql
+                     kvmv_cfg.reinit_flag = 1;
+                 }
+ 
+-            } else {
++            } else if(kvmv_cfg.vpss_width != _new_width || kvmv_cfg.vpss_height != _new_height){
+                 kvmv_cfg.Auto_res = 0;
+                 // Set the output
+-                kvmv_cfg.vpss_width = _width;
+-                kvmv_cfg.vpss_height = _height;
++                kvmv_cfg.vpss_width = _new_width;
++                kvmv_cfg.vpss_height = _new_height;
+                 
+                 cam->set_resolution(kvmv_cfg.vpss_width, kvmv_cfg.vpss_height);
+                 kvmv_cfg.reinit_flag = 1;
+-- 
+2.34.1
+
