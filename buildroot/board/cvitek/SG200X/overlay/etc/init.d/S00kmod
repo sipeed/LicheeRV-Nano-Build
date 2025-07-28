@@ -17,18 +17,14 @@ then
 	insmod soph_vo.ko
 #	insmod soph_mipi_tx.ko
 	insmod soph_rgn.ko
-	insmod soph_wdt.ko
-	insmod soph_clock_cooling.ko
 	insmod soph_tpu.ko
 	insmod soph_vcodec.ko
 	insmod soph_jpeg.ko
 	insmod soph_vc_driver.ko MaxVencChnNum=9 MaxVdecChnNum=9
-	insmod soph_rtc.ko
 	insmod soph_ive.ko
-	insmod soph_mon.ko
 	insmod soph_pwm.ko
 	insmod soph_saradc.ko
-	insmod soph_wiegand.ko
+#	insmod soph_wiegand.ko # uncomment it if want use wiegand
 	echo "OK"
 	exit 0
 fi

@@ -18,6 +18,8 @@
 #include <cvi_panels/cvi_panels.h>
 
 #include <asm/io.h>
+#include "part.h"
+#include "fs.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -278,6 +280,40 @@ static int get_value_from_header(const char *filepath, const char *key, char *bu
     return -2; // 未找到 key 或 value 为空
 }
 
+static bool fat_file_exists(const char *filename)
+{
+	struct blk_desc *dev_desc;
+#if defined(CONFIG_NAND_SUPPORT) || defined(CONFIG_SPI_FLASH)
+	const char *dev_part = "0:1";
+	int dev = 0;
+#elif defined(CONFIG_EMMC_SUPPORT)
+	const char *dev_part = "1:1";
+	int dev = 1;
+#else
+	const char *dev_part = "0:1";
+	int dev = 0;
+#endif
+
+    dev_desc = blk_get_dev("mmc", dev);
+    if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
+        printf("Cannot find mmc device %s\n", dev_part);
+        return -ENODEV;
+    }
+
+    if (fs_set_blk_dev("mmc", dev_part, FS_TYPE_FAT)) {
+        printf("Failed to set fs device mmc %s\n", dev_part);
+        return -EINVAL;
+    }
+
+    if (fs_exists(filename)) {
+        printf("File %s exists on mmc %s\n", filename, dev_part);
+        return true;
+    } else {
+        printf("File %s not found on mmc %s\n", filename, dev_part);
+        return false;
+    }
+}
+
 /***************************************************/
 static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -287,6 +323,31 @@ static int do_startvo(struct cmd_tbl *cmdtp, int flag, int argc, char * const ar
 
 	if (argc < 4)
 		return CMD_RET_USAGE;
+
+	// check boot key pressed
+	// writel(0x00000003, 0x03001078);
+	uint32_t val = readl((const volatile void *)0x03020050);
+	int boot_key = (val >> 30) & 0x01;  // GPIOA30
+	if (boot_key == 0) //  boot key pressed
+	{
+		char *_bootargs = NULL;
+		char new_bootargs[256] = {0};
+		printf("boot key pressed\n");
+		_bootargs = env_get("othbootargs");
+		memcpy(new_bootargs, _bootargs, strlen(_bootargs));
+		char *boot_key_arg = " boot_key=1";
+		memcpy(new_bootargs + strlen(new_bootargs), boot_key_arg, strlen(boot_key_arg));
+		printf("new_othbootargs[%ld]: %s\n", strlen(new_bootargs), new_bootargs);
+		env_set("othbootargs", new_bootargs);
+		if (fat_file_exists("logo_upgrade.jpeg"))
+			env_set("logo", "logo_upgrade.jpeg");
+		else
+			env_set("logo", "logo.jpeg");
+	}
+	else
+	{
+		env_set("logo", "logo.jpeg");
+	}
 
 	dev = simple_strtoul(argv[1], &endp, 10);
 	if (*argv[1] == 0 || *endp != 0)

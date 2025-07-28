@@ -283,9 +283,9 @@
 		#elif defined(CONFIG_SPI_FLASH)
 			#define LOAD_LOGO "sf probe;sf read " LOGO_READ_ADDR " ${MISC_PART_OFFSET} ${MISC_PART_SIZE};"
 		#else
-			#define LOAD_LOGO "mmc dev 0;load mmc 0:1 " LOGO_READ_ADDR " logo.jpeg ;"
+			#define LOAD_LOGO "mmc dev 0;load mmc 0:1 " LOGO_READ_ADDR " ${logo} ;"
 		#endif
-		#define SHOWLOGOCOMMAND LOAD_LOGO CVI_JPEG START_VO START_VL SET_VO_BG
+		#define SHOWLOGOCOMMAND START_VO LOAD_LOGO CVI_JPEG START_VL SET_VO_BG
 	#else
 		#define SHOWLOGOCMD
 	#endif

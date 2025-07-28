@@ -3,9 +3,38 @@
 export PATH=/
 
 msc() {
-	umount /dev/mmcblk0p1
-	umount /dev/mmcblk0p2
 	echo mmc0 > /sys/devices/platform/leds/leds/led-user/trigger
+
+	# backlight
+	devmem 0x030010AC 32 0x04 # PINMUX PWM10
+	blpwm="/sys/class/pwm/pwmchip8/pwm2/"
+	if [ ! -e "${blpwm}" ]
+	then
+		echo 2 > /sys/class/pwm/pwmchip8/export
+	fi
+	echo 0 > $blpwm/enable
+	echo "10000" > ${blpwm}/period # 100KHZ
+	panel_value=""
+	if [ -e /boot/board ]
+	then
+		panel_value=$(grep '^panel=' /boot/board | cut -d '=' -f 2)
+	elif [ -e /boot/uEnv.txt ]
+	then
+		panel_value=$(grep '^panel=' /boot/uEnv.txt | cut -d '=' -f 2)
+	fi
+	if [ "$panel_value" = "st7701_hd228001c31" ]  || [ "$panel_value" = "st7701_lct024bsi20" ]
+	then
+		echo "2000" > ${blpwm}/duty_cycle # 20%
+	else
+		echo "5000" > ${blpwm}/duty_cycle
+	fi
+	echo 1 > $blpwm/enable
+
+	umount /dev/mmcblk0p1
+	umount /dev/mmcblk0p2 || true
+
+	# usb
+	mount -t configfs configfs /sys/kernel/config
 	cd /sys/kernel/config/usb_gadget
 	mkdir g0
 	cd g0
@@ -65,30 +94,37 @@ mkdir -p /proc
 mount -t proc proc /proc
 mkdir -p /sys
 mount -t sysfs sysfs /sys
-mount -t configfs configfs /sys/kernel/config
-mount -t debugfs debugfs /sys/kernel/debug
+# mount -t debugfs debugfs /sys/kernel/debug
 
 mkdir -p /boot
 mount -o ro /dev/mmcblk0p1 /boot
 
-msc=0
-if [ -e /boot/rec ]
+if [ -e /boot/rec ] # recovery mode
+then
+	msc
+fi
+
+# flashkey0=$(cat /sys/kernel/debug/gpio | grep 'User Key' | grep lo | wc -l)
+# if [ "${flashkey0}" -ne 0 ]
+# then
+# 	msc
+# fi
+
+boot_key=0
+for arg in $(cat /proc/cmdline); do
+    case "$arg" in
+        boot_key=*)
+            boot_key="${arg#boot_key=}"
+            ;;
+    esac
+done
+
+if [ "${boot_key}" -eq 1 ] # boot key pressed
 then
 	msc
 fi
 
 umount /dev/mmcblk0p1
-
-flashkey0=$(cat /sys/kernel/debug/gpio | grep 'User Key' | grep lo | wc -l)
-sleep 0.5
-flashkey1=$(cat /sys/kernel/debug/gpio | grep 'User Key' | grep lo | wc -l)
-if [ "${flashkey0}" -ne 0 ]
-then
-	if [ "${flashkey1}" -ne 0 ]
-	then
-		msc
-	fi
-fi
 
 mkdir /realroot
 # parted -s /dev/mmcblk0 "resizepart 2 -0"
