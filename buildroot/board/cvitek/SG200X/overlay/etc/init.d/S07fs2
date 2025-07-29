@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$1" = "start" ]
+then
+	. /etc/profile
+	printf "mounting filesystem : "
+	mount -t configfs configfs /sys/kernel/config
+	mount -t debugfs debugfs /sys/kernel/debug
+	echo "OK"
+fi

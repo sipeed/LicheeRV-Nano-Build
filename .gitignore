@@ -3,6 +3,7 @@
 *.o
 *.ko
 *.d
+!init.d
 host-tools/
 host-tools
 *.sqfs
