@@ -97,11 +97,21 @@ mount -t sysfs sysfs /sys
 # mount -t debugfs debugfs /sys/kernel/debug
 
 mkdir -p /boot
-mount -o ro /dev/mmcblk0p1 /boot
 
-if [ -e /boot/rec ] # recovery mode
-then
-	msc
+# wait ready
+i=0
+while [ ! -e /dev/mmcblk0p1 ] && [ $i -lt 5 ]; do
+    echo "Waiting for /dev/mmcblk0p1..."
+    sleep 1
+    i=$((i+1))
+done
+
+mount -o ro /dev/mmcblk0p1 /boot
+ret=$?
+
+if [ $ret -ne 0 ] || [ -e /boot/rec ]; then
+    echo "Mount boot failed, Entering recovery mode..."
+    msc
 fi
 
 # flashkey0=$(cat /sys/kernel/debug/gpio | grep 'User Key' | grep lo | wc -l)
