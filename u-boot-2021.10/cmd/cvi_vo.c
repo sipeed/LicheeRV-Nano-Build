@@ -167,7 +167,7 @@ static void dsi_panel_init(void)
 }
 #endif
 
-static int get_value_from_header(const char *filepath, const char *key, char *buffer, size_t buff_len)
+int get_value_from_header(const char *filepath, const char *key, char *buffer, size_t buff_len)
 {
 #if defined(CONFIG_NAND_SUPPORT) || defined(CONFIG_SPI_FLASH)
     const char *storage = "mmc 0:1"; // 假设 FAT 文件在 mmc 0:1
