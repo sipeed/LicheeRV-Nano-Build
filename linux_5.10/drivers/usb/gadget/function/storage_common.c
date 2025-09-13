@@ -240,16 +240,7 @@ int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 	}
 
 	num_sectors = size >> blkbits; /* File size in logic-block-size blocks */
-	min_sectors = 1;
-	if (curlun->cdrom) {
-		min_sectors = 300;	/* Smallest track is 300 frames */
-		if (num_sectors >= 256*60*75) {
-			num_sectors = 256*60*75 - 1;
-			LINFO(curlun, "file too big: %s\n", filename);
-			LINFO(curlun, "using only first %d blocks\n",
-					(int) num_sectors);
-		}
-	}
+	min_sectors = curlun->cdrom ? 300 : 1; /* Smallest track is 300 frames */
 	if (num_sectors < min_sectors) {
 		LINFO(curlun, "file too small: %s\n", filename);
 		rc = -ETOOSMALL;
@@ -258,6 +249,10 @@ int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 
 	if (fsg_lun_is_open(curlun))
 		fsg_lun_close(curlun);
+
+	/* Too big CD-ROM images will be handled as DVD-ROM */
+	curlun->cd_as_dvd = curlun->cdrom &&
+		(num_sectors >= CD_MAX_MSF_SECTORS);
 
 	curlun->blksize = blksize;
 	curlun->blkbits = blkbits;
