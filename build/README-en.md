@@ -58,7 +58,7 @@
 2. Install the serial port tool: `MobaXterm`, `Xshell` or other tools.
 3. Install the compile dependencies.
 ```
-sudo apt install pkg-config build-essential ninja-build automake autoconf libtool wget curl git gcc libssl-dev bc slib squashfs-tools android-sdk-libsparse-utils android-sdk-ext4-utils jq cmake python3-distutils tclsh scons parallel ssh-client tree python3-dev python3-pip device-tree-compiler libssl-dev ssh cpio squashfs-tools fakeroot libncurses5 flex bison
+sudo apt install pkg-config build-essential ninja-build automake autoconf libtool wget curl git gcc libssl-dev bc slib squashfs-tools android-sdk-libsparse-utils android-sdk-ext4-utils jq cmake python3-distutils tclsh scons parallel ssh-client tree python3-dev python3-pip device-tree-compiler libssl-dev ssh cpio squashfs-tools fakeroot libncurses5 flex bison dosfstools mtools
 ```
 - Note: The minimum version of `cmake` requires `3.16.5`, if you are using `Ubuntu 20.04 LTS`, the apt will install `cmake` version `3.16.3`, which is lower than the minimal requirement, so you have to install the lastest version manually:
 ```
