@@ -196,6 +196,13 @@ then
 			sleep 0.4
 		done
 		echo device > /proc/cviusb/otg_role
+
+        if [ -e /boot/usb.adbd ]
+        then
+            if [ -z $(ps aux | grep adbd_monitor | grep -v grep) ]; then
+                /etc/adbd_monitor.sh &
+            fi
+        fi
 	fi
 fi
 
@@ -222,5 +229,16 @@ then
 		unlink /sys/kernel/config/usb_gadget/g0/configs/c.1/ncm.usb0
 		rmdir /sys/kernel/config/usb_gadget/g0/functions/ncm.usb0
 	fi
+
+    # adbd
+     if [ -e /sys/kernel/config/usb_gadget/g0/configs/c.1/ffs.adb ]
+     then
+        adbd_pid=$(ps aux | grep '/usr/bin/adbd' | grep -v grep | awk '{print $1}')
+        kill -15 $adbd_pid
+        umount /dev/usb-ffs/adb
+        rm /dev/usb-ffs/adb -rf
+        unlink /sys/kernel/config/usb_gadget/g0/configs/c.1/ffs.adb
+        rmdir /sys/kernel/config/usb_gadget/g0/functions/ffs.adb
+     fi
 fi
 
