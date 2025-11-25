@@ -90,6 +90,7 @@ static CVI_S32 cmos_get_wdr_size(VI_PIPE ViPipe, ISP_SNS_ISP_INFO_S *pstIspCfg);
 #define GC4653_FRAME_BUF_ADDR			0x031D
 
 #define GC4653_RES_IS_1440P(w, h)      ((w) <= 2560 && (h) <= 1440)
+#define GC4653_RES_IS_720P(w, h)      ((w) <= 1280 && (h) <= 720)
 
 static CVI_S32 cmos_get_ae_default(VI_PIPE ViPipe, AE_SENSOR_DEFAULT_S *pstAeSnsDft)
 {
@@ -485,15 +486,13 @@ static CVI_S32 cmos_set_wdr_mode(VI_PIPE ViPipe, CVI_U8 u8Mode)
 	CMOS_CHECK_POINTER(pstSnsState);
 
 	pstSnsState->bSyncInit = CVI_FALSE;
-
 	switch (u8Mode) {
 	case WDR_MODE_NONE:
-		pstSnsState->u8ImgMode = GC4653_MODE_2560X1440P30;
+		// pstSnsState->u8ImgMode = GC4653_MODE_2560X1440P30;
 		pstSnsState->enWDRMode = WDR_MODE_NONE;
 		pstSnsState->u32FLStd = g_astGc4653_mode[pstSnsState->u8ImgMode].u32VtsDef;
 		syslog(LOG_INFO, "WDR_MODE_NONE\n");
 		break;
-
 	case WDR_MODE_2To1_LINE:
 	default:
 		CVI_TRACE_SNS(CVI_DBG_ERR, "Unsupport sensor mode!\n");
@@ -683,6 +682,21 @@ static CVI_S32 cmos_set_image_mode(VI_PIPE ViPipe, ISP_CMOS_SENSOR_IMAGE_MODE_S 
 				      pstSnsState->enWDRMode);
 			return CVI_FAILURE;
 		}
+	} else if (pstSensorImageMode->f32Fps <= 60) {
+		if (pstSnsState->enWDRMode == WDR_MODE_NONE) {
+			if (GC4653_RES_IS_720P(pstSensorImageMode->u16Width, pstSensorImageMode->u16Height))
+				u8SensorImageMode = GC4653_MODE_1280X720P60;
+			else {
+				u8SensorImageMode = GC4653_MODE_2560X1440P30;
+			}
+		} else {
+			CVI_TRACE_SNS(CVI_DBG_ERR, "Not support! Width:%d, Height:%d, Fps:%f, WDRMode:%d\n",
+				      pstSensorImageMode->u16Width,
+				      pstSensorImageMode->u16Height,
+				      pstSensorImageMode->f32Fps,
+				      pstSnsState->enWDRMode);
+			return CVI_FAILURE;
+		}
 	} else {
 		CVI_TRACE_SNS(CVI_DBG_ERR, "Not support this Fps:%f\n", pstSensorImageMode->f32Fps);
 		return CVI_FAILURE;
@@ -763,7 +777,21 @@ static CVI_S32 sensor_rx_attr(VI_PIPE ViPipe, SNS_COMBO_DEV_ATTR_S *pstRxAttr)
 	CMOS_CHECK_POINTER(pstRxAttr);
 
 	memcpy(pstRxAttr, &gc4653_rx_attr, sizeof(*pstRxAttr));
-
+	if (pstSnsState->u8ImgMode == GC4653_MODE_1280X720P60) {
+		char *value = getenv("MAIX_SENSOR_FPS");
+		if (value == NULL) {
+			pstRxAttr->mclk.freq = CAMPLL_FREQ_27M;
+		} else {
+			int fps = atoi(value);
+			if (fps >= 80) {
+				pstRxAttr->mclk.freq = CAMPLL_FREQ_37P125M;
+			} else {
+				pstRxAttr->mclk.freq = CAMPLL_FREQ_27M;
+			}
+		}
+	} else if (pstSnsState->u8ImgMode == GC4653_MODE_2560X1440P30) {
+		pstRxAttr->mclk.freq = CAMPLL_FREQ_24M;
+	}
 	pstRxAttr->img_size.width = g_astGc4653_mode[pstSnsState->u8ImgMode].astImg[0].stSnsSize.u32Width;
 	pstRxAttr->img_size.height = g_astGc4653_mode[pstSnsState->u8ImgMode].astImg[0].stSnsSize.u32Height;
 	if (pstSnsState->enWDRMode == WDR_MODE_NONE)
