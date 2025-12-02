@@ -33,6 +33,19 @@ extern const int chnl2bw[];
 /* conversion table from MACHW to NL80211 enum */
 extern const int bw2chnl[];
 
+/* Rate cntrl info */
+#define MCS_INDEX_TX_RCX_OFT    0
+#define MCS_INDEX_TX_RCX_MASK   (0x7F << MCS_INDEX_TX_RCX_OFT)
+#define BW_TX_RCX_OFT           7
+#define BW_TX_RCX_MASK          (0x3 << BW_TX_RCX_OFT)
+#define SHORT_GI_TX_RCX_OFT     9
+#define SHORT_GI_TX_RCX_MASK    (0x1 << SHORT_GI_TX_RCX_OFT)
+#define PRE_TYPE_TX_RCX_OFT     10
+#define PRE_TYPE_TX_RCX_MASK    (0x1 << PRE_TYPE_TX_RCX_OFT)
+#define FORMAT_MOD_TX_RCX_OFT   11
+#define FORMAT_MOD_TX_RCX_MASK  (0x7 << FORMAT_MOD_TX_RCX_OFT)
+
+
 /* Values for formatModTx */
 #define FORMATMOD_NON_HT          0
 #define FORMATMOD_NON_HT_DUP_OFDM 1
@@ -94,6 +107,23 @@ union rwnx_mcs_index {
 	} he;
 	u32 legacy : 7;
 };
+
+enum {
+    HW_RATE_1MBPS   = 0,
+    HW_RATE_2MBPS   = 1,
+    HW_RATE_5_5MBPS = 2,
+    HW_RATE_11MBPS  = 3,
+    HW_RATE_6MBPS   = 4,
+    HW_RATE_9MBPS   = 5,
+    HW_RATE_12MBPS  = 6,
+    HW_RATE_18MBPS  = 7,
+    HW_RATE_24MBPS  = 8,
+    HW_RATE_36MBPS  = 9,
+    HW_RATE_48MBPS  = 10,
+    HW_RATE_54MBPS  = 11,
+    HW_RATE_MAX
+};
+
 
 /* c.f RW-WLAN-nX-MAC-HW-UM */
 union rwnx_rate_ctrl_info {

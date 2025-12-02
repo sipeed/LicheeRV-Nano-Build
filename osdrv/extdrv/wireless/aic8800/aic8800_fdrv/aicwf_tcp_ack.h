@@ -27,26 +27,7 @@ struct msg_buf {
 	//struct list_head list;
 	struct sk_buff *skb;
 	struct rwnx_vif *rwnx_vif;
-
 	/* data just tx cmd use,not include the head */
-	/*void *data;
-	void *tran_data;
-	unsigned long pcie_addr;
-	u8 type;
-	u8 mode;
-	u16 len;
-	unsigned long timeout;*/
-	/* marlin 2 */
-	/*unsigned int fifo_id;
-	struct sprdwl_msg_list *msglist;*/
-	/* marlin 3 */
-	/*unsigned char buffer_type;
-	struct sprdwl_xmit_msg_list *xmit_msg_list;
-	unsigned char msg_type;
-
-	unsigned long last_time;
-	u8 ctxt_id;*/
-
 };
 
 struct tcp_ack_msg {

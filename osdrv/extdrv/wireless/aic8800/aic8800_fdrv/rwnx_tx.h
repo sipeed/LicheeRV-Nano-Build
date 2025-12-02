@@ -129,6 +129,10 @@ struct rwnx_sw_txhdr {
 	size_t map_len;
 	dma_addr_t dma_addr;
 	struct txdesc_api desc;
+
+    u8 raw_frame;
+    u8 fixed_rate;
+    u16 rate_config;
 };
 
 /**
@@ -144,6 +148,10 @@ struct rwnx_txhdr {
 	char cache_guard[L1_CACHE_BYTES];
 	struct rwnx_hw_txhdr hw_hdr;
 };
+
+#ifdef CONFIG_BAND_STEERING
+void rwnx_probersp_work(struct work_struct *work);
+#endif
 
 u16 rwnx_select_txq(struct rwnx_vif *rwnx_vif, struct sk_buff *skb);
 netdev_tx_t rwnx_start_xmit(struct sk_buff *skb, struct net_device *dev);
@@ -163,6 +171,10 @@ int rwnx_start_mgmt_xmit(struct rwnx_vif *vif, struct rwnx_sta *sta,
 					#endif
 						 u64 *cookie);
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0) */
+
+#ifdef CONFIG_RWNX_MON_XMIT
+int rwnx_start_monitor_if_xmit(struct sk_buff *skb, struct net_device *dev);
+#endif
 int rwnx_txdatacfm(void *pthis, void *host_id);
 
 struct rwnx_hw;

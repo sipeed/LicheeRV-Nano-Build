@@ -13,19 +13,19 @@
 
 #include "rwnx_defs.h"
 
-typedef struct _android_wifi_priv_cmd {
-	char *buf;
-	int used_len;
-	int total_len;
-} android_wifi_priv_cmd;
+struct rwnx_sta *rwnx_retrieve_sta(struct rwnx_hw *rwnx_hw,
+                                          struct rwnx_vif *rwnx_vif, u8 *addr,
+                                          __le16 fc, bool ap);
 
-#ifdef CONFIG_COMPAT
-typedef struct _compat_android_wifi_priv_cmd {
-	compat_caddr_t buf;
-	int used_len;
-	int total_len;
-} compat_android_wifi_priv_cmd;
-#endif /* CONFIG_COMPAT */
+
+#ifdef CONFIG_BAND_STEERING
+void aicwf_steering_work(struct work_struct *work);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
+void aicwf_steering_timeout(ulong data);
+#else
+void aicwf_steering_timeout(struct timer_list *t);
+#endif
+#endif
 
 int rwnx_cfg80211_init(struct rwnx_plat *rwnx_plat, void **platform_data);
 void rwnx_cfg80211_deinit(struct rwnx_hw *rwnx_hw);

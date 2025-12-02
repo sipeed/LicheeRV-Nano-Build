@@ -24,7 +24,7 @@
 #ifdef AICWF_USB_SUPPORT
 #define RWNX_80211_CMD_TIMEOUT_MS    2000//300
 #else
-#define RWNX_80211_CMD_TIMEOUT_MS    3000//500//300
+#define RWNX_80211_CMD_TIMEOUT_MS    6000//500//300
 #endif
 #endif
 

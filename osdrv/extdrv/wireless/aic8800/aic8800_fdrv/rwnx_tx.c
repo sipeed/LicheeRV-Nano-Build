@@ -18,6 +18,11 @@
 #include "rwnx_events.h"
 #include "rwnx_compat.h"
 #include "aicwf_txrxif.h"
+#ifdef CONFIG_RWNX_MON_XMIT
+#include <net/ieee80211_radiotap.h>
+#endif
+#include "rwnx_main.h"
+
 
 /******************************************************************************
  * Power Save functions
@@ -104,7 +109,7 @@ void rwnx_ps_bh_enable(struct rwnx_hw *rwnx_hw, struct rwnx_sta *sta,
 		spin_unlock_bh(&rwnx_hw->tx_lock);
 
 		//if (sta->ps.pkt_ready[LEGACY_PS_ID])
-		//	rwnx_set_traffic_status(rwnx_hw, sta, true, LEGACY_PS_ID);
+			//srwnx_set_traffic_status(rwnx_hw, sta, true, LEGACY_PS_ID);
 
 		//if (sta->ps.pkt_ready[UAPSD_ID])
 		//	rwnx_set_traffic_status(rwnx_hw, sta, true, UAPSD_ID);
@@ -129,8 +134,8 @@ void rwnx_ps_bh_enable(struct rwnx_hw *rwnx_hw, struct rwnx_sta *sta,
 		rwnx_txq_sta_start(sta, RWNX_TXQ_STOP_STA_PS, rwnx_hw);
 		spin_unlock_bh(&rwnx_hw->tx_lock);
 
-		//if (sta->ps.pkt_ready[LEGACY_PS_ID])
-		//	rwnx_set_traffic_status(rwnx_hw, sta, false, LEGACY_PS_ID);
+		if (sta->ps.pkt_ready[LEGACY_PS_ID])
+			rwnx_set_traffic_status(rwnx_hw, sta, false, LEGACY_PS_ID);
 
 		//if (sta->ps.pkt_ready[UAPSD_ID])
 		//	rwnx_set_traffic_status(rwnx_hw, sta, false, UAPSD_ID);
@@ -169,8 +174,7 @@ void rwnx_ps_bh_traffic_req(struct rwnx_hw *rwnx_hw, struct rwnx_sta *sta,
 	//         sta->mac_addr))
 	//    return;
 	if (!sta->ps.active) {
-		// dont flood my console
-		//printk("sta %pM is not in Power Save mode", sta->mac_addr);
+		AICWFDBG(LOGTRACE,"sta %pM is not in Power Save mode", sta->mac_addr);
 		return;
 	}
 #ifdef CREATE_TRACE_POINTS
@@ -219,8 +223,12 @@ void rwnx_ps_bh_traffic_req(struct rwnx_hw *rwnx_hw, struct rwnx_sta *sta,
 	} else {
 		int i, tid;
 
-		foreach_sta_txq_prio(sta, txq, tid, i, rwnx_hw) {
-			u16 txq_len = skb_queue_len(&txq->sk_list);
+		//foreach_sta_txq_prio(sta, txq, tid, i, rwnx_hw) {
+		for (i = 0; i < NX_NB_TID_PER_STA; i++) {
+			u16 txq_len;
+			tid = nx_tid_prio[i];
+			txq = rwnx_txq_sta_get(sta, tid, rwnx_hw);
+			txq_len = skb_queue_len(&txq->sk_list);
 
 			if (txq->ps_id != ps_id)
 				continue;
@@ -642,10 +650,25 @@ void rwnx_tx_push(struct rwnx_hw *rwnx_hw, struct rwnx_txhdr *txhdr, int flags)
 		sw_txhdr->need_cfm = 1;
 		sw_txhdr->desc.host.hostid = ((1<<31) | rwnx_hw->sdio_env.txdesc_free_idx[0]);
 		aicwf_sdio_host_txdesc_push(&(rwnx_hw->sdio_env), 0, (long)skb);
-		AICWFDBG(LOGINFO, "need cfm ethertype:%8x,user_idx=%d, skb=%p\n", sw_txhdr->desc.host.ethertype, rwnx_hw->sdio_env.txdesc_free_idx[0], skb);
+		if((sw_txhdr->desc.host.flags & TXU_CNTRL_MGMT))
+			AICWFDBG(LOGINFO, "need cfm mgmt:%x,user_idx=%d, skb=%p\n", *(skb->data+sw_txhdr->headroom), rwnx_hw->sdio_env.txdesc_free_idx[0], skb);
+		else
+			AICWFDBG(LOGINFO, "need cfm ethertype:%8x,user_idx=%d, skb=%p\n", sw_txhdr->desc.host.ethertype, rwnx_hw->sdio_env.txdesc_free_idx[0], skb);
 	} else {
 		sw_txhdr->need_cfm = 0;
 		sw_txhdr->desc.host.hostid = 0;
+        if (sw_txhdr->raw_frame) {
+            sw_txhdr->desc.host.flags |= TXU_CNTRL_MGMT;
+            AICWFDBG(LOGDEBUG, "%s TXU_CNTRL_MGMT sw_txhdr->desc.host.flags:%x\r\n", __func__,
+                sw_txhdr->desc.host.flags);
+        }
+        if (sw_txhdr->fixed_rate) {
+            sw_txhdr->desc.host.hostid = (0x01UL << 30) | sw_txhdr->rate_config;
+            AICWFDBG(LOGDEBUG, "%s TXU_CNTRL_MGMT hostid:%x\r\n", __func__,
+                sw_txhdr->desc.host.hostid);
+        } else {
+            sw_txhdr->desc.host.hostid = 0;
+        }
 
 		sw_txhdr->rwnx_vif->net_stats.tx_packets++;
 		sw_txhdr->rwnx_vif->net_stats.tx_bytes += sw_txhdr->frame_len;
@@ -1293,6 +1316,9 @@ int intf_tx(struct rwnx_hw *priv,struct msg_buf *msg)
 	sw_txhdr->amsdu.len = 0;
 	sw_txhdr->amsdu.nb = 0;
 #endif
+	sw_txhdr->raw_frame = 0;
+	sw_txhdr->fixed_rate = 0;
+
 	// Fill-in the descriptor
 	memcpy(&desc->host.eth_dest_addr, eth_t.h_dest, ETH_ALEN);
 	memcpy(&desc->host.eth_src_addr, eth_t.h_source, ETH_ALEN);
@@ -1396,7 +1422,7 @@ netdev_tx_t rwnx_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	struct ethhdr eth_t;
 #ifdef CONFIG_FILTER_TCP_ACK
-	struct msg_buf *msgbuf;
+	struct msg_buf *msgbuf = NULL;
 #endif
 
 #ifdef CONFIG_ONE_TXQ
@@ -1419,7 +1445,11 @@ netdev_tx_t rwnx_start_xmit(struct sk_buff *skb, struct net_device *dev)
 		skb = newskb;
 	}
 
+	if(skb->priority < 3)
+		skb->priority = 0;
+
 #ifdef CONFIG_FILTER_TCP_ACK
+	if(cpu_to_le16(skb->len) <= MAX_TCP_ACK){
 		msgbuf=intf_tcp_alloc_msg(msgbuf);
 		msgbuf->rwnx_vif=rwnx_vif;
 		msgbuf->skb=skb;
@@ -1429,6 +1459,7 @@ netdev_tx_t rwnx_start_xmit(struct sk_buff *skb, struct net_device *dev)
 			move_tcpack_msg(rwnx_hw,msgbuf);
 			kfree(msgbuf);
 		}
+	}
 #endif
 
 	memcpy(&eth_t, skb->data, sizeof(struct ethhdr));
@@ -1500,6 +1531,9 @@ netdev_tx_t rwnx_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	sw_txhdr->amsdu.len = 0;
 	sw_txhdr->amsdu.nb = 0;
 #endif
+    sw_txhdr->raw_frame = 0;
+    sw_txhdr->fixed_rate = 0;
+
 	// Fill-in the descriptor
 	memcpy(&desc->host.eth_dest_addr, eth_t.h_dest, ETH_ALEN);
 	memcpy(&desc->host.eth_src_addr, eth_t.h_source, ETH_ALEN);
@@ -1571,6 +1605,499 @@ free:
 	return NETDEV_TX_OK;
 }
 
+#if 0//def CONFIG_BAND_STEERING
+void rwnx_probersp_work(struct work_struct *work)
+{
+	struct ap_probe_rsp *rsp = container_of(work, struct ap_probe_rsp, rsp_work);
+	struct rwnx_vif *rwnx_vif = container_of(rsp, struct rwnx_vif, pb_pool[0]);
+	struct rwnx_hw *rwnx_hw = rwnx_vif->rwnx_hw;
+	struct sk_buff *skb = NULL;
+	struct rwnx_bcn *bcn = &rwnx_vif->ap.bcn;
+	u8_l *buf;
+	struct ieee80211_mgmt *mgmt;
+	bool robust;
+	u16_l headroom, frame_len;
+	struct rwnx_sta *sta = NULL;
+	struct rwnx_txq *txq;
+	struct rwnx_txhdr *txhdr;
+	struct rwnx_sw_txhdr *sw_txhdr;
+	struct txdesc_api *desc;
+	headroom = sizeof(struct rwnx_txhdr);
+	frame_len = bcn->len;
+
+	if (aicwf_band_steering_block_chk(rwnx_vif, rsp->da)) {
+		AICWFDBG(LOGSTEER, "sdio %s, %d, probe_rsp refuse temp  %pM\n", __func__, rwnx_vif->ap.freq, rsp->da);
+		goto free_use;
+	}
+
+	if (frame_len == 0 || !bcn->head || bcn->head_len == 0 || bcn->head_len > frame_len) {
+		AICWFDBG(LOGSTEER, "%s bcn head NULL\n", __func__);
+		goto free_use;
+	}
+
+	skb = dev_alloc_skb(frame_len + headroom);
+	if (!skb) {
+		AICWFDBG(LOGERROR, "%s alloc skb fail\n", __func__);
+		goto free_use;
+	}
+
+	skb_reserve(skb, headroom);
+	buf = skb_put(skb, frame_len);
+
+	memcpy(buf, bcn->head, bcn->head_len);
+	buf += bcn->head_len;
+	*buf++ = WLAN_EID_TIM;
+	*buf++ = 4;
+	*buf++ = 0;
+	*buf++ = bcn->dtim;
+	*buf++ = 0;
+	*buf++ = 0;
+	if (bcn->tail) {
+		memcpy(buf, bcn->tail, bcn->tail_len);
+		buf += bcn->tail_len;
+	}
+	if (bcn->ies)
+		memcpy(buf, bcn->ies, bcn->ies_len);
+
+	mgmt = (struct ieee80211_mgmt *)skb->data;
+	mgmt->frame_control = cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_RESP);
+	memcpy (mgmt->da, rsp->da, ETH_ALEN);
+	rsp->in_use = false;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0))
+	robust = ieee80211_is_robust_mgmt_frame(skb);
+#else
+	if (skb->len < 25)
+		robust = false;
+	robust = ieee80211_is_robust_mgmt_frame((void *)skb->data);
+#endif
+
+	sta = rwnx_retrieve_sta(rwnx_hw, rwnx_vif, mgmt->da, mgmt->frame_control, true);
+	if (sta) {
+		txq = rwnx_txq_sta_get(sta, 8, rwnx_hw);
+	} else {
+		txq = rwnx_txq_vif_get(rwnx_vif, NX_UNK_TXQ_TYPE);
+	}
+	if (txq->idx == TXQ_INACTIVE) {
+		AICWFDBG(LOGERROR, "%s TXQ inactive\n", __func__);
+		goto fail;
+	}
+
+	skb_push(skb, headroom);
+	txhdr = (struct rwnx_txhdr *)skb->data;
+	txhdr->hw_hdr.cfm.status.value = 0;
+	sw_txhdr = kmem_cache_alloc(rwnx_hw->sw_txhdr_cache, GFP_ATOMIC);
+	if (unlikely(sw_txhdr == NULL)) {
+		AICWFDBG(LOGERROR, "%s cache fail\n", __func__);
+		goto fail;
+	}
+	txhdr->sw_hdr = sw_txhdr;
+	sw_txhdr->txq = txq;
+	sw_txhdr->frame_len = frame_len;
+	sw_txhdr->rwnx_sta = sta;
+	sw_txhdr->rwnx_vif = rwnx_vif;
+	sw_txhdr->skb = skb;
+	sw_txhdr->headroom = headroom;
+	sw_txhdr->map_len = skb->len - offsetof(struct rwnx_txhdr, hw_hdr);
+#ifdef CONFIG_RWNX_AMSDUS_TX
+	sw_txhdr->amsdu.len = 0;
+	sw_txhdr->amsdu.nb = 0;
+#endif
+	sw_txhdr->raw_frame = 0;
+	sw_txhdr->fixed_rate = 0;
+
+	desc = &sw_txhdr->desc;
+	desc->host.ethertype = 0;
+	desc->host.staid = (sta) ? sta->sta_idx : 0xFF;
+	desc->host.vif_idx = rwnx_vif->vif_index;
+	desc->host.tid = 0xFF;
+	desc->host.flags = TXU_CNTRL_MGMT;
+	if (robust)
+		desc->host.flags |= TXU_CNTRL_MGMT_ROBUST;
+#ifdef CONFIG_RWNX_SPLIT_TX_BUF
+	desc->host.packet_len[0] = frame_len;
+#else
+	desc->host.packet_len = frame_len;
+#endif
+	desc->host.hostid = sw_txhdr->dma_addr;
+
+	spin_lock_bh(&rwnx_hw->tx_lock);
+	AICWFDBG(LOGSTEER, "sdio p_rsp: %pM", mgmt->da);
+	// AICWFDBG(LOGDEBUG, "sdio %s sta:%p skb:%p desc->host.staid:%d \r\n", __func__, sta, skb, desc->host.staid);
+	if (rwnx_txq_queue_skb(skb, txq, rwnx_hw, false))
+		rwnx_hwq_process(rwnx_hw, txq->hwq);
+	spin_unlock_bh(&rwnx_hw->tx_lock);
+
+	return;
+
+fail:
+	if (sw_txhdr)
+		kmem_cache_free(rwnx_hw->sw_txhdr_cache, sw_txhdr);
+	dev_kfree_skb(skb);
+free_use:
+	if (rsp->in_use)
+		rsp->in_use = false;
+}
+#endif
+
+
+#ifdef CONFIG_RWNX_MON_XMIT
+/**
+ * netdev_tx_t (*ndo_start_xmit)(struct sk_buff *skb,
+ *                               struct net_device *dev);
+ *	Called when a packet needs to be transmitted.
+ *	Must return NETDEV_TX_OK , NETDEV_TX_BUSY.
+ *        (can also return NETDEV_TX_LOCKED if NETIF_F_LLTX)
+ *
+ *  - Initialize the desciptor for this pkt (stored in skb before data)
+ *  - Push the pkt in the corresponding Txq
+ *  - If possible (i.e. credit available and not in PS) the pkt is pushed
+ *    to fw
+ */
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 11, 0))
+#define IEEE80211_RADIOTAP_MCS_HAVE_STBC	0x20
+#define IEEE80211_RADIOTAP_MCS_STBC_MASK	0x60
+#define IEEE80211_RADIOTAP_MCS_STBC_SHIFT	5
+#endif
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
+#define IEEE80211_RADIOTAP_CODING_LDPC_USER0			0x01
+#endif
+
+char bcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+netdev_tx_t rwnx_start_monitor_if_xmit(struct sk_buff *skb, struct net_device *dev)
+{
+    int rtap_len, ret, idx;
+    struct ieee80211_radiotap_header *rtap_hdr; // net/ieee80211_radiotap.h
+    struct ieee80211_radiotap_iterator iterator; // net/cfg80211.h
+    u8_l *rtap_buf = (u8_l *)skb->data;
+    u8_l rate;
+
+    struct rwnx_vif *vif = netdev_priv(dev);
+    struct rwnx_hw *rwnx_hw = vif->rwnx_hw;
+    struct rwnx_txhdr *txhdr;
+    struct rwnx_sw_txhdr *sw_txhdr;
+    struct txdesc_api *desc;
+    struct rwnx_sta *sta;
+    struct rwnx_txq *txq;
+    u16_l frame_len, headroom, frame_oft;
+    u8_l tid, rate_fmt = FORMATMOD_NON_HT, rate_idx = 0, txsig_bw = PHY_CHNL_BW_20;
+    u8_l *pframe, *data;
+    bool robust;
+    struct sk_buff *skb_mgmt;
+    bool offchan = false;
+    int nx_off_chan_txq_idx = NX_OFF_CHAN_TXQ_IDX;
+
+    rtap_hdr = (struct ieee80211_radiotap_header*)(rtap_buf);
+    rtap_len = ieee80211_get_radiotap_len(rtap_buf);//max_length
+    frame_len = skb->len;
+
+    AICWFDBG(LOGINFO, "rwnx_start_monitor_if_xmit, skb_len=%d, rtap_len=%d\n", skb->len, rtap_len);
+//rwnx_data_dump((char*)__func__, skb->data, skb->len);
+    if((g_rwnx_plat->sdiodev->chipid == PRODUCT_ID_AIC8801) ||
+        ((g_rwnx_plat->sdiodev->chipid == PRODUCT_ID_AIC8800DC ||
+        g_rwnx_plat->sdiodev->chipid == PRODUCT_ID_AIC8800DW) && chip_id < 3)){
+            nx_off_chan_txq_idx = NX_OFF_CHAN_TXQ_IDX_FOR_OLD_IC;
+    }
+
+
+    if (unlikely(rtap_hdr->it_version)){
+        AICWFDBG(LOGERROR, "%s itv \r\n", __func__);
+        goto free_tag;
+        }
+
+    if (unlikely(skb->len < rtap_len)){
+        AICWFDBG(LOGERROR, "%s skb->len < rtap_len \r\n", __func__);
+        goto free_tag;
+        }
+
+    if (unlikely(rtap_len < sizeof(struct ieee80211_radiotap_header))){
+        AICWFDBG(LOGERROR, "%s rtap_len < sizeof(struct ieee80211_radiotap_header) \r\n", __func__);
+        goto free_tag;
+        }
+
+    frame_len -= rtap_len;
+    pframe = rtap_buf + rtap_len;
+
+    // Parse radiotap for injection items and overwrite attribs as needed
+    ret = ieee80211_radiotap_iterator_init(&iterator, rtap_hdr, rtap_len, NULL);
+    while (!ret) {
+        ret = ieee80211_radiotap_iterator_next(&iterator);
+        if (ret) {
+            continue;
+        }
+        AICWFDBG(LOGDEBUG, "%s iterator.this_arg_index:%d iterator.this_arg:%x\r\n", __func__, 
+            iterator.this_arg_index, *iterator.this_arg);
+        switch (iterator.this_arg_index) {
+            case IEEE80211_RADIOTAP_RATE:
+                // This is basic 802.11b/g rate; use MCS/VHT for higher rates
+                rate = *iterator.this_arg;
+                AICWFDBG(LOGDEBUG, "rate=0x%x\n", rate);
+                for (idx = 0; idx < HW_RATE_MAX; idx++) {
+                    if ((rate * 5) == tx_legrates_lut_rate[idx]) {
+                        AICWFDBG(LOGDEBUG, "%s datarate:%d \r\n", __func__, tx_legrates_lut_rate[idx]);
+                        break;
+                    }
+                }
+                
+                if (idx < HW_RATE_MAX) {
+                    rate_idx = idx;
+                    AICWFDBG(LOGDEBUG, "rate_idx = %d \r\n", rate_idx);
+                } else {
+                    AICWFDBG(LOGERROR, "invalid radiotap rate: %d\n", rate);
+                }
+                break;
+
+            case IEEE80211_RADIOTAP_TX_FLAGS: {
+                u16_l txflags = get_unaligned_le16(iterator.this_arg);
+                AICWFDBG(LOGDEBUG, "txflags=0x%x\n", txflags);
+                if ((txflags & IEEE80211_RADIOTAP_F_TX_NOACK) == 0) {
+                    AICWFDBG(LOGDEBUG, "  TX_NOACK\n");
+                }
+                if (txflags & 0x0010) { // Use preconfigured seq num
+                    // NOTE: this is currently ignored due to qos_en=_FALSE and HW seq num override
+                    AICWFDBG(LOGDEBUG, "  GetSequence\n");
+                }
+            }
+            break;
+
+            case IEEE80211_RADIOTAP_MCS: {
+                u8_l mcs_have = iterator.this_arg[0];
+                AICWFDBG(LOGDEBUG, "mcs_have=0x%x\n", mcs_have);
+                rate_fmt = FORMATMOD_HT_MF;
+                if (mcs_have & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
+                    u8_l bw = (iterator.this_arg[1] & IEEE80211_RADIOTAP_MCS_BW_MASK);
+                    u8_l ch_offset = 0;
+                    if (bw == IEEE80211_RADIOTAP_MCS_BW_40) {
+                        txsig_bw = PHY_CHNL_BW_40;
+                    } else if (bw == IEEE80211_RADIOTAP_MCS_BW_20L) {
+                        bw = IEEE80211_RADIOTAP_MCS_BW_20;
+                        ch_offset = 1; // CHNL_OFFSET_LOWER;
+                    } else if (bw == IEEE80211_RADIOTAP_MCS_BW_20U) {
+                        bw = IEEE80211_RADIOTAP_MCS_BW_20;
+                        ch_offset = 2; // CHNL_OFFSET_UPPER;
+                    }
+                    AICWFDBG(LOGDEBUG, "  bw=%d, ch_offset=%d\n", bw, ch_offset);
+                }
+                if (mcs_have & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
+                    u8_l fixed_rate = iterator.this_arg[2] & 0x7f;
+                    if (fixed_rate > 31) {
+                        fixed_rate = 0;
+                    }
+                    rate_idx = fixed_rate;
+                    AICWFDBG(LOGDEBUG, "  fixed_rate=0x%x\n", fixed_rate);
+                }
+                if ((mcs_have & IEEE80211_RADIOTAP_MCS_HAVE_GI) && (iterator.this_arg[1] & IEEE80211_RADIOTAP_MCS_SGI)) {
+                    AICWFDBG(LOGDEBUG, "  sgi\n");
+                }
+                if ((mcs_have & IEEE80211_RADIOTAP_MCS_HAVE_FEC) && (iterator.this_arg[1] & IEEE80211_RADIOTAP_MCS_FEC_LDPC)) {
+                    AICWFDBG(LOGDEBUG, "  ldpc\n");
+                }
+                if (mcs_have & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
+                    u8 stbc = (iterator.this_arg[1] & IEEE80211_RADIOTAP_MCS_STBC_MASK) >> IEEE80211_RADIOTAP_MCS_STBC_SHIFT;
+                    AICWFDBG(LOGDEBUG, "  stbc=0x%x\n", stbc);
+                }
+            }
+            break;
+
+            case IEEE80211_RADIOTAP_VHT: {
+                unsigned int mcs, nss;
+                u8 known = iterator.this_arg[0];
+                u8 flags = iterator.this_arg[2];
+                rate_fmt = FORMATMOD_VHT;
+                AICWFDBG(LOGDEBUG, "known=0x%x, flags=0x%x\n", known, flags);
+                // NOTE: this code currently only supports 1SS for radiotap defined rates
+                if ((known & IEEE80211_RADIOTAP_VHT_KNOWN_STBC) && (flags & IEEE80211_RADIOTAP_VHT_FLAG_STBC)) {
+                    AICWFDBG(LOGDEBUG, "  stbc\n");
+                }
+                if ((known & IEEE80211_RADIOTAP_VHT_KNOWN_GI) && (flags & IEEE80211_RADIOTAP_VHT_FLAG_SGI)) {
+                    AICWFDBG(LOGDEBUG, "  sgi\n");
+                }
+                if (known & IEEE80211_RADIOTAP_VHT_KNOWN_BANDWIDTH) {
+                    u8_l bw = iterator.this_arg[3] & 0x1F;
+                    AICWFDBG(LOGDEBUG, "  bw=0x%x\n",bw);
+                    // NOTE: there are various L and U, but we just use straight 20/40/80
+                    // since it's not clear how to set CHNL_OFFSET_LOWER/_UPPER with different
+                    // sideband sizes/configurations.  TODO.
+                    // Also, any 160 is treated as 80 due to lack of WIDTH_160.
+                    txsig_bw = PHY_CHNL_BW_40;
+                    if (bw == 0) {
+                        txsig_bw = PHY_CHNL_BW_20;
+                        AICWFDBG(LOGDEBUG, "  20M\n");
+                    } else if (bw >=1 && bw <= 3) {
+                        AICWFDBG(LOGDEBUG, "  40M\n");
+                    } else if (bw >=4 && bw <= 10) {
+                        AICWFDBG(LOGDEBUG, "  80M\n");
+                    } else if (bw >= 11 && bw <= 25) {
+                        AICWFDBG(LOGDEBUG, "  160M\n");
+                    }
+                }
+                // User 0
+                nss = iterator.this_arg[4] & 0x0F; // Number of spatial streams
+                AICWFDBG(LOGDEBUG, "  nss=0x%x\n", nss);
+                if (nss > 0) {
+                    if (nss > 4) nss = 4;
+                    mcs = (iterator.this_arg[4]>>4) & 0x0F; // MCS rate index
+                    if (mcs > 8) mcs = 9;
+                    rate_idx = mcs;
+                    AICWFDBG(LOGDEBUG, "    mcs=0x%x\n", mcs);
+                    if (iterator.this_arg[8] & IEEE80211_RADIOTAP_CODING_LDPC_USER0) {
+                        AICWFDBG(LOGDEBUG, "    ldpc\n");
+                    }
+                }
+            }
+            break;
+
+            case IEEE80211_RADIOTAP_HE: {
+                u16 data1 = ((u16)iterator.this_arg[1] << 8) | iterator.this_arg[0];
+                u16 data2 = ((u16)iterator.this_arg[3] << 8) | iterator.this_arg[2];
+                u16 data3 = ((u16)iterator.this_arg[5] << 8) | iterator.this_arg[4];
+                u16 data5 = ((u16)iterator.this_arg[9] << 8) | iterator.this_arg[8];
+                u8 fmt_he = data1 & IEEE80211_RADIOTAP_HE_DATA1_FORMAT_MASK;
+                if (fmt_he == IEEE80211_RADIOTAP_HE_DATA1_FORMAT_MU) {
+                    rate_fmt = FORMATMOD_HE_MU;
+                } else if (fmt_he == IEEE80211_RADIOTAP_HE_DATA1_FORMAT_EXT_SU) {
+                    rate_fmt = FORMATMOD_HE_ER;
+                } else {
+                    rate_fmt = FORMATMOD_HE_SU;
+                }
+                if (data1 & IEEE80211_RADIOTAP_HE_DATA1_DATA_MCS_KNOWN) {
+                    u8 mcs = (data3 & IEEE80211_RADIOTAP_HE_DATA3_DATA_MCS) >> 8;
+                    if (mcs > 11) mcs = 11;
+                    rate_idx = mcs;
+                }
+                if (data1 & IEEE80211_RADIOTAP_HE_DATA1_BW_RU_ALLOC_KNOWN) {
+                    u8 bw = data5 & IEEE80211_RADIOTAP_HE_DATA5_DATA_BW_RU_ALLOC;
+                    txsig_bw = (bw == IEEE80211_RADIOTAP_HE_DATA5_DATA_BW_RU_ALLOC_20MHZ) ? PHY_CHNL_BW_20 : PHY_CHNL_BW_40;
+                }
+                if (data2 & IEEE80211_RADIOTAP_HE_DATA2_GI_KNOWN) {
+                    u8 gi = (data5 & IEEE80211_RADIOTAP_HE_DATA5_GI) >> 4;
+                    AICWFDBG(LOGDEBUG, "  gi: %d\n", gi);
+                }
+            }
+            break;
+
+            default:
+                AICWFDBG(LOGERROR, "unparsed arg: 0x%x\n",iterator.this_arg_index);
+                break;
+        }
+    }
+
+    #if 0
+    // dump buffer
+    tmp_len = 128;
+    if (skb->len < 128) {
+        tmp_len = skb->len;
+    }
+    for (idx = 0; idx < tmp_len; idx+=16) {
+        printk("[%04X] %02X %02X %02X %02X %02X %02X %02X %02X   %02X %02X %02X %02X %02X %02X %02X %02X\n", idx,
+            rtap_buf[idx+0],rtap_buf[idx+1],rtap_buf[idx+2],rtap_buf[idx+3],
+            rtap_buf[idx+4],rtap_buf[idx+5],rtap_buf[idx+6],rtap_buf[idx+7],
+            rtap_buf[idx+8],rtap_buf[idx+9],rtap_buf[idx+10],rtap_buf[idx+11],
+            rtap_buf[idx+12],rtap_buf[idx+13],rtap_buf[idx+14],rtap_buf[idx+15]);
+    }
+    #endif
+    //rwnx_data_dump((char*)__func__, pframe, frame_len);
+
+    /* Get the STA id and TID information */
+    sta = rwnx_get_tx_priv(vif, skb, &tid);
+    //if (!sta) {
+    //    printk("sta=null, tid=0x%x\n", tid);
+    //}
+    /* Set TID and Queues indexes */
+    if (sta) {
+        txq = rwnx_txq_sta_get(sta, 8, rwnx_hw);
+    } else {
+        if (offchan)
+            txq = &rwnx_hw->txq[nx_off_chan_txq_idx];
+        else
+            txq = rwnx_txq_vif_get(vif, NX_UNK_TXQ_TYPE);
+    }
+    if (txq->idx == TXQ_INACTIVE) {
+        AICWFDBG(LOGERROR, "TXQ_INACTIVE\n");
+        goto free_tag;
+    }
+    // prepare to xmit
+    headroom = sizeof(struct rwnx_txhdr);
+    skb_mgmt = dev_alloc_skb(headroom + frame_len);
+    if (!skb_mgmt) {
+        AICWFDBG(LOGERROR, "skb_mgmt alloc fail\n");
+        goto free_tag;
+    }
+    skb_reserve(skb_mgmt, headroom);
+    data = skb_put(skb_mgmt, frame_len);
+    /* Copy the provided data */
+    memcpy(data, pframe, frame_len);
+    robust = ieee80211_is_robust_mgmt_frame(
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0))
+		(void*)skb_mgmt
+#else
+		skb_mgmt
+#endif
+		);
+    skb_push(skb_mgmt, headroom);
+    /* Fill the TX Header */
+    txhdr = (struct rwnx_txhdr *)skb_mgmt->data;
+    txhdr->hw_hdr.cfm.status.value = 0;
+    /* Fill the SW TX Header */
+    sw_txhdr = kmem_cache_alloc(rwnx_hw->sw_txhdr_cache, GFP_ATOMIC);
+    if (unlikely(sw_txhdr == NULL)) {
+        dev_kfree_skb(skb_mgmt);
+        AICWFDBG(LOGERROR, "sw_txhdr alloc fail\n");
+        goto free_tag;
+    }
+    txhdr->sw_hdr = sw_txhdr;
+    sw_txhdr->txq = txq;
+    sw_txhdr->frame_len = frame_len;
+    sw_txhdr->rwnx_sta = sta;
+    sw_txhdr->rwnx_vif = vif;
+    sw_txhdr->skb = skb_mgmt;
+    sw_txhdr->headroom = headroom;
+    sw_txhdr->map_len = skb_mgmt->len - offsetof(struct rwnx_txhdr, hw_hdr);
+    sw_txhdr->raw_frame = 1;
+    sw_txhdr->fixed_rate = 1;
+    sw_txhdr->rate_config = ((rate_fmt << FORMAT_MOD_TX_RCX_OFT) & FORMAT_MOD_TX_RCX_MASK) |
+                            ((txsig_bw << BW_TX_RCX_OFT) & BW_TX_RCX_MASK) |
+                            ((rate_idx << MCS_INDEX_TX_RCX_OFT) & MCS_INDEX_TX_RCX_MASK); // from radiotap
+    /* Fill the Descriptor to be provided to the MAC SW */
+    desc = &sw_txhdr->desc;
+    desc->host.staid = (sta) ? sta->sta_idx : 0xFF;
+    desc->host.vif_idx = vif->vif_index;
+    desc->host.tid = 0xFF;
+    desc->host.flags = TXU_CNTRL_MGMT;
+    if (robust) {
+        desc->host.flags |= TXU_CNTRL_MGMT_ROBUST;
+    }
+    frame_oft = sizeof(struct rwnx_txhdr) - offsetof(struct rwnx_txhdr, hw_hdr);
+	#if 0
+    #ifdef CONFIG_RWNX_SPLIT_TX_BUF
+    desc->host.packet_addr[0] = sw_txhdr->dma_addr + frame_oft;
+    desc->host.packet_len[0] = frame_len;
+    desc->host.packet_cnt = 1;
+    #else
+    desc->host.packet_addr = sw_txhdr->dma_addr + frame_oft;
+    desc->host.packet_len = frame_len;
+    #endif
+	#else
+	desc->host.packet_len = frame_len;
+	#endif
+
+    desc->host.hostid = sw_txhdr->dma_addr;
+    
+    memcpy(desc->host.eth_dest_addr.array, bcast, ETH_ALEN);
+    
+    spin_lock_bh(&rwnx_hw->tx_lock);
+    AICWFDBG(LOGTRACE, "%s send data\r\n", __func__);
+    if (rwnx_txq_queue_skb(skb_mgmt, txq, rwnx_hw, false))
+        rwnx_hwq_process(rwnx_hw, txq->hwq);
+    spin_unlock_bh(&rwnx_hw->tx_lock);
+
+free_tag:
+    dev_kfree_skb_any(skb);
+    return NETDEV_TX_OK;
+}
+#endif
+
+
 /**
  * rwnx_start_mgmt_xmit - Transmit a management frame
  *
@@ -1615,6 +2142,8 @@ int rwnx_start_mgmt_xmit(struct rwnx_vif *vif, struct rwnx_sta *sta,
 	size_t len = params->len;
 	bool no_cck = params->no_cck;
 	#endif
+
+	AICWFDBG(LOGDEBUG,"mgmt xmit %x %x ",buf[0],buf[1]);
 
     if((g_rwnx_plat->sdiodev->chipid == PRODUCT_ID_AIC8801) ||
         ((g_rwnx_plat->sdiodev->chipid == PRODUCT_ID_AIC8800DC ||
@@ -1726,6 +2255,9 @@ int rwnx_start_mgmt_xmit(struct rwnx_vif *vif, struct rwnx_sta *sta,
 	sw_txhdr->amsdu.len = 0;
 	sw_txhdr->amsdu.nb = 0;
 #endif
+    sw_txhdr->raw_frame = 0;
+    sw_txhdr->fixed_rate = 0;
+
 	//----------------------------------------------------------------------
 
 	/* Fill the Descriptor to be provided to the MAC SW */
@@ -1804,7 +2336,8 @@ int rwnx_txdatacfm(void *pthis, void *host_id)
 	/* Check status in the header. If status is null, it means that the buffer
 	 * was not transmitted and we have to return immediately */
 	if (rwnx_txst.value == 0) {
-		return -1;
+		//return -1;
+		rwnx_txst.tx_done = 1;
 	}
 
 #ifdef AICWF_USB_SUPPORT

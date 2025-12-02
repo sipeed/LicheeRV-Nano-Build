@@ -1248,6 +1248,12 @@ static ssize_t rwnx_dbgfs_regdbg_write(struct file *file,
     	if(oper== 0) {
 		ret = rwnx_send_dbg_mem_read_req(priv, addr, &mem_read_cfm);
         	printk("[0x%x] = [0x%x]\n", mem_read_cfm.memaddr, mem_read_cfm.memdata);
+	} else if (oper == 1) {
+		ret = rwnx_send_dbg_mem_read_req(priv, addr, &mem_read_cfm);
+		printk("before write : [0x%x] = [0x%x]\n", mem_read_cfm.memaddr, mem_read_cfm.memdata);
+		ret = rwnx_send_dbg_mem_block_write_req(priv, addr, 4, &val);
+		ret = rwnx_send_dbg_mem_read_req(priv, addr, &mem_read_cfm);
+		printk("after write : [0x%x] = [0x%x]\n", mem_read_cfm.memaddr, mem_read_cfm.memdata);
     	}
 
 	return count;
@@ -1261,7 +1267,7 @@ static ssize_t rwnx_dbgfs_vendor_hwconfig_write(struct file *file,
 {
 	struct rwnx_hw *priv = file->private_data;
 	char buf[64];
-	int32_t addr[13];
+	int32_t addr[14];
     int32_t addr_out[12];
 	u32_l hwconfig_id;
 	size_t len = min_t(size_t,count,sizeof(buf)-1);
@@ -1275,10 +1281,10 @@ static ssize_t rwnx_dbgfs_vendor_hwconfig_write(struct file *file,
 	}
 
 	buf[len] = '\0';
-	ret = sscanf(buf, "%x %x %x %x %x %x %x %x %x %x %x %x %x %x",
-                            &hwconfig_id, &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5], &addr[6], &addr[7], &addr[8], &addr[9], &addr[10], &addr[11], &addr[12]);
-	if(ret > 14) {
-		printk("param error > 14\n");
+	ret = sscanf(buf, "%x %x %x %x %x %x %x %x %x %x %x %x %x %x %x",
+                            &hwconfig_id, &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5], &addr[6], &addr[7], &addr[8], &addr[9], &addr[10], &addr[11], &addr[12], &addr[13]);
+	if(ret > 15) {
+		printk("param error > 15\n");
 	} else {
 		switch(hwconfig_id)
 		    {
@@ -1290,13 +1296,13 @@ static ssize_t rwnx_dbgfs_vendor_hwconfig_write(struct file *file,
 			printk("ACS_TXOP_REQ bk:0x%x be:0x%x vi:0x%x vo:0x%x\n",addr[0],  addr[1], addr[2], addr[3]);
 			break;
 		    case 1:
-			if(ret != 14) {
-			    printk("param error  != 14\n");
+			if(ret != 15) {
+			    printk("param error  != 15\n");
 			    break;}
 			addr[12] = ~addr[12] + 1;
 			ret = rwnx_send_vendor_hwconfig_req(priv, hwconfig_id, addr, NULL);
-			printk("CHANNEL_ACCESS_REQ edca:%x,%x,%x,%x, vif:%x, retry_cnt:%x, rts:%x, long_nav:%x, cfe:%x, rc_retry_cnt:%x:%x:%x ccademod_th %x\n",
-                                addr[0],  addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7], addr[8], addr[9], addr[10], addr[11], addr[12]);
+			printk("CHANNEL_ACCESS_REQ edca:%x,%x,%x,%x, vif:%x, retry_cnt:%x, rts:%x, long_nav:%x, cfe:%x, rc_retry_cnt:%x:%x:%x ccademod_th %x, remove_1m2m %x\n",
+                                addr[0],  addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7], addr[8], addr[9], addr[10], addr[11], addr[12], addr[13]);
 			break;
 		    case 2:
 			if(ret != 7) {
@@ -1334,6 +1340,14 @@ static ssize_t rwnx_dbgfs_vendor_hwconfig_write(struct file *file,
                     printk("CHIP_TEMP_GET_REQ degree=%d\n", addr_out[0]);
                 }
             break;
+			case 6://AP_PS_LEVEL_SET_REQ
+				if (ret != 2) {
+					printk("param error != 2\n");
+				} else {
+					ret = rwnx_send_vendor_hwconfig_req(priv, hwconfig_id, addr, NULL);
+					printk("AP_PS_LEVEL_SET_REQ lvl=%d\n", addr[0]);
+				}
+			break;
             default:
 			printk("param error\n");
 			break;
@@ -1397,6 +1411,35 @@ static ssize_t rwnx_dbgfs_vendor_swconfig_write(struct file *file,
                 } else {
                     ret = rwnx_send_vendor_swconfig_req(priv, swconfig_id, addr, addr_out);
                     printk("TEMP_COMP_GET_REQ get_st=%d, degree=%d\n", addr_out[0], addr_out[1]);
+                }
+            break;
+
+            case 3: // EXT_FLAGS_SET_REQ
+                if (ret != 2) {
+                    printk("param error != 2\n");
+                } else {
+                    ret = rwnx_send_vendor_swconfig_req(priv, swconfig_id, addr, addr_out);
+                    printk("EXT_FLAGS_SET_REQ set ext_flags=0x%x, get ext_flags=0x%x\n",
+                        addr[0], addr_out[0]);
+                }
+            break;
+
+            case 4: // EXT_FLAGS_GET_REQ
+                if (ret != 1) {
+                    printk("param error != 1\n");
+                } else {
+                    ret = rwnx_send_vendor_swconfig_req(priv, swconfig_id, addr, addr_out);
+                    printk("EXT_FLAGS_GET_REQ get ext_flags=0x%x\n", addr_out[0]);
+                }
+            break;
+
+            case 5: // EXT_FLAGS_MASK_SET_REQ
+                if (ret != 3) {
+                    printk("param error != 3\n");
+                } else {
+                    ret = rwnx_send_vendor_swconfig_req(priv, swconfig_id, addr, addr_out);
+                    printk("EXT_FLAGS_MASK_SET_REQ set ext_flags mask=0x%x, val=0x%x, get ext_flags=0x%x\n",
+                        addr[0], addr[1], addr_out[0]);
                 }
             break;
 
@@ -1706,7 +1749,7 @@ static void idx_to_rate_cfg1(unsigned int formatmod,
 		case FORMATMOD_NON_HT:
 		{
 			r_cfg->formatModTx = formatmod;
-			r_cfg->giAndPreTypeTx = 1;
+			r_cfg->giAndPreTypeTx = 2;
 			r_cfg->mcsIndexTx = mcs;
             break;
 		}
@@ -2053,7 +2096,7 @@ static ssize_t rwnx_dbgfs_last_rx_read(struct file *file,
 		nss = last_rx->ht.mcs / 8;;
 		gi = last_rx->ht.short_gi;
 	} else {
-		BUG_ON((mcs = legrates_lut[last_rx->leg_rate]) == -1);
+		BUG_ON((mcs = legrates_lut[last_rx->leg_rate].idx) == -1);
 		nss = 0;
 		gi = 0;
 	}
