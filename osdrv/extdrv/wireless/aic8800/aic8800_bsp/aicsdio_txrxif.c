@@ -41,21 +41,22 @@ int aicwf_bus_init(uint bus_hdrlen, struct device *dev)
 	init_completion(&bus_if->busrx_trgg);
 #ifdef AICWF_SDIO_SUPPORT
 	bus_if->bustx_thread = kthread_run(aicwf_sdio_bustx_thread, (void *)bus_if, "aicwf_bustx_thread");
-	bus_if->busrx_thread = kthread_run(aicwf_sdio_busrx_thread, (void *)bus_if->bus_priv.sdio->rx_priv, "aicwf_busrx_thread");
-#endif
-
 	if (IS_ERR(bus_if->bustx_thread)) {
 		bus_if->bustx_thread  = NULL;
 		txrx_err("aicwf_bustx_thread run fail\n");
+		ret = -1;
 		goto fail;
 	}
 
+	bus_if->busrx_thread = kthread_run(aicwf_sdio_busrx_thread, (void *)bus_if->bus_priv.sdio->rx_priv, "aicwf_busrx_thread");
 	if (IS_ERR(bus_if->busrx_thread)) {
 		bus_if->busrx_thread  = NULL;
 		txrx_err("aicwf_bustx_thread run fail\n");
+		ret = -1;
 		goto fail;
 	}
 
+#endif
 	return ret;
 fail:
 	aicwf_bus_deinit(dev);

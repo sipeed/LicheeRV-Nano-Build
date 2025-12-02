@@ -69,7 +69,8 @@ enum AICWF_IC{
 	PRODUCT_ID_AIC8801	=	0,
 	PRODUCT_ID_AIC8800DC,
 	PRODUCT_ID_AIC8800DW,
-	PRODUCT_ID_AIC8800D80
+	PRODUCT_ID_AIC8800D80,
+	PRODUCT_ID_AIC8800D80X2
 };
 
 struct aic_sdio_reg {
@@ -108,6 +109,7 @@ struct aic_sdio_dev {
 	struct semaphore pwrctl_wakeup_sema;
 #endif
 	u16 chipid;
+	u32 fw_version_uint;
     struct aic_sdio_reg sdio_reg;
     void (*sdio_hal_irqhandler) (struct sdio_func *func);
 };

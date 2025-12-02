@@ -7,7 +7,7 @@ struct msg_buf *intf_tcp_alloc_msg(struct msg_buf *msg)
 {
 	//printk("%s \n",__func__);
 	int len=sizeof(struct msg_buf) ;
-	msg = kzalloc(len , GFP_KERNEL);
+	msg = kzalloc(len , /*GFP_KERNEL*/GFP_ATOMIC);
 	if(!msg)
 		printk("%s: alloc failed \n", __func__);
 	memset(msg,0,len);
@@ -188,7 +188,7 @@ int is_drop_tcp_ack(struct tcphdr *tcphdr, int tcp_tot_len,
 				case TCPOPT_WINDOW:
 					if (*ptr < 15)
 						*win_scale = (1 << (*ptr));
-					printk("%d\n",*win_scale);
+					//printk("%d\n",*win_scale);
 					break;
 				default:
 					drop = 2;
@@ -442,7 +442,7 @@ int tcp_ack_handle_new(struct msg_buf *new_msgbuf,
 	struct tcp_ack_msg *ack;
 	int ret = 0;
 	struct msg_buf *drop_msg = NULL;
-	struct msg_buf * send_msg = NULL;
+	//struct msg_buf * send_msg = NULL;
 	//printk("",);
 	write_seqlock_bh(&ack_info->seqlock);
 
@@ -470,8 +470,8 @@ int tcp_ack_handle_new(struct msg_buf *new_msgbuf,
 				  (ack_info->drop_cnt >=
 				   atomic_read(&ack_m->max_drop_cnt)))){
 			ack_info->drop_cnt = 0;
-			send_msg = new_msgbuf;
-			ack_info->in_send_msg = send_msg;
+			//send_msg = new_msgbuf;
+			ack_info->in_send_msg = new_msgbuf;
 			del_timer(&ack_info->timer);
 		}else{
 			ret = 1;
@@ -549,9 +549,6 @@ int filter_send_tcp_ack(struct rwnx_hw *priv,
 	struct tcp_ack_msg *ack;
 	struct tcp_ack_info *ack_info;
 	struct tcp_ack_manage *ack_m = &priv->ack_m;
-
-	if (plen > MAX_TCP_ACK)
-		return 0;
 
 	tcp_ack_update(ack_m);
 	drop = tcp_check_ack(buf, &ack_msg, &win_scale);
