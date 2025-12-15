@@ -22,6 +22,7 @@
 #define GC4653_CHIP_ID		0x4653
 
 static void gc4653_linear_1440p30_init(VI_PIPE ViPipe);
+static void gc4653_linear_720p60_init(VI_PIPE ViPipe);
 
 CVI_U8 gc4653_i2c_addr = 0x29;
 const CVI_U32 gc4653_addr_byte = 2;
@@ -200,9 +201,17 @@ int gc4653_probe(VI_PIPE ViPipe)
 
 void gc4653_init(VI_PIPE ViPipe)
 {
+    CVI_U8            u8ImgMode;
+
 	gc4653_i2c_init(ViPipe);
 
-	gc4653_linear_1440p30_init(ViPipe);
+	u8ImgMode   = g_pastGc4653[ViPipe]->u8ImgMode;
+
+    if (u8ImgMode == GC4653_MODE_1280X720P60) {
+        gc4653_linear_720p60_init(ViPipe);
+    } else {
+        gc4653_linear_1440p30_init(ViPipe);
+    }
 
 	g_pastGc4653[ViPipe]->bInit = CVI_TRUE;
 }
@@ -364,4 +373,165 @@ static void gc4653_linear_1440p30_init(VI_PIPE ViPipe)
 	delay_ms(10);
 
 	printf("ViPipe:%d,===GC4653 1440P 30fps 10bit LINEAR Init OK!===\n", ViPipe);
+}
+
+static void gc4653_linear_720p60_init(VI_PIPE ViPipe)
+{
+    gc4653_write_register(ViPipe, 0x03fe, 0xf0);
+    gc4653_write_register(ViPipe, 0x03fe, 0x00);
+    gc4653_write_register(ViPipe, 0x0317, 0x00);
+    gc4653_write_register(ViPipe, 0x0320, 0x77);
+    gc4653_write_register(ViPipe, 0x0324, 0xc8);
+    gc4653_write_register(ViPipe, 0x0325, 0x06);
+    gc4653_write_register(ViPipe, 0x0326, 0x60);
+    gc4653_write_register(ViPipe, 0x0327, 0x03);
+    gc4653_write_register(ViPipe, 0x0334, 0x40);
+    gc4653_write_register(ViPipe, 0x0336, 0x60);
+    gc4653_write_register(ViPipe, 0x0337, 0x82);
+    gc4653_write_register(ViPipe, 0x0335, 0x55);
+    gc4653_write_register(ViPipe, 0x0315, 0x25);
+    gc4653_write_register(ViPipe, 0x031c, 0xc6);
+    gc4653_write_register(ViPipe, 0x0287, 0x18);
+    gc4653_write_register(ViPipe, 0x0084, 0x00);
+    gc4653_write_register(ViPipe, 0x0087, 0x50);
+    gc4653_write_register(ViPipe, 0x029d, 0x08);
+    gc4653_write_register(ViPipe, 0x0290, 0x00);
+    gc4653_write_register(ViPipe, 0x0217, 0x40);
+    gc4653_write_register(ViPipe, 0x0234, 0x20);
+    gc4653_write_register(ViPipe, 0x0340, 0x05);
+    gc4653_write_register(ViPipe, 0x0341, 0xdd);
+    gc4653_write_register(ViPipe, 0x0341, 0xd0);
+    gc4653_write_register(ViPipe, 0x0345, 0x06);
+    gc4653_write_register(ViPipe, 0x034b, 0xb0);
+
+    gc4653_write_register(ViPipe, 0x034c, 0x05);
+    gc4653_write_register(ViPipe, 0x034e, 0x02);
+    gc4653_write_register(ViPipe, 0x034f, 0xd0);
+    gc4653_write_register(ViPipe, 0x0352, 0x08);
+    gc4653_write_register(ViPipe, 0x0354, 0x08);
+    gc4653_write_register(ViPipe, 0x02d1, 0xe0);
+    gc4653_write_register(ViPipe, 0x0223, 0xf2);
+    gc4653_write_register(ViPipe, 0x0238, 0xa4);
+    gc4653_write_register(ViPipe, 0x02ce, 0x7f);
+    gc4653_write_register(ViPipe, 0x0232, 0xc4);
+    gc4653_write_register(ViPipe, 0x02d3, 0x05);
+    gc4653_write_register(ViPipe, 0x0243, 0x06);
+    gc4653_write_register(ViPipe, 0x02ee, 0x30);
+    gc4653_write_register(ViPipe, 0x026f, 0x70);
+    gc4653_write_register(ViPipe, 0x0257, 0x09);
+    gc4653_write_register(ViPipe, 0x0211, 0x02);
+    gc4653_write_register(ViPipe, 0x0219, 0x09);
+    gc4653_write_register(ViPipe, 0x023f, 0x2d);
+    gc4653_write_register(ViPipe, 0x0518, 0x00);
+    gc4653_write_register(ViPipe, 0x0519, 0x01);
+    gc4653_write_register(ViPipe, 0x0515, 0x08);
+    gc4653_write_register(ViPipe, 0x02d9, 0x3f);
+    gc4653_write_register(ViPipe, 0x02da, 0x02);
+    gc4653_write_register(ViPipe, 0x02db, 0xe8);
+    gc4653_write_register(ViPipe, 0x02e6, 0x20);
+    gc4653_write_register(ViPipe, 0x021b, 0x10);
+    gc4653_write_register(ViPipe, 0x0252, 0x22);
+    gc4653_write_register(ViPipe, 0x024e, 0x22);
+    gc4653_write_register(ViPipe, 0x02c4, 0x01);
+    gc4653_write_register(ViPipe, 0x021d, 0x17);
+    gc4653_write_register(ViPipe, 0x024a, 0x01);
+    gc4653_write_register(ViPipe, 0x02ca, 0x02);
+    gc4653_write_register(ViPipe, 0x0262, 0x10);
+    gc4653_write_register(ViPipe, 0x029a, 0x20);
+    gc4653_write_register(ViPipe, 0x021c, 0x0e);
+    gc4653_write_register(ViPipe, 0x0298, 0x03);
+    gc4653_write_register(ViPipe, 0x029c, 0x00);
+    gc4653_write_register(ViPipe, 0x027e, 0x14);
+    gc4653_write_register(ViPipe, 0x02c2, 0x10);
+    gc4653_write_register(ViPipe, 0x0540, 0x20);
+    gc4653_write_register(ViPipe, 0x0546, 0x01);
+    gc4653_write_register(ViPipe, 0x0548, 0x01);
+    gc4653_write_register(ViPipe, 0x0544, 0x01);
+    gc4653_write_register(ViPipe, 0x0242, 0x1b);
+    gc4653_write_register(ViPipe, 0x02c0, 0x1b);
+    gc4653_write_register(ViPipe, 0x02c3, 0x20);
+    gc4653_write_register(ViPipe, 0x02e4, 0x10);
+    gc4653_write_register(ViPipe, 0x022e, 0x00);
+    gc4653_write_register(ViPipe, 0x027b, 0x3f);
+    gc4653_write_register(ViPipe, 0x0269, 0x0f);
+    gc4653_write_register(ViPipe, 0x02d2, 0x40);
+    gc4653_write_register(ViPipe, 0x027c, 0x08);
+    gc4653_write_register(ViPipe, 0x023a, 0x2e);
+    gc4653_write_register(ViPipe, 0x0245, 0xce);
+    gc4653_write_register(ViPipe, 0x0530, 0x20);
+    gc4653_write_register(ViPipe, 0x0531, 0x02);
+    gc4653_write_register(ViPipe, 0x0228, 0x50);
+    gc4653_write_register(ViPipe, 0x02ab, 0x00);
+    gc4653_write_register(ViPipe, 0x0250, 0x00);
+    gc4653_write_register(ViPipe, 0x0221, 0x50);
+    gc4653_write_register(ViPipe, 0x02ac, 0x00);
+    gc4653_write_register(ViPipe, 0x02a5, 0x02);
+    gc4653_write_register(ViPipe, 0x0260, 0x0b);
+    gc4653_write_register(ViPipe, 0x0216, 0x04);
+    gc4653_write_register(ViPipe, 0x0299, 0x1C);
+    gc4653_write_register(ViPipe, 0x02bb, 0x0d);
+    gc4653_write_register(ViPipe, 0x02a3, 0x02);
+    gc4653_write_register(ViPipe, 0x02a4, 0x02);
+    gc4653_write_register(ViPipe, 0x021e, 0x02);
+    gc4653_write_register(ViPipe, 0x024f, 0x08);
+    gc4653_write_register(ViPipe, 0x028c, 0x08);
+    gc4653_write_register(ViPipe, 0x0532, 0x3f);
+    gc4653_write_register(ViPipe, 0x0533, 0x02);
+    gc4653_write_register(ViPipe, 0x0277, 0xc0);
+    gc4653_write_register(ViPipe, 0x0276, 0xc0);
+    gc4653_write_register(ViPipe, 0x0239, 0xc0);
+    gc4653_write_register(ViPipe, 0x0202, 0x05);
+    gc4653_write_register(ViPipe, 0x0203, 0xd0);
+    gc4653_write_register(ViPipe, 0x0205, 0xc0);
+    gc4653_write_register(ViPipe, 0x02b0, 0x68);
+    gc4653_write_register(ViPipe, 0x0002, 0xa9);
+    gc4653_write_register(ViPipe, 0x0004, 0x01);
+    gc4653_write_register(ViPipe, 0x021a, 0x98);
+    gc4653_write_register(ViPipe, 0x0266, 0xa0);
+    gc4653_write_register(ViPipe, 0x0020, 0x01);
+    gc4653_write_register(ViPipe, 0x0021, 0x03);
+    gc4653_write_register(ViPipe, 0x0022, 0x00);
+    gc4653_write_register(ViPipe, 0x0023, 0x04);
+    gc4653_write_register(ViPipe, 0x0342, 0x06);
+    gc4653_write_register(ViPipe, 0x0343, 0x40);
+    gc4653_write_register(ViPipe, 0x03fe, 0x10);
+    gc4653_write_register(ViPipe, 0x03fe, 0x00);
+    gc4653_write_register(ViPipe, 0x0106, 0x78);
+    gc4653_write_register(ViPipe, 0x0108, 0x0c);
+    gc4653_write_register(ViPipe, 0x0114, 0x01);
+    gc4653_write_register(ViPipe, 0x0115, 0x12);
+    gc4653_write_register(ViPipe, 0x0180, 0x46);
+    gc4653_write_register(ViPipe, 0x0181, 0x30);
+    gc4653_write_register(ViPipe, 0x0182, 0x05);
+    gc4653_write_register(ViPipe, 0x0185, 0x01);
+    gc4653_write_register(ViPipe, 0x03fe, 0x10);
+    gc4653_write_register(ViPipe, 0x03fe, 0x00);
+    gc4653_write_register(ViPipe, 0x0100, 0x09);
+
+    gc4653_write_register(ViPipe, 0x000f, 0x00);
+    // otp
+    gc4653_write_register(ViPipe, 0x0080, 0x02);
+    gc4653_write_register(ViPipe, 0x0097, 0x0a);
+    gc4653_write_register(ViPipe, 0x0098, 0x10);
+    gc4653_write_register(ViPipe, 0x0099, 0x05);
+    gc4653_write_register(ViPipe, 0x009a, 0xb0);
+    gc4653_write_register(ViPipe, 0x0317, 0x08);
+    gc4653_write_register(ViPipe, 0x0a67, 0x80);
+    gc4653_write_register(ViPipe, 0x0a70, 0x03);
+    gc4653_write_register(ViPipe, 0x0a82, 0x00);
+    gc4653_write_register(ViPipe, 0x0a83, 0x10);
+    gc4653_write_register(ViPipe, 0x0a80, 0x2b);
+    gc4653_write_register(ViPipe, 0x05be, 0x00);
+    gc4653_write_register(ViPipe, 0x05a9, 0x01);
+    gc4653_write_register(ViPipe, 0x0313, 0x80);
+    gc4653_write_register(ViPipe, 0x05be, 0x01);
+    gc4653_write_register(ViPipe, 0x0317, 0x00);
+    gc4653_write_register(ViPipe, 0x0a67, 0x00);
+
+    gc4653_write_register(ViPipe, 0x0000, 0x00);  // end flag
+
+	gc4653_default_reg_init(ViPipe);
+	delay_ms(10);
+
+	printf("ViPipe:%d,===GC4653 720P 60fps 10bit LINEAR Init OK!===\n", ViPipe);
 }
