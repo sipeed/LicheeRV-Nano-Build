@@ -27,6 +27,8 @@
 #define FULLMAC_PARAM(name, default) .name = default,
 #endif /* CONFIG_RWNX_FULLMAC */
 
+extern int reg_regdb_size;
+
 struct rwnx_mod_params rwnx_mod_params = {
 	/* common parameters */
 	COMMON_PARAM(ht_on, true, true)
@@ -44,8 +46,8 @@ struct rwnx_mod_params rwnx_mod_params = {
 	COMMON_PARAM(sgi, true, true)
 	COMMON_PARAM(sgi80, false, false)
 	COMMON_PARAM(use_2040, 1, 1)
-	COMMON_PARAM(nss, 1, 1)
-	COMMON_PARAM(amsdu_rx_max, 2, 2)
+	COMMON_PARAM(nss, 2, 2)
+	COMMON_PARAM(amsdu_rx_max, 1, 1)
 	COMMON_PARAM(bfmee, true, true)
 	COMMON_PARAM(bfmer, false, false)
 	COMMON_PARAM(mesh, true, true)
@@ -53,6 +55,7 @@ struct rwnx_mod_params rwnx_mod_params = {
 	COMMON_PARAM(mutx, true, true)
 	COMMON_PARAM(mutx_on, true, true)
 	COMMON_PARAM(use_80, false, false)
+/* false: use crda(iw reg set CN); true: drive self-management(wifi_test wlan0 country_set CN) */
 	COMMON_PARAM(custregd, true, true)
 	COMMON_PARAM(custchan, false, false)
 	COMMON_PARAM(roc_dur_max, 500, 500)
@@ -269,6 +272,7 @@ static const int mcs_map_to_rate[4][3] = {
 #define MAX_VHT_RATE(map, nss, bw) (mcs_map_to_rate[bw][map] * (nss))
 
 extern struct ieee80211_regdomain *reg_regdb[];
+extern int reg_regdb_size;
 
 char ccode_channels[200];
 int index_for_channel_list = 0;
@@ -346,7 +350,7 @@ struct ieee80211_regdomain *getRegdomainFromRwnxDB(struct wiphy *wiphy,
 	AICWFDBG(LOGINFO, "%s set ccode:%s \r\n", __func__, alpha2);
 	idx = 0;
 
-	while (reg_regdb[idx]){
+	while (reg_regdb[idx] && idx < reg_regdb_size){
 		if((reg_regdb[idx]->alpha2[0] == alpha2[0]) &&
 			(reg_regdb[idx]->alpha2[1] == alpha2[1])){
 			memcpy(country_code, alpha2, 2);
@@ -705,6 +709,9 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
         return;
     }
 
+	if(rwnx_hw->sdiodev->chipid <= PRODUCT_ID_AIC8800D80)
+		nss = 1;
+
 	rwnx_hw->vht_cap_2G.vht_supported = true;
 		if (rwnx_hw->mod_params->sgi80)
 			rwnx_hw->vht_cap_2G.cap |= IEEE80211_VHT_CAP_SHORT_GI_80;
@@ -769,7 +776,7 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		for (i = 0; i < nss; i++) {
 			rwnx_hw->vht_cap_2G.vht_mcs.rx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 			rwnx_hw->vht_cap_2G.vht_mcs.rx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-			mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
+			//mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
 		}
 		for (; i < 8; i++) {
 			rwnx_hw->vht_cap_2G.vht_mcs.rx_mcs_map |= cpu_to_le16(
@@ -781,8 +788,8 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		for (i = 0; i < nss; i++) {
 			rwnx_hw->vht_cap_2G.vht_mcs.tx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 			rwnx_hw->vht_cap_2G.vht_mcs.tx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-			mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
-							IEEE80211_VHT_MCS_SUPPORT_0_8);
+			//mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
+			//				IEEE80211_VHT_MCS_SUPPORT_0_8);
 		}
 		for (; i < 8; i++) {
 			rwnx_hw->vht_cap_2G.vht_mcs.tx_mcs_map |= cpu_to_le16(
@@ -864,7 +871,7 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	    for (i = 0; i < nss; i++) {
 	        rwnx_hw->vht_cap_5G.vht_mcs.rx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 	        rwnx_hw->vht_cap_5G.vht_mcs.rx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-	        mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
+	        //mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
 	    }
 	    for (; i < 8; i++) {
 	        rwnx_hw->vht_cap_5G.vht_mcs.rx_mcs_map |= cpu_to_le16(
@@ -876,8 +883,8 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	    for (i = 0; i < nss; i++) {
 	        rwnx_hw->vht_cap_5G.vht_mcs.tx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 	        rwnx_hw->vht_cap_5G.vht_mcs.tx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-	        mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
-	                        IEEE80211_VHT_MCS_SUPPORT_0_8);
+	        //mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
+	         //               IEEE80211_VHT_MCS_SUPPORT_0_8);
 	    }
 	    for (; i < 8; i++) {
 	        rwnx_hw->vht_cap_5G.vht_mcs.tx_mcs_map |= cpu_to_le16(
@@ -891,6 +898,7 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	        rwnx_hw->vht_cap_5G.cap &= ~IEEE80211_VHT_CAP_SHORT_GI_80;
 	    }
 
+		rwnx_hw->vht_cap_5G.cap |= IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_MASK;
 	} 
 #endif//USE_5G
 	return;
@@ -908,7 +916,9 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	if (!rwnx_hw->mod_params->vht_on) {
 		return;
 	}
-    
+
+	if(rwnx_hw->sdiodev->chipid <= PRODUCT_ID_AIC8800D80)
+		nss = 1;
 
 	band_2GHz->vht_cap.vht_supported = true;
 	if (rwnx_hw->mod_params->sgi80)
@@ -974,7 +984,7 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	for (i = 0; i < nss; i++) {
 		band_2GHz->vht_cap.vht_mcs.rx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 		band_2GHz->vht_cap.vht_mcs.rx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-		mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
+		//mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
 	}
 	for (; i < 8; i++) {
 		band_2GHz->vht_cap.vht_mcs.rx_mcs_map |= cpu_to_le16(
@@ -986,8 +996,8 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	for (i = 0; i < nss; i++) {
 		band_2GHz->vht_cap.vht_mcs.tx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 		band_2GHz->vht_cap.vht_mcs.tx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-		mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
-						IEEE80211_VHT_MCS_SUPPORT_0_8);
+		//mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
+		//				IEEE80211_VHT_MCS_SUPPORT_0_8);
 	}
 	for (; i < 8; i++) {
 		band_2GHz->vht_cap.vht_mcs.tx_mcs_map |= cpu_to_le16(
@@ -1066,7 +1076,7 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		for (i = 0; i < nss; i++) {
 			band_5GHz->vht_cap.vht_mcs.rx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 			band_5GHz->vht_cap.vht_mcs.rx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-			mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
+			//mcs_map = IEEE80211_VHT_MCS_SUPPORT_0_7;
 		}
 		for (; i < 8; i++) {
 			band_5GHz->vht_cap.vht_mcs.rx_mcs_map |= cpu_to_le16(
@@ -1078,8 +1088,8 @@ static void rwnx_set_vht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		for (i = 0; i < nss; i++) {
 			band_5GHz->vht_cap.vht_mcs.tx_mcs_map |= cpu_to_le16(mcs_map << (i*2));
 			band_5GHz->vht_cap.vht_mcs.tx_highest = MAX_VHT_RATE(mcs_map, nss, bw_max);
-			mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
-							IEEE80211_VHT_MCS_SUPPORT_0_8);
+			//mcs_map = min_t(int, rwnx_hw->mod_params->mcs_map,
+			//				IEEE80211_VHT_MCS_SUPPORT_0_8);
 		}
 		for (; i < 8; i++) {
 			band_5GHz->vht_cap.vht_mcs.tx_mcs_map |= cpu_to_le16(
@@ -1108,6 +1118,9 @@ static void rwnx_set_ht_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 			band_5GHz->ht_cap.ht_supported = false;
 		return;
 	}
+
+	if(rwnx_hw->sdiodev->chipid <= PRODUCT_ID_AIC8800D80)
+		nss = 1;
 
 	if (rwnx_hw->mod_params->stbc_on)
 		band_2GHz->ht_cap.cap |= 1 << IEEE80211_HT_CAP_RX_STBC_SHIFT;
@@ -1157,6 +1170,9 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	int nss = rwnx_hw->mod_params->nss;
 	int mcs_map;
 
+	if(rwnx_hw->sdiodev->chipid <= PRODUCT_ID_AIC8800D80)
+		nss = 1;
+
 	he_cap = (struct ieee80211_sta_he_cap *) &rwnx_he_capa.he_cap;
 	he_cap->has_he = true;
 	he_cap->he_cap_elem.mac_cap_info[2] |= IEEE80211_HE_MAC_CAP2_ALL_ACK;
@@ -1168,7 +1184,13 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	if (rwnx_hw->mod_params->use_80) {
 		he_cap->ppe_thres[0] |= 0x20;
 		he_cap->ppe_thres[2] |= 0xc0;
-		he_cap->ppe_thres[3] |= 0x07;
+		he_cap->ppe_thres[3] |= 0x01;
+	}
+	if (nss == 2) {
+		he_cap->ppe_thres[0] |= 0x01;
+		he_cap->ppe_thres[3] |= 0x70;
+		he_cap->ppe_thres[4] |= 0x1c;
+		he_cap->ppe_thres[5] |= 0x07;
 	}
 	//if (rwnx_hw->mod_params->use_80)
 	{
@@ -1213,11 +1235,11 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 										   IEEE80211_HE_PHY_CAP6_TRIG_MU_BEAMFORMER_FB |
 										   IEEE80211_HE_PHY_CAP6_PPE_THRESHOLD_PRESENT |
 										   IEEE80211_HE_PHY_CAP6_PARTIAL_BANDWIDTH_DL_MUMIMO;
-	he_cap->he_cap_elem.phy_cap_info[7] |= IEEE80211_HE_PHY_CAP7_HE_SU_MU_PPDU_4XLTF_AND_08_US_GI;
+	//he_cap->he_cap_elem.phy_cap_info[7] |= IEEE80211_HE_PHY_CAP7_HE_SU_MU_PPDU_4XLTF_AND_08_US_GI;
 	he_cap->he_cap_elem.phy_cap_info[8] |= IEEE80211_HE_PHY_CAP8_20MHZ_IN_40MHZ_HE_PPDU_IN_2G;
 	he_cap->he_cap_elem.phy_cap_info[9] |= IEEE80211_HE_PHY_CAP9_RX_FULL_BW_SU_USING_MU_WITH_COMP_SIGB |
 										   IEEE80211_HE_PHY_CAP9_RX_FULL_BW_SU_USING_MU_WITH_NON_COMP_SIGB;
-	if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80)
+	if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80X2)
 	    mcs_map = rwnx_hw->mod_params->he_mcs_map;
     else if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8801 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800DC ||
         rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800DW)
@@ -1228,7 +1250,7 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		he_cap->he_mcs_nss_supp.rx_mcs_80 |= cpu_to_le16(mcs_map << (i*2));
 		he_cap->he_mcs_nss_supp.rx_mcs_160 |= unsup_for_ss;
 		he_cap->he_mcs_nss_supp.rx_mcs_80p80 |= unsup_for_ss;
-		mcs_map = IEEE80211_HE_MCS_SUPPORT_0_7;
+		//mcs_map = IEEE80211_HE_MCS_SUPPORT_0_7;
 		}
 	for (; i < 8; i++) {
 		__le16 unsup_for_ss = cpu_to_le16(IEEE80211_HE_MCS_NOT_SUPPORTED << (i*2));
@@ -1242,8 +1264,8 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		he_cap->he_mcs_nss_supp.tx_mcs_80 |= cpu_to_le16(mcs_map << (i*2));
 		he_cap->he_mcs_nss_supp.tx_mcs_160 |= unsup_for_ss;
 		he_cap->he_mcs_nss_supp.tx_mcs_80p80 |= unsup_for_ss;
-		mcs_map = min_t(int, rwnx_hw->mod_params->he_mcs_map,
-						IEEE80211_HE_MCS_SUPPORT_0_7);
+		//mcs_map = min_t(int, rwnx_hw->mod_params->he_mcs_map,
+		//				IEEE80211_HE_MCS_SUPPORT_0_7);
 	}
 	for (; i < 8; i++) {
 		__le16 unsup_for_ss = cpu_to_le16(IEEE80211_HE_MCS_NOT_SUPPORTED << (i*2));
@@ -1262,6 +1284,10 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	int nss = rwnx_hw->mod_params->nss;
 	struct ieee80211_sta_he_cap *he_cap;
 	int mcs_map;
+
+	if(rwnx_hw->sdiodev->chipid <= PRODUCT_ID_AIC8800D80)
+		nss = 1;
+
 	if (!rwnx_hw->mod_params->he_on) {
 		band_2GHz->iftype_data = NULL;
 		band_2GHz->n_iftype_data = 0;
@@ -1282,7 +1308,13 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	if (rwnx_hw->mod_params->use_80) {
 	    he_cap->ppe_thres[0] |= 0x20;
 	    he_cap->ppe_thres[2] |= 0xc0;
-	    he_cap->ppe_thres[3] |= 0x07;
+	    he_cap->ppe_thres[3] |= 0x01;
+	}
+	if (nss == 2) {
+		he_cap->ppe_thres[0] |= 0x01;
+		he_cap->ppe_thres[3] |= 0x70;
+		he_cap->ppe_thres[4] |= 0x1c;
+		he_cap->ppe_thres[5] |= 0x07;
 	}
 	//if (rwnx_hw->mod_params->use_80)
 	{
@@ -1346,13 +1378,13 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 					IEEE80211_HE_PHY_CAP6_PARTIAL_BANDWIDTH_DL_MUMIMO;
 	#endif
 
-	he_cap->he_cap_elem.phy_cap_info[7] |= IEEE80211_HE_PHY_CAP7_HE_SU_MU_PPDU_4XLTF_AND_08_US_GI;
+	//he_cap->he_cap_elem.phy_cap_info[7] |= IEEE80211_HE_PHY_CAP7_HE_SU_MU_PPDU_4XLTF_AND_08_US_GI;
 	he_cap->he_cap_elem.phy_cap_info[8] |= IEEE80211_HE_PHY_CAP8_20MHZ_IN_40MHZ_HE_PPDU_IN_2G;
 	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
 	he_cap->he_cap_elem.phy_cap_info[9] |= IEEE80211_HE_PHY_CAP9_RX_FULL_BW_SU_USING_MU_WITH_COMP_SIGB |
 					IEEE80211_HE_PHY_CAP9_RX_FULL_BW_SU_USING_MU_WITH_NON_COMP_SIGB;
 	#endif
-	if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80){
+	if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80X2){
 	    mcs_map = rwnx_hw->mod_params->he_mcs_map;
     }
     else if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8801 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800DC ||
@@ -1365,7 +1397,7 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		he_cap->he_mcs_nss_supp.rx_mcs_80 |= cpu_to_le16(mcs_map << (i*2));
 		he_cap->he_mcs_nss_supp.rx_mcs_160 |= unsup_for_ss;
 		he_cap->he_mcs_nss_supp.rx_mcs_80p80 |= unsup_for_ss;
-		mcs_map = IEEE80211_HE_MCS_SUPPORT_0_7;
+		//mcs_map = IEEE80211_HE_MCS_SUPPORT_0_7;
 		}
 	for (; i < 8; i++) {
 		__le16 unsup_for_ss = cpu_to_le16(IEEE80211_HE_MCS_NOT_SUPPORTED << (i*2));
@@ -1379,8 +1411,8 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 		he_cap->he_mcs_nss_supp.tx_mcs_80 |= cpu_to_le16(mcs_map << (i*2));
 		he_cap->he_mcs_nss_supp.tx_mcs_160 |= unsup_for_ss;
 		he_cap->he_mcs_nss_supp.tx_mcs_80p80 |= unsup_for_ss;
-		mcs_map = min_t(int, rwnx_hw->mod_params->he_mcs_map,
-						IEEE80211_HE_MCS_SUPPORT_0_7);
+		//mcs_map = min_t(int, rwnx_hw->mod_params->he_mcs_map,
+		//				IEEE80211_HE_MCS_SUPPORT_0_7);
 	}
 	for (; i < 8; i++) {
 		__le16 unsup_for_ss = cpu_to_le16(IEEE80211_HE_MCS_NOT_SUPPORTED << (i*2));
@@ -1398,10 +1430,16 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 							IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_IN_2G;
 			he_cap->ppe_thres[0] |= 0x10;
 		}
-	        if (rwnx_hw->mod_params->use_80) {
+	    if (rwnx_hw->mod_params->use_80) {
 		    he_cap->ppe_thres[0] |= 0x20;
 		    he_cap->ppe_thres[2] |= 0xc0;
-	            he_cap->ppe_thres[3] |= 0x07;
+	        he_cap->ppe_thres[3] |= 0x01;
+		}
+		if (nss == 2) {
+		he_cap->ppe_thres[0] |= 0x01;
+		he_cap->ppe_thres[3] |= 0x70;
+		he_cap->ppe_thres[4] |= 0x1c;
+		he_cap->ppe_thres[5] |= 0x07;
 		}
 		//if (rwnx_hw->mod_params->use_80)
 		{
@@ -1462,13 +1500,13 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 				IEEE80211_HE_PHY_CAP6_PARTIAL_BANDWIDTH_DL_MUMIMO;
 		#endif
 
-		he_cap->he_cap_elem.phy_cap_info[7] |= IEEE80211_HE_PHY_CAP7_HE_SU_MU_PPDU_4XLTF_AND_08_US_GI;
+		//he_cap->he_cap_elem.phy_cap_info[7] |= IEEE80211_HE_PHY_CAP7_HE_SU_MU_PPDU_4XLTF_AND_08_US_GI;
 		he_cap->he_cap_elem.phy_cap_info[8] |= IEEE80211_HE_PHY_CAP8_20MHZ_IN_40MHZ_HE_PPDU_IN_2G;
 		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
 		he_cap->he_cap_elem.phy_cap_info[9] |= IEEE80211_HE_PHY_CAP9_RX_FULL_BW_SU_USING_MU_WITH_COMP_SIGB |
 											   IEEE80211_HE_PHY_CAP9_RX_FULL_BW_SU_USING_MU_WITH_NON_COMP_SIGB;
 		#endif
-		if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80)
+		if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80X2)
             mcs_map = rwnx_hw->mod_params->he_mcs_map;
         else if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8801 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800DC ||
             rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800DW)
@@ -1479,7 +1517,7 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 			he_cap->he_mcs_nss_supp.rx_mcs_80 |= cpu_to_le16(mcs_map << (i*2));
 			he_cap->he_mcs_nss_supp.rx_mcs_160 |= unsup_for_ss;
 			he_cap->he_mcs_nss_supp.rx_mcs_80p80 |= unsup_for_ss;
-			mcs_map = IEEE80211_HE_MCS_SUPPORT_0_7;
+			//mcs_map = IEEE80211_HE_MCS_SUPPORT_0_7;
 		}
 		for (; i < 8; i++) {
 			__le16 unsup_for_ss = cpu_to_le16(IEEE80211_HE_MCS_NOT_SUPPORTED << (i*2));
@@ -1493,8 +1531,8 @@ static void rwnx_set_he_capa(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 			he_cap->he_mcs_nss_supp.tx_mcs_80 |= cpu_to_le16(mcs_map << (i*2));
 			he_cap->he_mcs_nss_supp.tx_mcs_160 |= unsup_for_ss;
 			he_cap->he_mcs_nss_supp.tx_mcs_80p80 |= unsup_for_ss;
-			mcs_map = min_t(int, rwnx_hw->mod_params->he_mcs_map,
-							IEEE80211_HE_MCS_SUPPORT_0_7);
+			//mcs_map = min_t(int, rwnx_hw->mod_params->he_mcs_map,
+			//				IEEE80211_HE_MCS_SUPPORT_0_7);
 		}
 		for (; i < 8; i++) {
 			__le16 unsup_for_ss = cpu_to_le16(IEEE80211_HE_MCS_NOT_SUPPORTED << (i*2));
@@ -1689,16 +1727,16 @@ int rwnx_handle_dynparams(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 	}
 #endif
 
-    if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80) {
+    if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80X2) {
         rwnx_hw->mod_params->sgi80 = true;
         rwnx_hw->mod_params->use_80 = true;
     }
 
-    if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80) {
+    if (rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80 || rwnx_hw->sdiodev->chipid == PRODUCT_ID_AIC8800D80X2) {
         rwnx_hw->mod_params->use_80 = true;    
     }
     
-    if (rwnx_hw->sdiodev->chipid != PRODUCT_ID_AIC8800D80 &&
+    if (rwnx_hw->sdiodev->chipid != PRODUCT_ID_AIC8800D80 && rwnx_hw->sdiodev->chipid != PRODUCT_ID_AIC8800D80X2 &&
         rwnx_hw->mod_params->he_mcs_map == IEEE80211_HE_MCS_SUPPORT_0_11) {
         AICWFDBG(LOGINFO,"%s unsupport mcs11 change to mcs9", __func__);
         rwnx_hw->mod_params->he_mcs_map = IEEE80211_HE_MCS_SUPPORT_0_9;
@@ -1724,31 +1762,35 @@ void rwnx_custregd(struct rwnx_hw *rwnx_hw, struct wiphy *wiphy)
 {
 // For older kernel version, the custom regulatory is applied before the wiphy
 // registration (in rwnx_set_wiphy_params()), so nothing has to be done here
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
-    if (!rwnx_hw->mod_params->custregd)
-        return;
+	wiphy->regulatory_flags |= REGULATORY_IGNORE_STALE_KICKOFF;
+#endif
+	if (!rwnx_hw->mod_params->custregd)
+		return;
 
-    wiphy->regulatory_flags |= REGULATORY_IGNORE_STALE_KICKOFF;
-    wiphy->regulatory_flags |= REGULATORY_WIPHY_SELF_MANAGED;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
+	wiphy->regulatory_flags |= REGULATORY_WIPHY_SELF_MANAGED;
 
-    rtnl_lock();
-	#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+	rtnl_lock();
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 		if (regulatory_set_wiphy_regd_sync(wiphy, getRegdomainFromRwnxDB(wiphy, default_ccode))){
 			wiphy_err(wiphy, "Failed to set custom regdomain\n");
 		}
-	#else
+#else
 		if (regulatory_set_wiphy_regd_sync_rtnl(wiphy, getRegdomainFromRwnxDB(wiphy, default_ccode))){
 			wiphy_err(wiphy, "Failed to set custom regdomain\n");
 		}
-	#endif
+#endif
 
-    else{
-        wiphy_err(wiphy,"\n"
-                  "*******************************************************\n"
-                  "** CAUTION: USING PERMISSIVE CUSTOM REGULATORY RULES **\n"
-                  "*******************************************************\n");
-    }
-     rtnl_unlock();
+	else{
+		wiphy_err(wiphy,"\n"
+				  "*******************************************************\n"
+				  "** CAUTION: USING PERMISSIVE CUSTOM REGULATORY RULES **\n"
+				  "*******************************************************\n");
+	}
+	 rtnl_unlock();
 #endif
 
 }
+

@@ -14,6 +14,8 @@
 #include <linux/bitops.h>
 #include <linux/ieee80211.h>
 
+#include <net/mac80211.h>
+
 #ifdef CONFIG_RWNX_FULLMAC
 /**
  * Fullmac TXQ configuration:

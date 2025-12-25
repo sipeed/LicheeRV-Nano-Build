@@ -31,7 +31,7 @@ struct aicbsp_feature_t {
 	uint8_t  irqf;
 };
 
-#ifdef CONFIG_DPD
+#if defined(CONFIG_DPD) || defined(CONFIG_LOFT_CALIB)
 typedef struct {
     uint32_t bit_mask[3];
     uint32_t reserved;
@@ -53,8 +53,14 @@ typedef struct {
 
 #define MEMBER_SIZE(type, member)   sizeof(((type *)0)->member)
 #define DPD_RESULT_SIZE_8800DC      sizeof(rf_misc_ram_lite_t)
+#endif
 
+#ifdef CONFIG_DPD
 extern rf_misc_ram_lite_t dpd_res;
+#endif
+
+#ifdef CONFIG_LOFT_CALIB
+extern rf_misc_ram_lite_t loft_res_local;
 #endif
 
 int aicbsp_set_subsys(int, int);

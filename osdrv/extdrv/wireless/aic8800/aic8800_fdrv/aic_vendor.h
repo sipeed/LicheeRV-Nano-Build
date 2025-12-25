@@ -117,6 +117,17 @@ enum logger_attributes {
 	LOGGER_ATTRIBUTE_MAX = LOGGER_ATTRIBUTE_AFTER_LAST - 1,
 };
 
+#ifdef CONFIG_APF
+enum wifi_apf_attr {
+	APF_ATTRIBUTE_VERSION,
+	APF_ATTRIBUTE_MAX_LEN,
+	APF_ATTRIBUTE_PROGRAM,
+	APF_ATTRIBUTE_PROGRAM_LEN,
+	APF_ATTRIBUTE_LAST,
+	APF_ATTRIBUTE_MAX = APF_ATTRIBUTE_LAST - 1,
+};
+#endif
+
 enum wifi_sub_command {
 	GSCAN_SUBCMD_GET_CAPABILITIES = ANDROID_NL80211_SUBCMD_GSCAN_RANGE_START,
 	GSCAN_SUBCMD_SET_CONFIG,                            /* 0x1001 */
@@ -143,10 +154,14 @@ enum wifi_sub_command {
 	GSCAN_SUBCMD_ANQPO_CONFIG,                          /* 0x1015 */
 	WIFI_SUBCMD_SET_RSSI_MONITOR,                       /* 0x1016 */
 	WIFI_SUBCMD_CONFIG_ND_OFFLOAD,                      /* 0x1017 */
+	WIFI_SUBCMD_SET_LATENCY_MODE,                       /* 0x1018 */
 	/* Add more sub commands here */
 	GSCAN_SUBCMD_MAX,
 	APF_SUBCMD_GET_CAPABILITIES = ANDROID_NL80211_SUBCMD_PKT_FILTER_RANGE_START,
 	APF_SUBCMD_SET_FILTER,
+#ifdef CONFIG_APF
+	APF_SUBCMD_READ_FILTER_DATA,
+#endif
 };
 
 enum gscan_attributes {
@@ -190,6 +205,7 @@ enum andr_wifi_attributes {
 	ANDR_WIFI_ATTRIBUTE_NODFS_SET,
 	ANDR_WIFI_ATTRIBUTE_COUNTRY,
 	ANDR_WIFI_ATTRIBUTE_ND_OFFLOAD_VALUE,
+	ANDR_WIFI_ATTRIBUTE_LATENCY_MODE,
 	// Add more attribute here
 	ANDR_WIFI_ATTRIBUTE_AFTER_LAST,
 	ANDR_WIFI_ATTRIBUTE_MAX = ANDR_WIFI_ATTRIBUTE_AFTER_LAST - 1,
@@ -223,6 +239,7 @@ enum wifi_support_feature {
 	WIFI_FEATURE_CONTROL_ROAMING    = 0x800000,    /* Enable/Disable firmware roaming  */
 	WIFI_FEATURE_IE_WHITELIST       = 0x1000000,   /* Support Probe IE white listing   */
 	WIFI_FEATURE_SCAN_RAND          = 0x2000000,   /* Support MAC & Probe Sequence Number randomization */
+	WIFI_FEATURE_SET_LATENCY_MODE   = 0x40000000,  /* Support Latency mode setting     */
 	WIFI_FEATURE_INVALID            = 0xFFFFFFFF,  /* Invalid Feature                  */
 };
 

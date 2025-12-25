@@ -319,8 +319,12 @@ struct hw_rxhdr {
 	u32    pattern;
 };
 
-extern const u8 legrates_lut[];
-extern u16 legrates_lut_rate[];
+struct rwnx_legrate {
+	int idx;
+	int rate;
+};
+
+extern struct rwnx_legrate legrates_lut[];
 extern u16 tx_legrates_lut_rate[];
 
 struct DHCPInfo {

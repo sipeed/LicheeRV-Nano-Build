@@ -57,6 +57,20 @@
 #define SDIO_ACTIVE_ST                   1
 
 #define DATA_FLOW_CTRL_THRESH 2
+#ifdef CONFIG_TX_NETIF_FLOWCTRL
+#define AICWF_SDIO_TX_LOW_WATER          100
+#define AICWF_SDIO_TX_HIGH_WATER         500
+#endif
+
+#ifdef CONFIG_TEMP_CONTROL
+#define TEMP_GET_INTERVAL                (60 * 1000)
+#define TEMP_THD_1                       80  //temperature 1 (℃)
+#define TEMP_THD_2                       95 //temperature 2 (℃)
+#define BUFFERING_V1                     8
+#define BUFFERING_V2                     13
+#define TMR_INTERVAL_1                   60  //timer_1 60ms
+#define TMR_INTERVAL_2                   180 //timer_2 130ms
+#endif
 
 typedef enum {
 	SDIO_TYPE_DATA         = 0X00,
@@ -70,16 +84,19 @@ typedef enum {
 #define SDIO_VENDOR_ID_AIC8801                0x5449
 #define SDIO_VENDOR_ID_AIC8800DC              0xc8a1
 #define SDIO_VENDOR_ID_AIC8800D80             0xc8a1
+#define SDIO_VENDOR_ID_AIC8800D80X2           0xc8a1
 
 #define SDIO_DEVICE_ID_AIC8801				0x0145
 #define SDIO_DEVICE_ID_AIC8800DC			0xc08d
 #define SDIO_DEVICE_ID_AIC8800D80           0x0082
+#define SDIO_DEVICE_ID_AIC8800D80X2         0x2082
 
 enum AICWF_IC{
 	PRODUCT_ID_AIC8801	=	0,
 	PRODUCT_ID_AIC8800DC,
 	PRODUCT_ID_AIC8800DW,
-	PRODUCT_ID_AIC8800D80
+	PRODUCT_ID_AIC8800D80,
+	PRODUCT_ID_AIC8800D80X2
 };
 
 
@@ -103,6 +120,7 @@ struct aic_sdio_reg {
 struct aic_sdio_dev {
 	struct rwnx_hw *rwnx_hw;
 	struct sdio_func *func;
+	struct sdio_func *func2;
 	struct device *dev;
 	struct aicwf_bus *bus_if;
 	struct rwnx_cmd_mgr cmd_mgr;
@@ -110,6 +128,10 @@ struct aic_sdio_dev {
 	struct aicwf_rx_priv *rx_priv;
 	struct aicwf_tx_priv *tx_priv;
 	u32 state;
+#ifdef CONFIG_TX_NETIF_FLOWCTRL
+	u8 flowctrl;
+	spinlock_t tx_flow_lock;
+#endif
 
     #if defined(CONFIG_SDIO_PWRCTRL)
 	//for sdio pwr ctrl
@@ -126,9 +148,35 @@ struct aic_sdio_dev {
 	spinlock_t wslock;//AIDEN test
 	bool oob_enable;
     atomic_t is_bus_suspend;
+
+#ifdef CONFIG_TEMP_CONTROL
+	spinlock_t tx_flow_lock;
+	struct timer_list netif_timer;
+	struct timer_list tp_ctrl_timer;
+	struct work_struct tp_ctrl_work;
+	struct work_struct netif_work;
+	s8_l cur_temp;
+	bool net_stop;
+	bool on_off;	  //for command, 0 - off, 1 - on
+	int8_t get_level; //for command, 0 - 100%, 1 - 12%, 2 - 3%
+	int8_t set_level; //for command, 0 - driver auto, 1 - 12%, 2 - 3%
+	int interval_t1;
+	int interval_t2;
+	u8_l cur_stat;	  //0--normal temp, 1/2--buffering temp
+#endif
+
 };
+
+#ifdef CONFIG_TEMP_CONTROL
+void aicwf_netif_worker(struct work_struct *work);
+void aicwf_temp_ctrl_worker(struct work_struct *work);
+void aicwf_temp_ctrl(struct aic_sdio_dev *sdiodev);
+void aicwf_netif_ctrl(struct aic_sdio_dev *sdiodev, int val);
+#endif
 extern struct aicwf_rx_buff_list aic_rx_buff_list;
 int aicwf_sdio_writeb(struct aic_sdio_dev *sdiodev, uint regaddr, u8 val);
+int aicwf_sdio_func2_readb(struct aic_sdio_dev *sdiodev, uint regaddr, u8 *val);
+int aicwf_sdio_func2_writeb(struct aic_sdio_dev *sdiodev, uint regaddr, u8 val);
 void aicwf_sdio_hal_irqhandler(struct sdio_func *func);
 
 #if defined(CONFIG_SDIO_PWRCTRL)
@@ -139,6 +187,9 @@ void aicwf_sdio_reg_init(struct aic_sdio_dev *sdiodev);
 int aicwf_sdio_func_init(struct aic_sdio_dev *sdiodev);
 int aicwf_sdiov3_func_init(struct aic_sdio_dev *sdiodev);
 void aicwf_sdio_func_deinit(struct aic_sdio_dev *sdiodev);
+#ifdef CONFIG_TX_NETIF_FLOWCTRL
+void aicwf_sdio_tx_netif_flowctrl(struct rwnx_hw *rwnx_hw, bool state);
+#endif
 int aicwf_sdio_flow_ctrl(struct aic_sdio_dev *sdiodev);
 int aicwf_sdio_flow_ctrl_msg(struct aic_sdio_dev *sdiodev);
 #ifdef CONFIG_PREALLOC_RX_SKB
