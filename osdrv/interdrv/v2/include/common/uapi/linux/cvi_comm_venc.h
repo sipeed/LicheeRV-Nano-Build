@@ -383,6 +383,7 @@ typedef enum {
 	CVI_ERR_VENC_H264_SPLIT,
 	CVI_ERR_VENC_H265_SPLIT,
 	CVI_ERR_VENC_H264_INTRA_PRED,
+	CVI_ERR_VENC_SVC_PARAM,
 	CVI_ERR_VENC_BUTT
 } VENC_RECODE_E_ERRTYPE;
 
@@ -1190,6 +1191,8 @@ typedef enum _VENC_FRAME_TYPE_E {
 
 /* the information of the user rc*/
 typedef struct _USER_RC_INFO_S {
+	CVI_BOOL bRoiBinValid;
+	int roideltaqp;
 	CVI_BOOL bQpMapValid; /*RW; Range:[0,1]; Indicates whether the QpMap mode is valid for the current frame*/
 	CVI_BOOL bSkipWeightValid; // RW; Range:[0,1]; Indicates whether
 	// the Skip Weight mode is valid for the current frame
@@ -1304,6 +1307,27 @@ typedef struct _VENC_FRAME_PARAM_S {
 	CVI_U32 u32FrameQp;
 	CVI_U32 u32FrameBits;
 } VENC_FRAME_PARAM_S;
+
+typedef struct _VENC_SVC_PARAM_S {
+	/*enable foreground protect according motion info*/
+	CVI_BOOL fg_protect_en;
+	CVI_S32  fg_dealt_qp;
+
+	/*static scene auto change bitrate according dci_lv threshold*/
+	CVI_BOOL complex_scene_detect_en;
+	/*dci_lv avg < threshold as simple scene*/
+	CVI_U32 complex_scene_low_th;
+	/*dci_lv avg > threshold as complex scene*/
+	CVI_U32 complex_scene_hight_th;
+	/*middle scene still case min bitrate*/
+	CVI_U32 middle_min_percent;
+	/*complex scene still case min bitrate*/
+	CVI_U32 complex_min_percent;
+	/*when smart_ai_en is 1, user show pass level roi used USER_FRAME_INFO_S
+	 * and bRoiBinValid set valid
+	 */
+	CVI_BOOL smart_ai_en;
+} VENC_SVC_PARAM_S;
 
 #ifdef __cplusplus
 #if __cplusplus
