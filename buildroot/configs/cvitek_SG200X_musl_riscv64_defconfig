@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot -ga3ccb527b-dirty Configuration
+# Buildroot -g6073d5d3e Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -3127,7 +3127,22 @@ BR2_PACKAGE_IW=y
 # BR2_PACKAGE_KSMBD_TOOLS is not set
 # BR2_PACKAGE_LEAFNODE2 is not set
 # BR2_PACKAGE_LFT is not set
-# BR2_PACKAGE_LFTP is not set
+BR2_PACKAGE_LFTP=y
+
+#
+# Commands
+#
+BR2_PACKAGE_LFTP_CMD_MIRROR=y
+BR2_PACKAGE_LFTP_CMD_SLEEP=y
+# BR2_PACKAGE_LFTP_CMD_TORRENT is not set
+
+#
+# Protocols
+#
+BR2_PACKAGE_LFTP_PROTO_FISH=y
+BR2_PACKAGE_LFTP_PROTO_FTP=y
+BR2_PACKAGE_LFTP_PROTO_HTTP=y
+BR2_PACKAGE_LFTP_PROTO_SFTP=y
 # BR2_PACKAGE_LIGHTTPD is not set
 # BR2_PACKAGE_LINKNX is not set
 # BR2_PACKAGE_LINKS is not set
@@ -3301,7 +3316,7 @@ BR2_PACKAGE_TRACEROUTE=y
 # BR2_PACKAGE_VDR is not set
 # BR2_PACKAGE_VNSTAT is not set
 # BR2_PACKAGE_VPNC is not set
-# BR2_PACKAGE_VSFTPD is not set
+BR2_PACKAGE_VSFTPD=y
 # BR2_PACKAGE_VTUN is not set
 # BR2_PACKAGE_WAVEMON is not set
 # BR2_PACKAGE_WGET is not set
