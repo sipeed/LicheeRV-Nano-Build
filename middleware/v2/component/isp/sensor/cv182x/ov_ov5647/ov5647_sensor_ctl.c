@@ -70,6 +70,7 @@ int ov5647_read_register(VI_PIPE ViPipe, int addr)
 	CVI_U8 buf[8];
 	CVI_U8 idx = 0;
 
+	printf("[ov5647_read_register] : addr = %x \n", addr);
 	if (g_fd[ViPipe] < 0)
 		return CVI_FAILURE;
 
@@ -113,6 +114,7 @@ int ov5647_write_register(VI_PIPE ViPipe, int addr, int data)
 	int ret;
 	CVI_U8 buf[8];
 
+	printf("[ov5647_write_register] : addr = %x. data = %x \n", addr, data);
 	if (g_fd[ViPipe] < 0)
 		return CVI_SUCCESS;
 
@@ -205,26 +207,61 @@ int ov5647_probe(VI_PIPE ViPipe)
 {
 	int nVal, nVal2;
 
+		// PinMUX
+	printf("###########   PinMux  #######################################################################\n");
+	system("devmem 0x0300116C 32 0x3");
+	system("devmem 0x03001170 32 0x3");
+	system("devmem 0x03001174 32 0x3");
+	system("devmem 0x03001178 32 0x3");
+	system("devmem 0x0300117C 32 0x3");
+	system("devmem 0x03001180 32 0x3");
+	system("devmem 0x03001184 32 0x3");
+	system("devmem 0x03001188 32 0x3");
+	system("devmem 0x0300118C 32 0x3");
+	system("devmem 0x03001190 32 0x3");
+	printf("###########   PinMux End  #######################################################################\n")
+	
 	usleep(1000);
+	printf("[ov5647_probe] -189 \n");
 	if (ov5647_i2c_init(ViPipe) != CVI_SUCCESS)
 		return CVI_FAILURE;
 
+	printf("[lt6911_probe] -195 \n");
 	nVal  = ov5647_read_register(ViPipe, OV5647_CHIP_ID_ADDR_H);
 	nVal2 = ov5647_read_register(ViPipe, OV5647_CHIP_ID_ADDR_L);
 	if (nVal < 0 || nVal2 < 0) {
 		CVI_TRACE_SNS(CVI_DBG_ERR, "read sensor id error.\n");
+		printf("[ov5647_probe] jump return nVal -198 \n");
 		return nVal;
 	}
 
+	printf("[ov5647_probe] -201 \n");
+	printf("data:%02x %02x\n", nVal, nVal2);
 	if ((((nVal & 0xFF) << 8) | (nVal2 & 0xFF)) != OV5647_CHIP_ID) {
 		CVI_TRACE_SNS(CVI_DBG_ERR, "Sensor ID Mismatch! Use the wrong sensor??\n");
 		return CVI_FAILURE;
+		printf("[ov5647_probe] jump return CVI_FAILURE -206 \n");
 	}
+	printf("[ov5647_probe] -208 = exit success \n");
 	return CVI_SUCCESS;
 }
 
 void ov5647_init(VI_PIPE ViPipe)
 {
+		// PinMUX
+	printf("###########   PinMux  #######################################################################\n");
+	system("devmem 0x0300116C 32 0x3");
+	system("devmem 0x03001170 32 0x3");
+	system("devmem 0x03001174 32 0x3");
+	system("devmem 0x03001178 32 0x3");
+	system("devmem 0x0300117C 32 0x3");
+	system("devmem 0x03001180 32 0x3");
+	system("devmem 0x03001184 32 0x3");
+	system("devmem 0x03001188 32 0x3");
+	system("devmem 0x0300118C 32 0x3");
+	system("devmem 0x03001190 32 0x3");
+	printf("###########   PinMux End  #######################################################################\n");
+	
 	ov5647_i2c_init(ViPipe);
 
 	delay_ms(10);
