@@ -1029,8 +1029,9 @@ int ZLIB_INTERNAL _tr_tally (s, dist, lc)
     unsigned dist;  /* distance of matched string */
     unsigned lc;    /* match length-MIN_MATCH or unmatched char (if dist==0) */
 {
-    s->d_buf[s->last_lit] = (ush)dist;
-    s->l_buf[s->last_lit++] = (uch)lc;
+    s->sym_buf[s->sym_next++] = dist;
+    s->sym_buf[s->sym_next++] = dist >> 8;
+    s->sym_buf[s->sym_next++] = lc;
     if (dist == 0) {
         /* lc is the unmatched char */
         s->dyn_ltree[lc].Freq++;
