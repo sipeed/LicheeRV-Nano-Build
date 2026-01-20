@@ -1,0 +1,1 @@
+#define JPEG_VERSION "-"
