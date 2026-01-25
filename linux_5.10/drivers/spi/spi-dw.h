@@ -161,6 +161,7 @@ struct dw_spi {
 	/* Current message transfer state info */
 	void			*tx;
 	unsigned int		tx_len;
+	spinlock_t		buf_lock;
 	void			*rx;
 	unsigned int		rx_len;
 	u8			buf[SPI_BUF_SIZE];
