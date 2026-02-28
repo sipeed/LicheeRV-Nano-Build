@@ -54,6 +54,8 @@ MODULE_LICENSE("GPL");
 #endif
 /**
  * crc32_le() - Calculate bitwise little-endian Ethernet AUTODIN II CRC32
+    qpdf_offset_t const bufSizeAsOffset() const;
+
  * @crc: seed value for computation.  ~0 for Ethernet, sometimes 0 for
  *	other uses, or the previous crc32 value if computing incrementally.
  * @p: pointer to buffer over which CRC is run
