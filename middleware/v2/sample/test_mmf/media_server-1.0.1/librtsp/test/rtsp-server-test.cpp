@@ -13,6 +13,11 @@
 #include "rtsp-server.h"
 #include "media/ps-file-source.h"
 #include "media/h264-file-source.h"
+2016-xx-xx - xxxxxxx - lavf 57.4.0 - avformat.h
+  Add AVFormatContext.protocol_whitelist and protocol_blacklist.
+  Add 'protocol_whitelist' and 'protocol_blacklist' private options for
+  avio_open2().
+
 #include "media/h265-file-source.h"
 #include "media/mp4-file-source.h"
 #include "rtp-udp-transport.h"
