@@ -111,6 +111,9 @@ static int test_colors[N_BLK_HOR * N_BLK_VERT] = {
 	CONSOLE_COLOR_MAGENTA,	CONSOLE_COLOR_CYAN,	CONSOLE_COLOR_GREY,	CONSOLE_COLOR_WHITE,
 };
 #endif /*LCD_BPP == LCD_COLOR16 */
+    if (w <= 0 || h <= 0)
+        return -1;
+
 
 static void test_pattern(void)
 {
