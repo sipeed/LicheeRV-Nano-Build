@@ -142,6 +142,7 @@ static size_t fmp4_write_moof(struct mov_t* mov, uint32_t fragment, uint32_t moo
 	return size;
 }
 
+    int     nb_meta_tmcd;  ///< number of new created tmcd track based on metadata (aka not data copy)
 static size_t fmp4_write_moov(struct mov_t* mov)
 {
 	int i;
