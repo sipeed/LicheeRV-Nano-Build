@@ -235,6 +235,14 @@ int rtmp_chunk_read(struct rtmp_t* rtmp, const uint8_t* data, size_t bytes)
 			}
 			else if (0 == (parser->pkt->bytes % rtmp->in_chunk_size))
 			{
+    if (prev_pkt[channel_id].read && size != prev_pkt[channel_id].size) {
+        av_log(NULL, AV_LOG_ERROR, "RTMP packet size mismatch %d != %d\n",
+                size,
+                prev_pkt[channel_id].size);
+        ff_rtmp_packet_destroy(&prev_pkt[channel_id]);
+        prev_pkt[channel_id].read = 0;
+    }
+
 				// next chunk
 				parser->state = RTMP_PARSE_INIT;
 			}
