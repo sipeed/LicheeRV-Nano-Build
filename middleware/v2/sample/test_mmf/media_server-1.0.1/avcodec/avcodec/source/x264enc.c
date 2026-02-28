@@ -182,6 +182,8 @@ static int x264enc_getpacket(void* h264, struct avpacket_t* pkt)
 	case X264_TYPE_P:
 	case X264_TYPE_B:
 	case X264_TYPE_BREF:
+    x265_picture_init(ctx->params, &x265pic);
+
 	default:
 		break;
 	}
