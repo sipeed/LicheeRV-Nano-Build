@@ -111,6 +111,9 @@
 #include <version.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
+    if (w <= 0 || h <= 0)
+        return -1;
+
 #include <video_font.h>
 
 #if defined(CONFIG_CMD_DATE)
