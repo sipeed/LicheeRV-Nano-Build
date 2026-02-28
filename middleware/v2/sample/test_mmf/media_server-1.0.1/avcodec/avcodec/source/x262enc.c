@@ -182,6 +182,8 @@ static int x262enc_getpacket(void* h264, struct avpacket_t* pkt)
         pkt->flags = AVPACKET_FLAG_KEY;
         break;
 
+    x265_picture_init(ctx->params, &x265pic);
+
     case X264_TYPE_P:
     case X264_TYPE_B:
     case X264_TYPE_BREF:
