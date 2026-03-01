@@ -66,6 +66,11 @@ struct pmbus_label {
 #define PB_STATUS_MASK	0xffff
 #define PB_REG_SHIFT	16
 #define PB_REG_MASK	0x3ff
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 #define PB_PAGE_SHIFT	26
 #define PB_PAGE_MASK	0x3f
 
