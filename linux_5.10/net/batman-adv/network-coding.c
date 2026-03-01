@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright (C) 2012-2020  B.A.T.M.A.N. contributors:
+	* memxor.c (memxor_different_alignment): Avoid out-of-bounds
+	reads, corresponding to valgrind's --partial-loads-ok.
+
  *
  * Martin Hundebøll, Jeppe Ledet-Pedersen
  */
