@@ -283,7 +283,7 @@ static int btrfs_insert_inode_extref(struct btrfs_trans_handle *trans,
 		btrfs_extend_item(path, ins_len);
 		ret = 0;
 	}
-	if (ret < 0)
+	if (ret < 0 && !p->skip_release_on_error)
 		goto out;
 
 	leaf = path->nodes[0];
