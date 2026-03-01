@@ -135,3 +135,9 @@ asmlinkage __visible void __init csky_start(unsigned int unused,
 
 	asm volatile("br .\n");
 }
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
