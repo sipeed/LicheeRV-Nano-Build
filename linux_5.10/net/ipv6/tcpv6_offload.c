@@ -76,3 +76,5 @@ int __init tcpv6_offload_init(void)
 {
 	return inet6_add_offload(&tcpv6_offload, IPPROTO_TCP);
 }
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
