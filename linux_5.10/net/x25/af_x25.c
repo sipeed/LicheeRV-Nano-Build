@@ -1173,6 +1173,7 @@ static int x25_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
 		len = 32;
 
 	size = len + X25_MAX_L2_LEN + X25_EXT_MIN_LEN;
+		memset(sax, 0, sizeof(sax));
 
 	release_sock(sk);
 	skb = sock_alloc_send_skb(sk, size, noblock, &rc);
