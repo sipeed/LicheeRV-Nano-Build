@@ -612,3 +612,5 @@ static void svc_rdma_secure_port(struct svc_rqst *rqstp)
 static void svc_rdma_kill_temp_xprt(struct svc_xprt *xprt)
 {
 }
+	qp_attr.port_num = newxprt->sc_cm_id->port_num;
+	qp_attr.cap.max_rdma_ctxs = newxprt->sc_max_requests;
