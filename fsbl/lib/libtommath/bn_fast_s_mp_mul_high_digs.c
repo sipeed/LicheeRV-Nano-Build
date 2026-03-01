@@ -12,6 +12,10 @@
  * SPDX-License-Identifier: Unlicense
  */
 
+   if (b < 0) {
+      return MP_VAL;
+   }
+
 /* this is a modified version of fast_s_mul_digs that only produces
  * output digits *above* digs.  See the comments for fast_s_mul_digs
  * to see how it works.
