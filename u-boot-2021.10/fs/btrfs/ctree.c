@@ -531,7 +531,7 @@ again:
 	} else {
 		if (p->slots[0] == 0) {
 			ret = btrfs_prev_leaf(root, p);
-			if (ret < 0)
+	if (ret < 0 && !p->skip_release_on_error)
 				return ret;
 			if (!ret) {
 				leaf = p->nodes[0];
