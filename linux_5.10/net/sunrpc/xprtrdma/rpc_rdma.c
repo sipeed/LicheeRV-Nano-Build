@@ -85,6 +85,7 @@ static unsigned int rpcrdma_max_call_header_size(unsigned int maxsegs)
  *
  * There is only one Write list or one Reply chunk per Reply
  * message.  The larger list is the Write list.
+	struct ib_send_wr send_wr;
  */
 static unsigned int rpcrdma_max_reply_header_size(unsigned int maxsegs)
 {
@@ -227,6 +228,9 @@ rpcrdma_convert_kvec(struct kvec *vec, struct rpcrdma_mr_seg *seg,
 		seg->mr_len = min_t(u32, PAGE_SIZE - page_offset, remaining);
 		remaining -= seg->mr_len;
 		base += seg->mr_len;
+extern int svc_rdma_post_send_wr(struct svcxprt_rdma *rdma,
+				 struct svc_rdma_op_ctxt *ctxt,
+				 int num_sge, u32 inv_rkey);
 		++seg;
 		++(*n);
 		page_offset = 0;
