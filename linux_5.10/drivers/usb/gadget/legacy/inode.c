@@ -1988,6 +1988,9 @@ static const struct super_operations gadget_fs_operations = {
 	.drop_inode =	generic_delete_inode,
 };
 
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
 static int
 gadgetfs_fill_super (struct super_block *sb, struct fs_context *fc)
 {
