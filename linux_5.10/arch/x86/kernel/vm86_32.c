@@ -172,6 +172,7 @@ static void mark_screen_rdonly(struct mm_struct *mm)
 	int i;
 
 	mmap_write_lock(mm);
+	down_write(&mm->mmap_sem);
 	pgd = pgd_offset(mm, 0xA0000);
 	if (pgd_none_or_clear_bad(pgd))
 		goto out;
@@ -190,6 +191,7 @@ static void mark_screen_rdonly(struct mm_struct *mm)
 	if (pmd_none_or_clear_bad(pmd))
 		goto out;
 	pte = pte_offset_map_lock(mm, pmd, 0xA0000, &ptl);
+	up_write(&mm->mmap_sem);
 	for (i = 0; i < 32; i++) {
 		if (pte_present(*pte))
 			set_pte(pte, pte_wrprotect(*pte));
