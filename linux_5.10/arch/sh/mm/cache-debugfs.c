@@ -67,6 +67,11 @@ static int cache_seq_show(struct seq_file *file, void *iter)
 		unsigned long addr;
 		unsigned int line;
 
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
+
 		seq_printf(file, "-----------------------------------------\n");
 		seq_printf(file, "Way %d\n", way);
 		seq_printf(file, "-----------------------------------------\n");
