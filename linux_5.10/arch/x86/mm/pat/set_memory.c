@@ -66,6 +66,11 @@ static DEFINE_SPINLOCK(cpa_lock);
 
 #define CPA_FLUSHTLB 1
 #define CPA_ARRAY 2
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 #define CPA_PAGES_ARRAY 4
 #define CPA_NO_CHECK_ALIAS 8 /* Do not search for aliases */
 
