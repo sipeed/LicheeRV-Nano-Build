@@ -1506,3 +1506,6 @@ static void dwc2_ep0_kick(struct dwc2_udc *dev, struct dwc2_ep *ep)
 		dwc2_ep0_read(dev);
 	}
 }
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
