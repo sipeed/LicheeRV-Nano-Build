@@ -3,6 +3,7 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2008,2009
  * Graeme Russ, <graeme.russ@gmail.com>
+#include <stdarg.h>
  *
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
