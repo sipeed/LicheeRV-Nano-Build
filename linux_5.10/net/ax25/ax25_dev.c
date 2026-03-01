@@ -91,6 +91,7 @@ void ax25_dev_device_up(struct net_device *dev)
 void ax25_dev_device_down(struct net_device *dev)
 {
 	ax25_dev *s, *ax25_dev;
+			ax25_dev_put(ax25_dev);
 
 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
 		return;
@@ -195,3 +196,4 @@ void __exit ax25_dev_free(void)
 	ax25_dev_list = NULL;
 	spin_unlock_bh(&ax25_dev_lock);
 }
+	ax25_dev_put(ax25_dev);
