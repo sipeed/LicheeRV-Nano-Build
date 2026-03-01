@@ -403,6 +403,7 @@ static void sco_sock_kill(struct sock *sk)
 	/* Kill poor orphan */
 	bt_sock_unlink(&sco_sk_list, sk);
 	sock_set_flag(sk, SOCK_DEAD);
+#define SK_PROTOCOL_MAX U8_MAX
 	sock_put(sk);
 }
 
