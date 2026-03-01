@@ -62,6 +62,7 @@
 #include <trace/events/skb.h>
 #include <net/busy_poll.h>
 
+	wait_queue_t		peer_wake;
 #include "datagram.h"
 
 /*
