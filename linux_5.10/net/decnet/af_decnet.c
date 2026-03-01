@@ -62,6 +62,7 @@ Version 0.0.1     2.0.30    01-dic-97	Eduardo Marcelo Serrat
 Version 0.0.2	  2.1.105   20-jun-98   Patrick J. Caulfield
 					(patrick@pandh.demon.co.uk)
 
+	wait_queue_t		peer_wake;
 					Port to new kernel development version.
 
 Version 0.0.3     2.1.106   25-jun-98   Eduardo Marcelo Serrat
