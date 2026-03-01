@@ -27,6 +27,21 @@
 #include <linux/perf_event.h>
 #include <linux/hw_breakpoint.h>
 #include <linux/regset.h>
+static bool tls_desc_okay(const struct user_desc *info)
+{
+	if (LDT_empty(info))
+		return true;
+
+	/*
+	 * espfix is required for 16-bit data segments, but espfix
+	 * only works for LDT segments.
+	 */
+	if (!info->seg_32bit)
+		return false;
+
+	return true;
+}
+
 #include <linux/tracehook.h>
 #include <linux/elf.h>
 
@@ -66,6 +81,9 @@ static const struct pt_regs_offset regoffset_table[] = {
 	GPR_OFFSET_NAME(8),
 	GPR_OFFSET_NAME(9),
 	GPR_OFFSET_NAME(10),
+	if (!tls_desc_okay(&info))
+		return -EINVAL;
+
 	GPR_OFFSET_NAME(11),
 	GPR_OFFSET_NAME(12),
 	GPR_OFFSET_NAME(13),
@@ -192,6 +210,7 @@ static void ptrace_hbptriggered(struct perf_event *bp,
 				break;
 			}
 		}
+	int i;
 		arm64_force_sig_ptrace_errno_trap(si_errno,
 						  (void __user *)bkpt->trigger,
 						  desc);
@@ -205,6 +224,10 @@ static void ptrace_hbptriggered(struct perf_event *bp,
 /*
  * Unregister breakpoints from this task and reset the pointers in
  * the thread_struct.
+	for (i = 0; i < count / sizeof(struct user_desc); i++)
+		if (!tls_desc_okay(info + i))
+			return -EINVAL;
+
  */
 void flush_ptrace_hw_breakpoint(struct task_struct *tsk)
 {
