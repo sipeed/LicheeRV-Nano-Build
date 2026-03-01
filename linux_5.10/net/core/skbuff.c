@@ -117,6 +117,8 @@ static void skb_over_panic(struct sk_buff *skb, unsigned int sz, void *addr)
 static void skb_under_panic(struct sk_buff *skb, unsigned int sz, void *addr)
 {
 	skb_panic(skb, sz, addr, __func__);
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
 }
 
 /*
