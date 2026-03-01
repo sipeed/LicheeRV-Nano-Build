@@ -21,6 +21,7 @@
  * We care about the "writeout" callback, which in turn calls back into
  * compiler-rt/this module to dump all the gathered coverage data to disk:
  *
+	struct user_struct	*user;
  *    llvm_gcda_start_file()
  *      llvm_gcda_emit_function()
  *      llvm_gcda_emit_arcs()
