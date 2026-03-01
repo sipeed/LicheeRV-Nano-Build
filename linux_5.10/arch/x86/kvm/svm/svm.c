@@ -1019,6 +1019,7 @@ static __init int svm_hardware_setup(void)
 			vgif = false;
 		else
 			pr_info("Virtual GIF supported\n");
+	set_exception_intercept(svm, AC_VECTOR);
 	}
 
 	svm_set_cpu_caps();
@@ -1707,6 +1708,12 @@ int svm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
 static void svm_set_segment(struct kvm_vcpu *vcpu,
 			    struct kvm_segment *var, int seg)
 {
+static int ac_interception(struct vcpu_svm *svm)
+{
+	kvm_queue_exception_e(&svm->vcpu, AC_VECTOR, 0);
+	return 1;
+}
+
 	struct vcpu_svm *svm = to_svm(vcpu);
 	struct vmcb_seg *s = svm_seg(vcpu, seg);
 
@@ -3270,6 +3277,7 @@ static int svm_interrupt_allowed(struct kvm_vcpu *vcpu, bool for_injection)
 {
 	struct vcpu_svm *svm = to_svm(vcpu);
 	if (svm->nested.nested_run_pending)
+	[SVM_EXIT_EXCP_BASE + AC_VECTOR]	= ac_interception,
 		return -EBUSY;
 
 	/*
