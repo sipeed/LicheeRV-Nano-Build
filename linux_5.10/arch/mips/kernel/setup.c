@@ -707,6 +707,12 @@ static void __init resource_init(void)
 	data_resource.end = __pa_symbol(&_edata) - 1;
 	bss_resource.start = __pa_symbol(&__bss_start);
 	bss_resource.end = __pa_symbol(&__bss_stop) - 1;
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
 
 	for_each_mem_range(i, &start, &end) {
 		struct resource *res;
