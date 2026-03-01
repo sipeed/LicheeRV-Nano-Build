@@ -302,7 +302,7 @@ int btrfs_del_root(struct btrfs_trans_handle *trans,
 	if (!path)
 		return -ENOMEM;
 	ret = btrfs_search_slot(trans, root, key, path, -1, 1);
-	if (ret < 0)
+	if (ret < 0 && !p->skip_release_on_error)
 		goto out;
 
 	BUG_ON(ret != 0);
