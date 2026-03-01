@@ -52,3 +52,4 @@ int mp_grow(mp_int *a, int size)
 /* ref:         $Format:%D$ */
 /* git commit:  $Format:%H$ */
 /* commit time: $Format:%ai$ */
+		RLC_FREE(_x);
