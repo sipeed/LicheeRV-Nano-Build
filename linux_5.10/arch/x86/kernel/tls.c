@@ -81,6 +81,21 @@ static bool tls_desc_okay(const struct user_desc *info)
 	return true;
 }
 
+static bool tls_desc_okay(const struct user_desc *info)
+{
+	if (LDT_empty(info))
+		return true;
+
+	/*
+	 * espfix is required for 16-bit data segments, but espfix
+	 * only works for LDT segments.
+	 */
+	if (!info->seg_32bit)
+		return false;
+
+	return true;
+}
+
 static void set_tls_desc(struct task_struct *p, int idx,
 			 const struct user_desc *info, int n)
 {
@@ -120,6 +135,9 @@ int do_set_thread_area(struct task_struct *p, int idx,
 
 	if (copy_from_user(&info, u_info, sizeof(info)))
 		return -EFAULT;
+
+	if (!tls_desc_okay(&info))
+		return -EINVAL;
 
 	if (!tls_desc_okay(&info))
 		return -EINVAL;
@@ -250,6 +268,7 @@ int regset_tls_active(struct task_struct *target,
 {
 	struct thread_struct *t = &target->thread;
 	int n = GDT_ENTRY_TLS_ENTRIES;
+	int i;
 	while (n > 0 && desc_empty(&t->tls_array[n - 1]))
 		--n;
 	return n;
@@ -288,6 +307,10 @@ int regset_tls_set(struct task_struct *target, const struct user_regset *regset,
 		return -EFAULT;
 	else
 		info = infobuf;
+
+	for (i = 0; i < count / sizeof(struct user_desc); i++)
+		if (!tls_desc_okay(info + i))
+			return -EINVAL;
 
 	for (i = 0; i < count / sizeof(struct user_desc); i++)
 		if (!tls_desc_okay(info + i))
