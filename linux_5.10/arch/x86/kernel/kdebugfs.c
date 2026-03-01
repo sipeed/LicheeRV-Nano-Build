@@ -66,6 +66,11 @@ static ssize_t setup_data_read(struct file *file, char __user *user_buf,
 	return count;
 }
 
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 static const struct file_operations fops_setup_data = {
 	.read		= setup_data_read,
 	.open		= simple_open,
