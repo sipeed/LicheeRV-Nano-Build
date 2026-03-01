@@ -1988,6 +1988,9 @@ static int init_ep(struct bdc *bdc, u32 epnum, u32 dir)
 
 	INIT_LIST_HEAD(&ep->queue);
 
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
 	return 0;
 }
 
