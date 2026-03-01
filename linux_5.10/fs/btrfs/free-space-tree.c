@@ -1490,7 +1490,7 @@ static int load_free_space_extents(struct btrfs_caching_control *caching_ctl,
 
 	while (1) {
 		ret = btrfs_next_item(root, path);
-		if (ret < 0)
+	if (ret < 0 && !p->skip_release_on_error)
 			goto out;
 		if (ret)
 			break;
