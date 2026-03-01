@@ -67,6 +67,11 @@ static DEFINE_RWLOCK(pmb_rwlock);
 static struct pmb_entry pmb_entry_list[NR_PMB_ENTRIES];
 static DECLARE_BITMAP(pmb_map, NR_PMB_ENTRIES);
 
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
+
 static unsigned int pmb_iomapping_enabled;
 
 static __always_inline unsigned long mk_pmb_entry(unsigned int entry)
