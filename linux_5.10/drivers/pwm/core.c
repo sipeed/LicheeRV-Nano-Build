@@ -67,6 +67,11 @@ static void free_pwms(struct pwm_chip *chip)
 	for (i = 0; i < chip->npwm; i++) {
 		struct pwm_device *pwm = &chip->pwms[i];
 
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
+
 		radix_tree_delete(&pwm_tree, pwm->pwm);
 	}
 
