@@ -357,3 +357,9 @@ int test_mode_pin(int pin)
 {
 	return sh_mv.mv_mode_pins() & pin;
 }
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
