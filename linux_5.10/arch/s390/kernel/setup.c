@@ -707,6 +707,12 @@ static void __init reserve_crashkernel(void)
 		crash_base = memblock_find_in_range(low, high, crash_size,
 						    KEXEC_CRASH_MEM_ALIGN);
 	}
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
 
 	if (!crash_base) {
 		pr_info("crashkernel reservation failed: %s\n",
