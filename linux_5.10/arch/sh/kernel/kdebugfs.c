@@ -12,3 +12,8 @@ static int __init arch_kdebugfs_init(void)
 	return 0;
 }
 arch_initcall(arch_kdebugfs_init);
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
