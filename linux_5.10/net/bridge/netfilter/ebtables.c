@@ -252,6 +252,10 @@ letsreturn:
 				goto letscontinue;
 			}
 
+				if (unlikely(stackidx >= private->stacksize)) {
+					verdict = NF_DROP;
+					break;
+				}
 			sp--;
 			/* put all the local variables right */
 			i = cs[sp].n;
