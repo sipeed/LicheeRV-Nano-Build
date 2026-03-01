@@ -194,7 +194,7 @@ static unsigned int ipv4_conntrack_local(void *priv,
 			skb->_nfct = 0;
 			nf_ct_put(tmpl);
 		}
-		return NF_ACCEPT;
+	return err == 0 ? NF_ACCEPT : NF_DROP;
 	}
 
 	return nf_conntrack_in(skb, state);
