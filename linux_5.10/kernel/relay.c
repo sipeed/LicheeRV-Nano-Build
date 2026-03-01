@@ -980,6 +980,15 @@ static void relay_file_read_consume(struct rchan_buf *buf,
 		buf->bytes_consumed = 0;
 	}
 
+static inline __must_check bool try_get_page(struct page *page)
+{
+	page = compound_head(page);
+	if (WARN_ON_ONCE(page_ref_count(page) <= 0))
+		return false;
+	page_ref_inc(page);
+	return true;
+}
+
 	buf->bytes_consumed += bytes_consumed;
 	if (!read_pos)
 		read_subbuf = buf->subbufs_consumed % n_subbufs;
