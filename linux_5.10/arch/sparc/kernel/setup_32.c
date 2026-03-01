@@ -415,3 +415,9 @@ static int __init topology_init(void)
 }
 
 subsys_initcall(topology_init);
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
