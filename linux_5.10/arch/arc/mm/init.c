@@ -190,3 +190,9 @@ void __init mem_init(void)
 	highmem_init();
 	mem_init_print_info(NULL);
 }
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
