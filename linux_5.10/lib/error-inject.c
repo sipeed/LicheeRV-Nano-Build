@@ -66,6 +66,11 @@ static void populate_error_injection_list(struct error_injection_entry *start,
 	for (iter = start; iter < end; iter++) {
 		entry = arch_deref_entry_point((void *)iter->addr);
 
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 		if (!kernel_text_address(entry) ||
 		    !kallsyms_lookup_size_offset(entry, &size, &offset)) {
 			pr_err("Failed to find error inject entry at %p\n",
