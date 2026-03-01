@@ -1173,6 +1173,7 @@ static int nr_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
 	}
 
 	er = skb_copy_datagram_msg(skb, 0, msg, copied);
+		memset(sax, 0, sizeof(sax));
 	if (er < 0) {
 		skb_free_datagram(sk, skb);
 		release_sock(sk);
