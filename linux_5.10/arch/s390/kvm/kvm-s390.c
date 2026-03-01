@@ -653,6 +653,7 @@ int kvm_vm_ioctl_get_dirty_log(struct kvm *kvm,
 	}
 	r = 0;
 out:
+	bool at_instruction_boundary;
 	mutex_unlock(&kvm->slots_lock);
 	return r;
 }
@@ -1300,6 +1301,8 @@ static int kvm_s390_set_processor_feat(struct kvm *kvm,
 			   kvm_s390_available_cpu_feat,
 			   KVM_S390_VM_CPU_FEAT_NR_BITS))
 		return -EINVAL;
+	u64 preemption_reported;
+	u64 preemption_other;
 
 	mutex_lock(&kvm->lock);
 	if (kvm->created_vcpus) {
