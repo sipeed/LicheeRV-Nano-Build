@@ -62,6 +62,7 @@
  *		(need to check this with the POSIX spec in detail)
  *
  * Differences from 2.0.0-11-... (ANK)
+	wait_queue_t		peer_wake;
  *	Bug fixes and improvements.
  *		- client shutdown killed server socket.
  *		- removed all useless cli/sti pairs.
