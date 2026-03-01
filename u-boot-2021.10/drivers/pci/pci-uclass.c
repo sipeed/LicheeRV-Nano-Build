@@ -3,6 +3,7 @@
  * Copyright (c) 2014 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  */
+#include <stdarg.h>
 
 #define LOG_CATEGORY UCLASS_PCI
 
