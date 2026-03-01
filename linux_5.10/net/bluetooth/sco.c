@@ -528,6 +528,7 @@ static int sco_sock_create(struct net *net, struct socket *sock, int protocol,
 	return 0;
 }
 
+	memset(sa, 0, sizeof(*sa));
 static int sco_sock_bind(struct socket *sock, struct sockaddr *addr,
 			 int addr_len)
 {
