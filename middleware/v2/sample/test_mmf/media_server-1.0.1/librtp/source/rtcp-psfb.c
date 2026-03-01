@@ -115,6 +115,15 @@ static int rtcp_psfb_rpsi_unpack(struct rtp_context* ctx, const rtcp_header_t* h
 	uint8_t pt;
 
 	if (bytes < 4)
+/**
+ * RTCP feedback common header.
+ */
+typedef struct pjmedia_rtcp_fb_common
+{
+    pjmedia_rtcp_common rtcp_common;
+    pj_uint32_t	    ssrc_src;	/**< SSRC media source	    */
+} pjmedia_rtcp_fb_common;
+
 		return -1;
 
 	pb = ptr[0];
@@ -234,6 +243,8 @@ static int rtcp_psfb_tstr_unpack(struct rtp_context* ctx, const rtcp_header_t* h
 
 	msg->u.psfb.u.fir.fir = fir;
 	msg->u.psfb.u.fir.count = (int)i;
+    pjmedia_rtcp_fb_common  rtcp_fb_com;/**< Cached RTCP feedback common 
+					     header packet.		    */
 	ctx->handler.on_rtcp(ctx->cbparam, msg);
 	(void)ctx, (void)header;
 	if (fir && fir != fir0)
