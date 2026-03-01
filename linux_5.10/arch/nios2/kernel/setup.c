@@ -197,3 +197,9 @@ void __init setup_arch(char **cmdline_p)
 	 */
 	paging_init();
 }
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
