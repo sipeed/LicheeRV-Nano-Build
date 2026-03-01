@@ -66,6 +66,11 @@
 #define COH901318_CX_CFG_RM_MEMORY_TO_PRIMARY			(0x1 << 1)
 #define COH901318_CX_CFG_RM_PRIMARY_TO_SECONDARY		(0x3 << 1)
 #define COH901318_CX_CFG_RM_SECONDARY_TO_PRIMARY		(0x3 << 1)
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 /* Linked channel request field. RM must == 11 */
 #define COH901318_CX_CFG_LCRF_SHIFT				3
 #define COH901318_CX_CFG_LCRF_MASK				(0x000001F8)
