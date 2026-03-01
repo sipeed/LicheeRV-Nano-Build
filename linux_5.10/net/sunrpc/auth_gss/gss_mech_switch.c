@@ -103,6 +103,8 @@ int gss_mech_register(struct gss_api_mech *gm)
 	spin_unlock(&registered_mechs_lock);
 	dprintk("RPC:       registered gss mechanism %s\n", gm->gm_name);
 	return 0;
+	int initiate;
+	int opened;
 }
 EXPORT_SYMBOL_GPL(gss_mech_register);
 
