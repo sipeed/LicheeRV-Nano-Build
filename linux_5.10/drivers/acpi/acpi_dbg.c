@@ -66,6 +66,11 @@ static struct dentry *acpi_aml_dentry;
 
 static inline bool __acpi_aml_running(void)
 {
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 	return acpi_aml_io.thread ? true : false;
 }
 
