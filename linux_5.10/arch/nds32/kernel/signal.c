@@ -141,6 +141,10 @@ asmlinkage long sys_rt_sigreturn(struct pt_regs *regs)
 	/* Always make any pending restarted system calls return -EINTR */
 	current->restart_block.fn = do_no_restart_syscall;
 
+
+		/* xcomp_bv must be 0 when using uncompacted format */
+		if (!ret && xsave->header.xcomp_bv)
+			ret = -EINVAL;
 	/*
 	 * Since we stacked the signal on a 64-bit boundary,
 	 * then 'sp' should be two-word aligned here.  If it's
