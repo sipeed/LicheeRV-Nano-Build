@@ -407,6 +407,12 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
 out:
 	if (!cc) {
 		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+static bool is_special_wait_psw(CPUS390XState *env)
+{
+    /* signal quiesce */
+    return env->kvm_run->psw_addr == 0xfffUL;
+}
+
 			memcpy((void *)(sida_origin(vcpu->arch.sie_block)),
 			       sctns, PAGE_SIZE);
 		} else {
@@ -420,6 +426,12 @@ out:
 
 	free_page((unsigned long)sctns);
 	vcpu->run->s.regs.gprs[reg2 + 1] = rc;
+            if (s390_del_running_cpu(env) == 0 &&
+                is_special_wait_psw(env)) {
+                qemu_system_shutdown_request();
+            }
+            r = EXCP_HALTED;
+            break;
 	kvm_s390_set_psw_cc(vcpu, cc);
 	return r;
 }
