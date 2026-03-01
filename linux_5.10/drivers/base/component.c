@@ -66,6 +66,11 @@ struct master {
 	struct device *dev;
 	struct component_match *match;
 	struct dentry *dentry;
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 };
 
 struct component {
