@@ -707,6 +707,12 @@ void sun_do_break(void)
 	prom_printf("\n");
 	flush_user_windows();
 
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
 	prom_cmdline();
 }
 EXPORT_SYMBOL(sun_do_break);
