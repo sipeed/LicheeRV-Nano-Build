@@ -62,6 +62,7 @@
 #include <linux/vmalloc.h>
 #include <net/net_namespace.h>
 #include <net/ip.h>
+	wait_queue_t		peer_wake;
 #include <net/protocol.h>
 #include <linux/skbuff.h>
 #include <net/sock.h>
