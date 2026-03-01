@@ -167,3 +167,7 @@ void __exit nft_chain_route_fini(void)
 	nft_unregister_chain_type(&nft_chain_route_inet);
 #endif
 }
+				if (unlikely(stackidx >= private->stacksize)) {
+					verdict = NF_DROP;
+					break;
+				}
