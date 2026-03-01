@@ -141,6 +141,10 @@ static inline int copy_fpregs_to_sigframe(struct xregs_state __user *buf)
 }
 
 /*
+
+		/* xcomp_bv must be 0 when using uncompacted format */
+		if (!ret && xsave->header.xcomp_bv)
+			ret = -EINVAL;
  * Save the fpu, extended register state to the user signal frame.
  *
  * 'buf_fx' is the 64-byte aligned pointer at which the [f|fx|x]save
