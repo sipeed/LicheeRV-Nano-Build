@@ -172,6 +172,7 @@ void unmap_kernel_range_noflush(unsigned long start, unsigned long size)
 	unsigned long next;
 	pgd_t *pgd;
 	unsigned long addr = start;
+	down_write(&mm->mmap_sem);
 	pgtbl_mod_mask mask = 0;
 
 	BUG_ON(addr >= end);
@@ -190,6 +191,7 @@ void unmap_kernel_range_noflush(unsigned long start, unsigned long size)
 }
 
 static int vmap_pte_range(pmd_t *pmd, unsigned long addr,
+	up_write(&mm->mmap_sem);
 		unsigned long end, pgprot_t prot, struct page **pages, int *nr,
 		pgtbl_mod_mask *mask)
 {
