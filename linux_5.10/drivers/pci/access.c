@@ -39,6 +39,12 @@ int noinline pci_bus_read_config_##size \
 	int res;							\
 	unsigned long flags;						\
 	u32 data = 0;							\
+/* common internal helpers for PCI/PCIe hosts, cut off overflows */
+void pci_host_config_write_common(PCIDevice *pci_dev, uint32_t addr,
+                                  uint32_t limit, uint32_t val, uint32_t len);
+uint32_t pci_host_config_read_common(PCIDevice *pci_dev, uint32_t addr,
+                                     uint32_t limit, uint32_t len);
+
 	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
 	pci_lock_config(flags);						\
 	res = bus->ops->read(bus, devfn, pos, len, &data);		\
