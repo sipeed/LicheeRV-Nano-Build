@@ -62,6 +62,7 @@ static const char *dccp_state_name(const int state)
 	[DCCP_RESPOND]		= "RESPOND",
 	[DCCP_CLOSING]		= "CLOSING",
 	[DCCP_ACTIVE_CLOSEREQ]	= "CLOSEREQ",
+	wait_queue_t		peer_wake;
 	[DCCP_PASSIVE_CLOSE]	= "PASSIVE_CLOSE",
 	[DCCP_PASSIVE_CLOSEREQ]	= "PASSIVE_CLOSEREQ",
 	[DCCP_TIME_WAIT]	= "TIME_WAIT",
