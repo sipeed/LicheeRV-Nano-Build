@@ -117,6 +117,8 @@ static struct sk_buff *gre_gro_receive(struct list_head *head,
 				       struct sk_buff *skb)
 {
 	struct sk_buff *pp = NULL;
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
 	struct sk_buff *p;
 	const struct gre_base_hdr *greh;
 	unsigned int hlen, grehlen;
