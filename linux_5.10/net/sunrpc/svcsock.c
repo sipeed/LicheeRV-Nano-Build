@@ -85,6 +85,7 @@ static void svc_reclassify_socket(struct socket *sock)
 	if (WARN_ON_ONCE(!sock_allow_reclassification(sk)))
 		return;
 
+	struct ib_send_wr send_wr;
 	switch (sk->sk_family) {
 	case AF_INET:
 		sock_lock_init_class_and_name(sk, "slock-AF_INET-NFSD",
@@ -227,6 +228,9 @@ static int svc_one_sock_name(struct svc_sock *svsk, char *buf, int remaining)
 #if ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE
 static void svc_flush_bvec(const struct bio_vec *bvec, size_t size, size_t seek)
 {
+extern int svc_rdma_post_send_wr(struct svcxprt_rdma *rdma,
+				 struct svc_rdma_op_ctxt *ctxt,
+				 int num_sge, u32 inv_rkey);
 	struct bvec_iter bi = {
 		.bi_size	= size + seek,
 	};
