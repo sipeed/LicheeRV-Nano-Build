@@ -334,6 +334,9 @@ struct dn_fib_info *dn_fib_create_info(const struct rtmsg *r, struct nlattr *att
 		if (attrs[RTA_GATEWAY])
 			nh->nh_gw = nla_get_le16(attrs[RTA_GATEWAY]);
 
+	if (in_dev->dead)
+		goto no_promotions;
+
 		nh->nh_flags = r->rtm_flags;
 		nh->nh_weight = 1;
 	}
@@ -380,6 +383,7 @@ struct dn_fib_info *dn_fib_create_info(const struct rtmsg *r, struct nlattr *att
 			if (dnet_addr_type(fi->fib_prefsrc) != RTN_LOCAL)
 				goto err_inval;
 	}
+no_promotions:
 
 link_it:
 	if ((ofi = dn_fib_find_info(fi)) != NULL) {
