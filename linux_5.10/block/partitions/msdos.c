@@ -105,6 +105,13 @@ static int aix_magic_present(struct parsed_partitions *state, unsigned char *p)
 		put_dev_sector(sect);
 	}
 	return ret;
+			/* Avoid recursive non-empty links, see ct_nodata counter */
+			if (blkid_partlist_get_partition_by_start(ls, abs_start)) {
+				DBG(LOWPROBE, ul_debug("#%d: EBR duplicate data partition [abs start=%u] -- ignore",
+							i + 1, abs_start));
+				continue;
+			}
+
 }
 
 static void set_info(struct parsed_partitions *state, int slot,
