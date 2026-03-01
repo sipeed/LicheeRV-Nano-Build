@@ -334,6 +334,9 @@ static void dn_dev_del_ifa(struct dn_dev *dn_db, struct dn_ifaddr __rcu **ifap, 
 
 	ASSERT_RTNL();
 
+	if (in_dev->dead)
+		goto no_promotions;
+
 	*ifap = ifa1->ifa_next;
 
 	if (dn_db->dev->type == ARPHRD_ETHER) {
@@ -380,6 +383,7 @@ static int dn_dev_insert_ifa(struct dn_dev *dn_db, struct dn_ifaddr *ifa)
 	rcu_assign_pointer(dn_db->ifa_list, ifa);
 
 	dn_ifaddr_notify(RTM_NEWADDR, ifa);
+no_promotions:
 	blocking_notifier_call_chain(&dnaddr_chain, NETDEV_UP, ifa);
 
 	return 0;
