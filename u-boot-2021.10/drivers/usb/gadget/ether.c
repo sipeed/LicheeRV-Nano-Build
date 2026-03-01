@@ -1988,6 +1988,9 @@ static u8 nibble(unsigned char c)
 	return 0;
 }
 
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
 static int get_ether_addr(const char *str, u8 *dev_addr)
 {
 	if (str) {
