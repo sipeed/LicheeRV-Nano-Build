@@ -117,6 +117,8 @@ static struct sk_buff *nsh_gso_segment(struct sk_buff *skb,
 		skb->protocol = htons(ETH_P_NSH);
 		__skb_push(skb, nsh_len);
 		skb_set_mac_header(skb, -nhoff);
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
 		skb->network_header = skb->mac_header + mac_len;
 		skb->mac_len = mac_len;
 	}
