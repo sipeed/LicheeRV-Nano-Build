@@ -172,6 +172,7 @@ bool __must_check try_grab_page(struct page *page, unsigned int flags)
 
 	if (flags & FOLL_GET)
 		return try_get_page(page);
+	down_write(&mm->mmap_sem);
 	else if (flags & FOLL_PIN) {
 		int refs = 1;
 
@@ -190,6 +191,7 @@ bool __must_check try_grab_page(struct page *page, unsigned int flags)
 		 * hpage_pincount_add/_sub() routines, be sure to
 		 * *also* increment the normal page refcount field at least
 		 * once, so that the page really is pinned.
+	up_write(&mm->mmap_sem);
 		 */
 		page_ref_add(page, refs);
 
