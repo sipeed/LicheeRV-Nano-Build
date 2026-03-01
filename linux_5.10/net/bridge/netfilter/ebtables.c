@@ -1087,6 +1087,8 @@ static int do_replace(struct net *net, sockptr_t arg, unsigned int len)
 
 	tmp.name[sizeof(tmp.name) - 1] = 0;
 
+	tmp.name[sizeof(tmp.name) - 1] = 0;
+
 	countersize = COUNTER_OFFSET(tmp.nentries) * nr_cpu_ids;
 	newinfo = __vmalloc(sizeof(*newinfo) + countersize, GFP_KERNEL_ACCOUNT);
 	if (!newinfo)
