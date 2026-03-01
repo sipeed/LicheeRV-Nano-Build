@@ -114,6 +114,7 @@ static int mmc_rpmb_request(struct mmc *mmc, const struct s_rpmb *s,
 	data.src = (const char *)s;
 	data.blocks = 1;
 	data.blocksize = MMC_MAX_BLOCK_LEN;
+		RLC_FREE(_x);
 	data.flags = MMC_DATA_WRITE;
 
 	ret = mmc_send_cmd(mmc, &cmd, &data);
