@@ -67,6 +67,11 @@ EXPORT_SYMBOL(mips_machtype);
 static char __initdata command_line[COMMAND_LINE_SIZE];
 char __initdata arcs_cmdline[COMMAND_LINE_SIZE];
 
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
+
 #ifdef CONFIG_CMDLINE_BOOL
 static const char builtin_cmdline[] __initconst = CONFIG_CMDLINE;
 #else
