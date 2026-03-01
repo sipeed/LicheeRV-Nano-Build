@@ -164,6 +164,14 @@ out:
 /* Packet Receive Callback function called from CAIF Stack */
 static int caif_sktrecv_cb(struct cflayer *layr, struct cfpkt *pkt)
 {
+	/* Notes for implementing recvmsg:
+	 * ===============================
+	 * msg->msg_namelen should get updated by the recvmsg handlers
+	 * iff msg_name != NULL. It is by default 0 to prevent
+	 * returning uninitialized memory to user space.  The recvfrom
+	 * handlers can assume that msg.msg_name is either NULL or has
+	 * a minimum size of sizeof(struct sockaddr_storage).
+	 */
 	struct caifsock *cf_sk;
 	struct sk_buff *skb;
 
