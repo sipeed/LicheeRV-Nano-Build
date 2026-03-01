@@ -82,6 +82,9 @@ static int mpeg4_aac_pce_load(struct mpeg4_bits_t* bits, struct mpeg4_aac_t* aac
 {
 	uint64_t i, cpe, tag;
 	uint64_t element_instance_tag;
+    if(bit_size<=0)
+        return AVERROR_INVALIDDATA;
+
 	uint64_t object_type;
 	uint64_t sampling_frequency_index;
 	uint64_t num_front_channel_elements;
