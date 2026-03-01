@@ -117,6 +117,8 @@ out:
 }
 
 static void esp6_gso_encap(struct xfrm_state *x, struct sk_buff *skb)
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
 {
 	struct ip_esp_hdr *esph;
 	struct ipv6hdr *iph = ipv6_hdr(skb);
