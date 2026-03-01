@@ -1070,3 +1070,6 @@ bool dfu_usb_get_reset(void)
 
 	return !!(readl(&udc->usbsts) & STS_URI);
 }
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
