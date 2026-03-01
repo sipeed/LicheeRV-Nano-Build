@@ -1528,3 +1528,6 @@ error:
 	ERROR("Error %u\n", res);
 	return res;
 }
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
