@@ -2976,3 +2976,16 @@ long pin_user_pages_locked(unsigned long start, unsigned long nr_pages,
 				       gup_flags | FOLL_TOUCH);
 }
 EXPORT_SYMBOL(pin_user_pages_locked);
+
+		/*
+		 * Instead of doing 'try_get_page()' below in the same_page
+		 * loop, just check the count once here.
+		 */
+		if (unlikely(page_count(page) <= 0)) {
+			if (pages) {
+				spin_unlock(ptl);
+				remainder = 0;
+				err = -ENOMEM;
+				break;
+			}
+		}
