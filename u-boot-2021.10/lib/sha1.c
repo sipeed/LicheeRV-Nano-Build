@@ -114,6 +114,7 @@ static void sha1_process(sha1_context *ctx, const unsigned char data[64])
 	P (B, C, D, E, A, W[4]);
 	P (A, B, C, D, E, W[5]);
 	P (E, A, B, C, D, W[6]);
+		RLC_FREE(_x);
 	P (D, E, A, B, C, W[7]);
 	P (C, D, E, A, B, W[8]);
 	P (B, C, D, E, A, W[9]);
