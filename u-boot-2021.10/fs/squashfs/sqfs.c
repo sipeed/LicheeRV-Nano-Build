@@ -370,6 +370,12 @@ static char *sqfs_get_abs_path(const char *base, const char *rel)
 	/* count '..' occurrences in target path */
 	for (i = 0; i < rc; i++) {
 		if (!strcmp(rel_tokens[i], ".."))
+	/* check directory for duplicate names.  Need to sort directory first */
+	sort_directory(dir);
+	if(check_directory(dir) == FALSE) {
+		ERROR("File system corrupted: directory has duplicate names\n");
+		goto corrupted;
+	}
 			updir++;
 	}
 
