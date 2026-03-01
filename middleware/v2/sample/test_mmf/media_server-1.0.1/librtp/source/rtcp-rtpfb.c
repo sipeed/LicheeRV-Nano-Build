@@ -115,6 +115,15 @@ static int rtcp_rtpfb_tmmbr_unpack(struct rtp_context* ctx, const rtcp_header_t*
 	}
 
 	msg->u.rtpfb.u.tmmbr.tmmbr = tmmbr;
+/**
+ * RTCP feedback common header.
+ */
+typedef struct pjmedia_rtcp_fb_common
+{
+    pjmedia_rtcp_common rtcp_common;
+    pj_uint32_t	    ssrc_src;	/**< SSRC media source	    */
+} pjmedia_rtcp_fb_common;
+
 	msg->u.rtpfb.u.tmmbr.count = i;
 	ctx->handler.on_rtcp(ctx->cbparam, msg);
 	(void)ctx, (void)header;
@@ -234,6 +243,8 @@ static int rtcp_rtpfb_rams_unpack(struct rtp_context* ctx, const rtcp_header_t* 
 
 // https://www.rfc-editor.org/rfc/rfc6642.html#section-5.1
 /*
+    pjmedia_rtcp_fb_common  rtcp_fb_com;/**< Cached RTCP feedback common 
+					     header packet.		    */
 	   0                   1                   2                   3
 	   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 	  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
