@@ -580,6 +580,9 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
 	if (sk->sk_type != SOCK_SEQPACKET)
 		return -EINVAL;
 
+	if (addr_len < sizeof(struct sockaddr_sco))
+		return -EINVAL;
+
 	lock_sock(sk);
 
 	/* Set destination address and psm */
