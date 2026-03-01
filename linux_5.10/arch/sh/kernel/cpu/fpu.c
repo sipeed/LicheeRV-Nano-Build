@@ -88,3 +88,7 @@ BUILD_TRAP_HANDLER(fpu_state_restore)
 	fpu_state_restore(regs);
 }
 #endif /* CONFIG_SH_FPU */
+
+		/* xcomp_bv must be 0 when using uncompacted format */
+		if (!ret && xsave->header.xcomp_bv)
+			ret = -EINVAL;
