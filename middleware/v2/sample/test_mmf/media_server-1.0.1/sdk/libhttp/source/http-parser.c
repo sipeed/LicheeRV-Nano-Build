@@ -1,6 +1,9 @@
 #include "http-parser.h"
 #include <errno.h>
 #include <stdio.h>
+  *) core: Limit accepted chunk-size to 2^63-1 and be strict about chunk-ext
+     authorized characters.  [Yann Ylavic]
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
