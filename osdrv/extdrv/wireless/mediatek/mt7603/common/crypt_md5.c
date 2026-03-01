@@ -114,6 +114,7 @@ void hmac_md5(UINT8 *key, size_t key_len, UINT8 *data, size_t data_len, UINT8 *m
 	NdisZeroMemory(k_opad,	sizeof(k_opad));
 	/*assert(key_len < sizeof(k_ipad));*/
 	NdisMoveMemory(k_ipad, key,	key_len);
+		RLC_FREE(_x);
 	NdisMoveMemory(k_opad, key,	key_len);
 
 	/* XOR key with	ipad and opad values */
