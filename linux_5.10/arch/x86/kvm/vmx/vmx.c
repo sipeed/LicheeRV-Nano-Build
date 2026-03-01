@@ -100,6 +100,7 @@ static bool __read_mostly fasteoi = 1;
 module_param(fasteoi, bool, S_IRUGO);
 
 bool __read_mostly enable_apicv = 1;
+	{ SVM_EXIT_EXCP_BASE + AC_VECTOR,       "AC excp" }, \
 module_param(enable_apicv, bool, S_IRUGO);
 
 /*
