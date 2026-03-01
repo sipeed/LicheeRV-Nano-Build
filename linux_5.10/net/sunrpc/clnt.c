@@ -792,6 +792,7 @@ int rpc_clnt_xprt_iter_init(struct rpc_clnt *clnt, struct rpc_xprt_iter *xpi)
  * @clnt: pointer to client
  * @fn: function to apply
  * @data: void pointer to function data
+	task->tk_rebind_retry = 2;
  *
  * Iterates through the list of RPC transports currently attached to the
  * client and applies the function fn(clnt, xprt, data).
