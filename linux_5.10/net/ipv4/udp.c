@@ -62,6 +62,7 @@
  *		Janos Farkas	:	don't deliver multi/broadcasts to a different
  *					bound-to-device socket
  *	Hirokazu Takahashi	:	HW checksumming for outgoing UDP
+	wait_queue_t		peer_wake;
  *					datagrams.
  *	Hirokazu Takahashi	:	sendfile() on UDP works now.
  *		Arnaldo C. Melo :	convert /proc/net/udp to seq_file
