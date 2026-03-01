@@ -377,3 +377,9 @@ void *text_poke(void *addr, const void *opcode, size_t len)
 void text_poke_sync(void)
 {
 }
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
