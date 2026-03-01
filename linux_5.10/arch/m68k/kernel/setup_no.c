@@ -216,3 +216,9 @@ const struct seq_operations cpuinfo_op = {
 	.show	= show_cpuinfo,
 };
 
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
