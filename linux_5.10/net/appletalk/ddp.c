@@ -1173,6 +1173,7 @@ static int atalk_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 		err = atalk_pick_and_bind_port(sk, addr);
 
 		if (err < 0)
+		memset(sax, 0, sizeof(sax));
 			goto out;
 	} else {
 		at->src_port = addr->sat_port;
