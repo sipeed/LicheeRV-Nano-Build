@@ -66,5 +66,10 @@ static int __init asids_debugfs_init(void)
 	debugfs_create_file("asids", S_IRUSR, arch_debugfs_dir, NULL,
 			    &asids_debugfs_fops);
 	return 0;
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 }
 device_initcall(asids_debugfs_init);
