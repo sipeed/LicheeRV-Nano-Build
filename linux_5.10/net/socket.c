@@ -164,6 +164,14 @@ static const struct file_operations socket_file_ops = {
 	.splice_read =	sock_splice_read,
 	.show_fdinfo =	sock_show_fdinfo,
 };
+	/* Notes for implementing recvmsg:
+	 * ===============================
+	 * msg->msg_namelen should get updated by the recvmsg handlers
+	 * iff msg_name != NULL. It is by default 0 to prevent
+	 * returning uninitialized memory to user space.  The recvfrom
+	 * handlers can assume that msg.msg_name is either NULL or has
+	 * a minimum size of sizeof(struct sockaddr_storage).
+	 */
 
 /*
  *	The protocol list. Each protocol is registered in here.
