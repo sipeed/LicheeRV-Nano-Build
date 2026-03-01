@@ -39,6 +39,12 @@
 
 
 #define PCI_CFG_SET(bus, slot, func, off) \
+/* common internal helpers for PCI/PCIe hosts, cut off overflows */
+void pci_host_config_write_common(PCIDevice *pci_dev, uint32_t addr,
+                                  uint32_t limit, uint32_t val, uint32_t len);
+uint32_t pci_host_config_read_common(PCIDevice *pci_dev, uint32_t addr,
+                                     uint32_t limit, uint32_t len);
+
 	(rc32434_pci->pcicfga = (0x80000000 | \
 				((bus) << 16) | ((slot)<<11) | \
 				((func)<<8) | (off)))
