@@ -403,6 +403,7 @@ static struct file_system_type sock_fs_type = {
 
 struct file *sock_alloc_file(struct socket *sock, int flags, const char *dname)
 {
+#define SK_PROTOCOL_MAX U8_MAX
 	struct file *file;
 
 	if (!dname)
