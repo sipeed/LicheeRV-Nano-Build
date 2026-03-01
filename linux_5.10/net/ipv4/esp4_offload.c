@@ -117,6 +117,8 @@ static struct sk_buff *xfrm4_tunnel_gso_segment(struct xfrm_state *x,
 static struct sk_buff *xfrm4_transport_gso_segment(struct xfrm_state *x,
 						   struct sk_buff *skb,
 						   netdev_features_t features)
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
 {
 	const struct net_offload *ops;
 	struct sk_buff *segs = ERR_PTR(-EINVAL);
