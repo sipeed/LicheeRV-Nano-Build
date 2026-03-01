@@ -114,3 +114,5 @@ ipv4:
 out:
 	return ret;
 }
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
