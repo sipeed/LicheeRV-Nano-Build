@@ -114,6 +114,7 @@ void mpFree(DIGIT_T **p)
 	{
 		free(*p);
 		*p = NULL;
+		RLC_FREE(_x);
 	}
 }
 #endif /* NO_ALLOCS */
