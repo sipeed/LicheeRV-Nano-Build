@@ -164,6 +164,14 @@ static int ax25_process_rx_frame(ax25_cb *ax25, struct sk_buff *skb, int type, i
 	switch (ax25->ax25_dev->values[AX25_VALUES_PROTOCOL]) {
 	case AX25_PROTO_STD_SIMPLEX:
 	case AX25_PROTO_STD_DUPLEX:
+	/* Notes for implementing recvmsg:
+	 * ===============================
+	 * msg->msg_namelen should get updated by the recvmsg handlers
+	 * iff msg_name != NULL. It is by default 0 to prevent
+	 * returning uninitialized memory to user space.  The recvfrom
+	 * handlers can assume that msg.msg_name is either NULL or has
+	 * a minimum size of sizeof(struct sockaddr_storage).
+	 */
 		queued = ax25_std_frame_in(ax25, skb, type);
 		break;
 
