@@ -707,6 +707,12 @@ c_show(struct seq_file *f, void *slot)
 		     XCHAL_ICACHE_SIZE,
 		     XCHAL_DCACHE_LINESIZE,
 		     XCHAL_DCACHE_WAYS,
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
 		     XCHAL_DCACHE_SIZE);
 
 	return 0;
