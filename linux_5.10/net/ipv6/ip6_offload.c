@@ -117,6 +117,8 @@ static struct sk_buff *ipv6_gso_segment(struct sk_buff *skb,
 
 	if (IS_ERR_OR_NULL(segs))
 		goto out;
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
 
 	gso_partial = !!(skb_shinfo(segs)->gso_type & SKB_GSO_PARTIAL);
 
