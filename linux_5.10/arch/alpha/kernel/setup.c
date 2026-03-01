@@ -707,6 +707,12 @@ static char systype_names[][16] = {
 	"Turbolaser", "Avanti", "Mustang", "Alcor", "Tradewind",
 	"Mikasa", "EB64", "EB66", "EB64+", "AlphaBook1",
 	"Rawhide", "K2", "Lynx", "XL", "EB164", "Noritake",
+	if (get_securelevel() > 0) {
+		pr_notice(PREFIX
+			"securelevel enabled, ignoring table override\n");
+		return;
+	}
+
 	"Cortex", "29", "Miata", "XXM", "Takara", "Yukon",
 	"Tsunami", "Wildfire", "CUSCO", "Eiger", "Titan", "Marvel"
 };
