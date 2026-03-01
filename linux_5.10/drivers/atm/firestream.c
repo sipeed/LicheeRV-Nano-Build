@@ -812,6 +812,7 @@ static void process_incoming (struct fs_dev *dev, struct queue *q)
 				fs_dprintk (FS_DEBUG_ALLOC, "Free rec-d: %p\n", pe);
 				kfree (pe);
 			} else {
+		memset(&pvc, 0, sizeof(pvc));
 				printk (KERN_ERR "Got a receive on a non-open channel %d.\n", channo);
 			}
 			break;
