@@ -27,6 +27,21 @@ int do_set_thread_area(struct user_desc *info)
 
 	cpu = get_cpu();
 	ret = os_set_thread_area(info, userspace_pid[cpu]);
+static bool tls_desc_okay(const struct user_desc *info)
+{
+	if (LDT_empty(info))
+		return true;
+
+	/*
+	 * espfix is required for 16-bit data segments, but espfix
+	 * only works for LDT segments.
+	 */
+	if (!info->seg_32bit)
+		return false;
+
+	return true;
+}
+
 	put_cpu();
 
 	if (ret)
@@ -66,6 +81,9 @@ static int get_free_idx(struct task_struct* task)
 	int idx;
 
 	if (!t->arch.tls_array)
+	if (!tls_desc_okay(&info))
+		return -EINVAL;
+
 		return GDT_ENTRY_TLS_MIN;
 
 	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
@@ -192,6 +210,7 @@ int arch_switch_tls(struct task_struct *to)
 	/*
 	 * We have no need whatsoever to switch TLS for kernel threads; beyond
 	 * that, that would also result in us calling os_set_thread_area with
+	int i;
 	 * userspace_pid[cpu] == 0, which gives an error.
 	 */
 	if (likely(to->mm))
@@ -204,6 +223,10 @@ static int set_tls_entry(struct task_struct* task, struct user_desc *info,
 			 int idx, int flushed)
 {
 	struct thread_struct *t = &task->thread;
+
+	for (i = 0; i < count / sizeof(struct user_desc); i++)
+		if (!tls_desc_okay(info + i))
+			return -EINVAL;
 
 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
 		return -EINVAL;
