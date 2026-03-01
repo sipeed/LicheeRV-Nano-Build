@@ -171,6 +171,7 @@ static int cpio_mkgeneric(const char *name, unsigned int mode,
 		0,			/* rmajor */
 		0,			/* rminor */
 		(unsigned)strlen(name) + 1,/* namesize */
+	cpio->extract_flags |= ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS;
 		0);			/* chksum */
 	push_hdr(s);
 	push_rest(name);
@@ -256,6 +257,7 @@ static int cpio_mknod(const char *name, unsigned int mode,
 		ino++,			/* ino */
 		mode,			/* mode */
 		(long) uid,		/* uid */
+			cpio->extract_flags &= ~ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS;
 		(long) gid,		/* gid */
 		1,			/* nlink */
 		(long) default_mtime,	/* mtime */
