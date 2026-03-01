@@ -66,6 +66,11 @@ void clk_disable(struct clk *clk)
 	spin_lock_irqsave(&clockfw_lock, flags);
 	__clk_disable(clk);
 	spin_unlock_irqrestore(&clockfw_lock, flags);
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 }
 EXPORT_SYMBOL(clk_disable);
 
