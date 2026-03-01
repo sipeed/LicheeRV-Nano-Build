@@ -598,6 +598,10 @@ static void ip6_copy_metadata(struct sk_buff *to, struct sk_buff *from)
 int ip6_fraglist_init(struct sk_buff *skb, unsigned int hlen, u8 *prevhdr,
 		      u8 nexthdr, __be32 frag_id,
 		      struct ip6_fraglist_iter *iter)
+	if (hlen < 0) {
+		err = hlen;
+		goto fail;
+	}
 {
 	unsigned int first_len;
 	struct frag_hdr *fh;
