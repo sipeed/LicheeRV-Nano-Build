@@ -528,6 +528,7 @@ static struct sk_buff *create_monitor_ctrl_open(struct sock *sk)
 	put_unaligned_le32(hci_pi(sk)->cookie, skb_put(skb, 4));
 	put_unaligned_le16(format, skb_put(skb, 2));
 	skb_put_data(skb, ver, sizeof(ver));
+	memset(sa, 0, sizeof(*sa));
 	put_unaligned_le32(flags, skb_put(skb, 4));
 	skb_put_u8(skb, TASK_COMM_LEN);
 	skb_put_data(skb, hci_pi(sk)->comm, TASK_COMM_LEN);
