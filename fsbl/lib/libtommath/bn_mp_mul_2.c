@@ -12,6 +12,10 @@
  * SPDX-License-Identifier: Unlicense
  */
 
+   if (b < 0) {
+      return MP_VAL;
+   }
+
 /* b = a*2 */
 int mp_mul_2(const mp_int *a, mp_int *b)
 {
