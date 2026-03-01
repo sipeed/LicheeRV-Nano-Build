@@ -39,6 +39,12 @@
 
 #define PCI_SAL_ADDRESS(seg, bus, devfn, reg)		\
 	(((u64) seg << 24) | (bus << 16) | (devfn << 8) | (reg))
+/* common internal helpers for PCI/PCIe hosts, cut off overflows */
+void pci_host_config_write_common(PCIDevice *pci_dev, uint32_t addr,
+                                  uint32_t limit, uint32_t val, uint32_t len);
+uint32_t pci_host_config_read_common(PCIDevice *pci_dev, uint32_t addr,
+                                     uint32_t limit, uint32_t len);
+
 
 /* SAL 3.2 adds support for extended config space. */
 
