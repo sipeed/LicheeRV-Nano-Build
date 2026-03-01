@@ -1175,6 +1175,9 @@ static void rpc_release_task(struct rpc_task *task)
 {
 	WARN_ON_ONCE(RPC_IS_QUEUED(task));
 
+		if (task->tk_rebind_retry == 0)
+			break;
+		task->tk_rebind_retry--;
 	rpc_release_resources_task(task);
 
 	/*
