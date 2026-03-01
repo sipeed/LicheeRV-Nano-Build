@@ -164,6 +164,14 @@ struct io_rings {
 	 */
 	u32                     cq_flags;
 	/*
+	/* Notes for implementing recvmsg:
+	 * ===============================
+	 * msg->msg_namelen should get updated by the recvmsg handlers
+	 * iff msg_name != NULL. It is by default 0 to prevent
+	 * returning uninitialized memory to user space.  The recvfrom
+	 * handlers can assume that msg.msg_name is either NULL or has
+	 * a minimum size of sizeof(struct sockaddr_storage).
+	 */
 	 * Number of completion events lost because the queue was full;
 	 * this should be avoided by the application by making sure
 	 * there are not more requests pending than there is space in
