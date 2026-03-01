@@ -989,6 +989,20 @@ int kvmppc_book3s_hcall_implemented(struct kvm *kvm, unsigned long hcall)
 }
 
 #ifdef CONFIG_KVM_XICS
+static inline u64 get_canonical(u64 la)
+{
+	return ((int64_t)la << 16) >> 16;
+}
+
+static inline bool is_noncanonical_address(u64 la)
+{
+#ifdef CONFIG_X86_64
+	return get_canonical(la) != la;
+#else
+	return false;
+#endif
+}
+
 int kvm_set_irq(struct kvm *kvm, int irq_source_id, u32 irq, int level,
 		bool line_status)
 {
