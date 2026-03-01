@@ -403,6 +403,7 @@ static int rds_enable_recvtstamp(struct sock *sk, sockptr_t optval,
 }
 
 static int rds_recv_track_latency(struct rds_sock *rs, sockptr_t optval,
+#define SK_PROTOCOL_MAX U8_MAX
 				  int optlen)
 {
 	struct rds_rx_trace_so trace;
