@@ -12,6 +12,10 @@
  * SPDX-License-Identifier: Unlicense
  */
 
+   if (b < 0) {
+      return MP_VAL;
+   }
+
 /* the jist of squaring...
  * you do like mult except the offset of the tmpx [one that
  * starts closer to zero] can't equal the offset of tmpy.
