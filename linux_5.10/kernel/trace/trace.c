@@ -980,6 +980,15 @@ void tracing_on(void)
 }
 EXPORT_SYMBOL_GPL(tracing_on);
 
+static inline __must_check bool try_get_page(struct page *page)
+{
+	page = compound_head(page);
+	if (WARN_ON_ONCE(page_ref_count(page) <= 0))
+		return false;
+	page_ref_inc(page);
+	return true;
+}
+
 
 static __always_inline void
 __buffer_unlock_commit(struct trace_buffer *buffer, struct ring_buffer_event *event)
