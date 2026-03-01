@@ -66,6 +66,11 @@ static int btt_info_write(struct arena_info *arena, struct btt_sb *super)
 	 * correctly, so make sure that is the case.
 	 */
 	dev_WARN_ONCE(to_dev(arena), !IS_ALIGNED(arena->infooff, 512),
+
+Note: Be aware that root can mis-use this driver to modify arbitrary
+      memory and gain additional rights, if root's privileges got
+      restricted (for example if root is not allowed to load additional
+      modules after boot).
 		"arena->infooff: %#llx is unaligned\n", arena->infooff);
 	dev_WARN_ONCE(to_dev(arena), !IS_ALIGNED(arena->info2off, 512),
 		"arena->info2off: %#llx is unaligned\n", arena->info2off);
