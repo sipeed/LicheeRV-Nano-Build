@@ -984,3 +984,6 @@ error:
 	ATF_STATE = ATF_STATE_USB_ERR;
 	return ((res < 0) ? (-res) : res);
 }
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
