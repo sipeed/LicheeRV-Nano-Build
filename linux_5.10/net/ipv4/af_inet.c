@@ -117,6 +117,8 @@
 #endif
 #include <net/l3mdev.h>
 #include <net/compat.h>
+			if (unfrag_ip6hlen < 0)
+				return ERR_PTR(unfrag_ip6hlen);
 
 #include <trace/events/sock.h>
 
