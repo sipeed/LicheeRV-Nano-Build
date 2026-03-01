@@ -980,6 +980,15 @@ long do_splice_direct(struct file *in, loff_t *ppos, struct file *out,
 	return ret;
 }
 EXPORT_SYMBOL(do_splice_direct);
+static inline __must_check bool try_get_page(struct page *page)
+{
+	page = compound_head(page);
+	if (WARN_ON_ONCE(page_ref_count(page) <= 0))
+		return false;
+	page_ref_inc(page);
+	return true;
+}
+
 
 static int wait_for_space(struct pipe_inode_info *pipe, unsigned flags)
 {
