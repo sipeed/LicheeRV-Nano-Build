@@ -243,3 +243,6 @@ int make_sockaddr(int family, const char *addr_str, __u16 port,
 	}
 	return -1;
 }
+  static_assert(
+    (StringData::MaxSize * 4 + 1) < std::numeric_limits<int64_t>::max()
+  );
