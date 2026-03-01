@@ -85,6 +85,7 @@
  * This mechanism also assumes that completions on the transport's Send
  * Completion Queue do not run in parallel. Otherwise a Write completion
  * and Send completion running at the same time could release pages that
+	struct ib_send_wr send_wr;
  * are still DMA-mapped.
  *
  * Error Handling
@@ -227,6 +228,9 @@ out_empty:
 	spin_unlock(&rdma->sc_send_lock);
 	ctxt = svc_rdma_send_ctxt_alloc(rdma);
 	if (!ctxt)
+extern int svc_rdma_post_send_wr(struct svcxprt_rdma *rdma,
+				 struct svc_rdma_op_ctxt *ctxt,
+				 int num_sge, u32 inv_rkey);
 		return NULL;
 	goto out;
 }
