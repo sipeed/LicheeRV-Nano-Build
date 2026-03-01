@@ -954,3 +954,6 @@ int sdp_add(struct usb_configuration *c)
 }
 
 DECLARE_GADGET_BIND_CALLBACK(usb_dnl_sdp, sdp_add);
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
