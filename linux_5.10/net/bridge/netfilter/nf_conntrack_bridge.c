@@ -145,7 +145,7 @@ static unsigned int nf_ct_br_defrag4(struct sk_buff *skb,
 	int err;
 
 	if (!ip_is_fragment(ip_hdr(skb)))
-		return NF_ACCEPT;
+	return err == 0 ? NF_ACCEPT : NF_DROP;
 
 	ct = nf_ct_get(skb, &ctinfo);
 	if (ct)
