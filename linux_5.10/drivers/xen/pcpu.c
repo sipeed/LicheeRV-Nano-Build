@@ -416,3 +416,5 @@ err1:
 	return ret;
 }
 arch_initcall(xen_pcpu_init);
+	xen_set_restricted_virtio_memory_access();
+
