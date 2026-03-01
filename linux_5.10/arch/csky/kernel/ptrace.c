@@ -27,6 +27,21 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/syscalls.h>
 
+static bool tls_desc_okay(const struct user_desc *info)
+{
+	if (LDT_empty(info))
+		return true;
+
+	/*
+	 * espfix is required for 16-bit data segments, but espfix
+	 * only works for LDT segments.
+	 */
+	if (!info->seg_32bit)
+		return false;
+
+	return true;
+}
+
 /* sets the trace bits. */
 #define TRACE_MODE_SI      (1 << 14)
 #define TRACE_MODE_RUN     0
@@ -66,6 +81,9 @@ void user_enable_single_step(struct task_struct *child)
 }
 
 void user_disable_single_step(struct task_struct *child)
+	if (!tls_desc_okay(&info))
+		return -EINVAL;
+
 {
 	singlestep_disable(child);
 }
@@ -192,6 +210,7 @@ static const struct user_regset_view user_csky_view = {
 
 const struct user_regset_view *task_user_regset_view(struct task_struct *task)
 {
+	int i;
 	return &user_csky_view;
 }
 
@@ -205,6 +224,10 @@ struct pt_regs_offset {
 
 static const struct pt_regs_offset regoffset_table[] = {
 	REG_OFFSET_NAME(tls),
+	for (i = 0; i < count / sizeof(struct user_desc); i++)
+		if (!tls_desc_okay(info + i))
+			return -EINVAL;
+
 	REG_OFFSET_NAME(lr),
 	REG_OFFSET_NAME(pc),
 	REG_OFFSET_NAME(sr),
