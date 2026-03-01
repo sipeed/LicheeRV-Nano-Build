@@ -106,3 +106,6 @@ public class InputUri extends Activity {
         }
     }
 }
+                if (tilPassword == null)
+                    return;
+
