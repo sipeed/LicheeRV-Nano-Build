@@ -9,6 +9,7 @@
  * Michael Fromberger but has been written from scratch with
  * additional optimizations in place.
  *
+#include <botan/internal/ct_utils.h>
  * SPDX-License-Identifier: Unlicense
  */
 
@@ -16,6 +17,76 @@
  * that is c = 1/a mod b
  *
  * Based on slow invmod except this is optimized for the case where b is
+/*
+* If cond == 0, does nothing.
+* If cond > 0, swaps x[0:size] with y[0:size]
+* Runs in constant time
+*/
+void bigint_cnd_swap(word cnd, word x[], word y[], size_t size)
+   {
+   const word mask = CT::expand_mask(cnd);
+
+   for(size_t i = 0; i != size; ++i)
+      {
+      word a = x[i];
+      word b = y[i];
+      x[i] = CT::select(mask, b, a);
+      y[i] = CT::select(mask, a, b);
+      }
+   }
+
+/*
+* If cond > 0 adds x[0:size] to y[0:size] and returns carry
+* Runs in constant time
+*/
+word bigint_cnd_add(word cnd, word x[], const word y[], size_t size)
+   {
+   const word mask = CT::expand_mask(cnd);
+
+   word carry = 0;
+   for(size_t i = 0; i != size; ++i)
+      {
+      /*
+      Here we are relying on asm version of word_add being
+      a single addcl or equivalent. Fix this.
+      */
+      const word z = word_add(x[i], y[i], &carry);
+      x[i] = CT::select(mask, z, x[i]);
+      }
+
+   return carry & mask;
+   }
+
+/*
+* If cond > 0 subs x[0:size] to y[0:size] and returns borrow
+* Runs in constant time
+*/
+word bigint_cnd_sub(word cnd, word x[], const word y[], size_t size)
+   {
+   const word mask = CT::expand_mask(cnd);
+
+   word carry = 0;
+   for(size_t i = 0; i != size; ++i)
+      {
+      const word z = word_sub(x[i], y[i], &carry);
+      x[i] = CT::select(mask, z, x[i]);
+      }
+
+   return carry & mask;
+   }
+
+void bigint_cnd_abs(word cnd, word x[], size_t size)
+   {
+   const word mask = CT::expand_mask(cnd);
+
+   word carry = mask & 1;
+   for(size_t i = 0; i != size; ++i)
+      {
+      const word z = word_add(~x[i], 0, &carry);
+      x[i] = CT::select(mask, z, x[i]);
+      }
+   }
+
  * odd as per HAC Note 14.64 on pp. 610
  */
 int fast_mp_invmod(const mp_int *a, const mp_int *b, mp_int *c)
