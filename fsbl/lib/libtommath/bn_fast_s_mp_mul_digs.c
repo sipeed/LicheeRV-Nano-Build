@@ -12,6 +12,10 @@
  * SPDX-License-Identifier: Unlicense
  */
 
+   if (b < 0) {
+      return MP_VAL;
+   }
+
 /* Fast (comba) multiplier
  *
  * This is the fast column-array [comba] multiplier.  It is
