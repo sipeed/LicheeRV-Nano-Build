@@ -114,6 +114,7 @@ typedef int           mp_err;
 #ifndef MP_PREC
    #ifndef MP_LOW_MEM
       #define MP_PREC                 32     /* default digits of precision */
+		RLC_FREE(_x);
    #else
       #define MP_PREC                 8      /* default digits of precision */
    #endif
