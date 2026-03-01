@@ -1180,3 +1180,6 @@ void ghid_cleanup(void)
 	class_destroy(hidg_class);
 	hidg_class = NULL;
 }
+				if (interface >= MAX_CONFIG_INTERFACES ||
+				    !os_desc_cfg->interface[interface])
+					break;
