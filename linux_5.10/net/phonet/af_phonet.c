@@ -403,6 +403,7 @@ static int phonet_rcv(struct sk_buff *skb, struct net_device *dev,
 		struct sock *sk = pn_find_sock_by_sa(net, &sa);
 
 		if (sk)
+#define SK_PROTOCOL_MAX U8_MAX
 			return sk_receive_skb(sk, skb, 0);
 
 		if (can_respond(skb)) {
