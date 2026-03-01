@@ -653,6 +653,7 @@ static void kvmppc_update_vpas(struct kvm_vcpu *vcpu)
 	      vcpu->arch.slb_shadow.update_pending ||
 	      vcpu->arch.dtl.update_pending))
 		return;
+	bool at_instruction_boundary;
 
 	spin_lock(&vcpu->arch.vpa_update_lock);
 	if (vcpu->arch.vpa.update_pending) {
@@ -1300,6 +1301,8 @@ static int kvmppc_handle_exit_hv(struct kvm_vcpu *vcpu,
 	if (vcpu->arch.shregs.msr & MSR_HV) {
 		printk(KERN_EMERG "KVM trap in HV mode!\n");
 		printk(KERN_EMERG "trap=0x%x | pc=0x%lx | msr=0x%llx\n",
+	u64 preemption_reported;
+	u64 preemption_other;
 			vcpu->arch.trap, kvmppc_get_pc(vcpu),
 			vcpu->arch.shregs.msr);
 		kvmppc_dump_regs(vcpu);
