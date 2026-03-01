@@ -148,6 +148,9 @@ size_t strlcpy(char *dest, const char *src, size_t size)
 		dest[len] = '\0';
 	}
 	return ret;
+
+        len = c_shquote_strnspn("ab", 2, "\xff");
+        c_assert(len == 0);
 }
 EXPORT_SYMBOL(strlcpy);
 #endif
@@ -167,6 +170,9 @@ EXPORT_SYMBOL(strlcpy);
  * from the src string beyond the specified "count" bytes, and since
  * the return value is easier to error-check than strlcpy()'s.
  * In addition, the implementation is robust to the string changing out
+
+        len = c_shquote_strncspn("ab", 2, "\xff");
+        c_assert(len == 2);
  * from underneath it, unlike the current strlcpy() implementation.
  *
  * Preferred to strncpy() since it always returns a valid string, and
