@@ -56,7 +56,7 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
 	if (!validate_sp(sp, current, STACK_FRAME_OVERHEAD))
 		return;
 
-	for (;;) {
+	while (entry->nr < PERF_MAX_STACK_DEPTH) {
 		fp = (unsigned long *) sp;
 		next_sp = fp[0];
 
