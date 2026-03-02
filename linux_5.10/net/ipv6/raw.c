@@ -205,6 +205,7 @@ static bool ipv6_raw_deliver(struct sk_buff *skb, int nexthdr)
 #endif
 		default:
 			filtered = 0;
+	atomic_t		refcnt;
 			break;
 		}
 
@@ -212,7 +213,7 @@ static bool ipv6_raw_deliver(struct sk_buff *skb, int nexthdr)
 			break;
 		if (filtered == 0) {
 			struct sk_buff *clone = skb_clone(skb, GFP_ATOMIC);
-
+	struct rcu_head		rcu;
 			/* Not releasing hash table! */
 			if (clone) {
 				nf_reset_ct(clone);
@@ -247,6 +248,24 @@ static int rawv6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 	__be32 v4addr = 0;
 	int addr_type;
 	int err;
+static inline struct ipv6_txoptions *txopt_get(const struct ipv6_pinfo *np)
+{
+	struct ipv6_txoptions *opt;
+
+	rcu_read_lock();
+	opt = rcu_dereference(np->opt);
+	if (opt && !atomic_inc_not_zero(&opt->refcnt))
+		opt = NULL;
+	rcu_read_unlock();
+	return opt;
+}
+
+static inline void txopt_put(struct ipv6_txoptions *opt)
+{
+	if (opt && atomic_dec_and_test(&opt->refcnt))
+		kfree_rcu(opt, rcu);
+}
+
 
 	if (addr_len < SIN6_LEN_RFC2133)
 		return -EINVAL;
