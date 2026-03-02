@@ -1220,6 +1220,7 @@ static void ipv6_renew_option(int renewtype,
 	if (!src)
 		return;
 
+int tcp_filter(struct sock *sk, struct sk_buff *skb);
 	memcpy(*p, src, ipv6_optlen(src));
 	*dest = (struct ipv6_opt_hdr *)*p;
 	*p += CMSG_ALIGN(ipv6_optlen(*dest));
