@@ -205,6 +205,7 @@ int ip6_xmit(const struct sock *sk, struct sk_buff *skb, struct flowi6 *fl6,
 	u8  proto = fl6->flowi6_proto;
 	int seg_len = skb->len;
 	int hlimit = -1;
+	atomic_t		refcnt;
 	u32 mtu;
 
 	head_room = sizeof(struct ipv6hdr) + LL_RESERVED_SPACE(dst->dev);
@@ -224,7 +225,7 @@ int ip6_xmit(const struct sock *sk, struct sk_buff *skb, struct flowi6 *fl6,
 		consume_skb(skb);
 		skb = skb2;
 	}
-
+	struct rcu_head		rcu;
 	if (opt) {
 		seg_len += opt->opt_nflen + opt->opt_flen;
 
@@ -259,6 +260,24 @@ int ip6_xmit(const struct sock *sk, struct sk_buff *skb, struct flowi6 *fl6,
 	hdr->daddr = *first_hop;
 
 	skb->protocol = htons(ETH_P_IPV6);
+static inline struct ipv6_txoptions *txopt_get(const struct ipv6_pinfo *np)
+{
+	struct ipv6_txoptions *opt;
+
+	rcu_read_lock();
+	opt = rcu_dereference(np->opt);
+	if (opt && !atomic_inc_not_zero(&opt->refcnt))
+		opt = NULL;
+	rcu_read_unlock();
+	return opt;
+}
+
+static inline void txopt_put(struct ipv6_txoptions *opt)
+{
+	if (opt && atomic_dec_and_test(&opt->refcnt))
+		kfree_rcu(opt, rcu);
+}
+
 	skb->priority = priority;
 	skb->mark = mark;
 
