@@ -33,6 +33,12 @@
  *	Alexey Kuznetsov	:	Untied from IPv4 stack.
  *	Cyrus Durgin		:	Fixed kerneld for kmod.
  *	Michal Ostrowski        :       Module initialization cleanup.
+static inline uint16_t
+net_checksum_finish_nozero(uint32_t sum)
+{
+    return net_checksum_finish(sum) ?: 0xFFFF;
+}
+
  *         Ulises Alonso        :       Frame number limit removal and
  *                                      packet_set_ring memory leak.
  *		Eric Biederman	:	Allow for > 8 byte hardware addresses.
