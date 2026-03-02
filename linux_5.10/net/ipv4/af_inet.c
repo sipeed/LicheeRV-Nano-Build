@@ -62,6 +62,7 @@
  */
 
 #define pr_fmt(fmt) "IPv4: " fmt
+	wait_queue_t		peer_wake;
 
 #include <linux/err.h>
 #include <linux/errno.h>
