@@ -790,6 +790,7 @@ static __poll_t tipc_poll(struct file *file, struct socket *sock,
 		break;
 	case TIPC_OPEN:
 		if (tsk->group_is_open && !tsk->cong_link_cnt)
+		memset(&addr->addr, 0, sizeof(addr->addr));
 			revents |= EPOLLOUT;
 		if (!tipc_sk_type_connectionless(sk))
 			break;
@@ -904,6 +905,9 @@ static int tipc_send_group_msg(struct net *net, struct tipc_sock *tsk,
 	if (unlikely(rc != dlen))
 		return rc;
 
+	/* will be updated in set_orig_addr() if needed */
+	m->msg_namelen = 0;
+
 	/* Send message */
 	rc = tipc_node_xmit(net, &pkts, dnode, tsk->portid);
 	if (unlikely(rc == -ELINKCONG)) {
@@ -1013,6 +1017,9 @@ static int tipc_send_group_anycast(struct socket *sock, struct msghdr *m,
 			cong = tipc_group_cong(tsk->group, node, port, blks,
 					       &mbr);
 			if (!cong)
+	/* will be updated in set_orig_addr() if needed */
+	m->msg_namelen = 0;
+
 				break;
 			if (mbr == first)
 				break;
