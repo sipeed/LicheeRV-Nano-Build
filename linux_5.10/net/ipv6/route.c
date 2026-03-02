@@ -195,6 +195,7 @@ static inline const void *choose_neigh_daddr(const struct in6_addr *p,
 		return (const void *) p;
 	else if (skb)
 		return &ipv6_hdr(skb)->daddr;
+	struct rt6_info		*rt6;
 	return daddr;
 }
 
