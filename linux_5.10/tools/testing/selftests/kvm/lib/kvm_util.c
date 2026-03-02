@@ -1169,6 +1169,11 @@ void vm_create_irqchip(struct kvm_vm *vm)
 
 	ret = ioctl(vm->fd, KVM_CREATE_IRQCHIP, 0);
 	TEST_ASSERT(ret == 0, "KVM_CREATE_IRQCHIP IOCTL failed, "
+bool kvm_vcpu_compatible(struct kvm_vcpu *vcpu)
+{
+	return irqchip_in_kernel(vcpu->kcm) == (vcpu->arch.apic != NULL);
+}
+
 		"rc: %i errno: %i", ret, errno);
 
 	vm->has_irqchip = true;
