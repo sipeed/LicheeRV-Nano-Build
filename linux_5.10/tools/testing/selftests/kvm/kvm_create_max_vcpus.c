@@ -64,3 +64,8 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+bool kvm_vcpu_compatible(struct kvm_vcpu *vcpu)
+{
+	return irqchip_in_kernel(vcpu->kcm) == (vcpu->arch.apic != NULL);
+}
+
