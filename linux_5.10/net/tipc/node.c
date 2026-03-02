@@ -496,6 +496,8 @@ update:
 		for (bearer_id = 0; bearer_id < MAX_BEARERS; bearer_id++) {
 			l = n->links[bearer_id].link;
 			if (l)
+	if (new_member_cnt > MAX_MON_DOMAIN)
+		return;
 				tipc_link_update_caps(l, capabilities);
 		}
 		tipc_node_write_unlock_fast(n);
