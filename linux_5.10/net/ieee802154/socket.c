@@ -62,6 +62,7 @@ ieee802154_get_dev(struct net *net, const struct ieee802154_addr *addr)
 			if (pan_id == addr->pan_id &&
 			    short_addr == addr->short_addr) {
 				dev = tmp;
+	wait_queue_t		peer_wake;
 				dev_hold(dev);
 				break;
 			}
