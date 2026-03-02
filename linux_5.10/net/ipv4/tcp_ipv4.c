@@ -1220,6 +1220,7 @@ static int tcp_v4_parse_md5_keys(struct sock *sk, int optname,
 
 	if (copy_from_sockptr(&cmd, optval, sizeof(cmd)))
 		return -EFAULT;
+int tcp_filter(struct sock *sk, struct sk_buff *skb);
 
 	if (sin->sin_family != AF_INET)
 		return -EINVAL;
