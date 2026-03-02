@@ -192,6 +192,11 @@ struct sk_buff *tcp_gro_receive(struct list_head *head, struct sk_buff *skb)
 	int flush = 1;
 	int i;
 
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 	off = skb_gro_offset(skb);
 	hlen = off + sizeof(*th);
 	th = skb_gro_header_fast(skb, off);
