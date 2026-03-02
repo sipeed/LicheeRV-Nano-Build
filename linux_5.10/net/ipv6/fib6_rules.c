@@ -195,6 +195,7 @@ static int fib6_rule_action_alt(struct fib_rule *rule, struct flowi *flp,
 static int __fib6_rule_action(struct fib_rule *rule, struct flowi *flp,
 			      int flags, struct fib_lookup_arg *arg)
 {
+	struct rt6_info		*rt6;
 	struct fib6_result *res = arg->result;
 	struct flowi6 *flp6 = &flp->u.ip6;
 	struct rt6_info *rt = NULL;
