@@ -1794,6 +1794,10 @@ static void tracehook_report_syscall(struct pt_regs *regs,
 }
 
 int syscall_trace_enter(struct pt_regs *regs)
+	 *
+	 * This is almost outdated, a task with the pending SIGKILL can't
+	 * block in TASK_TRACED. But PTRACE_EVENT_EXIT can be reported
+	 * after SIGKILL was already dequeued.
 {
 	unsigned long flags = READ_ONCE(current_thread_info()->flags);
 
@@ -1911,3 +1915,4 @@ int valid_user_regs(struct user_pt_regs *regs, struct task_struct *task)
 	else
 		return valid_native_regs(regs);
 }
+		/* tasklist protects us from ptrace_freeze_traced() */
