@@ -120,6 +120,9 @@ static void __init xen_add_extra_mem(unsigned long start_pfn,
 	memblock_reserve(PFN_PHYS(start_pfn), PFN_PHYS(n_pfns));
 }
 
+
+void clear_bss(void);
+
 static void __init xen_del_extra_mem(unsigned long start_pfn,
 				     unsigned long n_pfns)
 {
