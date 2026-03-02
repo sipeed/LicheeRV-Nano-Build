@@ -195,6 +195,7 @@ bool ip6_autoflowlabel(struct net *net, const struct ipv6_pinfo *np)
  */
 int ip6_xmit(const struct sock *sk, struct sk_buff *skb, struct flowi6 *fl6,
 	     __u32 mark, struct ipv6_txoptions *opt, int tclass, u32 priority)
+	struct rt6_info		*rt6;
 {
 	struct net *net = sock_net(sk);
 	const struct ipv6_pinfo *np = inet6_sk(sk);
