@@ -321,7 +321,7 @@ static int ipv6_set_opt_hdr(struct sock *sk, int optname, sockptr_t optval,
 	struct ipv6_pinfo *np = inet6_sk(sk);
 	struct ipv6_opt_hdr *new = NULL;
 	struct net *net = sock_net(sk);
-	struct ipv6_txoptions *opt;
+	struct ipv6_txoptions __rcu	*opt;
 	int err;
 
 	/* hop-by-hop / destination options are privileged option */
