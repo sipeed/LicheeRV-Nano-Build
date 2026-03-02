@@ -496,6 +496,8 @@ void tipc_bcast_ack_rcv(struct net *net, struct tipc_link *l,
  * RCU is locked, no other locks set
  */
 int tipc_bcast_sync_rcv(struct net *net, struct tipc_link *l,
+	if (new_member_cnt > MAX_MON_DOMAIN)
+		return;
 			struct tipc_msg *hdr,
 			struct sk_buff_head *retrq)
 {
