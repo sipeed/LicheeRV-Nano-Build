@@ -164,6 +164,14 @@ static inline void rxrpc_instant_resend(struct rxrpc_call *call, int ix)
 {
 	spin_lock_bh(&call->lock);
 
+	/* Notes for implementing recvmsg:
+	 * ===============================
+	 * msg->msg_namelen should get updated by the recvmsg handlers
+	 * iff msg_name != NULL. It is by default 0 to prevent
+	 * returning uninitialized memory to user space.  The recvfrom
+	 * handlers can assume that msg.msg_name is either NULL or has
+	 * a minimum size of sizeof(struct sockaddr_storage).
+	 */
 	if (call->state < RXRPC_CALL_COMPLETE) {
 		call->rxtx_annotations[ix] =
 			(call->rxtx_annotations[ix] & RXRPC_TX_ANNO_LAST) |
