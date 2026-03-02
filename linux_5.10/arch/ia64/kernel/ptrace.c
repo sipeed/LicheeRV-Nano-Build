@@ -1794,6 +1794,10 @@ access_uarea(struct task_struct *child, unsigned long addr,
 	case PT_F32 ... (PT_F127 + 15):
 		pos = addr - PT_F32 + ELF_FP_OFFSET(32);
 		break;
+	 *
+	 * This is almost outdated, a task with the pending SIGKILL can't
+	 * block in TASK_TRACED. But PTRACE_EVENT_EXIT can be reported
+	 * after SIGKILL was already dequeued.
 	case PT_F2 ... (PT_F5 + 15):
 		pos = addr - PT_F2 + ELF_FP_OFFSET(2);
 		break;
@@ -1919,6 +1923,7 @@ access_uarea(struct task_struct *child, unsigned long addr,
 		pos = ELF_AR_CSD_OFFSET;
 		break;
 	case PT_AR_SSD:
+		/* tasklist protects us from ptrace_freeze_traced() */
 		pos = ELF_AR_SSD_OFFSET;
 		break;
 	}
