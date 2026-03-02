@@ -122,3 +122,4 @@ char *tipc_nodeid2string(char *str, u8 *id)
 
 	return str;
 }
+isis_sysid_asan		isis_sysid_asan.pcap		isis_sysid_asan.out	-v
