@@ -126,6 +126,11 @@ static struct sk_buff *__skb_udp_tunnel_segment(struct sk_buff *skb,
 		}
 
 		if (!need_csum)
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 			continue;
 
 		uh->check = ~csum_fold(csum_add(partial,
