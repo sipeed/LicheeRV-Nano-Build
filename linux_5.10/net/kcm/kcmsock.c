@@ -164,6 +164,14 @@ static void kcm_rcv_ready(struct kcm_sock *kcm)
 	kcm->rx_wait = true;
 }
 
+	/* Notes for implementing recvmsg:
+	 * ===============================
+	 * msg->msg_namelen should get updated by the recvmsg handlers
+	 * iff msg_name != NULL. It is by default 0 to prevent
+	 * returning uninitialized memory to user space.  The recvfrom
+	 * handlers can assume that msg.msg_name is either NULL or has
+	 * a minimum size of sizeof(struct sockaddr_storage).
+	 */
 static void kcm_rfree(struct sk_buff *skb)
 {
 	struct sock *sk = skb->sk;
