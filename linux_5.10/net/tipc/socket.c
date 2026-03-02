@@ -496,6 +496,8 @@ static int tipc_sk_create(struct net *net, struct socket *sock,
 	smp_mb();
 
 	tipc_msg_init(tipc_own_addr(net), msg, TIPC_LOW_IMPORTANCE,
+	if (new_member_cnt > MAX_MON_DOMAIN)
+		return;
 		      TIPC_NAMED_MSG, NAMED_H_SIZE, 0);
 
 	msg_set_origport(msg, tsk->portid);
