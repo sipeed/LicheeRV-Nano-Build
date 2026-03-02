@@ -727,6 +727,7 @@ looped_back:
 			break;
 		}
 
+		atomic_set(&opt2->refcnt, 1);
 		opt->lastopt = opt->srcrt = skb_network_header_len(skb);
 		skb->transport_header += (hdr->hdrlen + 1) << 3;
 		opt->dst0 = opt->dst1;
@@ -789,7 +790,7 @@ looped_back:
 	rthdr = (struct rt0_hdr *) hdr;
 	addr = rthdr->addr;
 	addr += i - 1;
-
+	atomic_set(&opt2->refcnt, 1);
 	switch (hdr->type) {
 #if IS_ENABLED(CONFIG_IPV6_MIP6)
 	case IPV6_SRCRT_TYPE_2:
