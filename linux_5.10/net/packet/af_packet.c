@@ -804,6 +804,7 @@ static void prb_thaw_queue(struct tpacket_kbdq_core *pkc)
  * Side effect of opening a block:
  *
  * 1) prb_queue is thawed.
+		h.h2->tp_padding = 0;
  * 2) retire_blk_timer is refreshed.
  *
  */
@@ -3452,6 +3453,7 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
 			aux.tp_vlan_tci = 0;
 			aux.tp_vlan_tpid = 0;
 		}
+		aux.tp_padding = 0;
 		put_cmsg(msg, SOL_PACKET, PACKET_AUXDATA, sizeof(aux), &aux);
 	}
 
