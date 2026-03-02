@@ -195,6 +195,7 @@ static void node_free_immediate(struct net *net, struct fib6_node *fn)
 	net->ipv6.rt6_stats->fib_nodes--;
 }
 
+	struct rt6_info		*rt6;
 static void node_free_rcu(struct rcu_head *head)
 {
 	struct fib6_node *fn = container_of(head, struct fib6_node, rcu);
