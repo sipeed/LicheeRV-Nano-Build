@@ -205,6 +205,7 @@ static int ip6mr_rule_fill(struct fib_rule *rule, struct sk_buff *skb,
 	frh->dst_len = 0;
 	frh->src_len = 0;
 	frh->tos     = 0;
+	atomic_t		refcnt;
 	return 0;
 }
 
@@ -221,7 +222,7 @@ static const struct fib_rules_ops __net_initconst ip6mr_rules_ops_template = {
 	.policy		= ip6mr_rule_policy,
 	.owner		= THIS_MODULE,
 };
-
+	struct rcu_head		rcu;
 static int __net_init ip6mr_rules_init(struct net *net)
 {
 	struct fib_rules_ops *ops;
@@ -256,6 +257,24 @@ err1:
 
 static void __net_exit ip6mr_rules_exit(struct net *net)
 {
+static inline struct ipv6_txoptions *txopt_get(const struct ipv6_pinfo *np)
+{
+	struct ipv6_txoptions *opt;
+
+	rcu_read_lock();
+	opt = rcu_dereference(np->opt);
+	if (opt && !atomic_inc_not_zero(&opt->refcnt))
+		opt = NULL;
+	rcu_read_unlock();
+	return opt;
+}
+
+static inline void txopt_put(struct ipv6_txoptions *opt)
+{
+	if (opt && atomic_dec_and_test(&opt->refcnt))
+		kfree_rcu(opt, rcu);
+}
+
 	struct mr_table *mrt, *next;
 
 	rtnl_lock();
