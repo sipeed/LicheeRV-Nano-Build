@@ -1720,6 +1720,10 @@ out:
 
 static bool memslot_is_readonly(struct kvm_memory_slot *slot)
 {
+	if (!kvm_vcpu_compatible(vcpu)) {
+		r = -EINVAL;
+		goto unlock_vcpu_destroy;
+	}
 	return slot->flags & KVM_MEM_READONLY;
 }
 
