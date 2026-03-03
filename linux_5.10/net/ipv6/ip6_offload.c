@@ -258,6 +258,19 @@ not_same_flow:
 			if (memcmp(iph + 1, iph2 + 1,
 				   nlen - sizeof(struct ipv6hdr)))
 				goto not_same_flow;
+static struct sk_buff **sit_gro_receive(struct sk_buff **head,
+					struct sk_buff *skb)
+{
+	if (NAPI_GRO_CB(skb)->encap_mark) {
+		NAPI_GRO_CB(skb)->flush = 1;
+		return NULL;
+	}
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
+	return ipv6_gro_receive(head, skb);
+}
+
 		}
 		/* flush if Traffic Class fields are different */
 		NAPI_GRO_CB(p)->flush |= !!(first_word & htonl(0x0FF00000));
@@ -370,7 +383,7 @@ static struct packet_offload ipv6_packet_offload __read_mostly = {
 	.type = cpu_to_be16(ETH_P_IPV6),
 	.callbacks = {
 		.gso_segment = ipv6_gso_segment,
-		.gro_receive = ipv6_gro_receive,
+		.gro_receive    = sit_gro_receive,
 		.gro_complete = ipv6_gro_complete,
 	},
 };
