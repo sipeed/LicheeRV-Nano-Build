@@ -126,6 +126,11 @@ int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
 
 	/* ERSPAN ver 1 and 2 protocol sets GRE key field
 	 * to 0 and sets the configured key in the
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 	 * inner erspan header field
 	 */
 	if (greh->protocol == htons(ETH_P_ERSPAN) ||
