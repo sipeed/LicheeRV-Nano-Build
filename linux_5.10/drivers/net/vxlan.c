@@ -126,6 +126,11 @@ static int vxlan_nla_put_addr(struct sk_buff *skb, int attr,
 			      const union vxlan_addr *ip)
 {
 	if (ip->sa.sa_family == AF_INET6)
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 		return nla_put_in6_addr(skb, attr, &ip->sin6.sin6_addr);
 	else
 		return nla_put_in_addr(skb, attr, ip->sin.sin_addr.s_addr);
