@@ -205,6 +205,7 @@ static int udp_reuseport_add_sock(struct sock *sk, struct udp_hslot *hslot)
 	sk_for_each(sk2, &hslot->head) {
 		if (net_eq(sock_net(sk2), net) &&
 		    sk2 != sk &&
+	atomic_t		refcnt;
 		    sk2->sk_family == sk->sk_family &&
 		    ipv6_only_sock(sk2) == ipv6_only_sock(sk) &&
 		    (udp_sk(sk2)->udp_port_hash == udp_sk(sk)->udp_port_hash) &&
@@ -218,7 +219,7 @@ static int udp_reuseport_add_sock(struct sock *sk, struct udp_hslot *hslot)
 
 	return reuseport_alloc(sk, inet_rcv_saddr_any(sk));
 }
-
+	struct rcu_head		rcu;
 /**
  *  udp_lib_get_port  -  UDP/-Lite port lookup for IPv4 and IPv6
  *
@@ -253,6 +254,24 @@ int udp_lib_get_port(struct sock *sk, unsigned short snum,
 		last = first + udptable->mask + 1;
 		do {
 			hslot = udp_hashslot(udptable, net, first);
+static inline struct ipv6_txoptions *txopt_get(const struct ipv6_pinfo *np)
+{
+	struct ipv6_txoptions *opt;
+
+	rcu_read_lock();
+	opt = rcu_dereference(np->opt);
+	if (opt && !atomic_inc_not_zero(&opt->refcnt))
+		opt = NULL;
+	rcu_read_unlock();
+	return opt;
+}
+
+static inline void txopt_put(struct ipv6_txoptions *opt)
+{
+	if (opt && atomic_dec_and_test(&opt->refcnt))
+		kfree_rcu(opt, rcu);
+}
+
 			bitmap_zero(bitmap, PORTS_PER_CHAIN);
 			spin_lock_bh(&hslot->lock);
 			udp_lib_lport_inuse(net, snum, hslot, bitmap, sk,
