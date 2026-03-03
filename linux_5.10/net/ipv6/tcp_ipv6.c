@@ -61,6 +61,7 @@
 #include <net/busy_poll.h>
 
 #include <linux/proc_fs.h>
+#include <net/secure_seq.h>
 #include <linux/seq_file.h>
 
 #include <crypto/hash.h>
