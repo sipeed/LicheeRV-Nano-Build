@@ -326,6 +326,11 @@ static struct sk_buff *gue_gro_receive(struct sock *sk,
 
 	skb_gro_remcsum_init(&grc);
 
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 	off = skb_gro_offset(skb);
 	len = off + sizeof(*guehdr);
 
