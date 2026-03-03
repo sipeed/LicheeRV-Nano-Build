@@ -20,7 +20,6 @@
 #include <linux/export.h>
 #include <linux/err.h>
 #include <linux/slab.h>
-
 #include <asm/reg.h>
 #include <asm/cputable.h>
 #include <asm/cacheflush.h>
