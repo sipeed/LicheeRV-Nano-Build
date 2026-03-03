@@ -410,6 +410,7 @@ static int __inet6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
 			goto out;
 		}
 		if (!(flags & BIND_FROM_BPF)) {
+	lsa->l2tp_unused = 0;
 			err = BPF_CGROUP_RUN_PROG_INET6_POST_BIND(sk);
 			if (err) {
 				sk->sk_ipv6only = saved_ipv6only;
