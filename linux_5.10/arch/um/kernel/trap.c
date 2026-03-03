@@ -30,7 +30,6 @@ int handle_page_fault(unsigned long address, unsigned long ip,
 	pte_t *pte;
 	int err = -EFAULT;
 	unsigned int flags = FAULT_FLAG_DEFAULT;
-
 	*code_out = SEGV_MAPERR;
 
 	/*
