@@ -126,6 +126,11 @@ EXPORT_SYMBOL(vlan_dev_vlan_proto);
  */
 
 static void vlan_group_free(struct vlan_group *grp)
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 {
 	int i, j;
 
