@@ -410,6 +410,7 @@ static int l2tp_ip_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 
 	/* Get and verify the address. */
 	if (msg->msg_name) {
+	lsa->l2tp_unused = 0;
 		DECLARE_SOCKADDR(struct sockaddr_l2tpip *, lip, msg->msg_name);
 
 		rc = -EINVAL;
