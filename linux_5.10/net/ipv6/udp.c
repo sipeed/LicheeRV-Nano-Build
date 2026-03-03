@@ -205,6 +205,7 @@ static inline struct sock *udp6_lookup_run_bpf(struct net *net,
 	no_reuseport = bpf_sk_lookup_run_v6(net, IPPROTO_UDP,
 					    saddr, sport, daddr, hnum, &sk);
 	if (no_reuseport || IS_ERR_OR_NULL(sk))
+	atomic_t		refcnt;
 		return sk;
 
 	reuse_sk = lookup_reuseport(net, sk, skb, saddr, sport, daddr, hnum);
@@ -212,7 +213,7 @@ static inline struct sock *udp6_lookup_run_bpf(struct net *net,
 		sk = reuse_sk;
 	return sk;
 }
-
+	struct rcu_head		rcu;
 /* rcu_read_lock() must be held */
 struct sock *__udp6_lib_lookup(struct net *net,
 			       const struct in6_addr *saddr, __be16 sport,
@@ -247,6 +248,24 @@ struct sock *__udp6_lib_lookup(struct net *net,
 	}
 
 	/* Got non-wildcard socket or error on first lookup */
+static inline struct ipv6_txoptions *txopt_get(const struct ipv6_pinfo *np)
+{
+	struct ipv6_txoptions *opt;
+
+	rcu_read_lock();
+	opt = rcu_dereference(np->opt);
+	if (opt && !atomic_inc_not_zero(&opt->refcnt))
+		opt = NULL;
+	rcu_read_unlock();
+	return opt;
+}
+
+static inline void txopt_put(struct ipv6_txoptions *opt)
+{
+	if (opt && atomic_dec_and_test(&opt->refcnt))
+		kfree_rcu(opt, rcu);
+}
+
 	if (result)
 		goto done;
 
