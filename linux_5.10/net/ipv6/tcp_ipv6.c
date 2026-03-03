@@ -151,7 +151,7 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
 	struct ipv6_pinfo *np = tcp_inet6_sk(sk);
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct in6_addr *saddr = NULL, *final_p, final;
-	struct ipv6_txoptions *opt;
+	struct ipv6_txoptions __rcu	*opt;
 	struct flowi6 fl6;
 	struct dst_entry *dst;
 	int addr_type;
