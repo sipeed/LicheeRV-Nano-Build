@@ -126,6 +126,11 @@ static sa_family_t geneve_get_sk_family(struct geneve_sock *gs)
 }
 
 static struct geneve_dev *geneve_lookup(struct geneve_sock *gs,
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 					__be32 addr, u8 vni[])
 {
 	struct hlist_head *vni_list_head;
