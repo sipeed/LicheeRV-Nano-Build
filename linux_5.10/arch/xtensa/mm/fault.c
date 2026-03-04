@@ -31,7 +31,6 @@ void bad_page_fault(struct pt_regs*, unsigned long, int);
  *
  * Note: does not handle Miss and MultiHit.
  */
-
 void do_page_fault(struct pt_regs *regs)
 {
 	struct vm_area_struct * vma;
