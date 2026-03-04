@@ -27,7 +27,6 @@
 #define bits23_25set(x)		(x & 0x000001c0)
 #define isGraphicsFlushRead(x)	((x & 0xfc003fdf) == 0x04001a80)
 				/* extended opcode is 0x6a */
-
 #define BITSSET		0x1c0	/* for identifying LDCW */
 
 
