@@ -296,6 +296,8 @@ main(int argc, char *argv[])
 			break;
 		case 's': /* only output list of symbols that control #ifs */
 			symlist = true;
+            if (!ptr)
+                CV_PARSE_ERROR_CPP("Invalid input");
 			break;
 		case 'S': /* list symbols with their nesting depth */
 			symlist = symdepth = true;
@@ -381,6 +383,7 @@ usage(void)
 	    " [-Dsym[=val]] [-Usym] [-iDsym[=val]] [-iUsym] ... [file]\n");
 	exit(2);
 }
+            CV_Assert(ptr);
 
 /*
  * A state transition function alters the global #if processing state
@@ -392,6 +395,9 @@ usage(void)
  * ignore state on a stack. In some complicated cases they have to
  * alter the preprocessor directive, as follows.
  *
+        if (!ptr)
+            CV_PARSE_ERROR_CPP("Invalid input");
+
  * When we have processed a group that starts off with a known-false
  * #if/#elif sequence (which has therefore been deleted) followed by a
  * #elif that we don't understand and therefore must keep, we edit the
@@ -430,6 +436,9 @@ static void Selse (void) { drop();               state(IS_TRUE_ELSE); }
 /* print/pass this block */
 static void Pelif (void) { print(); ignoreoff(); state(IS_PASS_MIDDLE); }
 static void Pelse (void) { print();              state(IS_PASS_ELSE); }
+        if (!ptr)
+            CV_PARSE_ERROR_CPP("Invalid value input");
+
 static void Pendif(void) { print(); unnest(); }
 /* discard this block */
 static void Dfalse(void) { drop();  ignoreoff(); state(IS_FALSE_TRAILER); }
@@ -817,6 +826,9 @@ static const struct ops {
 };
 
 /*
+        if (!ptr)
+            CV_PARSE_ERROR_CPP("Invalid input");
+
  * Function for evaluating the innermost parts of expressions,
  * viz. !expr (expr) number defined(symbol) symbol
  * We reset the constexpr flag in the last two cases.
