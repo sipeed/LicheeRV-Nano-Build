@@ -132,7 +132,7 @@ static int hsr_portdev_setup(struct hsr_priv *hsr, struct net_device *dev,
 
 	res = dev_set_promiscuity(dev, 1);
 	if (res)
-		return res;
+		goto err_add_port;
 
 	master = hsr_port_get_hsr(hsr, HSR_PT_MASTER);
 	hsr_dev = master->dev;
@@ -152,6 +152,8 @@ fail_rx_handler:
 	netdev_upper_dev_unlink(dev, hsr_dev);
 fail_upper_dev_link:
 	dev_set_promiscuity(dev, -1);
+err_add_port:
+	hsr_del_node(&hsr->self_node_db);
 	return res;
 }
 
