@@ -478,6 +478,20 @@ struct sta_info *rtw_get_bcmc_stainfo(struct adapter *padapter)
 
 bool rtw_access_ctrl(struct adapter *padapter, u8 *mac_addr)
 {
+
+		/* sync with ieee80211_sta_ps_deliver_wakeup */
+		spin_lock(&sta->ps_lock);
+		/*
+		 * STA woke up the meantime and all the frames on ps_tx_buf have
+		 * been queued to pending queue. No reordering can happen, go
+		 * ahead and Tx the packet.
+		 */
+		if (!test_sta_flag(sta, WLAN_STA_PS_STA) &&
+		    !test_sta_flag(sta, WLAN_STA_PS_DRIVER)) {
+			spin_unlock(&sta->ps_lock);
+			return TX_CONTINUE;
+		}
+
 	bool res = true;
 #ifdef CONFIG_88EU_AP_MODE
 	struct list_head *plist, *phead;
@@ -492,6 +506,7 @@ bool rtw_access_ctrl(struct adapter *padapter, u8 *mac_addr)
 	plist = phead->next;
 	while (phead != plist) {
 		paclnode = container_of(plist, struct rtw_wlan_acl_node, list);
+		spin_unlock(&sta->ps_lock);
 		plist = plist->next;
 
 		if (!memcmp(paclnode->addr, mac_addr, ETH_ALEN)) {
