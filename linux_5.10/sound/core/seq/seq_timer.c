@@ -496,3 +496,4 @@ unlock:
 }
 #endif /* CONFIG_SND_PROC_FS */
 
+		memset(&r1, 0, sizeof(r1));
