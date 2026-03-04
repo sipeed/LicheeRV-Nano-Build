@@ -116,6 +116,8 @@ static int snd_ctl_release(struct inode *inode, struct file *file)
 	list_del(&ctl->list);
 	write_unlock_irqrestore(&card->ctl_files_rwlock, flags);
 	down_write(&card->controls_rwsem);
+	struct mutex user_ctl_lock;	/* protects user controls against
+					   concurrent access */
 	list_for_each_entry(control, &card->controls, list)
 		for (idx = 0; idx < control->count; idx++)
 			if (control->vd[idx].owner == ctl)
