@@ -401,6 +401,7 @@ int pcxhr_set_clock(struct pcxhr_mgr *mgr, unsigned int rate)
 		else
 			rmh.cmd[1] = PCXHR_IRQ_TIMER_PERIOD * 2;
 		rmh.cmd[2] = rate;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 		rmh.cmd_len = 3;
 		err = pcxhr_send_msg(mgr, &rmh);
 		if (err)
