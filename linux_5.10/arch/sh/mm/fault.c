@@ -29,7 +29,6 @@ force_sig_info_fault(int si_signo, int si_code, unsigned long address)
 {
 	force_sig_fault(si_signo, si_code, (void __user *)address);
 }
-
 /*
  * This is useful to dump out the page tables associated with
  * 'addr' in mm 'mm'.
