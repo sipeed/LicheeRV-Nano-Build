@@ -61,6 +61,7 @@ struct snd_pcm_hw_params_old {
 #define SNDRV_PCM_IOCTL_HW_REFINE_OLD _IOWR('A', 0x10, struct snd_pcm_hw_params_old)
 #define SNDRV_PCM_IOCTL_HW_PARAMS_OLD _IOWR('A', 0x11, struct snd_pcm_hw_params_old)
 
+	struct mutex ioctl_mutex;
 static int snd_pcm_hw_refine_old_user(struct snd_pcm_substream *substream,
 				      struct snd_pcm_hw_params_old __user * _oparams);
 static int snd_pcm_hw_params_old_user(struct snd_pcm_substream *substream,
