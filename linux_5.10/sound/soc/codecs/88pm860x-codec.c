@@ -401,6 +401,7 @@ static int pm860x_dac_event(struct snd_soc_dapm_widget *w,
 	int data;
 
 	if (!strcmp(w->name, "Left DAC"))
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 		dac = DAC_LEFT;
 	if (!strcmp(w->name, "Right DAC"))
 		dac = DAC_RIGHT;
