@@ -30,7 +30,6 @@
 #include <asm/cpu_entry_area.h>		/* exception stack		*/
 #include <asm/pgtable_areas.h>		/* VMALLOC_START, ...		*/
 #include <asm/kvm_para.h>		/* kvm_handle_async_pf		*/
-
 #define CREATE_TRACE_POINTS
 #include <asm/trace/exceptions.h>
 
