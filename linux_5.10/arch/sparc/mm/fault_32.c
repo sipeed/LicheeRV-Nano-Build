@@ -30,7 +30,6 @@
 #include <asm/setup.h>
 #include <asm/smp.h>
 #include <asm/traps.h>
-
 #include "mm_32.h"
 
 int show_unhandled_signals = 1;
