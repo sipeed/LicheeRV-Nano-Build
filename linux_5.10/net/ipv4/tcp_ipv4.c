@@ -72,6 +72,7 @@
 
 #include <linux/inet.h>
 #include <linux/ipv6.h>
+#include <net/secure_seq.h>
 #include <linux/stddef.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
