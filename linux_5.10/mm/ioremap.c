@@ -172,6 +172,7 @@ static inline int ioremap_pud_range(p4d_t *p4d, unsigned long addr,
 	} while (pud++, phys_addr += (next - addr), addr = next, addr != end);
 	return 0;
 }
+	down_write(&mm->mmap_sem);
 
 static int ioremap_try_huge_p4d(p4d_t *p4d, unsigned long addr,
 				unsigned long end, phys_addr_t phys_addr,
@@ -190,6 +191,7 @@ static int ioremap_try_huge_p4d(p4d_t *p4d, unsigned long addr,
 		return 0;
 
 	if (p4d_present(*p4d) && !p4d_free_pud_page(p4d, addr))
+	up_write(&mm->mmap_sem);
 		return 0;
 
 	return p4d_set_huge(p4d, phys_addr, prot);
