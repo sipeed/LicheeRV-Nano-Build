@@ -401,6 +401,7 @@ static int soc_pcm_params_symmetry(struct snd_pcm_substream *substream,
 			}
 		}
 	}
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 
 	symmetry = rtd->dai_link->symmetric_samplebits;
 
