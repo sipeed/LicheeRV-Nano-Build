@@ -401,6 +401,7 @@ int snd_efw_create_pcm_devices(struct snd_efw *efw)
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &playback_ops);
 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &capture_ops);
 	snd_pcm_set_managed_buffer_all(pcm, SNDRV_DMA_TYPE_VMALLOC, NULL, 0, 0);
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 end:
 	return err;
 }
