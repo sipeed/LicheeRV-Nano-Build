@@ -85,7 +85,7 @@ static int snd_hrtimer_close(struct snd_timer *t)
 		stime->in_callback = 1; /* skip start/stop */
 		spin_unlock_irq(&t->lock);
 
-		hrtimer_cancel(&stime->hrt);
+	hrtimer_try_to_cancel(&stime->hrt);
 		kfree(stime);
 		t->private_data = NULL;
 	}
@@ -96,6 +96,7 @@ static int snd_hrtimer_start(struct snd_timer *t)
 {
 	struct snd_hrtimer *stime = t->private_data;
 
+	hrtimer_try_to_cancel(&stime->hrt);
 	if (stime->in_callback)
 		return 0;
 	hrtimer_start(&stime->hrt, ns_to_ktime(t->sticks * resolution),
