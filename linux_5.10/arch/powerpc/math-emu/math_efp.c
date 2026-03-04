@@ -27,7 +27,6 @@
 #include <math-emu/soft-fp.h>
 #include <math-emu/single.h>
 #include <math-emu/double.h>
-
 #define EFAPU		0x4
 
 #define VCT		0x4
