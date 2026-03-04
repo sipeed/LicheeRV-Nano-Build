@@ -401,6 +401,7 @@ static const struct snd_pcm_hardware snd_rme32_adat_fd_info =
 	.periods_min =	    2,
 	.periods_max =	    RME32_MID_BUFFER_SIZE / RME32_BLOCK_SIZE,
 	.fifo_size =	    0,
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 };
 
 static void snd_rme32_reset_dac(struct rme32 *rme32)
