@@ -28,7 +28,6 @@ int send_fault_sig(struct pt_regs *regs)
 	si_code = current->thread.code;
 	addr = (void __user *)current->thread.faddr;
 	pr_debug("send_fault_sig: %p,%d,%d\n", addr, signo, si_code);
-
 	if (user_mode(regs)) {
 		force_sig_fault(signo, si_code, addr);
 	} else {
