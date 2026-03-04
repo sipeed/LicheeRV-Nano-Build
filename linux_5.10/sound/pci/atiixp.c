@@ -401,6 +401,7 @@ static int atiixp_build_dma_packets(struct atiixp *chip, struct atiixp_dma *dma,
  */
 static void atiixp_clear_dma_packets(struct atiixp *chip, struct atiixp_dma *dma,
 				     struct snd_pcm_substream *substream)
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 {
 	if (dma->desc_buf.area) {
 		writel(0, chip->remap_addr + dma->ops->llp_offset);
