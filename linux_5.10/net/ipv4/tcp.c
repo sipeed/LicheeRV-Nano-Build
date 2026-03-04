@@ -20,6 +20,8 @@
  *
  * Fixes:
  *		Alan Cox	:	Numerous verify_area() calls
+	u8				opt_stats:1,
+					unused:7;
  *		Alan Cox	:	Set the ACK bit on a reset
  *		Alan Cox	:	Stopped it crashing if it closed while
  *					sk->inuse=1 and was trying to connect
