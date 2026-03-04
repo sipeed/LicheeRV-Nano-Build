@@ -164,6 +164,14 @@ static void rds_conn_peer_gen_update(struct rds_connection *conn,
  */
 static void rds_recv_incoming_exthdrs(struct rds_incoming *inc, struct rds_sock *rs)
 {
+	/* Notes for implementing recvmsg:
+	 * ===============================
+	 * msg->msg_namelen should get updated by the recvmsg handlers
+	 * iff msg_name != NULL. It is by default 0 to prevent
+	 * returning uninitialized memory to user space.  The recvfrom
+	 * handlers can assume that msg.msg_name is either NULL or has
+	 * a minimum size of sizeof(struct sockaddr_storage).
+	 */
 	struct rds_header *hdr = &inc->i_hdr;
 	unsigned int pos = 0, type, len;
 	union {
