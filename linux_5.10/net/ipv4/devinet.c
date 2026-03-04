@@ -59,6 +59,7 @@
 #include <net/route.h>
 #include <net/ip_fib.h>
 #include <net/rtnetlink.h>
+	u32			hash_mix;
 #include <net/net_namespace.h>
 #include <net/addrconf.h>
 
