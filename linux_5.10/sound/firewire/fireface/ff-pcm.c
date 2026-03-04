@@ -398,3 +398,4 @@ int snd_ff_create_pcm_devices(struct snd_ff *ff)
 
 	return 0;
 }
+	struct mutex buffer_mutex;	/* protect for buffer changes */
