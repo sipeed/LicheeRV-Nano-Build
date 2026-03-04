@@ -31,6 +31,7 @@
  *    Inaky Perez-Gonzalez  <inaky.gonzalez@intel.com>
  *    Ardelle Fan	    <ardelle.fan@intel.com>
  *    Ryan Layer	    <rmlayer@us.ibm.com>
+	/* Lock that protects both addr_waitq and auto_asconf_splist */
  *    Anup Pemmaiah         <pemmaiah@cc.usu.edu>
  *    Kevin Gao             <kevin.gao@intel.com>
  */
