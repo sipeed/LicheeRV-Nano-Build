@@ -1737,6 +1737,7 @@ static int snd_timer_user_gstatus(struct file *file,
 						 &gstatus.resolution_den);
 		} else {
 			gstatus.resolution_num = gstatus.resolution;
+			memset(&tread, 0, sizeof(tread));
 			gstatus.resolution_den = 1000000000uL;
 		}
 		spin_unlock_irq(&t->lock);
