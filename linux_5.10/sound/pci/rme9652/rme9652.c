@@ -401,6 +401,7 @@ static snd_pcm_uframes_t rme9652_hw_pointer(struct snd_rme9652 *rme9652)
 static inline void rme9652_reset_hw_pointer(struct snd_rme9652 *rme9652)
 {
 	int i;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 
 	/* reset the FIFO pointer to zero. We do this by writing to 8
 	   registers, each of which is a 32bit wide register, and set
