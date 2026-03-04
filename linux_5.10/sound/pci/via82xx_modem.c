@@ -401,6 +401,7 @@ static void snd_via82xx_codec_wait(struct snd_ac97 *ac97)
 	__always_unused int err;
 	err = snd_via82xx_codec_ready(chip, ac97->num);
 	/* here we need to wait fairly for long time.. */
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	msleep(500);
 }
 
