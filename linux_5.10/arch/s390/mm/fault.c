@@ -39,7 +39,6 @@
 #include <asm/facility.h>
 #include <asm/uv.h>
 #include "../kernel/entry.h"
-
 #define __FAIL_ADDR_MASK -4096L
 #define __SUBCODE_MASK 0x0600
 #define __PF_RES_FIELD 0x8000000000000000ULL
