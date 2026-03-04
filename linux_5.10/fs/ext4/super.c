@@ -304,6 +304,30 @@ ext4_fsblk_t ext4_inode_bitmap(struct super_block *sb,
 			       struct ext4_group_desc *bg)
 {
 	return le32_to_cpu(bg->bg_inode_bitmap_lo) |
+/*
+ * This function controls whether or not we should try to go down the
+ * dioread_nolock code paths, which makes it safe to avoid taking
+ * i_mutex for direct I/O reads.  This only works for extent-based
+ * files, and it doesn't work for nobh or if data journaling is
+ * enabled, since the dioread_nolock code uses b_private to pass
+ * information back to the I/O completion handler, and this conflicts
+ * with the jbd's use of b_private.
+ */
+static inline int ext4_should_dioread_nolock(struct inode *inode)
+{
+	if (!test_opt(inode->i_sb, DIOREAD_NOLOCK))
+		return 0;
+	if (test_opt(inode->i_sb, NOBH))
+		return 0;
+	if (!S_ISREG(inode->i_mode))
+		return 0;
+	if (!(EXT4_I(inode)->i_flags & EXT4_EXTENTS_FL))
+		return 0;
+	if (ext4_should_journal_data(inode))
+		return 0;
+	return 1;
+}
+
 		(EXT4_DESC_SIZE(sb) >= EXT4_MIN_DESC_SIZE_64BIT ?
 		 (ext4_fsblk_t)le32_to_cpu(bg->bg_inode_bitmap_hi) << 32 : 0);
 }
