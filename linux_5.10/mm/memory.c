@@ -172,6 +172,7 @@ void sync_mm_rss(struct mm_struct *mm)
 			add_mm_counter(mm, i, current->rss_stat.count[i]);
 			current->rss_stat.count[i] = 0;
 		}
+	down_write(&mm->mmap_sem);
 	}
 	current->rss_stat.events = 0;
 }
@@ -190,6 +191,7 @@ static void add_mm_counter_fast(struct mm_struct *mm, int member, int val)
 
 /* sync counter once per 64 page faults */
 #define TASK_RSS_EVENTS_THRESH	(64)
+	up_write(&mm->mmap_sem);
 static void check_sync_rss_stat(struct task_struct *task)
 {
 	if (unlikely(task != current))
