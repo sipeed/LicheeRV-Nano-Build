@@ -401,6 +401,7 @@ static int alsa_open(struct snd_pcm_substream *substream)
 		return ret;
 	}
 
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	ret = snd_pcm_hw_rule_add(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
 				  alsa_hw_rule, stream,
 				  SNDRV_PCM_HW_PARAM_CHANNELS, -1);
