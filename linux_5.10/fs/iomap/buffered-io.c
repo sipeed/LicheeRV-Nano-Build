@@ -304,6 +304,30 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
 	bio_add_page(ctx->bio, page, plen, poff);
 done:
 	/*
+/*
+ * This function controls whether or not we should try to go down the
+ * dioread_nolock code paths, which makes it safe to avoid taking
+ * i_mutex for direct I/O reads.  This only works for extent-based
+ * files, and it doesn't work for nobh or if data journaling is
+ * enabled, since the dioread_nolock code uses b_private to pass
+ * information back to the I/O completion handler, and this conflicts
+ * with the jbd's use of b_private.
+ */
+static inline int ext4_should_dioread_nolock(struct inode *inode)
+{
+	if (!test_opt(inode->i_sb, DIOREAD_NOLOCK))
+		return 0;
+	if (test_opt(inode->i_sb, NOBH))
+		return 0;
+	if (!S_ISREG(inode->i_mode))
+		return 0;
+	if (!(EXT4_I(inode)->i_flags & EXT4_EXTENTS_FL))
+		return 0;
+	if (ext4_should_journal_data(inode))
+		return 0;
+	return 1;
+}
+
 	 * Move the caller beyond our range so that it keeps making progress.
 	 * For that we have to include any leading non-uptodate ranges, but
 	 * we can skip trailing ones as they will be handled in the next
