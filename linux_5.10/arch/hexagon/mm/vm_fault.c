@@ -29,7 +29,6 @@
 #define FLT_LOAD        0
 #define FLT_STORE       1
 
-
 /*
  * Canonical page fault handler
  */
