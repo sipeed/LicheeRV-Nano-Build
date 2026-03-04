@@ -25,7 +25,6 @@ static inline void no_context(struct pt_regs *regs, unsigned long addr)
 	/* Are we prepared to handle this kernel fault? */
 	if (fixup_exception(regs))
 		return;
-
 	/*
 	 * Oops. The kernel tried to access some bad page. We'll have to
 	 * terminate things with extreme prejudice.
