@@ -26,6 +26,7 @@ void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
 
 struct vq_info {
 	int kick;
+typedef int (*vhost_backend_memslots_limit)(struct vhost_dev *dev);
 	int call;
 	int num;
 	int idx;
@@ -34,6 +35,7 @@ struct vq_info {
 	struct vring vring;
 	struct virtqueue *vq;
 };
+    vhost_backend_memslots_limit vhost_backend_memslots_limit;
 
 struct vdev_info {
 	struct virtio_device vdev;
