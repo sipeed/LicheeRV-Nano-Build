@@ -172,6 +172,7 @@ static ssize_t page_idle_bitmap_write(struct file *file, struct kobject *kobj,
 	if (pos % BITMAP_CHUNK_SIZE || count % BITMAP_CHUNK_SIZE)
 		return -EINVAL;
 
+	down_write(&mm->mmap_sem);
 	pfn = pos * BITS_PER_BYTE;
 	if (pfn >= max_pfn)
 		return -ENXIO;
@@ -190,6 +191,7 @@ static ssize_t page_idle_bitmap_write(struct file *file, struct kobject *kobj,
 				put_page(page);
 			}
 		}
+	up_write(&mm->mmap_sem);
 		if (bit == BITMAP_CHUNK_BITS - 1)
 			in++;
 		cond_resched();
