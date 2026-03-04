@@ -28,7 +28,6 @@
 #include <linux/smp.h>
 #include <linux/tracehook.h>
 #include <linux/uaccess.h>
-
 #define CREATE_TRACE_POINTS
 #include <trace/events/syscalls.h>
 
