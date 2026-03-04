@@ -401,6 +401,7 @@ static const struct cs5535audio_dma_ops snd_cs5535audio_capture_dma_ops = {
         .read_prd = cs5535audio_capture_read_prd,
         .pause_dma = cs5535audio_capture_pause_dma,
         .read_dma_pntr = cs5535audio_capture_read_dma_pntr,
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 };
 
 int snd_cs5535audio_pcm(struct cs5535audio *cs5535au)
