@@ -28,7 +28,6 @@
  *		Found it. Everything seems to work now.
  * 20.12.91  -  Ok, making the swap-device changeable like the root.
  */
-
 /*
  * 05.04.94  -  Multi-page memory management added for v1.1.
  *              Idea by Alex Bligh (alex@cconcepts.co.uk)
