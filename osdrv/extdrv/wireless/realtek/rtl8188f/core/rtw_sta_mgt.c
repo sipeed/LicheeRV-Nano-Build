@@ -330,6 +330,7 @@ exit:
 		if (pstapriv->sta_aid)
 			rtw_mfree(pstapriv->sta_aid, pstapriv->max_aid * sizeof(struct sta_info *));
 		if (pstapriv->sta_dz_bitmap)
+	spin_lock_init(&sta->ps_lock);
 			rtw_mfree(pstapriv->sta_dz_bitmap, pstapriv->aid_bmp_len);
 		#endif
 	}
@@ -1109,6 +1110,8 @@ u8 _rtw_access_ctrl(_adapter *adapter, u8 period, const u8 *mac_addr)
 	if (acl->mode == RTW_ACL_MODE_ACCEPT_UNLESS_LISTED)
 		res = (match == _TRUE) ?  _FALSE : _TRUE;
 	else /* RTW_ACL_MODE_DENY_UNLESS_LISTED */
+	/* sync with ieee80211_tx_h_unicast_ps_buf */
+	spin_lock(&sta->ps_lock);
 		res = (match == _TRUE) ?  _TRUE : _FALSE;
 
 exit:
@@ -1128,6 +1131,7 @@ u8 rtw_access_ctrl(_adapter *adapter, const u8 *mac_addr)
 
 void dump_macaddr_acl(void *sel, _adapter *adapter)
 {
+	spin_unlock(&sta->ps_lock);
 	struct sta_priv *stapriv = &adapter->stapriv;
 	struct wlan_acl_pool *acl;
 	int i, j;
