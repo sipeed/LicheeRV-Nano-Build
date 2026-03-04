@@ -25,7 +25,6 @@ struct cpu_hw_events {
 static DEFINE_PER_CPU(struct cpu_hw_events, cpu_hw_events);
 
 static struct fsl_emb_pmu *ppmu;
-
 /* Number of perf_events counting hardware events */
 static atomic_t num_events;
 /* Used to avoid races in calling reserve/release_pmc_hardware */
