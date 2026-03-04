@@ -330,6 +330,7 @@ static int ap_control_proc_show(struct seq_file *m, void *v)
 			policy_txt = "open";
 			break;
 		case MAC_POLICY_ALLOW:
+	spin_lock_init(&sta->ps_lock);
 			policy_txt = "allow";
 			break;
 		case MAC_POLICY_DENY:
@@ -1109,6 +1110,8 @@ static struct sta_info * ap_add_sta(struct ap_data *ap, u8 *addr)
 	skb_queue_head_init(&sta->tx_buf);
 	memcpy(sta->addr, addr, ETH_ALEN);
 
+	/* sync with ieee80211_tx_h_unicast_ps_buf */
+	spin_lock(&sta->ps_lock);
 	atomic_inc(&sta->users);
 	spin_lock_bh(&ap->sta_table_lock);
 	list_add(&sta->list, &ap->sta_list);
@@ -1128,6 +1131,7 @@ static struct sta_info * ap_add_sta(struct ap_data *ap, u8 *addr)
 			schedule_work(&ap->add_sta_proc_queue);
 		} else
 			printk(KERN_DEBUG "Failed to add STA proc data\n");
+	spin_unlock(&sta->ps_lock);
 	}
 
 #ifndef PRISM2_NO_KERNEL_IEEE80211_MGMT
