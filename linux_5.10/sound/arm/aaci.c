@@ -401,6 +401,7 @@ static int aaci_pcm_open(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct aaci *aaci = substream->private_data;
 	struct aaci_runtime *aacirun;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	int ret = 0;
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
