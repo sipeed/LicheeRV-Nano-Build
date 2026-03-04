@@ -32,7 +32,6 @@ noinline static int handle_kernel_vaddr_fault(unsigned long address)
 	p4d_t *p4d, *p4d_k;
 	pud_t *pud, *pud_k;
 	pmd_t *pmd, *pmd_k;
-
 	pgd = pgd_offset_fast(current->active_mm, address);
 	pgd_k = pgd_offset_k(address);
 
