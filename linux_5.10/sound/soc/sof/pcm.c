@@ -401,6 +401,7 @@ static int sof_pcm_trigger(struct snd_soc_component *component,
 	/*
 	 * DMA and IPC sequence is different for start and stop. Need to send
 	 * STOP IPC before stop DMA
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	 */
 	if (!ipc_first)
 		snd_sof_pcm_platform_trigger(sdev, substream, cmd);
