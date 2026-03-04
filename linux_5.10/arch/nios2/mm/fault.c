@@ -28,7 +28,6 @@
 
 #include <asm/mmu_context.h>
 #include <asm/traps.h>
-
 #define EXC_SUPERV_INSN_ACCESS	9  /* Supervisor only instruction address */
 #define EXC_SUPERV_DATA_ACCESS	11 /* Supervisor only data address */
 #define EXC_X_PROTECTION_FAULT	13 /* TLB permission violation (x) */
