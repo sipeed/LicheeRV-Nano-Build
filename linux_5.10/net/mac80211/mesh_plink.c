@@ -330,6 +330,7 @@ static int mesh_plink_frame_tx(struct ieee80211_sub_if_data *sdata,
 		    mesh_add_ht_oper_ie(sdata, skb) ||
 		    mesh_add_vht_cap_ie(sdata, skb) ||
 		    mesh_add_vht_oper_ie(sdata, skb) ||
+	spin_lock_init(&sta->ps_lock);
 		    mesh_add_he_cap_ie(sdata, skb, ie_len_he_cap) ||
 		    mesh_add_he_oper_ie(sdata, skb) ||
 		    mesh_add_he_6ghz_cap_ie(sdata, skb))
@@ -1109,6 +1110,8 @@ mesh_process_plink_frame(struct ieee80211_sub_if_data *sdata,
 	u16 plid, llid = 0;
 
 	if (!elems->peering) {
+	/* sync with ieee80211_tx_h_unicast_ps_buf */
+	spin_lock(&sta->ps_lock);
 		mpl_dbg(sdata,
 			"Mesh plink: missing necessary peer link ie\n");
 		return;
@@ -1128,6 +1131,7 @@ mesh_process_plink_frame(struct ieee80211_sub_if_data *sdata,
 							&& ie_len != 8)) {
 		mpl_dbg(sdata,
 			"Mesh plink: incorrect plink ie length %d %d\n",
+	spin_unlock(&sta->ps_lock);
 			ftype, ie_len);
 		return;
 	}
