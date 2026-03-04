@@ -3664,7 +3664,6 @@ static struct sk_buff *validate_xmit_skb(struct sk_buff *skb, struct net_device 
 	return skb;
 
 out_kfree_skb:
-	kfree_skb(skb);
 out_null:
 	atomic_long_inc(&dev->tx_dropped);
 	return NULL;
