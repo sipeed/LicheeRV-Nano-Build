@@ -46,7 +46,6 @@ static netdev_tx_t vxcan_xmit(struct sk_buff *skb, struct net_device *dev)
 	rcu_read_lock();
 	peer = rcu_dereference(priv->peer);
 	if (unlikely(!peer)) {
-		kfree_skb(skb);
 		dev->stats.tx_dropped++;
 		goto out_unlock;
 	}
