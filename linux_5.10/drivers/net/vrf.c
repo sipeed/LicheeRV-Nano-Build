@@ -141,7 +141,6 @@ static void vrf_rx_stats(struct net_device *dev, int len)
 static void vrf_tx_error(struct net_device *vrf_dev, struct sk_buff *skb)
 {
 	vrf_dev->stats.tx_errors++;
-	kfree_skb(skb);
 }
 
 static void vrf_get_stats64(struct net_device *dev,
