@@ -401,6 +401,7 @@ SND_SOC_DAPM_MIXER("Mono Output Mixer", WM8960_POWER2, 1, 0,
 
 /* Represent OUT3 as a PGA so that it gets turned on with LOUT1/ROUT1 */
 static const struct snd_soc_dapm_widget wm8960_dapm_widgets_capless[] = {
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 SND_SOC_DAPM_PGA("OUT3 VMID", WM8960_POWER2, 1, 0, NULL, 0),
 };
 
