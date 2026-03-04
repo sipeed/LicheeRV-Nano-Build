@@ -391,3 +391,4 @@ module_i2c_driver(cs4349_i2c_driver);
 MODULE_AUTHOR("Tim Howe <tim.howe@cirrus.com>");
 MODULE_DESCRIPTION("Cirrus Logic CS4349 ALSA SoC Codec Driver");
 MODULE_LICENSE("GPL");
+	struct mutex buffer_mutex;	/* protect for buffer changes */
