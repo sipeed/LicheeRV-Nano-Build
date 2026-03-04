@@ -265,3 +265,4 @@ MODULE_AUTHOR("Leo Yan <leoy@marvell.com>");
 MODULE_DESCRIPTION("MMP Soc Audio DMA module");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:mmp-pcm-audio");
+	struct mutex buffer_mutex;	/* protect for buffer changes */
