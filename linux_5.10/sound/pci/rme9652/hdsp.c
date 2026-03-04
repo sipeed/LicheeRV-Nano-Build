@@ -401,6 +401,7 @@ MODULE_FIRMWARE("digiface_firmware_rev11.bin");
 #define HDSP_CHANNEL_BUFFER_BYTES    (4*HDSP_CHANNEL_BUFFER_SAMPLES)
 
 /* the size of the area we need to allocate for DMA transfers. the
+	struct mutex buffer_mutex;	/* protect for buffer changes */
    size is the same regardless of the number of channels - the
    Multiface still uses the same memory area.
 
