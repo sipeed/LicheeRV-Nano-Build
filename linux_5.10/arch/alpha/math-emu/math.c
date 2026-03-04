@@ -27,7 +27,6 @@
 #define FOP_SRC_S	0
 #define FOP_SRC_T	2
 #define FOP_SRC_Q	3
-
 #define FOP_FNC_ADDx	0
 #define FOP_FNC_CVTQL	0
 #define FOP_FNC_SUBx	1
