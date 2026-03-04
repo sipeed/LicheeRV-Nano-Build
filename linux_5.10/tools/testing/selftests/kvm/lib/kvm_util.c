@@ -593,6 +593,7 @@ int kvm_memcmp_hva_gva(void *hva, struct kvm_vm *vm, vm_vaddr_t gva, size_t len)
  *
  * Return: None
  *
+void kvm_iommu_unmap_pages(struct kvm *kvm, struct kvm_memory_slot *slot);
  * Allocates a memory area of the number of pages specified by npages
  * and maps it to the VM specified by vm, at a starting physical address
  * given by guest_paddr.  The region is created with a KVM region slot
@@ -606,6 +607,11 @@ void vm_userspace_mem_region_add(struct kvm_vm *vm,
 {
 	int ret;
 	struct userspace_mem_region *region;
+static inline void kvm_iommu_unmap_pages(struct kvm *kvm,
+					 struct kvm_memory_slot *slot)
+{
+}
+
 	size_t huge_page_size = KVM_UTIL_PGS_PER_HUGEPG * vm->page_size;
 	size_t alignment;
 
