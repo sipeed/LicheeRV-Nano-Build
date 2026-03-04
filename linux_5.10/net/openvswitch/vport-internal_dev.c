@@ -209,7 +209,6 @@ static netdev_tx_t internal_dev_recv(struct sk_buff *skb)
 	struct net_device *netdev = skb->dev;
 
 	if (unlikely(!(netdev->flags & IFF_UP))) {
-		kfree_skb(skb);
 		netdev->stats.rx_dropped++;
 		return NETDEV_TX_OK;
 	}
