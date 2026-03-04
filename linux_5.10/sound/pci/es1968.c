@@ -401,6 +401,7 @@ MODULE_PARM_DESC(radio_nr, "Radio device numbers");
 /* APU Filter Control */
 #define	ESM_APU_FILTER_2POLE_LOPASS	0x00
 #define	ESM_APU_FILTER_2POLE_BANDPASS	0x01
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 #define	ESM_APU_FILTER_2POLE_HIPASS	0x02
 #define	ESM_APU_FILTER_1POLE_LOPASS	0x03
 #define	ESM_APU_FILTER_1POLE_HIPASS	0x04
