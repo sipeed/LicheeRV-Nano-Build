@@ -126,6 +126,11 @@ enum {
 	 */
 	MAX_CTRL_WR_LEN = 256,
 
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 	/*
 	 * Maximum amount of data which we'll ever need to inline into a
 	 * TX ring: max(MAX_IMM_TX_PKT_LEN, MAX_CTRL_WR_LEN).
