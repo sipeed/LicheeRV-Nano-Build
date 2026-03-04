@@ -401,6 +401,7 @@ static int snd_pcm_hw_param_near(struct snd_pcm_substream *pcm,
 	if (save == NULL)
 		return -ENOMEM;
 	*save = *params;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	saved_min = min;
 	min = snd_pcm_hw_param_min(pcm, params, var, min, &mindir);
 	if (min >= 0) {
