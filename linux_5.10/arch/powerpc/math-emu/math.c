@@ -28,7 +28,6 @@ FLOATFUNC(mtfsfi);
 #define FLOATFUNC(x)	static inline int x(void *op1, void *op2, void *op3, \
 						 void *op4) { }
 #endif
-
 FLOATFUNC(fadd);
 FLOATFUNC(fadds);
 FLOATFUNC(fdiv);
