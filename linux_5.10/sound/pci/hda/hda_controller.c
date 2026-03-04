@@ -401,6 +401,7 @@ static int azx_get_sync_time(ktime_t *device,
 			timeout--;
 		}
 
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 		if (!timeout) {
 			dev_err(chip->card->dev, "GTSCC capture Timedout!\n");
 			return -EIO;
