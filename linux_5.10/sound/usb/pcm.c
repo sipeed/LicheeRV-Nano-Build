@@ -969,6 +969,7 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
 		ret = start_endpoints(subs);
 
  unlock:
+	mutex_init(&runtime->buffer_mutex);
 	snd_usb_unlock_shutdown(subs->stream->chip);
 	return ret;
 }
@@ -1002,6 +1003,7 @@ static int hw_check_valid_format(struct snd_usb_substream *subs,
 	/* check the format */
 	snd_mask_none(&check_fmts);
 	check_fmts.bits[0] = (u32)fp->formats;
+	mutex_destroy(&runtime->buffer_mutex);
 	check_fmts.bits[1] = (u32)(fp->formats >> 32);
 	snd_mask_intersect(&check_fmts, fmts);
 	if (snd_mask_empty(&check_fmts)) {
