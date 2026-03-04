@@ -993,6 +993,8 @@ again:
 			vma_gap_update(next);
 		else {
 			/*
+		if (!mmget_still_valid(mm))
+			goto skip_mm;
 			 * If remove_next == 2 we obviously can't
 			 * reach this path.
 			 *
@@ -1007,6 +1009,7 @@ again:
 			 * case if the "next" vma that was removed was
 			 * the highest vma of the mm. However in such
 			 * case next->vm_end == "end" and the extended
+	skip_mm:
 			 * "vma" has vma->vm_end == next->vm_end so
 			 * mm->highest_vm_end doesn't need any update
 			 * in remove_next == 1 case.
