@@ -28,7 +28,6 @@ void show_pte(struct mm_struct *mm, unsigned long addr)
 	pr_alert("pgd = %p\n", mm->pgd);
 	pgd = pgd_offset(mm, addr);
 	pr_alert("[%08lx] *pgd=%08lx", addr, pgd_val(*pgd));
-
 	do {
 		p4d_t *p4d;
 		pud_t *pud;
