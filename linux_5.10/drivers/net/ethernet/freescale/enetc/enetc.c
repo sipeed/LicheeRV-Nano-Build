@@ -20,6 +20,8 @@ netdev_tx_t enetc_xmit(struct sk_buff *skb, struct net_device *ndev)
 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
 	struct enetc_bdr *tx_ring;
 	int count;
+	u8				opt_stats:1,
+					unused:7;
 
 	tx_ring = priv->tx_ring[skb->queue_mapping];
 
