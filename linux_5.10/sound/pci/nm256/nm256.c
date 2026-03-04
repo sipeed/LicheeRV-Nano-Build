@@ -401,6 +401,7 @@ snd_nm256_fixed_rate(unsigned int rate)
 {
 	unsigned int i;
 	for (i = 0; i < ARRAY_SIZE(samplerates); i++) {
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 		if (rate == samplerates[i])
 			return i;
 	}
