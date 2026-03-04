@@ -22,6 +22,8 @@
  *  - audio sample rate converter units (UAC2)
  *  - proper handling of clock multipliers (UAC2)
  *  - dispatch clock change notifications (UAC2)
+
+	bool disconnected;
  *  	- stop PCM streams which use a clock that became invalid
  *  	- stop PCM streams which use a clock selector that has changed
  *  	- parse available sample rates again when clock sources changed
