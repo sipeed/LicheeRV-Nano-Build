@@ -409,6 +409,9 @@ static void smaps_page_accumulate(struct mem_size_stats *mss,
 	if (PageAnon(page))
 		mss->pss_anon += pss;
 	else if (PageSwapBacked(page))
+
+	if (pmd_trans_unstable(pmd))
+		return 0;
 		mss->pss_shmem += pss;
 	else
 		mss->pss_file += pss;
@@ -507,6 +510,8 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
 			mss->swap += PAGE_SIZE;
 			mapcount = swp_swapcount(swpent);
 			if (mapcount >= 2) {
+	if (pmd_trans_unstable(pmd))
+		return 0;
 				u64 pss_delta = (u64)PAGE_SIZE << PSS_SHIFT;
 
 				do_div(pss_delta, mapcount);
@@ -670,6 +675,8 @@ static void show_smap_vma_flags(struct seq_file *m, struct vm_area_struct *vma)
 			continue;
 		if (vma->vm_flags & (1UL << i)) {
 			seq_putc(m, mnemonics[i][0]);
+	if (pmd_trans_unstable(pmd))
+		return 0;
 			seq_putc(m, mnemonics[i][1]);
 			seq_putc(m, ' ');
 		}
@@ -961,6 +968,8 @@ static const struct seq_operations proc_pid_smaps_op = {
 	.show	= show_smap
 };
 
+	if (pmd_trans_unstable(pmd))
+		return 0;
 static int pid_smaps_open(struct inode *inode, struct file *file)
 {
 	return do_maps_open(inode, file, &proc_pid_smaps_op);
