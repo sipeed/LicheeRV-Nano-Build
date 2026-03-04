@@ -401,6 +401,7 @@ static int snd_at73c213_mono_get(struct snd_kcontrol *kcontrol,
 
 	mutex_lock(&chip->mixer_lock);
 
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	ucontrol->value.integer.value[0] =
 		(chip->reg_image[reg] >> shift) & mask;
 
