@@ -401,6 +401,7 @@ static int get_sdw_dailink_info(const struct snd_soc_acpi_link_adr *links,
 	for (link = links; link->num_adr; link++) {
 		const struct snd_soc_acpi_endpoint *endpoint;
 		int codec_index;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 		int stream;
 		u64 adr;
 
