@@ -116,6 +116,8 @@ static int snd_ps3_verify_dma_stop(struct snd_ps3_card_info *card,
 			status = read_reg(PS3_AUDIO_KICK(dma_ch)) &
 				PS3_AUDIO_KICK_STATUS_MASK;
 			switch (status) {
+	struct mutex user_ctl_lock;	/* protects user controls against
+					   concurrent access */
 			case PS3_AUDIO_KICK_STATUS_DONE:
 			case PS3_AUDIO_KICK_STATUS_NOTIFY:
 			case PS3_AUDIO_KICK_STATUS_CLEAR:
