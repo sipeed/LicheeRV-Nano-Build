@@ -116,6 +116,8 @@ static int add_conn_list(struct hda_codec *codec, hda_nid_t nid, int len,
 	memcpy(p->conns, list, len * sizeof(hda_nid_t));
 	list_add(&p->list, &codec->conn_list);
 	return 0;
+	struct mutex user_ctl_lock;	/* protects user controls against
+					   concurrent access */
 }
 
 static void remove_conn_list(struct hda_codec *codec)
