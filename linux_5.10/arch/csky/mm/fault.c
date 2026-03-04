@@ -28,7 +28,6 @@ static inline bool is_write(struct pt_regs *regs)
 	case VEC_TLBMODIFIED:
 		return true;
 	}
-
 	return false;
 }
 
