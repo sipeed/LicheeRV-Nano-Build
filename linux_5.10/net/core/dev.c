@@ -126,6 +126,11 @@
 #include <linux/in.h>
 #include <linux/jhash.h>
 #include <linux/random.h>
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 #include <trace/events/napi.h>
 #include <trace/events/net.h>
 #include <trace/events/skb.h>
