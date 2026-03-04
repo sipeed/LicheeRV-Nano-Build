@@ -401,6 +401,7 @@ static int oxygen_rec_b_hw_params(struct snd_pcm_substream *substream,
 				      OXYGEN_I2S_MCLK_MASK |
 				      OXYGEN_I2S_BITS_MASK);
 	spin_unlock_irq(&chip->reg_lock);
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 
 	if (!is_ac97) {
 		mutex_lock(&chip->mutex);
