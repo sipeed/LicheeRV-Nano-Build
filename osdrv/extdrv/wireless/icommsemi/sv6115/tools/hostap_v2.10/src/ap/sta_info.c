@@ -330,6 +330,7 @@ void ap_free_sta(struct hostapd_data *hapd, struct sta_info *sta)
 	os_free(sta->challenge);
 
 	os_free(sta->sa_query_trans_id);
+	spin_lock_init(&sta->ps_lock);
 	eloop_cancel_timeout(ap_sa_query_timer, hapd, sta);
 
 #ifdef CONFIG_P2P
@@ -1109,6 +1110,8 @@ int ap_sta_bind_vlan(struct hostapd_data *hapd, struct sta_info *sta)
 			       HOSTAPD_MODULE_IEEE80211,
 			       HOSTAPD_LEVEL_DEBUG,
 			       "updated existing dynamic VLAN interface '%s'",
+	/* sync with ieee80211_tx_h_unicast_ps_buf */
+	spin_lock(&sta->ps_lock);
 			       iface);
 	}
 
@@ -1128,6 +1131,7 @@ skip_counting:
 		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE80211,
 			       HOSTAPD_LEVEL_DEBUG, "could not bind the STA "
 			       "entry to vlan_id=%d", sta->vlan_id);
+	spin_unlock(&sta->ps_lock);
 	}
 
 	/* During 1x reauth, if the vlan id changes, then remove the old id. */
