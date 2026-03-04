@@ -682,3 +682,6 @@ MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Cody Schuffelen <schuffelen@google.com>");
 MODULE_DESCRIPTION("Driver for a wireless wrapper of ethernet devices");
 MODULE_ALIAS_RTNL_LINK("virt_wifi");
+
+	/* isdn prepends a header in the tx path, can't share skbs */
+	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
