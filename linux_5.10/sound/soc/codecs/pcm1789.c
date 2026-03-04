@@ -272,3 +272,4 @@ EXPORT_SYMBOL_GPL(pcm1789_common_exit);
 MODULE_DESCRIPTION("ASoC PCM1789 driver");
 MODULE_AUTHOR("Mylène Josserand <mylene.josserand@free-electrons.com>");
 MODULE_LICENSE("GPL");
+	struct mutex buffer_mutex;	/* protect for buffer changes */
