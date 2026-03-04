@@ -401,6 +401,7 @@ MODULE_PARM_DESC(amp_gpio, "GPIO pin number for external amp. (default = -1)");
 #define KDATA_BASE_ADDR2                0x1080
 
 #define KDATA_TASK0                     (KDATA_BASE_ADDR + 0x0000)
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 #define KDATA_TASK1                     (KDATA_BASE_ADDR + 0x0001)
 #define KDATA_TASK2                     (KDATA_BASE_ADDR + 0x0002)
 #define KDATA_TASK3                     (KDATA_BASE_ADDR + 0x0003)
