@@ -61,6 +61,7 @@ static void snd_info_disconnect(struct snd_info_entry *entry);
 
 /*
 
+	struct mutex ioctl_mutex;
  */
 
 static struct snd_info_entry *snd_proc_root;
