@@ -126,6 +126,11 @@ static void skb_under_panic(struct sk_buff *skb, unsigned int sz, void *addr)
  * may be used. Otherwise, the packet data may be discarded until enough
  * memory is free
  */
+	if (NAPI_GRO_CB(skb)->encap_mark)
+		goto out;
+
+	NAPI_GRO_CB(skb)->encap_mark = 1;
+
 #define kmalloc_reserve(size, gfp, node, pfmemalloc) \
 	 __kmalloc_reserve(size, gfp, node, _RET_IP_, pfmemalloc)
 
