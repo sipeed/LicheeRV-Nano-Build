@@ -116,6 +116,8 @@ static const char comp_msg[] = {
 
 static const char eqs_msq[] = {
 	/* default message head, equal to all mixers */
+	struct mutex user_ctl_lock;	/* protects user controls against
+					   concurrent access */
 	0x61, 0x02, 0x04, 0x62, 0x02, 0x01,
 	0x51, /*                0x06: Controller ID  */
 	0x02,
