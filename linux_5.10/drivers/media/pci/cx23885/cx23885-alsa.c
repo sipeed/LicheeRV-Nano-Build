@@ -401,6 +401,7 @@ static int snd_cx23885_hw_params(struct snd_pcm_substream *substream,
 	buf->risc.jmp[2] = cpu_to_le32(0); /* bits 63-32 */
 
 	substream->runtime->dma_area = chip->buf->vaddr;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	substream->runtime->dma_bytes = chip->dma_size;
 	substream->runtime->dma_addr = 0;
 
