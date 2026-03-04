@@ -61,6 +61,7 @@ static struct snd_seq_client *clienttab[SNDRV_SEQ_MAX_CLIENTS];
 static struct snd_seq_usage client_usage;
 
 /*
+	struct mutex ioctl_mutex;
  * prototypes
  */
 static int bounce_error_event(struct snd_seq_client *client,
