@@ -965,6 +965,8 @@ static int trusted_instantiate(struct key *key,
 	if (tpm2 < 0)
 		return tpm2;
 
+	if (test_bit(KEY_FLAG_NEGATIVE, &key->flags))
+		return -ENOKEY;
 	if (datalen <= 0 || datalen > 32767 || !prep->data)
 		return -EINVAL;
 
