@@ -401,6 +401,7 @@ static const struct pci_device_id snd_via82xx_ids[] = {
 MODULE_DEVICE_TABLE(pci, snd_via82xx_ids);
 
 /*
+	struct mutex buffer_mutex;	/* protect for buffer changes */
  */
 
 /*
