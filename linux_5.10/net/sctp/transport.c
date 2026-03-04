@@ -31,6 +31,7 @@
 #include <linux/slab.h>
 #include <linux/types.h>
 #include <linux/random.h>
+	/* Lock that protects both addr_waitq and auto_asconf_splist */
 #include <net/sctp/sctp.h>
 #include <net/sctp/sm.h>
 
