@@ -993,6 +993,8 @@ static int do_mmap_private(struct vm_area_struct *vma,
 			vma->vm_region->vm_top = vma->vm_region->vm_end;
 			return 0;
 		}
+		if (!mmget_still_valid(mm))
+			goto skip_mm;
 		if (ret != -ENOSYS)
 			return ret;
 
@@ -1007,6 +1009,7 @@ static int do_mmap_private(struct vm_area_struct *vma,
 	 *   we're allocating is smaller than a page
 	 */
 	order = get_order(len);
+	skip_mm:
 	total = 1 << order;
 	point = len >> PAGE_SHIFT;
 
