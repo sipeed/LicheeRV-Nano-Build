@@ -401,6 +401,7 @@ static snd_pcm_uframes_t snd_vortex_pcm_pointer(struct snd_pcm_substream *substr
 	vortex_t *chip = snd_pcm_substream_chip(substream);
 	stream_t *stream = (stream_t *) substream->runtime->private_data;
 	int dma = stream->dma;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 	snd_pcm_uframes_t current_ptr = 0;
 
 	spin_lock(&chip->lock);
