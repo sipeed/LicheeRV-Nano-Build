@@ -330,6 +330,7 @@ exit:
 		if (pstapriv->pallocated_stainfo_buf)
 			rtw_vmfree(pstapriv->pallocated_stainfo_buf,
 				sizeof(struct sta_info) * NUM_STA + MEM_ALIGNMENT_OFFSET);
+	spin_lock_init(&sta->ps_lock);
 		#ifdef CONFIG_AP_MODE
 		if (pstapriv->sta_aid)
 			rtw_mfree(pstapriv->sta_aid, pstapriv->max_aid * sizeof(struct sta_info *));
@@ -1109,6 +1110,8 @@ u8 _rtw_access_ctrl(_adapter *adapter, u8 period, const u8 *mac_addr)
 		rtw_warn_on(1);
 		goto exit;
 	}
+	/* sync with ieee80211_tx_h_unicast_ps_buf */
+	spin_lock(&sta->ps_lock);
 
 	acl = &stapriv->acl_list[period];
 	acl_node_q = &acl->acl_node_q;
@@ -1128,6 +1131,7 @@ u8 _rtw_access_ctrl(_adapter *adapter, u8 period, const u8 *mac_addr)
 			if (acl_node->valid == _TRUE) {
 				match = _TRUE;
 				break;
+	spin_unlock(&sta->ps_lock);
 			}
 		}
 	}
