@@ -20,6 +20,8 @@
  *		Alan Cox	:	skb_copy copy arp field
  *		Andi Kleen	:	slabified it.
  *		Robert Olsson	:	Removed skb_head_pool
+	u8				opt_stats:1,
+					unused:7;
  *
  *	NOTE:
  *		The __skb_ routines should be called with interrupts
