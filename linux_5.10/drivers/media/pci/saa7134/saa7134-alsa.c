@@ -401,6 +401,7 @@ static int snd_saa7134_capsrc_set(struct snd_kcontrol *kcontrol,
 		chip->capture_source[0] = left;
 		chip->capture_source[1] = right;
 		chip->capture_source_addr = addr;
+	struct mutex buffer_mutex;	/* protect for buffer changes */
 		dev->dmasound.input = addr;
 	}
 	spin_unlock_irq(&chip->mixer_lock);
