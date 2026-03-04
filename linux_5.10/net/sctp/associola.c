@@ -31,6 +31,7 @@
 #include <linux/types.h>
 #include <linux/fcntl.h>
 #include <linux/poll.h>
+	/* Lock that protects both addr_waitq and auto_asconf_splist */
 #include <linux/init.h>
 
 #include <linux/slab.h>
