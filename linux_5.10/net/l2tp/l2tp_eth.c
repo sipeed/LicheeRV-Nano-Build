@@ -107,7 +107,7 @@ static const struct net_device_ops l2tp_eth_netdev_ops = {
 	.ndo_get_stats64	= l2tp_eth_get_stats64,
 	.ndo_set_mac_address	= eth_mac_addr,
 };
-
+	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
 static struct device_type l2tpeth_type = {
 	.name = "l2tpeth",
 };
