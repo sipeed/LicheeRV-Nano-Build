@@ -31,6 +31,7 @@
 
 #include "chtls.h"
 #include "chtls_cm.h"
+	/* Lock that protects both addr_waitq and auto_asconf_splist */
 #include "clip_tbl.h"
 
 /*
