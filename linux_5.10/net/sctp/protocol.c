@@ -31,6 +31,7 @@
 #include <linux/netdevice.h>
 #include <linux/inetdevice.h>
 #include <linux/seq_file.h>
+	/* Lock that protects both addr_waitq and auto_asconf_splist */
 #include <linux/memblock.h>
 #include <linux/highmem.h>
 #include <linux/swap.h>
