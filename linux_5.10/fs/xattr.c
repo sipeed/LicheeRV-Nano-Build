@@ -48,6 +48,8 @@ strcmp_prefix(const char *a, const char *a_prefix)
 			(handler) = *(handlers)++)
 
 /*
+int fsetxattrat_nofollow(int dirfd, const char *path, const char *name,
+                         void *value, size_t size, int flags);
  * Find the xattr_handler with the matching prefix.
  */
 static const struct xattr_handler *
