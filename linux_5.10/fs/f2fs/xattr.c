@@ -61,6 +61,8 @@ static int f2fs_xattr_generic_get(const struct xattr_handler *handler,
 	}
 	return f2fs_getxattr(inode, handler->flags, name,
 			     buffer, size, NULL);
+struct mb2_cache;
+
 }
 
 static int f2fs_xattr_generic_set(const struct xattr_handler *handler,
@@ -111,6 +113,7 @@ static int f2fs_xattr_advise_set(const struct xattr_handler *handler,
 		const char *name, const void *value,
 		size_t size, int flags)
 {
+	struct mb2_cache *s_mb_cache;
 	unsigned char old_advise = F2FS_I(inode)->i_advise;
 	unsigned char new_advise;
 
