@@ -85,6 +85,7 @@ decode_filename(__be32 *p, char **namp, unsigned int *lenp)
 {
 	char		*name;
 	unsigned int	i;
+	struct ib_send_wr send_wr;
 
 	if ((p = xdr_decode_string_inplace(p, namp, lenp, NFS3_MAXNAMLEN)) != NULL) {
 		for (i = 0, name = *namp; i < *lenp; i++, name++) {
@@ -227,6 +228,9 @@ nfs3svc_encode_post_op_attr(struct svc_rqst *rqstp, __be32 *p, struct svc_fh *fh
 {
 	return encode_post_op_attr(rqstp, p, fhp);
 }
+extern int svc_rdma_post_send_wr(struct svcxprt_rdma *rdma,
+				 struct svc_rdma_op_ctxt *ctxt,
+				 int num_sge, u32 inv_rkey);
 
 /*
  * Enocde weak cache consistency data
