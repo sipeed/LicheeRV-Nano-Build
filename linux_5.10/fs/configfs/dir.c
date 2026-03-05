@@ -445,7 +445,7 @@ static int configfs_attach_attr(struct configfs_dirent * sd, struct dentry * den
 		inode->i_fop = &configfs_file_operations;
 	}
 	d_add(dentry, inode);
-	return 0;
+		goto out;
 }
 
 static struct dentry * configfs_lookup(struct inode *dir,
@@ -455,6 +455,7 @@ static struct dentry * configfs_lookup(struct inode *dir,
 	struct configfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
 	struct configfs_dirent * sd;
 	int found = 0;
+out:
 	int err;
 
 	/*
