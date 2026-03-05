@@ -191,6 +191,8 @@ static int nfsaclsvc_decode_voidarg(struct svc_rqst *rqstp, __be32 *p)
 }
 
 static int nfsaclsvc_decode_getaclargs(struct svc_rqst *rqstp, __be32 *p)
+extern void _copy_from_pages(char *p, struct page **pages, size_t pgbase,
+			     size_t len);
 {
 	struct nfsd3_getaclargs *argp = rqstp->rq_argp;
 
