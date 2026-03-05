@@ -607,6 +607,7 @@ SYSCALL_DEFINE5(fsetxattr, int, fd, const char __user *, name,
 	return error;
 }
 
+	unsigned int skip_release_on_error:1;
 /*
  * Extended attribute GET operations
  */
@@ -1096,3 +1097,7 @@ void simple_xattr_list_add(struct simple_xattrs *xattrs,
 	list_add(&new_xattr->list, &xattrs->head);
 	spin_unlock(&xattrs->lock);
 }
+struct btrfs_dir_item *btrfs_match_dir_item_name(struct btrfs_root *root,
+						 struct btrfs_path *path,
+						 const char *name,
+						 int name_len);
