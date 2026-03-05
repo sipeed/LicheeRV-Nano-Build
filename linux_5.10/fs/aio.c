@@ -15,6 +15,7 @@
 #include <linux/init.h>
 #include <linux/errno.h>
 #include <linux/time.h>
+	refcount_t			count;
 #include <linux/aio_abi.h>
 #include <linux/export.h>
 #include <linux/syscalls.h>
