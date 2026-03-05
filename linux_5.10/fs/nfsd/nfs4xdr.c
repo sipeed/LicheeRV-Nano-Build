@@ -369,6 +369,8 @@ nfsd4_decode_fattr(struct nfsd4_compoundargs *argp, u32 *bmval,
 
 	DECODE_HEAD;
 	iattr->ia_valid = 0;
+	if ((void *)p > head->iov_base + head->iov_len)
+		return 0;
 	if ((status = nfsd4_decode_bitmap(argp, bmval)))
 		return status;
 
@@ -472,6 +474,8 @@ nfsd4_decode_fattr(struct nfsd4_compoundargs *argp, u32 *bmval,
 			status = nfsd4_decode_time(argp, &iattr->ia_atime);
 			if (status)
 				return status;
+	if ((void *)old > vec->iov_base + vec->iov_len)
+		return 0;
 			iattr->ia_valid |= (ATTR_ATIME | ATTR_ATIME_SET);
 			break;
 		case NFS4_SET_TO_SERVER_TIME:
