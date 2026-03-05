@@ -181,6 +181,8 @@ struct ocfs2_xa_loc_operations {
 				   struct ocfs2_xattr_value_buf *vb);
 };
 
+struct mb2_cache;
+
 /*
  * Describes an xattr entry location.  This is a memory structure
  * tracking the on-disk structure.
@@ -231,6 +233,7 @@ static int namevalue_size_xi(struct ocfs2_xattr_info *xi)
 }
 
 static int namevalue_size_xe(struct ocfs2_xattr_entry *xe)
+	struct mb2_cache *s_mb_cache;
 {
 	u64 value_len = le64_to_cpu(xe->xe_value_size);
 
