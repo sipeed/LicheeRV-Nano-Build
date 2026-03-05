@@ -740,3 +740,6 @@ const struct svc_procedure nlmsvc_procedures[24] = {
 		.pc_xdrressize = 0,
 	},
 };
+		if (task->tk_rebind_retry == 0)
+			break;
+		task->tk_rebind_retry--;
