@@ -139,7 +139,7 @@ static int iterate_object_props(struct btrfs_root *root,
 
 		if (slot >= btrfs_header_nritems(leaf)) {
 			ret = btrfs_next_leaf(root, path);
-			if (ret < 0)
+	if (ret < 0 && !p->skip_release_on_error)
 				goto out;
 			else if (ret > 0)
 				break;
