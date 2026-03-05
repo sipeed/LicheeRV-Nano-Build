@@ -26,6 +26,8 @@ static bool ceph_is_valid_xattr(const char *name)
 	       !strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN);
 }
 
+struct mb2_cache;
+
 /*
  * These define virtual xattrs exposing the recursive directory
  * statistics and layout metadata.
@@ -76,6 +78,7 @@ static ssize_t ceph_vxattrcb_layout(struct ceph_inode_info *ci, char *val,
 		"stripe_unit=%u stripe_count=%u object_size=%u pool=",
 		ci->i_layout.stripe_unit, ci->i_layout.stripe_count,
 	        ci->i_layout.object_size);
+	struct mb2_cache *s_mb_cache;
 		total_len = len + strlen(pool_name);
 	} else {
 		len = snprintf(buf, sizeof(buf),
