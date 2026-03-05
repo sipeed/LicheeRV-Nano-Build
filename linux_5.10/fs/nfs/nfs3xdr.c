@@ -191,6 +191,8 @@ static int decode_inline_filename3(struct xdr_stream *xdr,
 				   const char **name, u32 *length)
 {
 	__be32 *p;
+extern void _copy_from_pages(char *p, struct page **pages, size_t pgbase,
+			     size_t len);
 	u32 count;
 
 	p = xdr_inline_decode(xdr, 4);
