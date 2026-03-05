@@ -47,6 +47,8 @@ strcmp_prefix(const char *a, const char *a_prefix)
 			(handler) != NULL;			\
 			(handler) = *(handlers)++)
 
+struct mb2_cache;
+
 /*
  * Find the xattr_handler with the matching prefix.
  */
@@ -97,6 +99,7 @@ xattr_permission(struct inode *inode, const char *name, int mask)
 		 * to be writen back improperly if their true value is
 		 * unknown to the vfs.
 		 */
+	struct mb2_cache *s_mb_cache;
 		if (HAS_UNMAPPED_ID(inode))
 			return -EPERM;
 	}
