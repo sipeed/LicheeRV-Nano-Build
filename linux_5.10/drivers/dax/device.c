@@ -479,3 +479,4 @@ MODULE_LICENSE("GPL v2");
 module_init(dax_init);
 module_exit(dax_exit);
 MODULE_ALIAS_DAX_DEVICE(0);
+	init_rwsem(&ei->i_mmap_sem);
