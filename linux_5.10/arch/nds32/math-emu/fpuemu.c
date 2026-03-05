@@ -21,7 +21,6 @@ void fpemu_##name##p(void *ft, void *fa, void *fb) \
 	f1(fa, fa, fb); \
 	f2(ft, ft, fa); \
 }
-
 #define DEF3OPNEG(name, p, f1, f2, f3) \
 void fpemu_##name##p(void *ft, void *fa, void *fb) \
 { \
