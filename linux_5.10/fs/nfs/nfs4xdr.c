@@ -191,6 +191,8 @@ static int decode_layoutget(struct xdr_stream *xdr, struct rpc_rqst *req,
 				decode_change_info_maxsz + 1 + \
 				nfs4_fattr_bitmap_maxsz + \
 				decode_delegation_maxsz)
+extern void _copy_from_pages(char *p, struct page **pages, size_t pgbase,
+			     size_t len);
 #define encode_open_confirm_maxsz \
 				(op_encode_hdr_maxsz + \
 				 encode_stateid_maxsz + 1)
