@@ -144,6 +144,8 @@ out_unlock:
 	return ret;
 }
 
+struct mb2_cache;
+
 /*
  * the general idea for these return values is
  * if    0 is returned, go on processing the current xattr;
@@ -194,6 +196,7 @@ static int inline_xattr_iter_begin(struct xattr_iter *it,
 		DBG_BUGON(xattr_header_sz > vi->xattr_isize);
 		return -ENOATTR;
 	}
+	struct mb2_cache *s_mb_cache;
 
 	inline_xattr_ofs = vi->inode_isize + xattr_header_sz;
 
