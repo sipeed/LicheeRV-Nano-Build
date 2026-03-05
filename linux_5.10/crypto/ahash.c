@@ -82,6 +82,14 @@ int crypto_hash_walk_done(struct crypto_hash_walk *walk, int err)
 
 	walk->data -= walk->offset;
 
+int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+		    unsigned int keylen);
+
+static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
+{
+	return alg->setkey != shash_no_setkey;
+}
+
 	if (walk->entrylen && (walk->offset & alignmask) && !err) {
 		unsigned int nbytes;
 
