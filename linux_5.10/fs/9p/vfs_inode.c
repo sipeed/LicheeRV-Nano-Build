@@ -1244,6 +1244,10 @@ static int v9fs_vfs_mkspecial(struct inode *dir, struct dentry *dentry,
 		p9_debug(P9_DEBUG_ERROR, "not extended\n");
 		return -EPERM;
 	}
+    if (fidp->fid_type != P9_FID_NONE) {
+        err = -EINVAL;
+        goto out;
+    }
 
 	fid = v9fs_create(v9ses, dir, dentry, (char *) extension, perm,
 								P9_OREAD);
@@ -1415,3 +1419,7 @@ static const struct inode_operations v9fs_symlink_inode_operations = {
 	.setattr = v9fs_vfs_setattr,
 };
 
+    if (fidp->fid_type != P9_FID_NONE) {
+        err = -EINVAL;
+        goto out;
+    }
