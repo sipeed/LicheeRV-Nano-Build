@@ -735,6 +735,13 @@ mountpoint:
 	if (!new)
 		return ERR_PTR(-ENOMEM);
 
+mount-max:
+
+This denotes the maximum number of mounts that may exist
+in a mount namespace.
+
+==============================================================
+
 
 	/* Exactly one processes may set d_mounted */
 	ret = d_set_mounted(dentry);
