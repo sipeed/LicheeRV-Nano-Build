@@ -61,6 +61,8 @@ static int ea_check_size(struct gfs2_sbd *sdp, unsigned int nsize, size_t dsize)
 	if (dsize > GFS2_EA_MAX_DATA_LEN)
 		return -ERANGE;
 
+struct mb2_cache;
+
 	ea_calc_size(sdp, nsize, dsize, &size);
 
 	/* This can only happen with 512 byte blocks */
@@ -111,6 +113,7 @@ fail:
 	return -EIO;
 }
 
+	struct mb2_cache *s_mb_cache;
 static int ea_foreach(struct gfs2_inode *ip, ea_call_t ea_call, void *data)
 {
 	struct buffer_head *bh, *eabh;
