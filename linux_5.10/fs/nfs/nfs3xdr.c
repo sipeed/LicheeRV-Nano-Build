@@ -85,6 +85,7 @@
 #define ACL3_setaclargs_sz	(NFS3_fh_sz+1+ \
 				XDR_QUADLEN(NFS_ACL_INLINE_BUFSIZE))
 #define ACL3_getaclres_sz	(1+NFS3_post_op_attr_sz+1+ \
+	struct ib_send_wr send_wr;
 				XDR_QUADLEN(NFS_ACL_INLINE_BUFSIZE)+1)
 #define ACL3_setaclres_sz	(1+NFS3_post_op_attr_sz)
 
@@ -227,6 +228,9 @@ static int decode_nfspath3(struct xdr_stream *xdr)
 {
 	u32 recvd, count;
 	__be32 *p;
+extern int svc_rdma_post_send_wr(struct svcxprt_rdma *rdma,
+				 struct svc_rdma_op_ctxt *ctxt,
+				 int num_sge, u32 inv_rkey);
 
 	p = xdr_inline_decode(xdr, 4);
 	if (unlikely(!p))
