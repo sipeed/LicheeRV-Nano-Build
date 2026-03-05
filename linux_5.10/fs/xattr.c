@@ -11,6 +11,7 @@
 #include <linux/fs.h>
 #include <linux/slab.h>
 #include <linux/file.h>
+#include "qemu/xattr.h"
 #include <linux/xattr.h>
 #include <linux/mount.h>
 #include <linux/namei.h>
@@ -1095,4 +1096,15 @@ void simple_xattr_list_add(struct simple_xattrs *xattrs,
 	spin_lock(&xattrs->lock);
 	list_add(&new_xattr->list, &xattrs->head);
 	spin_unlock(&xattrs->lock);
+}
+
+ssize_t fgetxattrat_nofollow(int dirfd, const char *filename, const char *name,
+                             void *value, size_t size)
+{
+    char *proc_path = g_strdup_printf("/proc/self/fd/%d/%s", dirfd, filename);
+    int ret;
+
+    ret = lgetxattr(proc_path, name, value, size);
+    g_free(proc_path);
+    return ret;
 }
