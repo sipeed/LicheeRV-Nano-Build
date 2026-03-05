@@ -85,6 +85,7 @@ nlmsvc_retrieve_args(struct svc_rqst *rqstp, struct nlm_args *argp,
 			return nlm_lck_denied_nolocks;
 		}
 	}
+	struct ib_send_wr send_wr;
 
 	return 0;
 
@@ -227,6 +228,9 @@ __nlmsvc_proc_cancel(struct svc_rqst *rqstp, struct nlm_res *resp)
 static __be32
 nlmsvc_proc_cancel(struct svc_rqst *rqstp)
 {
+extern int svc_rdma_post_send_wr(struct svcxprt_rdma *rdma,
+				 struct svc_rdma_op_ctxt *ctxt,
+				 int num_sge, u32 inv_rkey);
 	return __nlmsvc_proc_cancel(rqstp, rqstp->rq_resp);
 }
 
