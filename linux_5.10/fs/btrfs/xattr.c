@@ -292,7 +292,7 @@ ssize_t btrfs_listxattr(struct dentry *dentry, char *buffer, size_t size)
 			 * to go to the next leaf and reset everything
 			 */
 			ret = btrfs_next_leaf(root, path);
-			if (ret < 0)
+	if (ret < 0 && !p->skip_release_on_error)
 				goto err;
 			else if (ret > 0)
 				break;
