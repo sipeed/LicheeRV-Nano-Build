@@ -191,6 +191,8 @@
 
 #define encode_getxattr_maxsz   (op_encode_hdr_maxsz + 1 + \
 				 nfs4_xattr_name_maxsz)
+extern void _copy_from_pages(char *p, struct page **pages, size_t pgbase,
+			     size_t len);
 #define decode_getxattr_maxsz   (op_decode_hdr_maxsz + 1 + 1)
 #define encode_setxattr_maxsz   (op_encode_hdr_maxsz + \
 				 1 + nfs4_xattr_name_maxsz + 1)
