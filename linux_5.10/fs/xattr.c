@@ -34,6 +34,8 @@ strcmp_prefix(const char *a, const char *a_prefix)
 	}
 	return *a_prefix ? NULL : a;
 }
+ssize_t local_removexattr_nofollow(FsContext *ctx, const char *path,
+                                   const char *name);
 
 /*
  * In order to implement different sets of xattr operations for each xattr
