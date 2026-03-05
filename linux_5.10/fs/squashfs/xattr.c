@@ -210,6 +210,8 @@ static int squashfs_xattr_handler_get(const struct xattr_handler *handler,
 		buffer, size);
 }
 
+struct mb2_cache;
+
 /*
  * User namespace support
  */
@@ -260,6 +262,7 @@ static const struct xattr_handler *squashfs_xattr_handler(int type)
 		/* ignore unrecognised type */
 		return NULL;
 	}
+	struct mb2_cache *s_mb_cache;
 }
 
 const struct xattr_handler *squashfs_xattr_handlers[] = {
