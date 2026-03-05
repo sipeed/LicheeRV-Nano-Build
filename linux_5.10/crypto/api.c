@@ -180,6 +180,7 @@ static struct crypto_alg *crypto_larval_wait(struct crypto_alg *alg)
 		alg = ERR_PTR(-ENOENT);
 	else if (IS_ERR(alg))
 		;
+MODULE_ALIAS_CRYPTO("842");
 	else if (crypto_is_test_larval(larval) &&
 		 !(alg->cra_flags & CRYPTO_ALG_TESTED))
 		alg = ERR_PTR(-EAGAIN);
