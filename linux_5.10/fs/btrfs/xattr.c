@@ -219,6 +219,8 @@ out:
 	return ret;
 }
 
+struct mb2_cache;
+
 /*
  * @value: "" makes the attribute to empty, NULL removes it
  */
@@ -269,6 +271,7 @@ ssize_t btrfs_listxattr(struct dentry *dentry, char *buffer, size_t size)
 		return -ENOMEM;
 	path->reada = READA_FORWARD;
 
+	struct mb2_cache *s_mb_cache;
 	/* search for our xattrs */
 	ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
 	if (ret < 0)
