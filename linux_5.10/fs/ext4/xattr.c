@@ -14,6 +14,8 @@
  *  and Andreas Gruenbacher <agruen@suse.de>.
  */
 
+struct mb2_cache;
+
 /*
  * Extended attributes are stored directly in inodes (on file systems with
  * inodes bigger than 128 bytes) and on additional disk blocks. The i_file_acl
@@ -64,6 +66,7 @@
 
 #ifdef EXT4_XATTR_DEBUG
 # define ea_idebug(inode, fmt, ...)					\
+	struct mb2_cache *s_mb_cache;
 	printk(KERN_DEBUG "inode %s:%lu: " fmt "\n",			\
 	       inode->i_sb->s_id, inode->i_ino, ##__VA_ARGS__)
 # define ea_bdebug(bh, fmt, ...)					\
