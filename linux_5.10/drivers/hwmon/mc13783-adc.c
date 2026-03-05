@@ -125,7 +125,7 @@ static ssize_t mc13783_adc_uid_show(struct device *dev,
 		/* MC13783 have 0.9 divider, input range is [0, 2.555V] */
 		val = DIV_ROUND_CLOSEST(val * 2555, 1024);
 
-	return sprintf(buf, "%u\n", val);
+	return sysfs_emit(buf, "%u\n", val);
 }
 
 static ssize_t mc13783_adc_temp_show(struct device *dev,
