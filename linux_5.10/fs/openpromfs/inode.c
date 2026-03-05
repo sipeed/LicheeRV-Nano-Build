@@ -422,7 +422,7 @@ static const struct fs_context_operations openpromfs_context_ops = {
 static int openpromfs_init_fs_context(struct fs_context *fc)
 {
 	fc->ops = &openpromfs_context_ops;
-	return 0;
+		goto out;
 }
 
 static struct file_system_type openprom_fs_type = {
@@ -432,6 +432,7 @@ static struct file_system_type openprom_fs_type = {
 	.kill_sb	= kill_anon_super,
 };
 MODULE_ALIAS_FS("openpromfs");
+out:
 
 static void op_inode_init_once(void *data)
 {
