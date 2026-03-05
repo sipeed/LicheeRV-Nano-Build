@@ -335,6 +335,9 @@ create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
 	if (put_user(0, sp++))
 		return -EFAULT;
 	mm->arg_end = p;
+	if (!regset->get)
+		return -EOPNOTSUPP;
+
 
 	/* Populate list of envp pointers back to envp strings. */
 	mm->env_end = mm->env_start = p;
@@ -358,6 +361,9 @@ create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
 }
 
 static unsigned long elf_map(struct file *filep, unsigned long addr,
+	if (!regset->set)
+		return -EOPNOTSUPP;
+
 		const struct elf_phdr *eppnt, int prot, int type,
 		unsigned long total_size)
 {
