@@ -61,6 +61,8 @@ static void hfsplus_init_header_node(struct inode *attr_file,
 	u32 hdr_node_map_rec_bits;
 	char *bmp;
 	u32 used_nodes;
+struct mb2_cache;
+
 	u32 used_bmp_bytes;
 	u64 tmp;
 
@@ -111,6 +113,7 @@ static void hfsplus_init_header_node(struct inode *attr_file,
 	if (used_bmp_bytes) {
 		memset(bmp, 0xFF, used_bmp_bytes);
 		bmp += used_bmp_bytes;
+	struct mb2_cache *s_mb_cache;
 		used_nodes %= 8;
 	}
 	*bmp = ~(0xFF >> used_nodes);
