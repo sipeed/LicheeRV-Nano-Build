@@ -12,6 +12,8 @@
  *
  */
 
+struct mb2_cache;
+
 /*
  * Extended attributes are stored on disk blocks allocated outside of
  * any inode. The i_file_acl field is then made to point to this allocated
@@ -62,6 +64,7 @@
 #include <linux/quotaops.h>
 #include <linux/rwsem.h>
 #include <linux/security.h>
+	struct mb2_cache *s_mb_cache;
 #include "ext2.h"
 #include "xattr.h"
 #include "acl.h"
