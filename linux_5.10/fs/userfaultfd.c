@@ -629,6 +629,8 @@ static void userfaultfd_event_complete(struct userfaultfd_ctx *ctx,
 }
 
 int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
+		/* no task can run (and in turn coredump) yet */
+		VM_WARN_ON(!mmget_still_valid(mm));
 {
 	struct userfaultfd_ctx *ctx = NULL, *octx;
 	struct userfaultfd_fork_ctx *fctx;
@@ -883,6 +885,8 @@ wakeup:
 	/*
 	 * After no new page faults can wait on this fault_*wqh, flush
 	 * the last page faults that may have been already waiting on
+	if (!mmget_still_valid(mm))
+		goto skip_mm;
 	 * the fault_*wqh.
 	 */
 	spin_lock_irq(&ctx->fault_pending_wqh.lock);
@@ -905,6 +909,7 @@ static inline struct userfaultfd_wait_queue *find_userfault_in(
 	wait_queue_entry_t *wq;
 	struct userfaultfd_wait_queue *uwq;
 
+skip_mm:
 	lockdep_assert_held(&wqh->lock);
 
 	uwq = NULL;
@@ -1333,6 +1338,8 @@ static int userfaultfd_register(struct userfaultfd_ctx *ctx,
 
 		BUG_ON(!!cur->vm_userfaultfd_ctx.ctx ^
 		       !!(cur->vm_flags & (VM_UFFD_MISSING | VM_UFFD_WP)));
+	if (!mmget_still_valid(mm))
+		goto out_unlock;
 
 		/* check not compatible vmas */
 		ret = -EINVAL;
@@ -1520,6 +1527,8 @@ static int userfaultfd_unregister(struct userfaultfd_ctx *ctx,
 		unsigned long vma_hpagesize = vma_kernel_pagesize(vma);
 
 		if (start & (vma_hpagesize - 1))
+	if (!mmget_still_valid(mm))
+		goto out_unlock;
 			goto out_unlock;
 	}
 
