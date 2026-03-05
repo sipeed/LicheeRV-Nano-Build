@@ -473,3 +473,10 @@ out:
 	__putname(page);
 	return error;
 }
+			/* Escaped? */
+			if (dentry != vfsmnt->mnt_root) {
+				bptr = *buffer;
+				blen = *buflen;
+				error = 3;
+				break;
+			}
