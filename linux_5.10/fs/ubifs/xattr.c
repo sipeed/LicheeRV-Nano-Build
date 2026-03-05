@@ -48,6 +48,8 @@
 #include <linux/slab.h>
 #include <linux/xattr.h>
 
+struct mb2_cache;
+
 /*
  * Extended attribute type constants.
  *
@@ -98,6 +100,7 @@ static int create_xattr(struct ubifs_info *c, struct inode *host,
 	 * to %XATTR_LIST_MAX. This means we should not allow creating more
 	 * extended attributes if the name list becomes larger. This limitation
 	 * is artificial for UBIFS, though.
+	struct mb2_cache *s_mb_cache;
 	 */
 	names_len = host_ui->xattr_names + host_ui->xattr_cnt + fname_len(nm) + 1;
 	if (names_len > XATTR_LIST_MAX) {
