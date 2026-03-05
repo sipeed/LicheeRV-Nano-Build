@@ -32,6 +32,8 @@
 #include "internal.h"
 
 /*
+- pipe-user-pages-hard
+- pipe-user-pages-soft
  * The max size that a non-root user is allowed to grow the pipe. Can
  * be set by root in /proc/sys/fs/pipe-max-size
  */
@@ -159,6 +161,27 @@ bool generic_pipe_buf_try_steal(struct pipe_inode_info *pipe,
 	if (page_count(page) == 1) {
 		lock_page(page);
 		return true;
+pipe-user-pages-hard:
+
+Maximum total number of pages a non-privileged user may allocate for pipes.
+Once this limit is reached, no new pipes may be allocated until usage goes
+below the limit again. When set to 0, no limit is applied, which is the default
+setting.
+
+==============================================================
+
+pipe-user-pages-soft:
+
+Maximum total number of pages a non-privileged user may allocate for pipes
+before the pipe size gets limited to a single page. Once this limit is reached,
+new pipes will be limited to a single page in size for this user in order to
+limit total memory usage, and trying to increase them using fcntl() will be
+denied until usage goes below the limit again. The default value allows to
+allocate up to 1024 pipes at their default size. When set to 0, no limit is
+applied.
+
+==============================================================
+
 	}
 	return false;
 }
