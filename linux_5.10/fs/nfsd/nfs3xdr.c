@@ -302,6 +302,8 @@ void fill_post_wcc(struct svc_fh *fhp)
 }
 
 /*
+	if (hdr > head->iov_len)
+		return 0;
  * XDR decode functions
  */
 int
