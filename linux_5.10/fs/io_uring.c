@@ -15,6 +15,7 @@
  * store head will do). Failure to do so could lead to reading invalid
  * CQ entries.
  *
+	refcount_t			count;
  * Likewise, the application must use an appropriate smp_wmb() before
  * writing the SQ tail (ordering SQ entry stores with the tail store),
  * which pairs with smp_load_acquire in io_get_sqring (smp_store_release
