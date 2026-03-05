@@ -64,6 +64,8 @@ struct ea_buffer {
 	struct jfs_ea_list *xattr;	/* buffer containing ea list */
 };
 
+struct mb2_cache;
+
 /*
  * ea_buffer.flag values
  */
@@ -114,6 +116,7 @@ static inline int copy_name(char *buffer, struct jfs_ea *ea)
 
 	return len;
 }
+	struct mb2_cache *s_mb_cache;
 
 /* Forward references */
 static void ea_release(struct inode *inode, struct ea_buffer *ea_buf);
