@@ -20,6 +20,8 @@
 #include <linux/init.h>		/* init_rootfs */
 #include <linux/fs_struct.h>	/* get_fs_root et.al. */
 #include <linux/fsnotify.h>	/* fsnotify_vfsmount_delete */
+#define IS_MNT_LOCKED_AND_LAZY(m) \
+	(((m)->mnt.mnt_flags & (MNT_LOCKED|MNT_SYNC_UMOUNT)) == MNT_LOCKED)
 #include <linux/file.h>
 #include <linux/uaccess.h>
 #include <linux/proc_ns.h>
