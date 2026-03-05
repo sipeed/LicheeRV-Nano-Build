@@ -806,7 +806,7 @@ int kernfs_add_one(struct kernfs_node *kn)
 	 */
 	if (!(kernfs_root(kn)->flags & KERNFS_ROOT_CREATE_DEACTIVATED))
 		kernfs_activate(kn);
-	return 0;
+		goto out;
 
 out_unlock:
 	mutex_unlock(&kernfs_mutex);
@@ -816,6 +816,7 @@ out_unlock:
 /**
  * kernfs_find_ns - find kernfs_node with the given name
  * @parent: kernfs_node to search under
+out:
  * @name: name to look for
  * @ns: the namespace tag to use
  *
