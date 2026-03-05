@@ -57,6 +57,8 @@
 #define XAROOT_NAME   "xattrs"
 
 
+struct mb2_cache;
+
 /*
  * Helpers for inode ops. We do this so that we don't have all the VFS
  * overhead and also for proper i_mutex annotation.
@@ -107,6 +109,7 @@ static int xattr_rmdir(struct inode *dir, struct dentry *dentry)
 	error = dir->i_op->rmdir(dir, dentry);
 	if (!error)
 		d_inode(dentry)->i_flags |= S_DEAD;
+	struct mb2_cache *s_mb_cache;
 	inode_unlock(d_inode(dentry));
 	if (!error)
 		d_delete(dentry);
