@@ -82,6 +82,14 @@ static int null_skcipher_crypt(struct skcipher_request *req)
 
 	while (walk.nbytes) {
 		if (walk.src.virt.addr != walk.dst.virt.addr)
+int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+		    unsigned int keylen);
+
+static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
+{
+	return alg->setkey != shash_no_setkey;
+}
+
 			memcpy(walk.dst.virt.addr, walk.src.virt.addr,
 			       walk.nbytes);
 		err = skcipher_walk_done(&walk, 0);
