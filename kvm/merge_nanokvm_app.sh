@@ -199,6 +199,29 @@ fi
 
 [ "$OUTPUT_IMAGE_FILE" != "$SOURCE_IMAGE_FILE" ] || die "output image must be different from input image"
 
+MOUNTED=0
+OUTPUT_CREATED=0
+cleanup() {
+    status=$?
+    cleanup_ok=1
+    if [ "$MOUNTED" -eq 1 ]; then
+        info "cleanup: unmount $MOUNT_DIR"
+        if umount "$MOUNT_DIR"; then
+            MOUNTED=0
+        else
+            cleanup_ok=0
+            warn "failed to unmount $MOUNT_DIR; please run: umount \"$MOUNT_DIR\""
+        fi
+    fi
+    if [ "$status" -ne 0 ] && [ "$OUTPUT_CREATED" -eq 1 ] && [ "$cleanup_ok" -eq 1 ]; then
+        info "cleanup: remove incomplete output image $OUTPUT_IMAGE_FILE"
+        rm -f "$OUTPUT_IMAGE_FILE" || warn "failed to remove incomplete output image: $OUTPUT_IMAGE_FILE"
+    fi
+    exit "$status"
+}
+trap cleanup EXIT
+trap 'exit 1' HUP INT TERM
+
 if [ -e "$OUTPUT_IMAGE_FILE" ]; then
     if [ "$FORCE_OUTPUT" -eq 1 ]; then
         run_step "remove old output image" rm -f "$OUTPUT_IMAGE_FILE"
@@ -207,6 +230,7 @@ if [ -e "$OUTPUT_IMAGE_FILE" ]; then
     fi
 fi
 
+OUTPUT_CREATED=1
 run_step "copy input image to output image" copy_image "$SOURCE_IMAGE_FILE" "$OUTPUT_IMAGE_FILE"
 IMAGE_FILE=$OUTPUT_IMAGE_FILE
 
@@ -238,41 +262,22 @@ if [ "$COPY_KVMAPP" -eq 1 ]; then
     run_step "remove old SDK kvmapp" rm -rf "$SCRIPT_DIR/kvmapp"
     run_step "copy NanoKVM app from $APP_DIR/kvmapp" cp -a "$APP_DIR/kvmapp" "$SCRIPT_DIR/"
     run_step "create kvm_new_img marker" touch "$SCRIPT_DIR/kvmapp/kvm_new_img"
-    run_step "make SDK kvmapp files executable" chmod -R +x "$SCRIPT_DIR/kvmapp"
 else
     info "use existing SDK kvmapp: $SCRIPT_DIR/kvmapp"
 fi
 
 need_dir "$SCRIPT_DIR/kvmapp"
+run_step "make SDK kvmapp files executable" chmod -R +x "$SCRIPT_DIR/kvmapp"
 need_exec "$SCRIPT_DIR/kvmapp/server/NanoKVM-Server"
 need_exec "$SCRIPT_DIR/kvmapp/kvm_system/kvm_system"
 need_file "$SCRIPT_DIR/kvmapp/system/ko/soph_mipi_rx.ko"
 need_file "$SCRIPT_DIR/kvmapp/system/init.d/S95nanokvm"
 need_file "$SCRIPT_DIR/kvmapp/version"
+for script in S00kmod S01fs S03usbdev S15kvmhwd S30eth S30wifi S95nanokvm; do
+    need_file "$SCRIPT_DIR/kvmapp/system/init.d/$script"
+done
 need_dir "$SCRIPT_DIR/data"
 need_file "$SCRIPT_DIR/data/sensor_cfg.ini"
-
-FRP_DIR=$(find "$SCRIPT_DIR" -maxdepth 1 -type d -name 'frp_*_linux_riscv64' | sort -V | tail -n 1)
-TAILSCALE_DIR=$(find "$SCRIPT_DIR" -maxdepth 1 -type d -name 'tailscale_*_riscv64' | sort -V | tail -n 1)
-
-[ -n "$FRP_DIR" ] || die "missing frp_*_linux_riscv64 directory under $SCRIPT_DIR"
-[ -n "$TAILSCALE_DIR" ] || die "missing tailscale_*_riscv64 directory under $SCRIPT_DIR"
-need_exec "$FRP_DIR/frpc"
-need_exec "$TAILSCALE_DIR/tailscale"
-need_exec "$TAILSCALE_DIR/tailscaled"
-
-MOUNTED=0
-cleanup() {
-    status=$?
-    if [ "$MOUNTED" -eq 1 ]; then
-        info "cleanup: unmount $MOUNT_DIR"
-        if ! umount "$MOUNT_DIR"; then
-            warn "failed to unmount $MOUNT_DIR; please run: umount \"$MOUNT_DIR\""
-        fi
-    fi
-    exit "$status"
-}
-trap cleanup EXIT HUP INT TERM
 
 info "mount image: $IMAGE_FILE"
 if "$SDK_DIR/host/mount_ext4.sh" "$IMAGE_FILE" "$MOUNT_DIR"; then
@@ -292,6 +297,25 @@ need_dir "$MOUNT_DIR/usr"
 need_dir "$MOUNT_DIR/mnt"
 info "mount check passed"
 
+MINIMAL_IMAGE=0
+if [ -e "$MOUNT_DIR/etc/nanokvm-minimal" ]; then
+    MINIMAL_IMAGE=1
+else
+    FRP_DIR=$(find "$SCRIPT_DIR" -maxdepth 1 -type d -name 'frp_*_linux_riscv64' | sort -V | tail -n 1)
+    TAILSCALE_DIR=$(find "$SCRIPT_DIR" -maxdepth 1 -type d -name 'tailscale_*_riscv64' | sort -V | tail -n 1)
+    [ -n "$FRP_DIR" ] || die "missing frp_*_linux_riscv64 directory under $SCRIPT_DIR"
+    [ -n "$TAILSCALE_DIR" ] || die "missing tailscale_*_riscv64 directory under $SCRIPT_DIR"
+    need_exec "$FRP_DIR/frpc"
+    need_exec "$TAILSCALE_DIR/tailscale"
+    need_exec "$TAILSCALE_DIR/tailscaled"
+fi
+
+SSH_AVAILABLE=0
+if [ -x "$MOUNT_DIR/usr/sbin/sshd" ] && [ -x "$MOUNT_DIR/usr/bin/ssh-keygen" ]; then
+    SSH_AVAILABLE=1
+    need_file "$SCRIPT_DIR/kvmapp/system/init.d/S50sshd"
+fi
+
 run_step "remove old image kvmapp" rm -rf "$MOUNT_DIR/kvmapp"
 run_step "copy kvmapp into image" cp -a "$SCRIPT_DIR/kvmapp" "$MOUNT_DIR/"
 need_exec "$MOUNT_DIR/kvmapp/server/NanoKVM-Server"
@@ -299,24 +323,39 @@ need_file "$MOUNT_DIR/kvmapp/system/init.d/S95nanokvm"
 need_file "$MOUNT_DIR/kvmapp/version"
 info "kvmapp install check passed"
 
-run_step "create frp and tailscale target directories" install -d "$MOUNT_DIR/usr/bin" "$MOUNT_DIR/usr/sbin"
-run_step "install frpc" install -m 755 "$FRP_DIR/frpc" "$MOUNT_DIR/usr/bin/frpc"
-run_step "install tailscale" install -m 755 "$TAILSCALE_DIR/tailscale" "$MOUNT_DIR/usr/bin/tailscale"
-run_step "install tailscaled" install -m 755 "$TAILSCALE_DIR/tailscaled" "$MOUNT_DIR/usr/sbin/tailscaled"
-need_exec "$MOUNT_DIR/usr/bin/frpc"
-need_exec "$MOUNT_DIR/usr/bin/tailscale"
-need_exec "$MOUNT_DIR/usr/sbin/tailscaled"
-info "frp and tailscale install check passed"
+if [ "$MINIMAL_IMAGE" -eq 1 ]; then
+    info "minimal image: omit bundled frp and tailscale"
+    run_step "remove bundled frp and tailscale" rm -f \
+        "$MOUNT_DIR/usr/bin/frpc" \
+        "$MOUNT_DIR/usr/bin/tailscale" \
+        "$MOUNT_DIR/usr/sbin/tailscaled" \
+        "$MOUNT_DIR/etc/init.d/S98tailscaled"
+else
+    run_step "create frp and tailscale target directories" install -d "$MOUNT_DIR/usr/bin" "$MOUNT_DIR/usr/sbin"
+    run_step "install frpc" install -m 755 "$FRP_DIR/frpc" "$MOUNT_DIR/usr/bin/frpc"
+    run_step "install tailscale" install -m 755 "$TAILSCALE_DIR/tailscale" "$MOUNT_DIR/usr/bin/tailscale"
+    run_step "install tailscaled" install -m 755 "$TAILSCALE_DIR/tailscaled" "$MOUNT_DIR/usr/sbin/tailscaled"
+    need_exec "$MOUNT_DIR/usr/bin/frpc"
+    need_exec "$MOUNT_DIR/usr/bin/tailscale"
+    need_exec "$MOUNT_DIR/usr/sbin/tailscaled"
+    info "frp and tailscale install check passed"
+fi
 
 run_step "create kernel module and init target directories" install -d "$MOUNT_DIR/mnt/system/ko" "$MOUNT_DIR/etc/init.d"
 run_step "install soph_mipi_rx.ko" install -m 755 "$SCRIPT_DIR/kvmapp/system/ko/soph_mipi_rx.ko" "$MOUNT_DIR/mnt/system/ko/soph_mipi_rx.ko"
 need_file "$MOUNT_DIR/mnt/system/ko/soph_mipi_rx.ko"
 
 for script in S00kmod S01fs S03usbdev S15kvmhwd S30eth S30wifi S95nanokvm; do
-    need_file "$SCRIPT_DIR/kvmapp/system/init.d/$script"
     run_step "install init script: $script" install -m 755 "$SCRIPT_DIR/kvmapp/system/init.d/$script" "$MOUNT_DIR/etc/init.d/$script"
     need_exec "$MOUNT_DIR/etc/init.d/$script"
 done
+if [ "$SSH_AVAILABLE" -eq 1 ]; then
+    run_step "install init script: S50sshd" install -m 755 "$SCRIPT_DIR/kvmapp/system/init.d/S50sshd" "$MOUNT_DIR/etc/init.d/S50sshd"
+    need_exec "$MOUNT_DIR/etc/init.d/S50sshd"
+else
+    warn "input image has no OpenSSH server; SSH remains unavailable"
+    run_step "remove unavailable SSH init script" rm -f "$MOUNT_DIR/etc/init.d/S50sshd"
+fi
 info "kernel module and init script install check passed"
 
 run_step "create default data and kvm config directories" install -d "$MOUNT_DIR/mnt/data" "$MOUNT_DIR/etc/kvm" "$MOUNT_DIR/kvmapp/kvm"

@@ -149,6 +149,31 @@ upgrade.zip
 ls -lh "$SDK_DIR"/install/soc_sg2002_licheervnano_sd/images/*.img
 ```
 
+### 1.6 编译 minimal 镜像
+
+如果需要更小的 rootfs，可以选择 minimal 板型：
+
+```shell
+cd "$SDK_DIR"
+source build/cvisetup.sh
+defconfig sg2002_licheervnano_sd_minimal
+clean_all
+build_all
+```
+
+minimal 产物位于：
+
+```shell
+"$SDK_DIR/install/soc_sg2002_licheervnano_sd_minimal/"
+```
+
+minimal 镜像不预装 Python3、FRP 和 Tailscale，但保留 NanoKVM、SSH、mDNS、Bash 及基础网络功能。合并 APP 时需要显式指定 minimal 镜像：
+
+```shell
+./kvm/merge_nanokvm_app.sh \
+    -i install/soc_sg2002_licheervnano_sd_minimal/images/your-image-name.img
+```
+
 如果编译过程中停在下载进度位置，例如 `Buildroot` 正在下载 `Pillow`、`qt5base`、`qt5svg` 等源码包，通常是网络较慢，不一定是编译卡死。可以观察对应的临时下载文件大小是否仍在增长。
 
 如果首次构建在 `qt5svg` 或 `qt5base` 附近失败，可以先重新执行：
@@ -565,7 +590,7 @@ SDK 的 `kvm/merge_nanokvm_app.sh` 脚本可以自动完成合并流程，包括
 - 自动选择最新生成的原始 `.img`，或者使用你手动指定的镜像。
 - 默认复制出一个新的 `*-nanokvm.img`，只修改这个输出镜像，不原地修改原始镜像。
 - 挂载镜像的 ext4 分区。
-- 写入 `kvmapp`、`frpc`、`tailscale`、`tailscaled`、内核模块、启动脚本、默认数据和默认 KVM 配置。
+- 写入 `kvmapp`、内核模块、启动脚本、默认数据和默认 KVM 配置；普通镜像还会写入 `frpc`、`tailscale` 和 `tailscaled`。
 - 每个关键步骤后检查挂载状态或目标文件，并校验第二分区之前的 boot 区域没有变化；失败时打印具体失败步骤并终止。
 - 写入完成后自动卸载镜像。
 

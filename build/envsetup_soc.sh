@@ -525,6 +525,7 @@ function clean_ramdisk()
   rm -rf "${RAMDISK_PATH:?}"/"$RAMDISK_OUTPUT_BASE"
   rm -rf "$SYSTEM_OUT_DIR"
   rm -rf "$ROOTFS_DIR"
+  rm -rf "${BR_OUTPUT_DIR:?}"
 }
 
 function build_access_guard_turnkey_app()
@@ -876,9 +877,16 @@ function cvi_setup_env()
   # buildroot config
   export BR_DIR="$TOP_DIR"/buildroot
   export BR_BOARD=cvitek_${CHIP_ARCH}_${SDK_VER}
-  export BR_OVERLAY_DIR=${BR_DIR}/board/cvitek/${CHIP_ARCH}/overlay
-  export BR_DEFCONFIG=${BR_BOARD}_defconfig
-  echo "BR2_DEFCONFIG:  ${BRDEFCONFIG}"
+  export BR_OUTPUT_DIR=${BR_DIR}/output/${PROJECT_FULLNAME}
+  export BR_BASE_OVERLAY_DIR=${BR_DIR}/board/cvitek/${CHIP_ARCH}/overlay
+  export BR_OVERLAY_DIR=${BR_OUTPUT_DIR}/overlay
+  export BR_DEFCONFIG=defconfig
+  export BR2_DEFCONFIG=${BR_DIR}/configs/${BR_BOARD}_defconfig
+  board_br_defconfig="$BUILD_PATH/boards/${CHIP_ARCH,,}/$PROJECT_FULLNAME/buildroot.config"
+  if [ -f "$board_br_defconfig" ]; then
+    export BR2_DEFCONFIG=$board_br_defconfig
+  fi
+  echo "BR2_DEFCONFIG:  ${BR2_DEFCONFIG}"
 }
 
 cvi_print_env()

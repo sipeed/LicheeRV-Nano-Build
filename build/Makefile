@@ -543,6 +543,10 @@ br-rootfs-prepare:export CROSS_COMPILE_SDK=$(patsubst "%",%,$(CONFIG_CROSS_COMPI
 br-rootfs-prepare:
 	$(call print_target)
 	# copy ko and mmf libs
+	${Q}rm -rf $(BR_OVERLAY_DIR)
+	${Q}mkdir -p $(BR_OVERLAY_DIR)
+	${Q}cp -a $(BR_BASE_OVERLAY_DIR)/. $(BR_OVERLAY_DIR)/
+	${Q}rm -rf $(BR_OVERLAY_DIR)/mnt/system
 	${Q}mkdir -p $(BR_OVERLAY_DIR)/mnt/system
 	${Q}cp -arf ${SYSTEM_OUT_DIR}/* $(BR_OVERLAY_DIR)/mnt/system/
 	# strip
@@ -550,16 +554,16 @@ br-rootfs-prepare:
 	${Q}find $(BR_OVERLAY_DIR) -name "*.so*" -type f -printf 'striping %p\n' -exec $(CROSS_COMPILE_KERNEL)strip --strip-all {} \;
 	${Q}find $(BR_OVERLAY_DIR) -executable -type f ! -name "*.sh" ! -path "*etc*" ! -path "*.ko" -printf 'striping %p\n' -exec $(CROSS_COMPILE_SDK)strip --strip-all {} 2>/dev/null \;
 
-br-rootfs-pack:export TARGET_OUTPUT_DIR=$(BR_DIR)/output/$(BR_BOARD)
+br-rootfs-pack:export TARGET_OUTPUT_DIR=$(BR_OUTPUT_DIR)
 br-rootfs-pack:
 	$(call print_target)
-	${Q}$(MAKE) -C $(BR_DIR) $(BR_DEFCONFIG) BR2_TOOLCHAIN_EXTERNAL_PATH=$(CROSS_COMPILE_PATH)
-	${Q}$(MAKE) -j${NPROC} -C $(BR_DIR) source
-	${Q}$(MAKE) -j${NPROC} -C $(BR_DIR)
+	${Q}$(MAKE) -C $(BR_DIR) O=$(TARGET_OUTPUT_DIR) $(BR_DEFCONFIG) BR2_DEFCONFIG=$(BR2_DEFCONFIG) BR2_ROOTFS_OVERLAY=$(BR_OVERLAY_DIR) BR2_TOOLCHAIN_EXTERNAL_PATH=$(CROSS_COMPILE_PATH)
+	${Q}$(MAKE) -j${NPROC} -C $(BR_DIR) O=$(TARGET_OUTPUT_DIR) BR2_ROOTFS_OVERLAY=$(BR_OVERLAY_DIR) source
+	${Q}$(MAKE) -j${NPROC} -C $(BR_DIR) O=$(TARGET_OUTPUT_DIR) BR2_ROOTFS_OVERLAY=$(BR_OVERLAY_DIR)
 	# ${Q}rm -rf $(BR_ROOTFS_DIR)/*
 	# copy rootfs to rawimg dir
-	${Q}cp $(BR_DIR)/output/images/rootfs.ext4 $(OUTPUT_DIR)/rawimages/rootfs.$(STORAGE_TYPE)
-	${Q}tar zcvf $(OUTPUT_DIR)/licheervnano-drivers.tar.gz $(BR_DIR)/output/target/mnt
+	${Q}cp $(TARGET_OUTPUT_DIR)/images/rootfs.ext4 $(OUTPUT_DIR)/rawimages/rootfs.$(STORAGE_TYPE)
+	${Q}tar zcvf $(OUTPUT_DIR)/licheervnano-drivers.tar.gz $(TARGET_OUTPUT_DIR)/target/mnt
 	$(call raw2cimg ,rootfs.$(STORAGE_TYPE))
 
 ifeq ($(CONFIG_BUILDROOT_FS),y)
