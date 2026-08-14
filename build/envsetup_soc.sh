@@ -734,6 +734,11 @@ function cvi_setup_env()
 
   PROJECT_FULLNAME="$CHIP"_"$BOARD"
 
+  # NanoKVM has no display output; do not build or load the vendor bootlogo.
+  if [[ "$PROJECT_FULLNAME" == "sg2002_licheervnano_sd" ]]; then
+    ENABLE_BOOTLOGO=0
+  fi
+
   # output folder path
   INSTALL_PATH="$TOP_DIR"/install
   OUTPUT_DIR="$INSTALL_PATH"/soc_"$PROJECT_FULLNAME"

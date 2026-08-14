@@ -56,9 +56,9 @@ class MemoryMap:
 
     assert ISP_MEM_BASE_ADDR + ISP_MEM_BASE_SIZE <= ION_ADDR + ION_SIZE
 
-    # Boot logo is after the ION buffer
-    # Framebuffer uses boot logo's reserved memory
-    BOOTLOGO_SIZE = 8000 * SIZE_1K
+    # NanoKVM has no display output, so do not reserve framebuffer/bootlogo
+    # memory.  Keeping this at zero returns the region to Linux.
+    BOOTLOGO_SIZE = 0
     BOOTLOGO_ADDR = ION_ADDR - BOOTLOGO_SIZE
     FRAMEBUFFER_SIZE = BOOTLOGO_SIZE
     FRAMEBUFFER_ADDR = BOOTLOGO_ADDR
