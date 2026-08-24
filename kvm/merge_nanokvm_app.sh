@@ -201,6 +201,7 @@ fi
 
 MOUNTED=0
 OUTPUT_CREATED=0
+STRIP_TEMP_FILE=""
 cleanup() {
     status=$?
     cleanup_ok=1
@@ -216,6 +217,9 @@ cleanup() {
     if [ "$status" -ne 0 ] && [ "$OUTPUT_CREATED" -eq 1 ] && [ "$cleanup_ok" -eq 1 ]; then
         info "cleanup: remove incomplete output image $OUTPUT_IMAGE_FILE"
         rm -f "$OUTPUT_IMAGE_FILE" || warn "failed to remove incomplete output image: $OUTPUT_IMAGE_FILE"
+    fi
+    if [ -n "$STRIP_TEMP_FILE" ]; then
+        rm -f "$STRIP_TEMP_FILE"
     fi
     exit "$status"
 }
@@ -318,6 +322,22 @@ fi
 
 run_step "remove old image kvmapp" rm -rf "$MOUNT_DIR/kvmapp"
 run_step "copy kvmapp into image" cp -a "$SCRIPT_DIR/kvmapp" "$MOUNT_DIR/"
+strip_tool="${CROSS_COMPILE_STRIP:-}"
+if [ -z "$strip_tool" ]; then
+    strip_tool=$(command -v riscv64-unknown-linux-musl-strip 2>/dev/null || true)
+fi
+if [ -z "$strip_tool" ]; then
+    strip_tool="$SDK_DIR/host-tools/gcc/riscv64-linux-musl-x86_64/bin/riscv64-unknown-linux-musl-strip"
+fi
+case "$strip_tool" in
+    */*) need_exec "$strip_tool" ;;
+    *) command -v "$strip_tool" >/dev/null 2>&1 || die "missing strip tool: $strip_tool" ;;
+esac
+STRIP_TEMP_FILE=$(mktemp "${TMPDIR:-/tmp}/nanokvm-server.XXXXXX") || die "failed to create strip temporary file"
+run_step "strip NanoKVM-Server debug information" \
+    "$strip_tool" --strip-debug -o "$STRIP_TEMP_FILE" "$SCRIPT_DIR/kvmapp/server/NanoKVM-Server"
+run_step "install stripped NanoKVM-Server" \
+    install -m 755 "$STRIP_TEMP_FILE" "$MOUNT_DIR/kvmapp/server/NanoKVM-Server"
 need_exec "$MOUNT_DIR/kvmapp/server/NanoKVM-Server"
 need_file "$MOUNT_DIR/kvmapp/system/init.d/S95nanokvm"
 need_file "$MOUNT_DIR/kvmapp/version"
