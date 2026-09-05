@@ -482,6 +482,23 @@ rootfs-prepare:export CROSS_COMPILE_SDK=$(patsubst "%",%,$(CONFIG_CROSS_COMPILE_
 rootfs-prepare:$(OUTPUT_DIR)/rootfs
 	# Copy rootfs
 	${Q}cp -a --remove-destination $(RAMDISK_PATH)/rootfs/$(ROOTFS_BASE)/* $(OUTPUT_DIR)/rootfs
+	# Copy ipc packages to rootfs
+	@echo "=== 复制 ipc 包到 rootfs ==="
+	@for pkg_dir in $(TOP_DIR)/ipc/*/; do \
+	    if [ -d "$$pkg_dir" ]; then \
+	        pkg_name=$$(basename $$pkg_dir); \
+	        echo "处理包: $$pkg_name"; \
+	        if [ -f "$(BR_DIR)/output/target/usr/bin/$$pkg_name" ]; then \
+	            mkdir -p $(OUTPUT_DIR)/rootfs/usr/bin; \
+	            cp -a $(BR_DIR)/output/target/usr/bin/$$pkg_name $(OUTPUT_DIR)/rootfs/usr/bin/; \
+	            echo "  复制: usr/bin/$$pkg_name"; \
+	        fi; \
+	        if [ -d "$$pkg_dir/rootfs" ]; then \
+	            cp -a $$pkg_dir/rootfs/* $(OUTPUT_DIR)/rootfs/; \
+	            echo "  复制 rootfs: $$pkg_dir/rootfs/"; \
+	        fi; \
+	    fi; \
+	done
 
         # Copy arch overlay rootfs
 ifneq ("$(wildcard $(SDK_VER_FOLDER_PATH))", "")

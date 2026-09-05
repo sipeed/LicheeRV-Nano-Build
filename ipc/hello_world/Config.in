@@ -1,0 +1,8 @@
+# ipc/hello_world/Config.in
+
+config BR2_PACKAGE_HELLO_WORLD
+    bool "hello_world"
+    help
+      Hello World application.
+      
+      This is a simple Hello World program.
