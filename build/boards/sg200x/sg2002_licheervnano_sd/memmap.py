@@ -41,6 +41,8 @@ class MemoryMap:
     # =================
     # Multimedia buffer. Used by u-boot/kernel/FreeRTOS
     # =================
+    # Requires the complete MMF teardown in sipeed/NanoKVM#914.
+    # Measurements cover up to 1920x1080; this is not a QHD memory budget.
     # Mixed H26x + JPEG peaks at 41.543 MiB with the corrected NanoKVM MMF
     # lifecycle, leaving about 6.46 MiB for codec and resolution transitions.
     ION_SIZE = 48 * SIZE_1M
