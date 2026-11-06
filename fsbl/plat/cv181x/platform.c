@@ -11,8 +11,9 @@
 #include <rom_api.h>
 
 #include "ddr_pkg_info.h"
-#include "rtc.h"
-
+#include <ddr_sys.h>
+#include <rtc.h>
+extern enum CHIP_CLK_MODE chip_clk_mode;
 void panic_handler(void)
 {
 	void *ra;
@@ -135,6 +136,7 @@ void sys_switch_all_to_pll(void)
 	// Switch all clocks to PLL
 	mmio_write_32(0x03002030, 0x0); // REG_CLK_BYPASS_SEL0_REG
 	mmio_write_32(0x03002034, 0x0); // REG_CLK_BYPASS_SEL1_REG
+	NOTICE("sys_switch_all_to_pll...\n");
 }
 
 void sys_pll_od(void)
@@ -144,7 +146,7 @@ void sys_pll_od(void)
 	uint32_t byp0_value;
 
 	uint32_t pll_syn_set[] = {
-		614400000, // set apll synthesizer  98.304 M
+		614440960, // set apll synthesizer  98.304 M
 		610080582, // set disp synthesizer  99 M
 		610080582, // set cam0 synthesizer  99 M
 		586388132, // set cam1 synthesizer  103 M
@@ -197,10 +199,6 @@ void sys_pll_od(void)
 	// set mpll = 1050MHz
 	mmio_write_32(0x03002908, 0x05548101);
 
-	// set clk_sel_23: [23] clk_sel for clk_c906_0 = 1 (DIV_IN0_SRC_MUX)
-	// set clk_sel_24: [24] clk_sel for clk_c906_1 = 1 (DIV_IN0_SRC_MUX)
-	mmio_write_32(0x03002020, 0x01800000);
-
 	// set div, src_mux of clk_c906_0: [20:16]div_factor=1, [9:8]clk_src = 3 (mpll), 1050/1 = 1050MHz
 	mmio_write_32(0x03002130, 0x00010309);
 
@@ -209,9 +207,6 @@ void sys_pll_od(void)
 #else
 	// set mpll = 1000MHz
 	mmio_write_32(0x03002908, 0x05508101);
-
-	// set clk_sel_0: [0] clk_sel for clk_a53 = 1 (DIV_IN0_SRC_MUX)
-	mmio_write_32(0x03002020, 0x00000001);
 
 	// set div, src_mux of clk_a53: [20:16]div_factor=1, [9:8]clk_src = 3 (mpll)
 	mmio_write_32(0x03002040, 0x00010309);
@@ -222,7 +217,7 @@ void sys_pll_od(void)
 
 	mmio_write_32(0x03002048, 0x00030009); //clk_cpu_axi0 = FPLL(1500) / 3
 	mmio_write_32(0x03002054, 0x00020009); //clk_tpu = TPLL(1400) / 2 = 700MHz
-	mmio_write_32(0x03002064, 0x00080009); //clk_emmc = FPLL(1500) / 8 = 187.5MHz
+	mmio_write_32(0x03002064, 0x00040009); //clk_emmc = FPLL(1500) / 4 = 375MHz
 	mmio_write_32(0x03002088, 0x00080009); //clk_spi_nand = FPLL(1500) / 8 = 187.5MHz
 	mmio_write_32(0x03002098, 0x00200009); //clk_sdma_aud0 = APLL(786.432) / 32 = 24.576MHz
 	mmio_write_32(0x03002120, 0x000F0009); //clk_pwm_src = FPLL(1500) / 15 = 100MHz
@@ -251,6 +246,16 @@ void sys_pll_od(void)
 	//wait for pll stable
 	udelay(200);
 
+#ifdef __riscv
+	// set clk_sel_23: [23] clk_sel for clk_c906_0 = 1 (DIV_IN0_SRC_MUX)
+	// set clk_sel_24: [24] clk_sel for clk_c906_1 = 1 (DIV_IN0_SRC_MUX)
+	mmio_write_32(0x03002020, 0x01800000);
+#else
+	// set clk_sel_0: [0] clk_sel for clk_a53 = 1 (DIV_IN0_SRC_MUX)
+	// set clk_sel_24: [24] clk_sel for clk_c906_1 = 1 (DIV_IN0_SRC_MUX)
+	mmio_write_32(0x03002020, 0x01000001);
+#endif
+
 	// switch clock to PLL from xtal except clk_axi4 & clk_spi_nand
 	byp0_value &= (1 << 8 | //clk_spi_nand
 		       1 << 19 //clk_axi4
@@ -266,7 +271,7 @@ void sys_pll_nd(int vc_overdrive)
 	uint32_t byp0_value;
 
 	uint32_t pll_syn_set[] = {
-		614400000, // set apll synthesizer  98.304 M
+		614440960, // set apll synthesizer  98.304 M
 		610080582, // set disp synthesizer  99 M
 		610080582, // set cam0 synthesizer  99 M
 		615164587, // set cam1 synthesizer  98.18181818 M
@@ -327,10 +332,6 @@ void sys_pll_nd(int vc_overdrive)
 	// set mpll = 850MHz
 	mmio_write_32(0x03002908, 0x00448101);
 
-	// set clk_sel_23: [23] clk_sel for clk_c906_0 = 1 (DIV_IN0_SRC_MUX)
-	// set clk_sel_24: [24] clk_sel for clk_c906_1 = 1 (DIV_IN0_SRC_MUX)
-	mmio_write_32(0x03002020, 0x01800000);
-
 	// set div, src_mux of clk_c906_0: [20:16]div_factor=1, [9:8]clk_src = 3 (mpll), 850/1 = 850MHz
 	mmio_write_32(0x03002130, 0x00010309);
 
@@ -339,9 +340,6 @@ void sys_pll_nd(int vc_overdrive)
 #else
 	// set mpll = 800MHz
 	mmio_write_32(0x03002908, 0x00408101);
-
-	// set clk_sel_0: [0] clk_sel for clk_a53 = 1 (DIV_IN0_SRC_MUX)
-	mmio_write_32(0x03002020, 0x00000001);
 
 	// set div, src_mux of clk_a53: [20:16]div_factor=1, [9:8]clk_src = 3 (mpll)
 	mmio_write_32(0x03002040, 0x00010309);
@@ -358,7 +356,7 @@ void sys_pll_nd(int vc_overdrive)
 #endif
 
 	mmio_write_32(0x03002048, 0x00030009); //clk_cpu_axi0 = FPLL(1500) / 3
-	mmio_write_32(0x03002064, 0x00080009); //clk_emmc = FPLL(1500) / 8 = 187.5MHz
+	mmio_write_32(0x03002064, 0x00040009); //clk_emmc = FPLL(1500) / 4 = 375MHz
 	mmio_write_32(0x03002088, 0x00080009); //clk_spi_nand = FPLL(1500) / 8 = 187.5MHz
 	mmio_write_32(0x03002098, 0x00120009); //clk_sdma_aud0 = APLL(442.368) / 18 = 24.576MHz
 	mmio_write_32(0x03002120, 0x000F0009); //clk_pwm_src = FPLL(1500) / 15 = 100MHz
@@ -396,6 +394,16 @@ void sys_pll_nd(int vc_overdrive)
 	//wait for pll stable
 	udelay(200);
 
+#ifdef __riscv
+	// set clk_sel_23: [23] clk_sel for clk_c906_0 = 1 (DIV_IN0_SRC_MUX)
+	// set clk_sel_24: [24] clk_sel for clk_c906_1 = 1 (DIV_IN0_SRC_MUX)
+	mmio_write_32(0x03002020, 0x01800000);
+#else
+	// set clk_sel_0: [0] clk_sel for clk_a53 = 1 (DIV_IN0_SRC_MUX)
+	// set clk_sel_24: [24] clk_sel for clk_c906_1 = 1 (DIV_IN0_SRC_MUX)
+	mmio_write_32(0x03002020, 0x01000001);
+#endif
+
 	// switch clock to PLL from xtal except clk_axi4 & clk_spi_nand
 	byp0_value &= (1 << 8 | //clk_spi_nand
 		       1 << 19 //clk_axi4
@@ -405,9 +413,9 @@ void sys_pll_nd(int vc_overdrive)
 	NOTICE("PLLE.\n");
 }
 
-void sys_pll_init(enum CHIP_CLK_MODE mode)
+void sys_pll_init(void)
 {
-	switch (mode) {
+	switch (chip_clk_mode) {
 	case CLK_VC_OD:
 		sys_pll_nd(1);
 		break;
@@ -422,17 +430,88 @@ void sys_pll_init(enum CHIP_CLK_MODE mode)
 
 }
 
+#ifndef NO_DDR_CFG //for fpga
+static void *get_warmboot_entry(void)
+{
+	/*
+	 * "FSM state change to ST_ON from the state
+	 * 4'h0 = state changed from ST_OFF to ST_ON
+	 * 4'h3 = state changed to ST_PWR_CYC or ST_WARM_RESET then back to ST_ON
+	 * 4'h9 = state changed from ST_SUSP to ST_ON
+	 */
+#define WANTED_STATE SYS_RESUME
+
+	NOTICE("\nREG_RTC_ST_ON_REASON=0x%x\n", mmio_read_32(REG_RTC_ST_ON_REASON));
+	NOTICE("\nRTC_SRAM_FLAG_ADDR%x=0x%x\n", RTC_SRAM_FLAG_ADDR, mmio_read_32(RTC_SRAM_FLAG_ADDR));
+	/* Check if RTC state changed from ST_SUSP */
+	if ((mmio_read_32(REG_RTC_ST_ON_REASON) & 0xF) == WANTED_STATE)
+		return (void *)(uintptr_t)mmio_read_32(RTC_SRAM_FLAG_ADDR);
+
+	return 0;
+}
+#endif
+void rtc_set_ddr_pwrok(void)
+{
+	mmio_setbits_32(REG_RTC_BASE + RTC_PG_REG, 0x00000001);
+}
+
+void rtc_set_rmio_pwrok(void)
+{
+	mmio_setbits_32(REG_RTC_BASE + RTC_PG_REG, 0x00000002);
+}
+
+#ifndef NO_DDR_CFG //for fpga
+static void ddr_resume(void)
+{
+	rtc_set_ddr_pwrok();
+	rtc_set_rmio_pwrok();
+	ddr_sys_resume();
+}
+
+void jump_to_warmboot_entry(void)
+{
+	void (*warmboot_entry)() = get_warmboot_entry();
+
+	// treat next reset as normal boot
+	mmio_write_64(RTC_SRAM_FLAG_ADDR, 0);
+	if (warmboot_entry) {
+		NOTICE("WE=0x%lx\n", (uintptr_t)warmboot_entry);
+
+		NOTICE("ddr resume...\n");
+		ddr_resume();
+		NOTICE("ddr resume end\n");
+
+		sys_pll_init();
+		sys_switch_all_to_pll();
+#ifdef AARCH64
+		NOTICE("disable_mmu_el3 start...\n");
+		disable_mmu_el3();
+		__asm__ volatile("tlbi alle3\n");
+		/*DO NOT add any log after disable MMU*/
+#endif
+		warmboot_entry();
+	}
+}
+#endif
+
 void switch_rtc_mode_1st_stage(void)
 {
 	uint32_t read_data;
 	uint32_t write_data;
 	uint32_t rtc_mode;
 
-#ifdef CV181X_SUPPORT_SUSPEND_RESUME
+#ifdef AARCH64
 	void (*warmboot_entry)(void) = get_warmboot_entry();
 
-	if (warmboot_entry == (void *)BL31_WARMBOOT_ENTRY)
+	if (warmboot_entry == (void *)BL31_WARMBOOT_ENTRY){
+		NOTICE("return %s %dwarmboot_entry\n",__func__,__LINE__);
 		return;
+	}
+
+#endif
+
+#ifdef CONFIG_SUSPEND
+	return;
 #endif
 
 	// reg_rtc_mode = rtc_ctrl0[10]
@@ -471,6 +550,7 @@ void switch_rtc_mode_1st_stage(void)
 	// reg_clk32k_cg_en = rtc_ctrl0[11] -> 1
 	write_data = 0x0C000000 | (read_data & 0xffffffff) | (0x1 << 11);
 	mmio_write_32(REG_RTC_CTRL_BASE + RTC_CTRL0, write_data); //rtc_ctrl0
+	NOTICE("Switch RTC mode to xtal32k\n");
 }
 
 void switch_rtc_mode_2nd_stage(void)
@@ -497,12 +577,14 @@ void switch_rtc_mode_2nd_stage(void)
 void set_rtc_en_registers(void)
 {
 	uint32_t write_data;
+#ifndef FSBL_FASTBOOT
 	uint32_t read_data;
 
 	read_data = mmio_read_32(REG_RTC_BASE + RTC_ST_ON_REASON);
 	NOTICE("st_on_reason=%x\n", read_data);
 	read_data = mmio_read_32(REG_RTC_BASE + RTC_ST_OFF_REASON);
 	NOTICE("st_off_reason=%x\n", read_data);
+#endif
 
 	mmio_write_32(REG_RTC_BASE + RTC_EN_SHDN_REQ, 0x01);
 	while (mmio_read_32(REG_RTC_BASE + RTC_EN_SHDN_REQ) != 0x01)
@@ -520,8 +602,13 @@ void set_rtc_en_registers(void)
 	while (mmio_read_32(REG_RTC_BASE + RTC_EN_WDT_RST_REQ) != 0x01)
 		;
 
+#ifdef CONFIG_SUSPEND
 	// Set rtcsys_rst_ctrl[24] = 1; bit 24 is reg_rtcsys_reset_en
-	mmio_setbits_32(REG_RTC_CTRL_BASE + RTC_POR_RST_CTRL, 0X1);
+	mmio_write_32(REG_RTC_CTRL_BASE + RTC_POR_RST_CTRL, 0X2);
+#else
+	mmio_write_32(REG_RTC_CTRL_BASE + RTC_POR_RST_CTRL, 0X1);
+#endif
+
 
 	// rtc_ctrl0_unlockkey
 	mmio_write_32(REG_RTC_CTRL_BASE + RTC_CTRL0_UNLOCKKEY, 0xAB18);

@@ -11,10 +11,18 @@
 #include <rom_api.h>
 #include <bl2.h>
 #include <ddr.h>
+#include <ddr_sys.h>
+#include <rtc.h>
 #include <string.h>
 #include <decompress.h>
 #include <delay_timer.h>
 #include <security/security.h>
+#include <emmc/emmc.h>
+#include <cv_spi_nand.h>
+
+uint64_t load_addr = 0x0c000;
+uint64_t run_addr   = 0x8000C000;
+uint64_t reading_size = 0x020000;
 
 struct _time_records *time_records = (void *)TIME_RECORDS_ADDR;
 struct fip_param1 *fip_param1 = (void *)PARAM1_BASE;
@@ -108,48 +116,17 @@ int load_param2(int retry)
 	return 0;
 }
 
-int load_ddr_param(int retry)
-{
-	uint32_t crc;
-	int ret = -1;
-
-	NOTICE("DPS/0x%x/0x%x.\n", fip_param2.ddr_param_loadaddr, fip_param2.ddr_param_size);
-
-	if (fip_param2.ddr_param_size >= sizeof(sram_union_buf.ddr_param))
-		fip_param2.ddr_param_size = sizeof(sram_union_buf.ddr_param);
-
-	ret = p_rom_api_load_image(&sram_union_buf.ddr_param, fip_param2.ddr_param_loadaddr, fip_param2.ddr_param_size,
-				   retry);
-	if (ret < 0) {
-		return ret;
-	}
-
-	crc = p_rom_api_image_crc(&sram_union_buf.ddr_param, fip_param2.ddr_param_size);
-	if (crc != fip_param2.ddr_param_cksum) {
-		ERROR("ddr_param_cksum (0x%x/0x%x)\n", crc, fip_param2.ddr_param_cksum);
-		return -1;
-	}
-
-	NOTICE("DPE.\n");
-
-	return 0;
-}
-
 int load_ddr(void)
 {
+#ifndef ENABLE_BOOT0
 	int retry = 0;
 
 retry_from_flash:
 	for (retry = 0; retry < p_rom_api_get_number_of_retries(); retry++) {
 		if (load_param2(retry) < 0)
 			continue;
-
-		if (load_ddr_param(retry) < 0)
-			continue;
-
 		break;
 	}
-
 	if (retry >= p_rom_api_get_number_of_retries()) {
 		switch (p_rom_api_get_boot_src()) {
 		case BOOT_SRC_UART:
@@ -160,16 +137,55 @@ retry_from_flash:
 			p_rom_api_flash_init();
 			goto retry_from_flash;
 		default:
-			ERROR("Failed to load DDR param (%d).\n", retry);
+			ERROR("Failed to load param2 (%d).\n", retry);
 			panic_handler();
 		}
 	}
-
+#endif
 	time_records->ddr_init_start = read_time_ms();
 	ddr_init(&sram_union_buf.ddr_param);
 	time_records->ddr_init_end = read_time_ms();
 
 	return 0;
+}
+
+static int emmc_read_fip_bl2(uint32_t offset, uint32_t size, uintptr_t buf)
+{
+	int lba = 0;
+
+	if (((offset & EMMC_BLOCK_MASK) != 0) || ((buf & EMMC_BLOCK_MASK) != 0) || ((size & EMMC_BLOCK_MASK) != 0))
+		return -22;
+
+	lba = offset / EMMC_BLOCK_SIZE;
+
+	// INFO("%s offset %x,lba %d, size %d, dst buf 0x%lx\n", __func__, offset, lba, size, buf);
+
+	if (size != emmc_partition_read_blocks(EMMC_PARTITION_BOOT1, lba, buf, size))
+		return -5;
+
+	return 0;
+}
+
+static int load_data_from_storage(void *buffer, uint32_t offset, uint32_t size, int retry)
+{
+	static int is_get_boot_src;
+	static int boot_src;
+
+	if (!is_get_boot_src) {
+		boot_src = p_rom_api_get_boot_src();
+		is_get_boot_src = 1;
+
+		/* reinit eMMC */
+		if (boot_src == BOOT_SRC_EMMC)
+			bm_emmc_init();
+	}
+
+	//use BL2 eMMC driver to load image
+	if (boot_src == BOOT_SRC_EMMC) {
+		return emmc_read_fip_bl2(offset, size, (uintptr_t)buffer);
+	} else {
+		return p_rom_api_load_image(buffer, offset, size, retry);
+	}
 }
 
 int load_blcp_2nd(int retry)
@@ -198,7 +214,7 @@ int load_blcp_2nd(int retry)
 		panic_handler();
 	}
 
-	ret = p_rom_api_load_image((void *)(uintptr_t)fip_param2.blcp_2nd_runaddr, fip_param2.blcp_2nd_loadaddr,
+	ret = load_data_from_storage((void *)(uintptr_t)fip_param2.blcp_2nd_runaddr, fip_param2.blcp_2nd_loadaddr,
 				   fip_param2.blcp_2nd_size, retry);
 	if (ret < 0) {
 		return ret;
@@ -221,11 +237,19 @@ int load_blcp_2nd(int retry)
 	rtos_base = mmio_read_32(AXI_SRAM_RTOS_BASE);
 	init_comm_info(0);
 
-	time_records->release_blcp_2nd = read_time_ms();
-	if (rtos_base == CVI_RTOS_MAGIC_CODE) {
-		mmio_write_32(AXI_SRAM_RTOS_BASE, fip_param2.blcp_2nd_runaddr);
-	} else {
-		reset_c906l(fip_param2.blcp_2nd_runaddr);
+	switch (p_rom_api_get_boot_src()) {
+		case BOOT_SRC_UART:
+		// case BOOT_SRC_SD:
+		// case BOOT_SRC_USB:
+			break;
+
+		default:
+			time_records->release_blcp_2nd = read_time_ms();
+			if (rtos_base == CVI_RTOS_MAGIC_CODE) {
+				mmio_write_32(AXI_SRAM_RTOS_BASE, fip_param2.blcp_2nd_runaddr);
+			} else {
+				reset_c906l(fip_param2.blcp_2nd_runaddr);
+			}
 	}
 
 	NOTICE("C2E.\n");
@@ -256,7 +280,7 @@ int load_monitor(int retry, uint64_t *monitor_entry)
 		panic_handler();
 	}
 
-	ret = p_rom_api_load_image((void *)(uintptr_t)fip_param2.monitor_runaddr, fip_param2.monitor_loadaddr,
+	ret = load_data_from_storage((void *)(uintptr_t)fip_param2.monitor_runaddr, fip_param2.monitor_loadaddr,
 				   fip_param2.monitor_size, retry);
 	if (ret < 0) {
 		return ret;
@@ -282,6 +306,58 @@ int load_monitor(int retry, uint64_t *monitor_entry)
 	return 0;
 }
 
+#ifdef ENABLE_BURN_BUTTON
+
+int button_usb_down_pressed(void)
+{
+	// Modify the GPIO configuration as needed!!!!!!!!!
+	uint8_t gpio_grp = GPIO_GRP, gpio_pin = GPIO_PIN; // XGPIOB[3];
+	NOTICE("gpio_grp = %d gpio_pin = %d\n", gpio_grp, gpio_pin);
+
+	// gpio base addr: gpioa, gpiob, gpioc, gpiod, pwr_gpio;
+	uint32_t gpio_base[5] = { 0x03020000, 0x03021000, 0x03022000, 0x03023000, 0x05021000 };
+	uint32_t gpio_direction_addr = gpio_base[gpio_grp] + 0x4;
+	uint32_t gpio_value_addr = gpio_base[gpio_grp] + 0x50;
+	uint32_t val = 0x1;
+
+	/* pinmux config */
+	// mmio_write_32(0x03001098, 0x3);
+
+	/* open internel pull up */
+	// mmio_write_32(0x05027020, 0x44);
+
+	/* gpio input mode */
+	val = mmio_read_32(gpio_direction_addr) & (~(1 << gpio_pin));
+	mmio_write_32(gpio_direction_addr, val);
+
+	/* gpio debouncing */
+	val = (mmio_read_32(gpio_value_addr) >> gpio_pin) & 0x1;
+	NOTICE("key value = %u (key down should be 0)\n", val);
+	if (!val) {
+		mdelay(10);
+		val = (mmio_read_32(gpio_value_addr) >> gpio_pin) & 0x1;
+		NOTICE("repeat key value = %u (key down should be 0)\n", val);
+		return !val;
+	}
+	return 0; // pressed:1 unpressed:0
+}
+
+int load_uboot(void *image_buf, int retry)
+{
+	int ret = -1;
+	int reading_size = 0;
+
+	reading_size = ROUND_UP(fip_param2.loader_2nd_b_size, BLOCK_SIZE);
+	NOTICE("reading_size:%x, addr:=0x%x\n", reading_size, fip_param2.loader_2nd_b_loadaddr);
+	ret = load_data_from_storage(image_buf, fip_param2.loader_2nd_b_loadaddr, reading_size, retry);
+	if (ret < 0) {
+		return -1;
+	}
+	return 0;
+}
+
+#endif
+
 int load_loader_2nd(int retry, uint64_t *loader_2nd_entry)
 {
 	struct loader_2nd_header *loader_2nd_header = &sram_union_buf.loader_2nd_header;
@@ -296,7 +372,7 @@ int load_loader_2nd(int retry, uint64_t *loader_2nd_entry)
 
 	NOTICE("L2/0x%x.\n", fip_param2.loader_2nd_loadaddr);
 
-	ret = p_rom_api_load_image(loader_2nd_header, fip_param2.loader_2nd_loadaddr, BLOCK_SIZE, retry);
+	ret = load_data_from_storage(loader_2nd_header, fip_param2.loader_2nd_loadaddr, BLOCK_SIZE, retry);
 	if (ret < 0) {
 		return -1;
 	}
@@ -306,6 +382,18 @@ int load_loader_2nd(int retry, uint64_t *loader_2nd_entry)
 	NOTICE("L2/0x%x/0x%x/0x%lx/0x%x/0x%x\n", loader_2nd_header->magic, loader_2nd_header->cksum,
 	       loader_2nd_header->runaddr, loader_2nd_header->size, reading_size);
 
+#ifdef ENABLE_BURN_BUTTON
+	if (button_usb_down_pressed()) {
+		NOTICE("usb_down button pressed.\n");
+		mmio_write_32(BOOT_SOURCE_FLAG_ADDR, MAGIC_NUM_USB_DL);
+		loader_2nd_header->runaddr = CONFIG_SYS_TEXT_BASE;
+		ret = load_uboot((void *)loader_2nd_header->runaddr, retry);
+		if (ret < 0) {
+			return -1;
+		}
+		goto done;
+	}
+#endif
 	switch (loader_2nd_header->magic) {
 	case LOADER_2ND_MAGIC_LZMA:
 		comp_type = COMP_LZMA;
@@ -366,7 +454,9 @@ int load_loader_2nd(int retry, uint64_t *loader_2nd_entry)
 
 		reading_size = dst_size;
 	}
-
+#ifdef ENABLE_BURN_BUTTON
+done:
+#endif
 	flush_dcache_range(loader_2nd_header->runaddr, reading_size);
 	time_records->fsbl_decomp_end = read_time_ms();
 	NOTICE("Loader_2nd loaded.\n");
@@ -376,15 +466,81 @@ int load_loader_2nd(int retry, uint64_t *loader_2nd_entry)
 	return 0;
 }
 
-int load_rest(enum CHIP_CLK_MODE mode)
+int load_loader_2nd_alios(int retry, uint64_t *loader_2nd_entry)
+{
+	void *image_buf;
+	int ret = -1;
+	#ifdef BOOT_SPINOR
+	load_addr = 0x0c000;
+	#endif
+
+	#ifdef BOOT_EMMC
+	load_addr = 0x00000;
+	#endif
+
+	#ifdef BOOT_SPINAND
+	load_addr = 0x280000;
+	#endif
+	uint64_t loadaddr_alios = load_addr;
+	uint64_t runaddr_alios  = run_addr;
+	uint64_t size_alios     = reading_size;
+
+	image_buf = (void *)runaddr_alios;
+	NOTICE("loadaddr_alios:0x%lx runaddr_alios:0x%lx.\n", loadaddr_alios, runaddr_alios);
+
+#ifdef BOOT_SPINAND
+	/* SPI-NAND uses the in-tree raw-read driver: read linearly by physical
+	 * page, bypassing the ROM API FIP (FIPH/fip_vector) scan. The single-image
+	 * RTT boot partition is not in the NAND-FIP layout, so the ROM API returns
+	 * FIP0NC. get_nand_info() self-calibrates the geometry on the first read.
+	 * Compiled only into spinand boot0 images; the full-FIP paths are untouched,
+	 * symmetric with cv180x. */
+	{
+		static int nand_info_ready;
+
+		if (!nand_info_ready) {
+			get_nand_info();
+			nand_info_ready = 1;
+		}
+		ret = cv_spi_nand_read_data(image_buf, loadaddr_alios, size_alios);
+	}
+#else
+	ret = p_rom_api_load_image(image_buf, loadaddr_alios, size_alios, retry);
+#endif
+	/* Must check the return value: the original code ignored ret and jumped to
+	 * run_addr executing garbage on a failed load, causing a panic. */
+	if (ret < 0) {
+		ERROR("load loader_2nd_alios failed (%d)\n", ret);
+		return ret;
+	}
+	NOTICE("image_buf:0x%lx.\n", *((uint64_t *)runaddr_alios));
+	if (security_is_tee_enabled()) {
+		ret = dec_verify_image(image_buf,size_alios, 0, fip_param1);
+		if (ret < 0) {
+			ERROR("verify alios boot0 failed (%d)\n", ret);
+			return ret;
+		}
+	}
+
+	sys_switch_all_to_pll();
+
+	*loader_2nd_entry = run_addr;
+
+	return 0;
+}
+
+int load_rest(void)
 {
 	int retry = 0;
 	uint64_t monitor_entry = 0;
 	uint64_t loader_2nd_entry = 0;
 
 	// Init sys PLL and switch clocks to PLL
-	sys_pll_init(mode);
-
+	sys_pll_init();
+#ifndef ENABLE_BOOT0
+#ifdef FSBL_FASTBOOT
+	mmio_write_32(0x030020B8, 0x00030009); // improve axi clock from 300m to 500m
+#endif
 retry_from_flash:
 	for (retry = 0; retry < p_rom_api_get_number_of_retries(); retry++) {
 		if (load_blcp_2nd(retry) < 0)
@@ -414,10 +570,36 @@ retry_from_flash:
 		}
 	}
 
+#ifdef FSBL_FASTBOOT
+	mmio_write_32(0x030020B8, 0x00050009); // restore axi clock from 500m to 300m
+#endif
 	sync_cache();
 	console_flush();
 
-	switch_rtc_mode_2nd_stage();
+	// switch_rtc_mode_2nd_stage();
+#else
+	#ifdef ENABLE_FASTBOOT0
+	mmio_write_32(0x030020B8, 0x00030009);
+	#endif
+	if (load_loader_2nd_alios(retry, &loader_2nd_entry) < 0)
+		return -1;
+	#ifdef ENABLE_FASTBOOT0
+	mmio_write_32(0x030020B8, 0x00050009);
+	#endif
+	sync_cache();
+
+	// switch_rtc_mode_2nd_stage();
+#ifdef __riscv
+	/*
+	 * RISC-V: jump_to_loader_2nd() is empty; jump_to_monitor() calls the
+	 * image directly in M-mode, which is how the loaded image is started.
+	 * AArch64: leave monitor_entry at 0 so jump_to_loader_2nd() drops to
+	 * EL2-NS. jump_to_monitor() would enter the image at secure EL3 with
+	 * BL31 params, and the image loaded here is not a BL31 monitor.
+	 */
+	monitor_entry = run_addr;
+#endif
+#endif
 
 	if (monitor_entry) {
 		NOTICE("Jump to monitor at 0x%lx.\n", monitor_entry);

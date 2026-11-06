@@ -51,6 +51,12 @@ enum CHIP_CONF_CMD {
 	CHIP_CONF_CMD_DELAY_MS = 0xFFFFFFFD
 };
 
+enum CHIP_CLK_MODE {
+	CLK_ND = 0,
+	CLK_OD,
+	CLK_VC_OD
+};
+
 void apply_chip_conf(const struct chip_conf chip_conf[], uint32_t size, enum CHIP_CONF_CMD scan_start,
 		     enum CHIP_CONF_CMD scan_end);
 
@@ -125,7 +131,7 @@ void sys_switch_all_to_pll(void);
 void lock_efuse_chipsn(void);
 int load_ddr(void);
 int load_rest(void);
-int load_rest_od_sel(void);
+void jump_to_warmboot_entry(void);
 
 #endif /* __ASSEMBLY__ */
 

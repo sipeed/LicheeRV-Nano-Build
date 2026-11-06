@@ -1,0 +1,24 @@
+# Ignore miscellaneous files
+*.py[co]
+cscope.*
+*.swp
+*.patch
+*~
+.project
+.cproject
+.vscode/
+
+# Ignore build directory
+build/
+__pycache__/
+
+# GNU GLOBAL files
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
+#ignore ctags
+tags
+#ignore vim swap files
+*.swo

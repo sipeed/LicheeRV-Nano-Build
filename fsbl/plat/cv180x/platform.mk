@@ -14,6 +14,13 @@ TEST_FROM_SPINOR1 := 0
 
 DEFINES += -DLZ4_USER_MEMORY_FUNCTIONS=1
 
+# overdrive clock setting
+ifeq ($(OD_CLK_SEL),y)
+$(eval $(call add_define,OD_CLK_SEL))
+else ifeq ($(VC_CLK_OVERDRIVE),y)
+$(eval $(call add_define,VC_CLK_OVERDRIVE))
+endif
+
 # ifeq ($(FSBL_SECURE_BOOT_SUPPORT),1)
 DEFINES += \
 	-DNO_ALLOCS \
@@ -65,6 +72,7 @@ BL2_SRCS = \
 	${BL_COMMON_SOURCES} \
 	plat/${CHIP_ARCH}/platform_device.c \
 	plat/${CHIP_ARCH}/bl2/bl2_opt.c \
+	plat/${CHIP_ARCH}/bl2/cvi_spinand.c \
 	lib/utils/decompress.c \
 	plat/${CHIP_ARCH}/usb/cps_cvi.c  \
 	plat/${CHIP_ARCH}/usb/usb_tty.c  \

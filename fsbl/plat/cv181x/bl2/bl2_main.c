@@ -5,7 +5,8 @@
 #include <string.h>
 #include <delay_timer.h>
 #include <rom_api.h>
-
+#include <cpu.h>
+enum CHIP_CLK_MODE chip_clk_mode = CLK_ND;
 #ifdef RTOS_ENABLE_FREERTOS
 int init_comm_info(int ret)
 {
@@ -48,7 +49,6 @@ int dec_verify_image(const void *image, size_t size, size_t dec_skip, struct fip
 
 void bl2_main(void)
 {
-	enum CHIP_CLK_MODE mode;
 	uint32_t v = p_rom_api_get_boot_src();
 
 	if (v == BOOT_SRC_UART) {
@@ -71,22 +71,28 @@ void bl2_main(void)
 
 	setup_dl_flag();
 
+#ifdef SWITCH_32K_XTAL
 	switch_rtc_mode_1st_stage();
+#endif
 
 	set_rtc_en_registers();
 
-	load_ddr();
-
 #ifdef OD_CLK_SEL
-	mode = CLK_OD;
+	chip_clk_mode = CLK_OD;
 #else
 #ifdef VC_CLK_OVERDRIVE
-	mode = CLK_VC_OD;
-#else
-	mode = CLK_ND;
+	chip_clk_mode = CLK_VC_OD;
 #endif
 #endif
-	load_rest(mode);
+
+#ifdef CONFIG_SUSPEND
+#ifndef NO_DDR_CFG //for fpga
+	jump_to_warmboot_entry();
+#endif
+#endif
+	load_ddr();
+
+	load_rest();
 	NOTICE("BL2 end.\n");
 
 	while (1)
