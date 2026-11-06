@@ -44,6 +44,19 @@ PRINTF_TIMESTAMP := 0
 
 NANDBOOT_V2 := 1
 
+
+ifeq ($(STORAGE),spinor)
+CFLAGS += -DBOOT_SPINOR
+endif
+
+ifeq ($(STORAGE),emmc)
+CFLAGS += -DBOOT_EMMC
+endif
+
+ifeq ($(STORAGE),spinand)
+CFLAGS += -DBOOT_SPINAND
+endif
+
 # Verbose flag
 ifeq (${V},0)
         Q:=@
@@ -131,6 +144,15 @@ include lib/cpu/${BOOT_CPU}/cpu.mk
 INCLUDES += -Ibuild
 INCLUDES += -Iinclude/cpu
 
+ifeq (${STORAGE_TYPE},spinand)
+$(eval $(call add_define,BOOT_FROM_NAND))
+endif
+ifeq (${STORAGE_TYPE},emmc)
+$(eval $(call add_define,BOOT_FROM_EMMC))
+endif
+ifeq (${STORAGE_TYPE},spinor)
+$(eval $(call add_define,BOOT_FROM_NOR))
+endif
 ################################################################################
 # Build options checks
 ################################################################################
@@ -176,9 +198,22 @@ ifeq ($(OD_CLK_SEL),y)
 $(eval $(call add_define,OD_CLK_SEL))
 endif
 
+ifeq ($(ENABLE_BURN_BUTTON),y)
+$(eval $(call add_define,ENABLE_BURN_BUTTON))
+$(eval $(call add_define_val,GPIO_GRP,${GPIO_GRP}))
+$(eval $(call add_define_val,GPIO_PIN,${GPIO_PIN}))
+endif
+
 $(eval $(call add_define,FSBL_SECURE_BOOT_SUPPORT))
 $(eval $(call add_define, USB_DL_BY_FSBL))
 
+ifeq ($(SUSPEND),y)
+$(eval $(call add_define,CONFIG_SUSPEND))
+endif
+
+ifeq (${SWITCH_32K_XTAL},y)
+$(eval $(call add_define,SWITCH_32K_XTAL))
+endif
 ################################################################################
 # Build targets
 ################################################################################
@@ -187,7 +222,9 @@ $(eval $(call add_define, USB_DL_BY_FSBL))
 
 export BUILD_PLAT NM
 
+
 all: fip bl2 blmacros
+
 
 include ${MAKE_HELPERS_DIRECTORY}fip.mk
 

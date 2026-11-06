@@ -27,6 +27,7 @@ BL2_SOURCES += \
 	plat/${CHIP_ARCH}/ddr/ddr_pkg_info.c \
 	plat/${CHIP_ARCH}/ddr/ddr_sys_bring_up.c \
 	plat/${CHIP_ARCH}/ddr/ddr_sys.c \
+	plat/${CHIP_ARCH}/ddr/ddr_suspend.c \
 	plat/${CHIP_ARCH}/ddr/phy_pll_init.c \
 	plat/${CHIP_ARCH}/ddr/cvx16_pinmux.c \
 	plat/${CHIP_ARCH}/ddr/cvx16_dram_cap_check.c \
@@ -69,11 +70,6 @@ $(eval $(call add_define,X16_MODE))
 # $(eval $(call add_define,DBG_SHMOO_CS))
 # $(eval $(call add_define,FULL_MEM_BIST))
 # $(eval $(call add_define,FULL_MEM_BIST_FOREVER))
-
-# overdrive clock setting
-ifeq ($(OD_CLK_SEL),y)
-$(eval $(call add_define,OD_CLK_SEL))
-endif
 
 # # for ddr simulation
 # $(eval $(call add_define,DDR_SIM))

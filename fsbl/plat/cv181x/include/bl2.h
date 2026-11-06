@@ -23,7 +23,12 @@ struct fip_param2 {
 	uint32_t loader_2nd_loadaddr;
 	uint32_t loader_2nd_reserved1;
 	uint32_t loader_2nd_reserved2;
-	uint8_t reserved4[4016];
+	uint32_t loader_2nd_b_reserved0;
+	uint32_t loader_2nd_b_loadaddr;
+	uint32_t loader_2nd_b_size;
+	uint32_t loader_2nd_b_reserved2;
+	uint32_t alios_boot_size;
+	uint8_t reserved4[3996];
 } __packed;
 
 struct loader_2nd_header {

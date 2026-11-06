@@ -27,6 +27,7 @@ BL2_SOURCES += \
 	plat/${CHIP_ARCH}/ddr/ddr_pkg_info.c \
 	plat/${CHIP_ARCH}/ddr/ddr_sys_bring_up.c \
 	plat/${CHIP_ARCH}/ddr/ddr_sys.c \
+	plat/${CHIP_ARCH}/ddr/ddr_suspend.c \
 	plat/${CHIP_ARCH}/ddr/phy_pll_init.c \
 	plat/${CHIP_ARCH}/ddr/cvx16_pinmux.c \
 	plat/${CHIP_ARCH}/ddr/cvx16_dram_cap_check.c \
@@ -46,6 +47,8 @@ ifneq ($(findstring 2133, ${DDR_CFG}),)
     $(eval $(call add_define,_mem_freq_2133))
 else ifneq ($(findstring 1866, ${DDR_CFG}),)
     $(eval $(call add_define,_mem_freq_1866))
+else ifneq ($(findstring 1600, ${DDR_CFG}),)
+    $(eval $(call add_define,_mem_freq_1600))
 else ifneq ($(findstring 1333, ${DDR_CFG}),)
     $(eval $(call add_define,_mem_freq_1333))
 endif
