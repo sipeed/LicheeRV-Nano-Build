@@ -19,7 +19,6 @@ then
 	then
 		echo "load cst3xx touchscreen driver"
 		insmod /mnt/system/ko/hynitron_touch.ko
-	fi
 	elif [ "$panel_value" = "mtd700920b" ] # 7-inch touchscreen
 	then
 		echo "load gt9xx touchscreen driver"
