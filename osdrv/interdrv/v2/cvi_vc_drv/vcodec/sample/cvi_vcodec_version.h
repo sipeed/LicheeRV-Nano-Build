@@ -1,0 +1,1 @@
+#define VCODEC_VERSION "-"
