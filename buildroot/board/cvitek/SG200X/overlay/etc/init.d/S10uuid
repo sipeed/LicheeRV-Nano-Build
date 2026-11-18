@@ -34,11 +34,11 @@ then
 	fi
 	echo "hostname: ${new_hostname}"
 
-	if [ -e /boot/eth.mac ]
+	if [ -s /boot/eth.mac ]
 	then
-		new_ethmac=$(cat /boot/ethmac)
+		new_ethmac=$(cat /boot/eth.mac)
 	else
-		new_ethmac=$(hex2mac 48da356f$(sha512sum /device_key_legacy  | head -c 4))
+		new_ethmac=$(hex2mac 02$(sha512sum /device_key_legacy | head -c 10))
 	fi
 
 	ifconfig eth0 down
