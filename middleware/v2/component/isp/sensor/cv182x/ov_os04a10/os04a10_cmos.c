@@ -1173,6 +1173,8 @@ static CVI_S32 cmos_set_image_mode(VI_PIPE ViPipe, ISP_CMOS_SENSOR_IMAGE_MODE_S 
 	OS04A10_SENSOR_GET_CTX(ViPipe, pstSnsState);
 	CMOS_CHECK_POINTER(pstSnsState);
 
+	printf("############# [%s][%d] fps:%f\r\n", __func__, __LINE__, pstSensorImageMode->f32Fps);
+
 	u8SensorImageMode = pstSnsState->u8ImgMode;
 	pstSnsState->bSyncInit = CVI_FALSE;
 	if (pstSensorImageMode->f32Fps <= 30) {
@@ -1207,6 +1209,9 @@ static CVI_S32 cmos_set_image_mode(VI_PIPE ViPipe, ISP_CMOS_SENSOR_IMAGE_MODE_S 
 			return CVI_FAILURE;
 		}
 	} else {
+		if (pstSensorImageMode->u16Width <= 1280 && pstSensorImageMode->u16Height <= 720) {
+			u8SensorImageMode = OS04A10_MODE_720P90_12BIT;
+		}
 	}
 
 	if ((pstSnsState->bInit == CVI_TRUE) && (u8SensorImageMode == pstSnsState->u8ImgMode)) {
