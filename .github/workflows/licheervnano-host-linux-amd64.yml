@@ -1,108 +1,219 @@
-name: licheervnano-host-linux-amd64-cvi-mmf-sdk-ci
+name: Build NanoKVM SD image (SG2002 / LicheeRV Nano)
+
+# Builds the full bootable NanoKVM SD image: build_all produces the base
+# rootfs, then the kvmapp payload (kvm_system + server + web + frpc/tailscale
+# + mipi ko) is injected and the result is verified before upload.
+#
+# Dispatch this on the NanoKVM branch. It replaces the upstream original
+# workflow (job "mksys"), which auto-fails at "Set up job" because it still
+# pins actions/checkout@v3 + actions/upload-artifact@v3 (the v3 artifact API
+# is shut down: every run is rejected before any step executes).
 
 on:
   workflow_dispatch:
 
 jobs:
-  mksys:
-    strategy:
-      fail-fast: false
-
+  build:
     runs-on: ubuntu-22.04
-
     steps:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           max-size: "20G"
           create-symlink: true
-          key: ${{matrix.os }}-${{ matrix.type }}
+          key: licheervnano-nanokvm
 
-      - name: Create Timestamp
+      - name: Timestamp
+        run: echo "BUILD_DATE=$(date +%Y%m%d)" >> "$GITHUB_ENV"
+
+      - name: Install build dependencies
         run: |
-              echo "BUILD_ID=$(date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
-              echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+          sudo apt update
+          sudo apt install -y \
+            android-libext4-utils android-sdk-libsparse-utils asciinema autoconf automake autotools-dev \
+            bc bdebstrap binutils-riscv64-unknown-elf bison build-essential bzr \
+            ca-certificates ccache chrpath ckermit cmake cpio \
+            cpp-riscv64-linux-gnu crossbuild-essential-riscv64 cscope curl cvs debianutils \
+            device-tree-compiler diffstat erofs-utils fakechroot fakeroot fatcat \
+            file flex g++-riscv64-linux-gnu gawk gcc-riscv64-linux-gnu gcc-riscv64-unknown-elf \
+            genext2fs git help2man iputils-ping jq libacl1 \
+            libasan8-riscv64-cross libatomic1-riscv64-cross libc6-dbg-riscv64-cross libc6-dev-riscv64-cross libconfuse-dev libegl1-mesa \
+            liblz4-tool libncurses-dev libncurses5-dev libsdl1.2-dev libssl-dev libtool-bin \
+            locales make mercurial mesa-common-dev mmdebstrap mtools \
+            neovim ninja-build openssh-server openssl parallel parted \
+            picolibc-riscv64-unknown-elf pkg-config proot python3 python3-dev python3-distutils \
+            python3-flake8 python3-git python3-jinja2 python3-magic python3-nose2 python3-pexpect \
+            python3-pip python3-pytest python3-subunit rsync scons shellcheck \
+            slib socat squashfs-tools ssh ssh-client subversion \
+            tclsh texinfo tree unzip wget xz-utils zstd
 
-      - name: Install Software
+      - name: Free disk space
         run: |
-              sudo apt update && \
-              sudo apt install -y build-essential autoconf automake autotools-dev ninja-build make help2man \
-                                  libncurses-dev gawk flex bison openssl libssl-dev tree wget curl cmake ccache \
-                                  libtool-bin bc bzr ca-certificates cmake cpio cvs file git locales mercurial \
-                                  openssh-server python3 python3-flake8 python3-magic python3-nose2 python3-pexpect \
-                                  python3-pytest rsync shellcheck subversion unzip pkg-config libssl-dev slib \
-                                  squashfs-tools android-sdk-libsparse-utils rsync jq cmake python3-distutils \
-                                  tclsh scons parallel ssh-client tree python3-dev python3-pip device-tree-compiler \
-                                  libssl-dev ssh cpio squashfs-tools fakeroot libncurses5-dev flex bison mmdebstrap \
-                                  android-libext4-utils bdebstrap proot fakeroot fakechroot python3 python3-flake8 \
-                                  python3-nose2 python3-pexpect subversion unzip ccache picolibc-riscv64-unknown-elf\
-                                  crossbuild-essential-riscv64 binutils-riscv64-unknown-elf\
-                                  cpp-riscv64-linux-gnu g++-riscv64-linux-gnu gcc-riscv64-linux-gnu\
-                                  libc6-dbg-riscv64-cross libatomic1-riscv64-cross libasan8-riscv64-cross\
-                                  libc6-dev-riscv64-cross gcc-riscv64-unknown-elf gawk diffstat texinfo\
-                                  chrpath socat python3-pip python3-pexpect xz-utils debianutils \
-                                  iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
-                                  python3-subunit mesa-common-dev zstd liblz4-tool libacl1 parted erofs-utils \
-                                  genext2fs mtools fatcat ckermit neovim cscope asciinema libconfuse-dev
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/.ghcup || true
+          sudo docker image prune -af || true
+          df -h /
 
-
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-            path: 'cvi_mmf_sdk'  # TODO: make this name a global variable
-            ref: 'main'
+          path: cvi_mmf_sdk
+          ref: NanoKVM
 
-      - name: Download Toolchain
+      - name: Download toolchain
+        working-directory: cvi_mmf_sdk
         run: |
-              export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-              pushd cvi_mmf_sdk
-                wget https://sophon-file.sophon.cn/sophon-prod-s3/drive/23/03/07/16/host-tools.tar.gz
-                tar xf host-tools.tar.gz
-              popd
+          wget -q https://sophon-file.sophon.cn/sophon-prod-s3/drive/23/03/07/16/host-tools.tar.gz
+          tar xf host-tools.tar.gz
 
-      - name: Make System
+      # NanoKVM-branch HEAD (1eecfed7a) carries two build regressions, ported
+      # from the local wsl-fixes scripts; both patches are idempotent:
+      #  1) the minimal board dts copies the main board's &fb_reserved/&cvi_fb
+      #     overrides WITHOUT the #if (CVIMMAP_FRAMEBUFFER_SIZE > 0) guard, so
+      #     `make dtbs` fails with "Label or path fb_reserved not found".
+      #  2) middleware Makefile_full compiles every sensor source with bare
+      #     $(CFLAGS) and misses -I$(KERNEL_INC), so libsns_full fails on
+      #     <linux/cvi_type.h> ("build middleware failed").
+      # If a patch aborts (exit 2), upstream changed the file: review instead
+      # of forcing the build.
+      - name: Patch NanoKVM-HEAD build regressions
+        working-directory: cvi_mmf_sdk
         run: |
-              pushd cvi_mmf_sdk
-                source build/cvisetup.sh
-                defconfig sg2002_licheervnano_sd
-                build_all
-                # build other variant
-                cp build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig bak.config
+          set -e
+          DTS=build/boards/sg200x/sg2002_licheervnano_sd_minimal/dts_riscv/sg2002_licheervnano_sd_minimal.dts
+          python3 - "$DTS" <<'PYEOF'
+          import re, sys
+          p = sys.argv[1]
+          t = open(p, newline="").read()
+          guard = "#if (CVIMMAP_FRAMEBUFFER_SIZE > 0)"
+          if re.search(re.escape(guard) + r"\n&fb_reserved \{", t):
+              print("dts: guard already present, skip")
+              sys.exit(0)
+          pat = re.compile(
+              r'(&fb_reserved \{\n)'
+              r'([ \t]*)status = "okay";\n'
+              r'\};\n'
+              r'\n'
+              r'(&cvi_fb \{\n)'
+              r'([ \t]*)status = "okay";\n'
+              r'\};\n'
+          )
+          ms = list(pat.finditer(t))
+          if len(ms) != 1:
+              print("dts ABORT: expected exactly 1 unguarded fb block, found %d" % len(ms))
+              sys.exit(2)
+          m = ms[0]
+          rep = (guard + "\n"
+                 '&fb_reserved {\n' + m.group(2) + 'status = "okay";\n'
+                 '};\n\n'
+                 '&cvi_fb {\n' + m.group(4) + 'status = "okay";\n'
+                 '};\n'
+                 '#endif\n')
+          open(p, "w", newline="").write(t[:m.start()] + rep + t[m.end():])
+          print("dts FIXED: wrapped &fb_reserved/&cvi_fb in CVIMMAP_FRAMEBUFFER_SIZE guard")
+          PYEOF
+          MF=middleware/v2/component/isp/sensor/cv182x/Makefile_full
+          python3 - "$MF" <<'PYEOF'
+          import sys
+          p = sys.argv[1]
+          t = open(p, newline="").read()
+          mark = "CFLAGS += -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC)"
+          if mark in t:
+              print("Makefile_full: already patched, skip")
+              sys.exit(0)
+          anchor = "include ../../sensor.mk\n"
+          n = t.count(anchor)
+          if n != 1:
+              print("Makefile_full ABORT: expected exactly 1 anchor, found %d" % n)
+              sys.exit(2)
+          open(p, "w", newline="").write(t.replace(anchor, anchor + mark + "\n", 1))
+          print("Makefile_full FIXED: added -I$(MW_INC) -I$(ISP_INC) -I$(KERNEL_INC) to libsns_full CFLAGS")
+          PYEOF
+          git diff --stat || true
 
-                # 2.8inch
-                cat bak.config | sed -e 's/CONFIG_MIPI_PANEL_ZCT2133V1/CONFIG_MIPI_PANEL_ST7701_HD228001C31/g' > build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
-                defconfig sg2002_licheervnano_sd
-                clean_uboot
-                clean_opensbi
-                clean_fsbl
-                build_fsbl
-                cp -v cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/fip.bin cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/hd228001c31.bin
+      - name: Build base system
+        working-directory: cvi_mmf_sdk
+        run: |
+          # CMake >= 4.0 removed cmake_minimum_required(<3.5) compatibility and
+          # several buildroot packages still declare it (no-op on CMake 3.x).
+          export CMAKE_POLICY_VERSION_MINIMUM=3.5
+          source build/cvisetup.sh
+          defconfig sg2002_licheervnano_sd
+          # buildroot source downloads (qt5svg/qt5base) occasionally flake on
+          # the first run; build_all is incremental, so one retry suffices.
+          build_all || build_all
 
-                # 3inch
-                cat bak.config | sed -e 's/CONFIG_MIPI_PANEL_ZCT2133V1/CONFIG_MIPI_PANEL_ST7701_D300FPC9307A/g' > build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
-                defconfig sg2002_licheervnano_sd
-                clean_uboot
-                clean_opensbi
-                clean_fsbl
-                build_fsbl
-                cp -v cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/fip.bin cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/d300fpc9307a.bin
+      - name: Inject kvmapp payload
+        working-directory: cvi_mmf_sdk
+        run: |
+          set -e
+          IMG=$(ls -t install/soc_sg2002_licheervnano_sd/images/*.img | head -1)
+          echo "base image: $IMG"
+          curl -fsSL -o latest.zip https://cdn.sipeed.com/nanokvm/latest.zip
+          rm -rf latest && unzip -q latest.zip
 
-                # 5inch
-                cat bak.config | sed -e 's/CONFIG_MIPI_PANEL_ZCT2133V1/CONFIG_MIPI_PANEL_ST7701_DXQ5D0019B480854/g' > build/boards/sg200x/sg2002_licheervnano_sd/sg2002_licheervnano_sd_defconfig
-                defconfig sg2002_licheervnano_sd
-                clean_uboot
-                clean_opensbi
-                clean_fsbl
-                build_fsbl
-                cp -v cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/fip.bin cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/dxq5d0019b480854.bin
+          LOOP=$(sudo losetup -fP --show "$IMG")
+          mkdir -p mnt && sudo mount "${LOOP}p2" mnt
 
-              popd
+          # kvmapp
+          sudo cp -r latest mnt/kvmapp
+          sudo touch mnt/kvmapp/kvm_new_img          # first-boot init marker
+          sudo chmod -R 755 mnt/kvmapp
 
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v3
+          # default video/KVM config (only if the package omits it)
+          sudo install -d mnt/kvmapp/kvm mnt/etc/kvm
+          for kv in fps=30 height=1080 now_fps=0 qlty=60 res=0 state=1 type=mjpeg width=1920; do
+            f=mnt/kvmapp/kvm/${kv%=*}
+            [ -e "$f" ] || echo "${kv#*=}" | sudo tee "$f" >/dev/null
+          done
+
+          # frpc + tailscale
+          sudo cp kvm/frp_0.59.0_linux_riscv64/frpc       mnt/usr/bin/
+          sudo cp kvm/tailscale_1.80.2_riscv64/tailscale  mnt/usr/bin/
+          sudo cp kvm/tailscale_1.80.2_riscv64/tailscaled mnt/usr/sbin/
+          sudo chmod +x mnt/usr/bin/frpc mnt/usr/bin/tailscale mnt/usr/sbin/tailscaled
+
+          # MIPI RX kernel module
+          sudo mkdir -p mnt/mnt/system/ko
+          sudo cp -f mnt/kvmapp/system/ko/soph_mipi_rx.ko mnt/mnt/system/ko/ || true
+
+          # init.d: overlay the package's S* scripts, preserving the base rcS
+          sudo cp -f mnt/kvmapp/system/init.d/S* mnt/etc/init.d/
+          sudo chmod +x mnt/etc/init.d/S* mnt/kvmapp/system/init.d/S*
+
+          sync; sudo umount mnt; sudo losetup -d "$LOOP"
+          OUT="install/soc_sg2002_licheervnano_sd/images/${BUILD_DATE}_NanoKVM_full.img"
+          mv "$IMG" "$OUT"
+          echo "FULL_IMG=$OUT" >> "$GITHUB_ENV"
+          ls -lh "$OUT"
+
+      - name: Verify image
+        working-directory: cvi_mmf_sdk
+        run: |
+          set -e
+          LOOP=$(sudo losetup -fP --show "$FULL_IMG")
+          mkdir -p vmnt && sudo mount -o ro "${LOOP}p2" vmnt
+          M=vmnt fail=0
+          ck() { if eval "$2"; then echo "  OK   $1"; else echo "  FAIL $1"; fail=1; fi; }
+          ck "rcS present (services boot)"   "[ -f $M/etc/init.d/rcS ]"
+          ck "S95nanokvm executable"         "[ -x $M/etc/init.d/S95nanokvm ]"
+          ck "kvm_system binary"             "[ -s $M/kvmapp/kvm_system/kvm_system ]"
+          ck "NanoKVM-Server"                "[ -s $M/kvmapp/server/NanoKVM-Server ]"
+          ck "web UI"                        "[ -f $M/kvmapp/server/web/index.html ]"
+          ck "dl_lib .so"                    "[ \$(ls $M/kvmapp/server/dl_lib/*.so 2>/dev/null | wc -l) -gt 0 ]"
+          ck "soph_mipi_rx.ko"               "[ -f $M/mnt/system/ko/soph_mipi_rx.ko ]"
+          ck "frpc"                          "[ -x $M/usr/bin/frpc ]"
+          ck "tailscaled"                    "[ -x $M/usr/sbin/tailscaled ]"
+          ck "kvm_new_img marker"            "[ -e $M/kvmapp/kvm_new_img ]"
+          sync; sudo umount vmnt; sudo losetup -d "$LOOP"
+          [ "$fail" = 0 ] && echo "IMAGE VERIFICATION PASSED" || { echo "IMAGE VERIFICATION FAILED"; exit 1; }
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 30
-          name: licheervnano-cvi-mmf-sdk-output-${{ env.BUILD_ID }}
+          name: nanokvm-image-${{ env.BUILD_DATE }}
           path: |
-                  cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/images/*
-                  cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/*.bin
+            cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/images/*
+            cvi_mmf_sdk/install/soc_sg2002_licheervnano_sd/*.bin
