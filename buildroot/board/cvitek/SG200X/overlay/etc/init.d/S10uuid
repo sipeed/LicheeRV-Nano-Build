@@ -34,11 +34,11 @@ then
 	fi
 	echo "hostname: ${new_hostname}"
 
-	if [ -e /boot/eth.mac ]
+	if [ -s /boot/eth.mac ]
 	then
-		new_ethmac=$(cat /boot/ethmac)
+		new_ethmac=$(cat /boot/eth.mac)
 	else
-		new_ethmac=$(hex2mac 48da356f$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+		new_ethmac=$(hex2mac 02$(sha512sum /sys/class/cvi-base/base_uid | head -c 10))
 	fi
 
 	ifconfig eth0 down
@@ -52,7 +52,7 @@ then
 		then
 			new_rndismac=$(cat /boot/usb.rndis0.mac)
 		else
-			new_rndismac=$(hex2mac 48da356e$(sha512sum /sys/class/cvi-base/base_uid | head -c 4))
+			new_rndismac=$(hex2mac 06$(sha512sum /sys/class/cvi-base/base_uid | head -c 10))
 		fi
 		ifconfig usb0 down
 		ip link set usb0 address ${new_rndismac}
