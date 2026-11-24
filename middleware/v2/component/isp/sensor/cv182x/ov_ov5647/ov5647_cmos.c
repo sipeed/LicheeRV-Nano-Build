@@ -869,6 +869,7 @@ static CVI_S32 sensor_set_init(VI_PIPE ViPipe, ISP_INIT_ATTR_S *pstInitAttr)
 }
 static CVI_S32 sensor_probe(VI_PIPE ViPipe)
 {
+	printf("[sensor_prob = ov547_probe] \n");
 	return ov5647_probe(ViPipe);
 }
 
