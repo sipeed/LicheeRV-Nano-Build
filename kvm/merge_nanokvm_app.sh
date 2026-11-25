@@ -65,6 +65,17 @@ need_dir() {
     [ -d "$1" ] || die "missing directory: $1"
 }
 
+need_capture_firmware() {
+    if [ -d "$1/system/firmware" ]; then
+        for firmware_file in boot.sd soph_mipi_rx.ko lontium_hdmi.ko; do
+            need_file "$1/system/firmware/$firmware_file"
+        done
+        need_exec "$1/system/update-lontium-firmware.sh"
+    else
+        need_file "$1/system/ko/soph_mipi_rx.ko"
+    fi
+}
+
 copy_image() {
     src=$1
     dst=$2
@@ -259,7 +270,7 @@ if [ "$COPY_KVMAPP" -eq 1 ]; then
     need_dir "$APP_DIR/kvmapp"
     need_exec "$APP_DIR/kvmapp/server/NanoKVM-Server"
     need_exec "$APP_DIR/kvmapp/kvm_system/kvm_system"
-    need_file "$APP_DIR/kvmapp/system/ko/soph_mipi_rx.ko"
+    need_capture_firmware "$APP_DIR/kvmapp"
     need_file "$APP_DIR/kvmapp/system/init.d/S95nanokvm"
     need_file "$APP_DIR/kvmapp/version"
 
@@ -274,14 +285,12 @@ need_dir "$SCRIPT_DIR/kvmapp"
 run_step "make SDK kvmapp files executable" chmod -R +x "$SCRIPT_DIR/kvmapp"
 need_exec "$SCRIPT_DIR/kvmapp/server/NanoKVM-Server"
 need_exec "$SCRIPT_DIR/kvmapp/kvm_system/kvm_system"
-need_file "$SCRIPT_DIR/kvmapp/system/ko/soph_mipi_rx.ko"
+need_capture_firmware "$SCRIPT_DIR/kvmapp"
 need_file "$SCRIPT_DIR/kvmapp/system/init.d/S95nanokvm"
 need_file "$SCRIPT_DIR/kvmapp/version"
 for script in S00kmod S01fs S03usbdev S15kvmhwd S30eth S30wifi S95nanokvm; do
     need_file "$SCRIPT_DIR/kvmapp/system/init.d/$script"
 done
-need_dir "$SCRIPT_DIR/data"
-need_file "$SCRIPT_DIR/data/sensor_cfg.ini"
 
 info "mount image: $IMAGE_FILE"
 if "$SDK_DIR/host/mount_ext4.sh" "$IMAGE_FILE" "$MOUNT_DIR"; then
@@ -362,13 +371,20 @@ else
 fi
 
 run_step "create kernel module and init target directories" install -d "$MOUNT_DIR/mnt/system/ko" "$MOUNT_DIR/etc/init.d"
-run_step "install soph_mipi_rx.ko" install -m 755 "$SCRIPT_DIR/kvmapp/system/ko/soph_mipi_rx.ko" "$MOUNT_DIR/mnt/system/ko/soph_mipi_rx.ko"
-need_file "$MOUNT_DIR/mnt/system/ko/soph_mipi_rx.ko"
+if [ -d "$SCRIPT_DIR/kvmapp/system/firmware" ]; then
+    run_step "schedule bundled firmware installation" touch "$MOUNT_DIR/kvmapp/kvm_new_app"
+else
+    run_step "install soph_mipi_rx.ko" install -m 755 "$SCRIPT_DIR/kvmapp/system/ko/soph_mipi_rx.ko" "$MOUNT_DIR/mnt/system/ko/soph_mipi_rx.ko"
+    need_file "$MOUNT_DIR/mnt/system/ko/soph_mipi_rx.ko"
+fi
 
 for script in S00kmod S01fs S03usbdev S15kvmhwd S30eth S30wifi S95nanokvm; do
     run_step "install init script: $script" install -m 755 "$SCRIPT_DIR/kvmapp/system/init.d/$script" "$MOUNT_DIR/etc/init.d/$script"
     need_exec "$MOUNT_DIR/etc/init.d/$script"
 done
+if [ -f "$SCRIPT_DIR/kvmapp/system/init.d/S10uuid" ]; then
+    run_step "install init script: S10uuid" install -m 755 "$SCRIPT_DIR/kvmapp/system/init.d/S10uuid" "$MOUNT_DIR/etc/init.d/S10uuid"
+fi
 if [ "$SSH_AVAILABLE" -eq 1 ]; then
     run_step "install init script: S50sshd" install -m 755 "$SCRIPT_DIR/kvmapp/system/init.d/S50sshd" "$MOUNT_DIR/etc/init.d/S50sshd"
     need_exec "$MOUNT_DIR/etc/init.d/S50sshd"
@@ -378,14 +394,7 @@ else
 fi
 info "kernel module and init script install check passed"
 
-run_step "create default data and kvm config directories" install -d "$MOUNT_DIR/mnt/data" "$MOUNT_DIR/etc/kvm" "$MOUNT_DIR/kvmapp/kvm"
-for data_file in "$SCRIPT_DIR"/data/*; do
-    [ -f "$data_file" ] || continue
-    data_name=$(basename "$data_file")
-    run_step "install default data: $data_name" install -m 644 "$data_file" "$MOUNT_DIR/mnt/data/$data_name"
-    need_file "$MOUNT_DIR/mnt/data/$data_name"
-done
-need_file "$MOUNT_DIR/mnt/data/sensor_cfg.ini"
+run_step "create data and kvm config directories" install -d "$MOUNT_DIR/mnt/data" "$MOUNT_DIR/etc/kvm" "$MOUNT_DIR/kvmapp/kvm"
 run_step "create ssh_stop marker" touch "$MOUNT_DIR/etc/kvm/ssh_stop"
 need_file "$MOUNT_DIR/etc/kvm/ssh_stop"
 
@@ -397,7 +406,7 @@ write_config res 0
 write_config state 1
 write_config type mjpeg
 write_config width 1920
-info "default data and kvm config install check passed"
+info "default kvm config install check passed"
 
 info "unmount image"
 if umount "$MOUNT_DIR"; then

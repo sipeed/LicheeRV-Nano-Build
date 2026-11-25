@@ -110,28 +110,21 @@
 
 &i2c4 {
         status = "okay";
-        gt9xx: gt9xx@14 {
-                compatible = "goodix,gt9xx";
-                reg = <0x14>;
-                goodix,irq-gpio = <&porte 3 0>;
-                goodix,rst-gpio = <&porte 4 0>;
-                status = "okay";
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        lt6911@2b {
+                compatible = "sipeed,nanokvm-lt6911";
+                reg = <0x2b>;
+                reset-gpios = <&portb 3 GPIO_ACTIVE_LOW>;
+                irq-gpios = <&porte 1 GPIO_ACTIVE_HIGH>;
         };
-        hynitron: hynitron@5a {
-                compatible = "hynitron,hyn_ts", "hyn,7xx";
-                reg = <0x5a>;
-                irq-gpio = <&porte 3 0>;
-                hynitron,irq-gpio = <&porte 3 0>;
-                reset-gpio = <&porte 4 0>;
-                hynitron,reset-gpio = <&porte 4 0>;
-                max-touch-number = <5>;
-                hynitron,max-touch-number = <5>;
-                display-coords = <0 0 480 640>;
-                hynitron,display-coords = <368 552>;
-                pos-swap = <0>;
-                posx-reverse = <1>;
-                posy-reverse = <1>;
-                status = "okay";
+
+        lt7911@41 {
+                compatible = "lontium,lt7911exs";
+                reg = <0x41>;
+                reset-gpios = <&portb 3 GPIO_ACTIVE_LOW>;
+                irq-gpios = <&porte 1 GPIO_ACTIVE_HIGH>;
         };
 };
 
@@ -184,7 +177,7 @@
 #endif
 
 &mipi_rx {
-        snsr-reset = <&porte 1 GPIO_ACTIVE_LOW>;
+        /delete-property/ snsr-reset;
 };
 
 / {
