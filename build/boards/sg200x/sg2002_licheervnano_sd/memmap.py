@@ -12,11 +12,12 @@ class MemoryMap:
     DRAM_BASE = 0x80000000
     DRAM_SIZE = 256 * SIZE_1M
 
-    # ==============
-    # C906L FreeRTOS
-    # ==============
-    FREERTOS_SIZE = 2 * SIZE_1M
-    # FreeRTOS is at the end of DRAM
+    # =====================
+    # Disabled C906L region
+    # =====================
+    # NanoKVM does not build or boot a C906L FreeRTOS image.  Keep the symbols
+    # required by the common BSP, but return the unused tail to Linux.
+    FREERTOS_SIZE = 0
     FREERTOS_ADDR = DRAM_BASE + DRAM_SIZE - FREERTOS_SIZE
     FSBL_C906L_START_ADDR = FREERTOS_ADDR
 
@@ -33,20 +34,24 @@ class MemoryMap:
     # =========================
     # memory@DRAM_BASE in .dts.
     # =========================
-    # Ignore the area of FreeRTOS in u-boot and kernel
+    # NanoKVM gives the whole DRAM range to u-boot and the Linux memory map.
     KERNEL_MEMORY_ADDR = DRAM_BASE
     KERNEL_MEMORY_SIZE = DRAM_SIZE - FREERTOS_SIZE
 
     # =================
     # Multimedia buffer. Used by u-boot/kernel/FreeRTOS
     # =================
-    ION_SIZE = 75 * SIZE_1M
+    # Requires the complete MMF teardown in sipeed/NanoKVM#914.
+    # Measurements cover up to 1920x1080; this is not a QHD memory budget.
+    # Mixed H26x + JPEG peaks at 41.543 MiB with the corrected NanoKVM MMF
+    # lifecycle, leaving about 6.46 MiB for codec and resolution transitions.
+    ION_SIZE = 48 * SIZE_1M
     H26X_BITSTREAM_SIZE = 2 * SIZE_1M
     H26X_ENC_BUFF_SIZE = 0
     ISP_MEM_BASE_SIZE = 20 * SIZE_1M
     FREERTOS_RESERVED_ION_SIZE = H26X_BITSTREAM_SIZE + H26X_ENC_BUFF_SIZE + ISP_MEM_BASE_SIZE
 
-    # ION after FreeRTOS
+    # ION ends at the top of DRAM because NanoKVM has no FreeRTOS tail.
     ION_ADDR = FREERTOS_ADDR - ION_SIZE
 
     # Buffers of the fast image are inside the ION buffer
