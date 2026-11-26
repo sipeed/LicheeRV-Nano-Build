@@ -1,0 +1,1143 @@
+name: NanoKVM Full Image
+
+# This workflow builds a complete, bootable NanoKVM SD image (Cube / PCIe,
+# SG2002) from source in four jobs:
+#
+#   1. setup  - resolves the version plus the application and SDK source
+#               repositories from the workflow inputs (single source of truth,
+#               shared by every later job).
+#   2. web    - React frontend (pnpm). Cached: the pnpm content-addressed
+#               store, i.e. everything that ends up in node_modules, keyed on
+#               web/pnpm-lock.yaml.
+#   3. kvmapp - riscv64 application layer built inside the GHCR
+#               nanokvm-builder image (same image as package.yml):
+#               kvm_system, libkvm.so/dl_lib and NanoKVM-Server. Cached: Go
+#               module cache, Go build cache and the MaixCDK CMake build
+#               trees (incremental rebuild instead of ccache - the image ships
+#               no ccache and its container runs unprivileged).
+#   4. image  - assembles nanokvm_<version>.tar.gz from the web + kvmapp
+#               artifacts via scripts/package.sh, then performs the full BSP
+#               build of the base system (sipeed/LicheeRV-Nano-Build,
+#               NanoKVM branch: cvisetup + defconfig sg2002_licheervnano_sd +
+#               build_all). Cached here, keyed by the resolved SDK commit
+#               (cache keys are immutable, so the mutable sdk_ref input is
+#               deliberately not part of them): ccache fronting the host and
+#               the riscv64 musl/elf cross compilers (the SDK's own USE_CCACHE
+#               hook is enabled too) and the buildroot download dir; plus the
+#               0.82 GB host-tools tarball and the apt download archive
+#               (keyed by the apt package-list hash). Finally the
+#               upstream kvm/merge_nanokvm_app.sh injects the freshly built
+#               kvmapp into the base system and the merged image is verified,
+#               compressed and uploaded as a flashable .img.xz. The base
+#               <ts>.img itself is cached per SDK commit, so runs with an
+#               unchanged SDK skip the 1.5-2h build_all entirely. With
+#               upload_base_image (default on) that same base system image is
+#               also compressed and uploaded as a standalone artifact, so it
+#               can be flashed/shared without the NanoKVM application layer.
+#
+# Source of truth:
+#   - SDK tree: the repo this workflow lives in when it is named
+#     LicheeRV-Nano-Build, otherwise sdk_repository / sdk_ref (default
+#     sipeed/LicheeRV-Nano-Build @ NanoKVM). It is checked out at path
+#     licheervnano/.
+#   - Application tree: the repo this workflow lives in when it is named
+#     NanoKVM, otherwise nanokvm_repository / nanokvm_ref (default
+#     sipeed/NanoKVM @ main). It is checked out at path nanokvm/.
+#
+# Releasing: without extra inputs this produces a TEST image (version
+# 0.0.<run number>, upstream application). For a release image set 'version'
+# and, if you rely on your own fork, 'nanokvm_repository' / 'nanokvm_ref'.
+# The job summary and BUILD_INFO.txt always state which sources were used.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version baked into /kvmapp/version, e.g. 2.5.4 (empty = TEST build 0.0.<run number>)
+        required: false
+        type: string
+      nanokvm_repository:
+        description: NanoKVM application repo (default this repo if named NanoKVM, else sipeed/NanoKVM)
+        required: false
+        type: string
+      nanokvm_ref:
+        description: NanoKVM application branch/tag/commit (default the triggering commit, else main)
+        required: false
+        type: string
+      sdk_repository:
+        description: Base-system SDK repo (default this repo if named LicheeRV-Nano-Build, else sipeed/LicheeRV-Nano-Build)
+        required: false
+        type: string
+      sdk_ref:
+        description: SDK branch/tag/commit (default the triggering commit, else NanoKVM)
+        required: false
+        type: string
+      rebuild_base:
+        description: Ignore the cached base image and rebuild the SDK from scratch
+        required: false
+        type: boolean
+        default: false
+      upload_base_image:
+        description: Also upload the base system image (SDK build_all, no kvmapp) as an .img.xz artifact
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  # Keep separate full-image builds per branch / SDK / app choice and never
+  # cancel a long-running build half way through.
+  group: full-image-${{ github.ref }}-${{ inputs.sdk_ref }}-${{ inputs.nanokvm_ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1/4 - resolve inputs (shared by all other jobs)
+  # ---------------------------------------------------------------------------
+  setup:
+    name: Resolve version and sources
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.inputs.outputs.version }}
+      app_repo: ${{ steps.inputs.outputs.app_repo }}
+      app_ref: ${{ steps.inputs.outputs.app_ref }}
+      sdk_repo: ${{ steps.inputs.outputs.sdk_repo }}
+      sdk_ref: ${{ steps.inputs.outputs.sdk_ref }}
+      build_date: ${{ steps.inputs.outputs.build_date }}
+      short_sha: ${{ steps.inputs.outputs.short_sha }}
+    steps:
+      - name: Resolve versions and source repositories
+        id: inputs
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_APP_REPO: ${{ inputs.nanokvm_repository }}
+          INPUT_APP_REF: ${{ inputs.nanokvm_ref }}
+          INPUT_SDK_REPO: ${{ inputs.sdk_repository }}
+          INPUT_SDK_REF: ${{ inputs.sdk_ref }}
+          HEAD_SHA: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          # Version: an explicit input wins, otherwise this is a TEST build.
+          version="${INPUT_VERSION:-0.0.${RUN_NUMBER}}"
+          if ! printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::invalid version '$version', expected MAJOR.MINOR.PATCH"
+            exit 1
+          fi
+          host="${GITHUB_REPOSITORY}"
+          # Application tree: explicit input wins; else this repo if it is the
+          # NanoKVM app repo; else upstream NanoKVM.
+          if [ -n "$INPUT_APP_REPO" ]; then
+            app_repo="$INPUT_APP_REPO"
+            if [ "$app_repo" = "$host" ]; then
+              app_ref="${INPUT_APP_REF:-$HEAD_SHA}"
+            else
+              app_ref="${INPUT_APP_REF:-main}"
+            fi
+          elif [ "${host##*/}" = "NanoKVM" ]; then
+            app_repo="$host"
+            # An explicit ref input must still win when the workflow runs in
+            # the app repo itself (previously it was silently ignored here).
+            app_ref="${INPUT_APP_REF:-$HEAD_SHA}"
+          else
+            app_repo="sipeed/NanoKVM"
+            app_ref="${INPUT_APP_REF:-main}"
+            echo "NOTE: host repo is not the NanoKVM app tree; using $app_repo@$app_ref (override with nanokvm_repository / nanokvm_ref)"
+          fi
+          # SDK tree: explicit input wins; else this repo if it is the SDK
+          # repo; else upstream SDK.
+          if [ -n "$INPUT_SDK_REPO" ]; then
+            sdk_repo="$INPUT_SDK_REPO"
+            if [ "$sdk_repo" = "$host" ]; then
+              sdk_ref="${INPUT_SDK_REF:-$HEAD_SHA}"
+            else
+              sdk_ref="${INPUT_SDK_REF:-NanoKVM}"
+            fi
+          elif [ "${host##*/}" = "LicheeRV-Nano-Build" ]; then
+            sdk_repo="$host"
+            # An explicit ref input must still win when the workflow runs in
+            # the SDK repo itself (previously it was silently ignored here).
+            sdk_ref="${INPUT_SDK_REF:-$HEAD_SHA}"
+          else
+            sdk_repo="sipeed/LicheeRV-Nano-Build"
+            sdk_ref="${INPUT_SDK_REF:-NanoKVM}"
+            echo "NOTE: host repo is not LicheeRV-Nano-Build; using $sdk_repo@$sdk_ref (override with sdk_repository / sdk_ref)"
+          fi
+          {
+            echo "version=$version"
+            echo "app_repo=$app_repo"
+            echo "app_ref=$app_ref"
+            echo "sdk_repo=$sdk_repo"
+            echo "sdk_ref=$sdk_ref"
+            echo "build_date=$(date +%Y%m%d)"
+            echo "short_sha=$(printf '%s' "$HEAD_SHA" | cut -c1-12)"
+          } >> "$GITHUB_OUTPUT"
+          echo "version=$version app=$app_repo@$app_ref sdk=$sdk_repo@$sdk_ref"
+
+  # ---------------------------------------------------------------------------
+  # Job 2/4 - frontend (runs in parallel with job 3)
+  # ---------------------------------------------------------------------------
+  web:
+    name: Frontend (web)
+    needs: [setup]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout NanoKVM application
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ needs.setup.outputs.app_repo }}
+          ref: ${{ needs.setup.outputs.app_ref }}
+          path: nanokvm
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          # Latest Node release line (26 is the current LTS since 2026-10);
+          # the frontend only requires >= 22 (web/package.json engines).
+          node-version: '26'
+
+      - name: Set up pnpm
+        working-directory: nanokvm/web
+        run: |
+          npm install --global pnpm@11
+          pnpm --version
+          # Pin the store to a known path so the cache below always matches.
+          pnpm config set store-dir "$HOME/.pnpm-store" --global
+
+      - name: Restore pnpm store (node_modules cache)
+        uses: actions/cache@v6
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('nanokvm/web/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
+
+      - name: Install dependencies
+        working-directory: nanokvm/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        working-directory: nanokvm/web
+        run: pnpm build
+
+      - name: Verify build output
+        run: test -f nanokvm/web/dist/index.html
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: fullimg-web-dist
+          path: nanokvm/web/dist
+          retention-days: 1
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Job 3/4 - riscv64 application layer (kvmapp); runs in parallel with job 2
+  # ---------------------------------------------------------------------------
+  kvmapp:
+    name: RISC-V application (server + kvm_system + vision)
+    needs: [setup]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      builder_image: ${{ steps.image.outputs.digest_ref }}
+
+    steps:
+      - name: Checkout NanoKVM application
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ needs.setup.outputs.app_repo }}
+          ref: ${{ needs.setup.outputs.app_ref }}
+          path: nanokvm
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Pull builder image
+        id: image
+        env:
+          OWNER: ${{ github.repository_owner }}
+          EVENT_NAME: ${{ github.event_name }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # GHCR only accepts lowercase repository paths.
+          owner=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          primary="ghcr.io/$owner/nanokvm-builder:latest"
+          fallback="ghcr.io/sipeed/nanokvm-builder:latest"
+          # Probe the manifest first so forks avoid burning several pull
+          # retries on a repository that does not exist.
+          resolve() {
+            if docker manifest inspect "$1" >/dev/null 2>&1; then
+              echo "$1"
+              return 0
+            fi
+            return 1
+          }
+          ref=""
+          if resolve "$primary"; then
+            ref="$primary"
+          elif [ "$EVENT_NAME" != "pull_request" ] \
+               && printf '%s' "$GHCR_TOKEN" \
+                    | docker login ghcr.io -u "$GHCR_USER" --password-stdin >/dev/null 2>&1 \
+               && resolve "$primary"; then
+            # The owner's image may be private (built via the Builder Image
+            # workflow); anonymous probing failed, retry authenticated.
+            ref="$primary"
+          elif resolve "$fallback"; then
+            ref="$fallback"
+            echo "NOTE: '$primary' unavailable; using upstream '$fallback' (run the NanoKVM 'Builder Image' workflow to publish your own)"
+          else
+            echo "::error::could not find a nanokvm-builder image"
+            exit 1
+          fi
+          docker pull "$ref"
+          resolved=$(docker image inspect --format='{{index .RepoDigests 0}}' "$ref")
+          case "$resolved" in
+            *@sha256:*) ;;
+            *) echo "::error::could not resolve immutable digest for '$ref'"; exit 1 ;;
+          esac
+          echo "using builder image $resolved"
+          echo "digest_ref=$resolved" >> "$GITHUB_OUTPUT"
+
+      - name: Restore Go module cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/nanokvm-ci/go-mod
+          key: go-mod-${{ hashFiles('nanokvm/server/go.sum') }}
+          restore-keys: |
+            go-mod-
+
+      - name: Restore Go build cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/nanokvm-ci/go-build
+          key: go-build-${{ steps.image.outputs.digest_ref }}-${{ hashFiles('nanokvm/server/go.sum') }}
+          restore-keys: |
+            go-build-
+
+      - name: Restore MaixCDK CMake build trees (C++ incremental cache)
+        uses: actions/cache@v6
+        with:
+          path: |
+            nanokvm/support/sg2002/kvm_system/build
+            nanokvm/support/sg2002/kvm_vision_test/build
+          key: maixcdk-${{ steps.image.outputs.digest_ref }}-${{ hashFiles('nanokvm/support/sg2002/**') }}
+          restore-keys: |
+            maixcdk-${{ steps.image.outputs.digest_ref }}-
+
+      - name: Build riscv64 artifacts in the builder container
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.digest_ref }}
+        run: |
+          set -euo pipefail
+          # The cache volumes must exist and be owned by the runner user before
+          # docker bind-mounts them, otherwise docker creates them as root and
+          # the container build user (same numeric uid) cannot write.
+          mkdir -p "$HOME/.cache/nanokvm-ci/go-mod" "$HOME/.cache/nanokvm-ci/go-build"
+          run_build() {
+            docker run -e UID="$(id -u)" -e GID="$(id -g)" \
+              -v "$PWD/nanokvm":/home/build/NanoKVM \
+              -v "$HOME/.cache/nanokvm-ci/go-mod":/home/build/go/pkg/mod \
+              -v "$HOME/.cache/nanokvm-ci/go-build":/home/build/.cache/go-build \
+              --rm "$IMAGE_REF" \
+              /bin/bash -c '/home/build/NanoKVM/scripts/build-in-container.sh'
+          }
+          # Restored CMake trees are incremental state, not sources; if they
+          # are somehow inconsistent, drop them and rebuild from scratch once.
+          if ! run_build; then
+            echo "::warning::build failed; clearing cached CMake trees and retrying clean"
+            rm -rf nanokvm/support/sg2002/kvm_system/build nanokvm/support/sg2002/kvm_vision_test/build
+            run_build
+          fi
+
+      - name: Verify riscv64 artifacts
+        run: |
+          set -euo pipefail
+          # ELF e_machine 243 = riscv64; packaging repeats this check, but
+          # catching a wrong-arch build here fails the right job.
+          for f in \
+            nanokvm/server/NanoKVM-Server \
+            nanokvm/kvmapp/kvm_system/kvm_system \
+            nanokvm/kvmapp/server/dl_lib/libkvm.so; do
+            test -f "$f" || { echo "::error::missing build artifact $f"; exit 1; }
+            machine=$(od -An -tu1 -j18 -N1 "$f" | tr -d ' ')
+            if [ "$machine" != "243" ]; then
+              echo "::error::$f is not riscv64 (ELF e_machine=$machine)"
+              exit 1
+            fi
+            echo "  ok riscv64  $f"
+          done
+
+      - name: Upload riscv64 artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: fullimg-riscv64-bin
+          path: |
+            nanokvm/server/NanoKVM-Server
+            nanokvm/kvmapp/kvm_system/kvm_system
+            nanokvm/kvmapp/server/dl_lib
+          retention-days: 1
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Job 4/4 - package + base-system image (SDK build) + kvmapp merge
+  # ---------------------------------------------------------------------------
+  image:
+    name: Full SD image (SDK build + kvmapp merge)
+    needs: [setup, web, kvmapp]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    env:
+      SDK_DIR: licheervnano
+      APP_DIR: nanokvm
+      APP_ROOT: ${{ github.workspace }}/app-root
+      CACHE_ROOT: /mnt/nanokvm-fullimg-cache
+
+    steps:
+      - name: Free up disk space
+        run: |
+          echo "Before:"
+          df -h / /mnt || true
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL /usr/local/.ghcup \
+                      /usr/local/share/boost /usr/local/share/powershell
+          sudo docker image prune -af || true
+          # The ccache and buildroot-download caches live on the secondary
+          # disk so they stay off the root filesystem the SDK build uses.
+          # /mnt itself is root-owned, so hand the cache root to the runner.
+          sudo mkdir -p "$CACHE_ROOT"
+          sudo chown "$(id -u):$(id -g)" "$CACHE_ROOT"
+          echo "After:"
+          df -h / /mnt || true
+
+      - name: Checkout NanoKVM application
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ needs.setup.outputs.app_repo }}
+          ref: ${{ needs.setup.outputs.app_ref }}
+          path: nanokvm
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: fullimg-web-dist
+          path: nanokvm/web/dist
+
+      - name: Download riscv64 artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: fullimg-riscv64-bin
+          path: nanokvm
+
+      - name: Assemble application package
+        working-directory: nanokvm
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          set -euo pipefail
+          ./scripts/package.sh "$VERSION"
+
+      - name: Verify package manifest
+        working-directory: nanokvm
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          set -euo pipefail
+          tarball="build/release/nanokvm_${VERSION}.tar.gz"
+          expected=$(jq -er '.sha512 | select(type == "string" and length > 0)' build/release/latest.json)
+          actual=$(openssl dgst -sha512 -binary "$tarball" | openssl base64 -A)
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::latest.json sha512 does not match $tarball"
+            exit 1
+          fi
+          sha256sum "$tarball"
+
+      - name: Unpack kvmapp payload
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          set -euo pipefail
+          tarball="$APP_DIR/build/release/nanokvm_${VERSION}.tar.gz"
+          test -f "$tarball" || { echo "::error::missing $tarball"; exit 1; }
+          # merge_nanokvm_app.sh wants -a <dir containing kvmapp/>; the
+          # packaged tarball is its most reliable source (single root dir).
+          mkdir -p "$APP_ROOT/kvmapp"
+          tar -xzf "$tarball" -C "$APP_ROOT/kvmapp" --strip-components=1
+          # Artifact zips may drop the executable bit, and the merge script
+          # checks these two binaries before its own chmod -R +x.
+          chmod u+x "$APP_ROOT/kvmapp/server/NanoKVM-Server" \
+                    "$APP_ROOT/kvmapp/kvm_system/kvm_system"
+          test -x "$APP_ROOT/kvmapp/server/NanoKVM-Server"
+          test -x "$APP_ROOT/kvmapp/kvm_system/kvm_system"
+          # The capture firmware moved from a single system/ko/soph_mipi_rx.ko
+          # (legacy packages) to a self-contained system/firmware/ bundle that
+          # kvm_system installs on first boot when kvm_new_app is present (see
+          # the application's support/sg2002 kvm_system/system_init.cpp).
+          # Accept either layout: the application ref is a workflow input and
+          # older releases still ship system/ko only.
+          if [ -d "$APP_ROOT/kvmapp/system/firmware" ]; then
+            updater="$APP_ROOT/kvmapp/system/update-lontium-firmware.sh"
+            test -f "$updater" \
+              || { echo "::error::missing kvmapp/system/update-lontium-firmware.sh"; exit 1; }
+            chmod u+x "$updater"
+            for firmware in boot.sd soph_mipi_rx.ko lontium_hdmi.ko; do
+              test -s "$APP_ROOT/kvmapp/system/firmware/$firmware" \
+                || { echo "::error::missing or empty capture firmware: $firmware"; exit 1; }
+            done
+            test -x "$APP_ROOT/kvmapp/system/init.d/S16lontium" \
+              || { echo "::error::kvmapp/system/init.d/S16lontium is not executable"; exit 1; }
+          else
+            test -f "$APP_ROOT/kvmapp/system/ko/soph_mipi_rx.ko" \
+              || { echo "::error::kvmapp payload has neither system/firmware/ nor system/ko/soph_mipi_rx.ko"; exit 1; }
+          fi
+          test -f "$APP_ROOT/kvmapp/system/init.d/S95nanokvm"
+          grep -qx "$VERSION" "$APP_ROOT/kvmapp/version" \
+            || { echo "::error::kvmapp/version is not $VERSION"; exit 1; }
+          echo "kvmapp payload ready at $APP_ROOT/kvmapp"
+
+      - name: Checkout base-system SDK
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ needs.setup.outputs.sdk_repo }}
+          ref: ${{ needs.setup.outputs.sdk_ref }}
+          path: licheervnano
+          persist-credentials: false
+
+      - name: Record SDK commit
+        id: sdk
+        run: |
+          set -euo pipefail
+          sha=$(git -C "$SDK_DIR" rev-parse HEAD)
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "SDK_SHA=$sha" >> "$GITHUB_ENV"
+          echo "SDK: ${{ needs.setup.outputs.sdk_repo }} @ ${{ needs.setup.outputs.sdk_ref }} ($sha)"
+
+      - name: Resolve build dependency list
+        id: deps
+        # Single source of truth for the apt package set: the file's hash keys
+        # the apt download cache and the install step consumes the same list.
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/apt-packages.txt" <<'EOF'
+          android-libext4-utils
+          android-sdk-libsparse-utils
+          asciinema
+          autoconf
+          automake
+          autotools-dev
+          bc
+          debootstrap
+          bison
+          build-essential
+          bzr
+          ccache
+          ca-certificates
+          chrpath
+          ckermit
+          cmake
+          cpio
+          cpp-riscv64-linux-gnu
+          crossbuild-essential-riscv64
+          cscope
+          curl
+          cvs
+          debianutils
+          device-tree-compiler
+          diffstat
+          dosfstools
+          erofs-utils
+          fakechroot
+          fakeroot
+          fatcat
+          file
+          flex
+          gettext
+          g++-riscv64-linux-gnu
+          gawk
+          gcc-riscv64-linux-gnu
+          gcc-riscv64-unknown-elf
+          genext2fs
+          git
+          help2man
+          iputils-ping
+          jq
+          libacl1
+          libasan8-riscv64-cross
+          libatomic1-riscv64-cross
+          libc6-dbg-riscv64-cross
+          libc6-dev-riscv64-cross
+          libconfuse-dev
+          libfuse2t64
+          liblz4-tool
+          libncurses-dev
+          libncurses5-dev
+          libsdl1.2-dev
+          libssl-dev
+          libtool-bin
+          locales
+          make
+          mercurial
+          mesa-common-dev
+          mmdebstrap
+          mtools
+          neovim
+          ninja-build
+          openssh-server
+          openssl
+          parallel
+          parted
+          picolibc-riscv64-unknown-elf
+          pkg-config
+          proot
+          python3
+          python3-dev
+          python3-flake8
+          python3-git
+          python3-jinja2
+          python3-magic
+          python3-nose2
+          python3-pexpect
+          python3-pip
+          python3-pytest
+          python3-subunit
+          rsync
+          scons
+          shellcheck
+          socat
+          squashfs-tools
+          ssh
+          ssh-client
+          subversion
+          tclsh
+          texinfo
+          tree
+          unzip
+          wget
+          xz-utils
+          zstd
+          EOF
+          packages=$(tr '\n' ' ' < "$RUNNER_TEMP/apt-packages.txt")
+          echo "APT_PACKAGES=$packages" >> "$GITHUB_ENV"
+          hash=$(sha256sum "$RUNNER_TEMP/apt-packages.txt" | cut -d' ' -f1)
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          echo "apt package list hash: $hash"
+
+      - name: Restore apt download cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/nanokvm-ci/apt-archives
+          # Keyed on the hash of the package list above (not on the mutable
+          # sdk_ref input): an unchanged list reuses the exact entry and a
+          # changed list gets a fresh cache. Caches are immutable, so the key
+          # must change whenever the contents would.
+          key: apt-archives-${{ runner.os }}-${{ steps.deps.outputs.hash }}
+          restore-keys: |
+            apt-archives-${{ runner.os }}-
+
+      - name: Install build dependencies
+        run: |
+          set -euo pipefail
+          apt_archives="$HOME/.cache/nanokvm-ci/apt-archives"
+          mkdir -p "$apt_archives/partial"
+          # Point apt at the cached archive dir named in the cache step above
+          # and keep the .debs, so the cache is actually populated and later
+          # runs skip the downloads. APT::Sandbox::User=root avoids the
+          # unsandboxed-download warning for files under $HOME.
+          apt_opts=(
+            -o "Dir::Cache::archives=$apt_archives/"
+            -o "APT::Keep-Downloaded-Packages=true"
+            -o "APT::Sandbox::User=root"
+          )
+          sudo apt-get update
+          # The runner is pinned to ubuntu-24.04; every package in the list
+          # above is expected to exist there, so fail loudly if one does not
+          # instead of silently building without it.
+          PACKAGES="$APT_PACKAGES"
+          installable=""
+          unavailable=""
+          # shellcheck disable=SC2086 # word splitting of the package list is intended
+          for pkg in $PACKAGES; do
+            if apt-get install --simulate "${apt_opts[@]}" "$pkg" >/dev/null 2>&1; then
+              installable="$installable $pkg"
+            else
+              unavailable="$unavailable $pkg"
+            fi
+          done
+          if [ -n "$unavailable" ]; then
+            echo "::error::packages below have no installation candidate on this runner image:$unavailable"
+            exit 1
+          fi
+          sudo apt-get "${apt_opts[@]}" install -y $installable
+
+      - name: Set up ccache
+        run: |
+          set -euo pipefail
+          export CCACHE_DIR="$CACHE_ROOT/ccache"
+          mkdir -p "$CCACHE_DIR" "$HOME/.ccache-bin"
+          bin=$(command -v ccache)
+          for c in gcc g++ cc c++ \
+                   riscv64-unknown-linux-musl-gcc riscv64-unknown-linux-musl-g++ \
+                   riscv64-unknown-linux-musl-c++ \
+                   riscv64-unknown-elf-gcc riscv64-unknown-elf-g++ \
+                   riscv64-unknown-elf-c++; do
+            ln -sf "$bin" "$HOME/.ccache-bin/$c"
+          done
+          # CCACHE_DIR must be exported before ccache -o so the settings land
+          # in the cache dir the build jobs actually use.
+          ccache -o max_size=3G \
+                 -o sloppiness=file_macro,include_file_mtime,include_file_ctime,time_macros \
+                 -o hash_dir=false \
+                 -o base_dir="$GITHUB_WORKSPACE"
+          echo "$HOME/.ccache-bin" >> "$GITHUB_PATH"
+          echo "CCACHE_DIR=$CCACHE_DIR" >> "$GITHUB_ENV"
+          echo "CCACHE_BASEDIR=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+
+      - name: Restore host-tools tarball cache
+        # The tarball URL is versioned by its path, so this key is static on
+        # purpose - bump it only if the upstream URL ever changes.
+        uses: actions/cache@v6
+        with:
+          path: licheervnano/host-tools.tar.gz
+          key: host-tools-v1
+
+      - name: Download cross toolchain (host-tools)
+        working-directory: licheervnano
+        run: |
+          set -euo pipefail
+          # Needed both by build_all and by merge_nanokvm_app.sh (strip tool
+          # fallback). The 0.82 GB tarball is cached; extraction reruns each
+          # time, but the download does not.
+          if [ ! -x host-tools/gcc/riscv64-linux-musl-x86_64/bin/riscv64-unknown-linux-musl-strip ]; then
+            if [ ! -f host-tools.tar.gz ]; then
+              wget -q --tries=3 https://sophon-file.sophon.cn/sophon-prod-s3/drive/23/03/07/16/host-tools.tar.gz
+            fi
+            tar xf host-tools.tar.gz
+          fi
+          host-tools/gcc/riscv64-linux-musl-x86_64/bin/riscv64-unknown-linux-musl-gcc --version | head -1
+
+      - name: Restore cached base image
+        id: baseimg
+        if: inputs.rebuild_base != true
+        uses: actions/cache/restore@v6
+        with:
+          path: licheervnano/install/soc_sg2002_licheervnano_sd/images
+          key: base-img-${{ steps.sdk.outputs.sha }}
+
+      - name: Decide whether the SDK build is needed
+        id: decide
+        run: |
+          set -euo pipefail
+          should=1
+          if [ "${{ inputs.rebuild_base }}" = "true" ]; then
+            echo "rebuild_base requested -> building the SDK from scratch"
+            base_source="built"
+          elif [ "${{ steps.baseimg.outputs.cache-hit }}" != "true" ]; then
+            echo "no cached base image for this SDK commit -> building"
+            base_source="built"
+          elif compgen -G "$SDK_DIR/install/soc_sg2002_licheervnano_sd/images/*.img" >/dev/null; then
+            echo "cached base image restored -> skipping build_all"
+            should=0
+            base_source="cache"
+          else
+            echo "::warning::cache claimed a hit but no image was restored; building"
+            base_source="built"
+          fi
+          echo "should_build=$should" >> "$GITHUB_OUTPUT"
+          echo "BASE_SOURCE=$base_source" >> "$GITHUB_ENV"
+
+      - name: Restore ccache
+        if: steps.decide.outputs.should_build == '1'
+        uses: actions/cache/restore@v6
+        with:
+          path: /mnt/nanokvm-fullimg-cache/ccache
+          # Caches are immutable: key on the resolved SDK commit rather than
+          # the mutable sdk_ref input. With a constant key the first stored
+          # content can never be replaced, so every later save failed with
+          # "Unable to reserve cache" and the cache stopped updating.
+          # restore-keys still seeds a new commit from the newest older entry.
+          key: ccache-${{ runner.os }}-${{ steps.sdk.outputs.sha }}
+          restore-keys: |
+            ccache-${{ runner.os }}-
+
+      - name: Restore buildroot download cache
+        if: steps.decide.outputs.should_build == '1'
+        uses: actions/cache/restore@v6
+        with:
+          path: /mnt/nanokvm-fullimg-cache/buildroot-dl
+          # Same reasoning as ccache: a per-SDK-commit key can be saved again
+          # when the commit changes; restore-keys still seeds a new commit
+          # from the newest older archive.
+          key: buildroot-dl-${{ steps.sdk.outputs.sha }}
+          restore-keys: |
+            buildroot-dl-
+
+      - name: Redirect buildroot downloads
+        if: steps.decide.outputs.should_build == '1'
+        working-directory: licheervnano
+        run: |
+          set -euo pipefail
+          # A directory symlink keeps buildroot's default DL_DIR working no
+          # matter what the SDK makefiles export, and keeps multi-GB package
+          # downloads (qt5base/qt5svg are the usual flake) off the root disk.
+          mkdir -p "$CACHE_ROOT/buildroot-dl"
+          rm -rf buildroot/dl
+          ln -s "$CACHE_ROOT/buildroot-dl" buildroot/dl
+
+      - name: Build base system (build_all)
+        if: steps.decide.outputs.should_build == '1'
+        working-directory: licheervnano
+        run: |
+          export CMAKE_POLICY_VERSION_MINIMUM=3.5
+          # The SDK's own ccache hook: env_setup creates ccache wrappers for
+          # the aarch64/arm toolchains when this is y; riscv64 musl/elf are
+          # already covered by the ~/.ccache-bin masquerade above.
+          export USE_CCACHE=y
+          source build/cvisetup.sh
+          export PATH="$HOME/.ccache-bin:$PATH"
+          ccache --zero-stats
+          defconfig sg2002_licheervnano_sd
+          set -o pipefail
+          # buildroot source downloads (qt5base/qt5svg) occasionally flake on
+          # the first run; build_all is incremental, so one retry suffices.
+          build_all 2>&1 | tee build_all.log \
+            || { echo "::warning::build_all failed once; retrying incrementally"; \
+                 build_all 2>&1 | tee -a build_all.log; }
+          ccache --show-stats || true
+          img_count=$(find install/soc_sg2002_licheervnano_sd/images \
+                        -maxdepth 1 -type f -name '*.img' | wc -l)
+          if [ "$img_count" -eq 0 ]; then
+            echo "::error::build_all produced no .img in install/soc_sg2002_licheervnano_sd/images"
+            exit 1
+          fi
+
+      - name: Save base image to cache
+        if: steps.decide.outputs.should_build == '1'
+        uses: actions/cache/save@v6
+        with:
+          path: licheervnano/install/soc_sg2002_licheervnano_sd/images
+          key: base-img-${{ steps.sdk.outputs.sha }}
+
+      - name: Save ccache
+        if: steps.decide.outputs.should_build == '1'
+        uses: actions/cache/save@v6
+        with:
+          path: /mnt/nanokvm-fullimg-cache/ccache
+          key: ccache-${{ runner.os }}-${{ steps.sdk.outputs.sha }}
+
+      - name: Save buildroot download cache
+        if: steps.decide.outputs.should_build == '1'
+        uses: actions/cache/save@v6
+        with:
+          path: /mnt/nanokvm-fullimg-cache/buildroot-dl
+          key: buildroot-dl-${{ steps.sdk.outputs.sha }}
+
+      - name: Merge kvmapp into the base image
+        working-directory: licheervnano
+        run: |
+          set -euo pipefail
+          images_dir="$PWD/install/soc_sg2002_licheervnano_sd/images"
+          base_img=$(find "$images_dir" -maxdepth 1 -type f -name '*.img' \
+                       ! -name '*-nanokvm.img' -printf '%T@ %p\n' \
+                       | sort -nr | head -n1 | cut -d' ' -f2-)
+          if [ -z "$base_img" ]; then
+            echo "::error::no base image found in $images_dir"
+            exit 1
+          fi
+          echo "base image: $base_img"
+          # Run under bash (the script's shebang is /bin/sh = dash, whose EXIT
+          # trap can report a non-zero status on success). The script copies
+          # input -> output first, so a retry is always safe.
+          if ! bash kvm/merge_nanokvm_app.sh -i "$base_img" -a "$APP_ROOT" -f 2>&1 \
+               | tee merge_nanokvm_app.log; then
+            echo "::warning::merge_nanokvm_app.sh failed once; retrying"
+            bash kvm/merge_nanokvm_app.sh -i "$base_img" -a "$APP_ROOT" -f 2>&1 \
+              | tee -a merge_nanokvm_app.log
+          fi
+          merged=$(find "$images_dir" -maxdepth 1 -type f -name '*-nanokvm.img' \
+                     -printf '%T@ %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
+          if [ -z "$merged" ]; then
+            echo "::error::merge produced no output image"
+            exit 1
+          fi
+          echo "MERGED=$merged" >> "$GITHUB_ENV"
+
+      - name: Verify image contents
+        working-directory: licheervnano
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          set -euo pipefail
+          loop=$(sudo losetup -fP --show "$MERGED")
+          mkdir -p vmnt && sudo mount -o ro "${loop}p2" vmnt
+          m=vmnt fail=0
+          ck() { if eval "$2"; then echo "  OK   $1"; else echo "  FAIL $1"; fail=1; fi; }
+          ck "rcS present (services boot)"  "[ -f $m/etc/init.d/rcS ]"
+          ck "S95nanokvm executable"        "[ -x $m/etc/init.d/S95nanokvm ]"
+          ck "kvm_system binary"            "[ -s $m/kvmapp/kvm_system/kvm_system ]"
+          ck "NanoKVM-Server"               "[ -s $m/kvmapp/server/NanoKVM-Server ]"
+          ck "web UI"                       "[ -f $m/kvmapp/server/web/index.html ]"
+          ck "dl_lib shared libraries"      "[ \$(ls $m/kvmapp/server/dl_lib/*.so 2>/dev/null | wc -l) -gt 0 ]"
+          # Mirror merge_nanokvm_app.sh: a system/firmware/ bundle is left in
+          # /kvmapp and installed on first boot (kvm_new_app marker), whereas the
+          # legacy layout copies system/ko/soph_mipi_rx.ko into /mnt/system/ko
+          # while merging. Check whichever layout the package uses.
+          if [ -d "$m/kvmapp/system/firmware" ]; then
+            for firmware in boot.sd soph_mipi_rx.ko lontium_hdmi.ko; do
+              ck "capture firmware: $firmware" "[ -s $m/kvmapp/system/firmware/$firmware ]"
+            done
+            ck "first-boot firmware install scheduled" "[ -e $m/kvmapp/kvm_new_app ]"
+            ck "lontium init script"         "[ -x $m/kvmapp/system/init.d/S16lontium ]"
+          else
+            ck "soph_mipi_rx.ko"             "[ -f $m/mnt/system/ko/soph_mipi_rx.ko ]"
+          fi
+          ck "frpc"                         "[ -x $m/usr/bin/frpc ]"
+          ck "tailscaled"                   "[ -x $m/usr/sbin/tailscaled ]"
+          ck "kvm_new_img marker"           "[ -e $m/kvmapp/kvm_new_img ]"
+          ck "ssh_stop marker"              "[ -e $m/etc/kvm/ssh_stop ]"
+          ck "version is $VERSION"          "[ \"\$(cat $m/kvmapp/version)\" = \"$VERSION\" ]"
+          sync; sudo umount vmnt; sudo losetup -d "$loop"
+          if [ "$fail" -eq 0 ]; then
+            echo "IMAGE VERIFICATION PASSED"
+          else
+            echo "IMAGE VERIFICATION FAILED"
+            exit 1
+          fi
+
+      - name: Cache and disk statistics
+        if: always()
+        run: |
+          if command -v ccache >/dev/null 2>&1; then ccache --show-stats || true; fi
+          du -sh "$HOME/.cache/nanokvm-ci/apt-archives" 2>/dev/null || true
+          df -h / /mnt || true
+
+      - name: Compress and stage final image
+        working-directory: licheervnano
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          BUILD_DATE: ${{ needs.setup.outputs.build_date }}
+        run: |
+          set -euo pipefail
+          images_dir=install/soc_sg2002_licheervnano_sd/images
+          final="${BUILD_DATE}_NanoKVM_${VERSION}.img"
+          mv "$MERGED" "$images_dir/$final"
+          # .img.xz flashes directly in balenaEtcher / dd; keep the run's
+          # checksum alongside.
+          ( cd "$images_dir" && xz -T0 -6 "$final" && sha256sum "$final.xz" > "$final.xz.sha256" )
+          ls -lh "$images_dir/$final.xz"
+          echo "FINAL_IMG=$PWD/$images_dir/$final.xz" >> "$GITHUB_ENV"
+          echo "FINAL_NAME=$final.xz" >> "$GITHUB_ENV"
+          echo "FINAL_SHA256=$(cut -d' ' -f1 "$images_dir/$final.xz.sha256")" >> "$GITHUB_ENV"
+
+      - name: Stage final artifacts
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          BUILD_DATE: ${{ needs.setup.outputs.build_date }}
+          HEAD_SHA: ${{ github.sha }}
+          BUILDER_IMAGE: ${{ needs.kvmapp.outputs.builder_image }}
+          APP_REPO_IN: ${{ needs.setup.outputs.app_repo }}
+          APP_REF_IN: ${{ needs.setup.outputs.app_ref }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp "$FINAL_IMG" "dist/$FINAL_NAME"
+          cp "$(dirname "$FINAL_IMG")/$FINAL_NAME.sha256" dist/
+          cp "nanokvm/build/release/latest.json" dist/
+          app_sha512=$(jq -er '.sha512' nanokvm/build/release/latest.json)
+          cat > dist/BUILD_INFO.txt <<EOF
+          artifact=nanokvm-fullimg-${VERSION}-${{ needs.setup.outputs.short_sha }}
+          version=${VERSION}
+          image=${FINAL_NAME}
+          image_sha256_hex=${FINAL_SHA256}
+          app_package=nanokvm_${VERSION}.tar.gz
+          app_sha512_base64=${app_sha512}
+          app_repository=${APP_REPO_IN}
+          app_ref=${APP_REF_IN}
+          event=${GITHUB_EVENT_NAME}
+          nanokvm_repo=${GITHUB_REPOSITORY}
+          nanokvm_sha=${HEAD_SHA}
+          builder_image=${BUILDER_IMAGE}
+          base_image_source=${BASE_SOURCE}
+          build_date=${BUILD_DATE}
+          run_url=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          EOF
+          cat dist/BUILD_INFO.txt
+
+      - name: Upload final image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nanokvm-fullimg-${{ needs.setup.outputs.version }}-${{ needs.setup.outputs.short_sha }}
+          path: dist
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Compress and stage base image
+        id: baseout
+        # Only on a fully successful build (no always()): on failure the
+        # "Upload base image on failure" step below still salvages the raw
+        # .img, and this avoids uploading the same image twice.
+        if: inputs.upload_base_image
+        env:
+          BUILD_DATE: ${{ needs.setup.outputs.build_date }}
+        run: |
+          set -euo pipefail
+          images_dir=licheervnano/install/soc_sg2002_licheervnano_sd/images
+          test -d "$images_dir" || { echo "::error::missing $images_dir"; exit 1; }
+          # The base image is whatever build_all produced or the cache
+          # restored. The merge step added a *-nanokvm.img next to it and the
+          # final step renamed that one to <build_date>_NanoKVM_<version>.img,
+          # so exclude both patterns and keep the newest remaining image.
+          base_img=$(find "$images_dir" -maxdepth 1 -type f -name '*.img' \
+                       ! -name '*-nanokvm.img' \
+                       ! -name "${BUILD_DATE}_NanoKVM_*.img" \
+                       -printf '%T@ %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
+          if [ -z "$base_img" ]; then
+            echo "::error::no base image found in $images_dir"
+            exit 1
+          fi
+          sdk_short="${SDK_SHA:-}"
+          sdk_short="${sdk_short:0:12}"
+          sdk_short="${sdk_short:-unknown}"
+          base_name="${BUILD_DATE}_LicheeRV-Nano_base_${sdk_short}.img"
+          echo "base image: $base_img (source: ${BASE_SOURCE:-unknown})"
+          mkdir -p dist-base
+          # Compress straight from the images dir: a raw copy would need
+          # another ~1 GB on the runner disk for no benefit.
+          xz -T0 -6 -c "$base_img" > "dist-base/$base_name.xz"
+          xz -t "dist-base/$base_name.xz"
+          ( cd dist-base && sha256sum "$base_name.xz" > "$base_name.xz.sha256" )
+          xz_sha=$(cut -d' ' -f1 "dist-base/$base_name.xz.sha256")
+          artifact="nanokvm-baseimg-${BUILD_DATE}-${sdk_short}"
+          cat > dist-base/BASE_INFO.txt <<EOF
+          artifact=${artifact}
+          image=${base_name}.xz
+          image_sha256_hex=${xz_sha}
+          source_image=$(basename "$base_img")
+          base_image_source=${BASE_SOURCE:-unknown}
+          sdk_repository=${{ needs.setup.outputs.sdk_repo }}
+          sdk_ref=${{ needs.setup.outputs.sdk_ref }}
+          sdk_sha=${SDK_SHA:-unknown}
+          build_date=${BUILD_DATE}
+          run_url=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          EOF
+          cat "dist-base/BASE_INFO.txt"
+          ls -lh "dist-base/$base_name.xz"
+          {
+            echo "name=$base_name.xz"
+            echo "sha256=$xz_sha"
+            echo "artifact=$artifact"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "BASE_NAME=$base_name.xz"
+            echo "BASE_SHA256=$xz_sha"
+          } >> "$GITHUB_ENV"
+
+      - name: Upload base image artifact
+        if: inputs.upload_base_image
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.baseout.outputs.artifact }}
+          path: dist-base
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Compress build logs
+        if: failure()
+        continue-on-error: true
+        # No working-directory here: when the job fails before the SDK checkout
+        # (e.g. in the unpack step) licheervnano/ does not exist and the step
+        # would fail to even start, adding a confusing second annotation.
+        run: |
+          for log in licheervnano/build_all.log licheervnano/merge_nanokvm_app.log; do
+            [ -f "$log" ] || continue
+            gzip -f -9 "$log" || true
+          done
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nanokvm-fullimg-logs-${{ github.run_id }}
+          path: |
+            licheervnano/build_all.log.gz
+            licheervnano/merge_nanokvm_app.log.gz
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload base image on failure
+        # If only the merge/verify failed, the expensive base image is still
+        # good - do not make the user rebuild it. On success the compressed
+        # base image is uploaded by "Upload base image artifact" instead; this
+        # step only runs when the job is already failing.
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nanokvm-fullimg-base-${{ github.run_id }}
+          path: licheervnano/install/soc_sg2002_licheervnano_sd/images/*.img
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Summary
+        if: always()
+        env:
+          VERSION_IN: ${{ inputs.version }}
+        run: |
+          {
+            echo '### NanoKVM full image'
+            echo
+            if [ -z "$VERSION_IN" ]; then
+              echo '> [!WARNING] **TEST build** - version was auto-assigned (0.0.<run number>)'
+              echo '> and the application came from the default repo. For a release image set'
+              echo '> `version` and `nanokvm_ref` explicitly.'
+              echo
+            else
+              echo "- Version: \`$VERSION_IN\`"
+            fi
+            echo "- Application: \`${{ needs.setup.outputs.app_repo }} @ ${{ needs.setup.outputs.app_ref }}\`"
+            echo "- SDK: \`${{ needs.setup.outputs.sdk_repo }} @ ${{ needs.setup.outputs.sdk_ref }}\` (${SDK_SHA:-n/a})"
+            echo "- Builder image: \`${{ needs.kvmapp.outputs.builder_image }}\`"
+            echo "- Base image source: \`${BASE_SOURCE:-n/a}\` (cache or fresh build_all)"
+            if [ -n "${FINAL_NAME:-}" ]; then
+              echo
+              echo '```text'
+              echo "$FINAL_NAME"
+              echo "sha256: $FINAL_SHA256"
+              echo '```'
+              echo
+              echo 'Flash with balenaEtcher (accepts .img.xz) or:'
+              echo
+              echo '```bash'
+              echo "xz -d $FINAL_NAME"
+              echo 'sudo dd if=<image>.img of=/dev/sdX bs=4M conv=fsync status=progress'
+              echo '```'
+              echo
+              echo 'First boot: `nanokvm.local` (mDNS), web on port 80.'
+              echo 'SSH is disabled by default (`/etc/kvm/ssh_stop`); enable it in the web UI.'
+            else
+              echo
+              echo 'No final image was produced. Check the failed step; if the merge'
+              echo 'failed, the base image and logs are attached as artifacts.'
+            fi
+            if [ -n "${BASE_NAME:-}" ]; then
+              echo
+              echo 'Base system image (SDK build_all, without the kvmapp layer):'
+              echo
+              echo '```text'
+              echo "$BASE_NAME"
+              echo "sha256: $BASE_SHA256"
+              echo '```'
+              echo
+              echo 'It is also flashable: `xz -d <image>.img.xz` then dd/balenaEtcher.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
