@@ -1,0 +1,84 @@
+#!/bin/sh
+# Cube and PCIe factory board detection. HDMI is managed by lontium_hdmi.
+
+Beta_OLED_RST_Pin=502
+Beta_PWR_LED_Pin=504
+Beta_PWR_KEY_Pin=503
+Beta_RST_KEY_Pin=505
+
+init_csi_hw(){
+  for reg in 0x0300116C 0x03001170 0x03001174 0x03001178 0x0300117C \
+             0x03001180 0x03001184 0x03001188 0x0300118C 0x03001190
+  do
+    devmem "$reg" 32 0x3 || return 1
+  done
+}
+
+init_beta_pcie_hw(){
+  devmem 0x0300103C 32 0x3  # GPIOA15
+  devmem 0x03001050 32 0x3  # GPIOA22
+  devmem 0x0300105C 32 0x3  # GPIOA23
+  devmem 0x03001060 32 0x3  # GPIOA24
+  devmem 0x03001054 32 0x3  # GPIOA25
+  devmem 0x03001058 32 0x3  # GPIOA27
+
+  devmem 0x030010E4 32 0x0  # SDIO CLK
+  devmem 0x030010E0 32 0x0  # SDIO CMD
+  devmem 0x030010DC 32 0x0  # SDIO D0
+  devmem 0x030010D8 32 0x0  # SDIO D1
+  devmem 0x030010D4 32 0x0  # SDIO D2
+  devmem 0x030010D0 32 0x0  # SDIO D3
+
+	devmem 0x03001068 32 0x6  # GPIOA 18 UART1 RX
+	devmem 0x03001064 32 0x6  # GPIOA 19 UART1 TX
+	devmem 0x03001070 32 0x2  # GPIOA 28 UART2 TX
+	devmem 0x03001074 32 0x2  # GPIOA 29 UART2 RX
+
+  echo ${Beta_OLED_RST_Pin} > /sys/class/gpio/export  # Beta OLED_RST
+  echo out > /sys/class/gpio/gpio${Beta_OLED_RST_Pin}/direction
+  echo 1 > /sys/class/gpio/gpio${Beta_OLED_RST_Pin}/value
+
+  echo ${Beta_PWR_LED_Pin} > /sys/class/gpio/export   # pwr led
+  echo ${Beta_PWR_KEY_Pin} > /sys/class/gpio/export   # pwr key
+  echo ${Beta_RST_KEY_Pin} > /sys/class/gpio/export   # rst key
+
+  echo in > /sys/class/gpio/gpio${Beta_PWR_LED_Pin}/direction     # pwr led
+  echo out > /sys/class/gpio/gpio${Beta_PWR_KEY_Pin}/direction    # pwr key
+  echo out > /sys/class/gpio/gpio${Beta_RST_KEY_Pin}/direction    # rst key
+
+  rmmod /mnt/system/ko/i2c-gpio.ko
+  rmmod /mnt/system/ko/i2c-algo-bit.ko
+  insmod /mnt/system/ko/i2c-algo-bit.ko
+  insmod /mnt/system/ko/i2c-gpio.ko
+}
+
+detect_beta_pcie_hw(){
+  oled_scan=$(i2cdetect -ry 5 0x3c 0x3c) || return 1
+  oled_reply=$(printf '%s\n' "$oled_scan" | awk '$1 == "30:" && NF == 2 { print $2 }')
+  case "$oled_reply" in
+    3c) detected_hw=pcie ;;
+    --) detected_hw=beta ;;
+    *) echo "Unexpected OLED probe result on I2C5 at 0x3c" >&2; return 1 ;;
+  esac
+  if [ "$detected_hw" != "$(cat /etc/kvm/hw 2>/dev/null)" ]; then
+    hw_tmp=/etc/kvm/.hw.$$
+    printf '%s\n' "$detected_hw" > "$hw_tmp" && mv -f "$hw_tmp" /etc/kvm/hw || {
+      rm -f "$hw_tmp"
+      return 1
+    }
+    sync || return 1
+  fi
+  echo "hw = $detected_hw!"
+}
+
+case "$1" in
+  start|re-detect)
+    mkdir -p /etc/kvm || exit 1
+    init_csi_hw || exit 1
+    init_beta_pcie_hw || exit 1
+    detect_beta_pcie_hw
+  ;;
+  re-init)
+    init_csi_hw && init_beta_pcie_hw
+  ;;
+esac

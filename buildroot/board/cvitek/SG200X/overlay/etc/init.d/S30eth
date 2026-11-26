@@ -1,0 +1,86 @@
+#!/bin/sh
+
+RESERVE_INET="192.168.90.1/22"
+
+clean_line() {
+    echo "$1" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/\r//g'
+}
+
+calc_gw() {
+    addr="$1"
+    netid="$2"
+    IFS=. read a b c d <<EOF
+$addr
+EOF
+    ipnum=$(( (a<<24) + (b<<16) + (c<<8) + d ))
+    mask=$(( 0xFFFFFFFF << (32-netid) & 0xFFFFFFFF ))
+    gwnum=$(( (ipnum & mask) | 1 ))
+    if [ $gwnum -eq $ipnum ]; then
+        broadcast=$(( (ipnum & mask) | (0xFFFFFFFF & ~mask) ))
+        gwnum=$(( broadcast - 1 ))
+    fi
+    echo "$(( (gwnum>>24)&255 )).$(( (gwnum>>16)&255 )).$(( (gwnum>>8)&255 )).$(( gwnum&255 ))"
+}
+
+start() {
+    ip addr flush dev eth0
+    if [ -e /boot/eth.nodhcp ]; then
+        while IFS= read -r line || [ -n "$line" ]; do
+            line=$(clean_line "$line")
+            [ -z "$line" ] && continue
+            set -- $line
+            inet="$1"
+            gw="$2"
+            [ -z "$inet" ] && continue
+            # Check if inet contains a valid netmask, if not, add default /16
+            case "$inet" in
+                */*)
+                    # Already has netmask, check if valid (1-32)
+                    netid_check=${inet#*/}
+                    if ! echo "$netid_check" | grep -qE '^[0-9]+$' || [ $netid_check -lt 1 ] 2>/dev/null || [ $netid_check -gt 32 ] 2>/dev/null; then
+                        inet="${inet%/*}/16"
+                    fi
+                    ;;
+                *)
+                    # No netmask, add default /16
+                    inet="$inet/16"
+                    ;;
+            esac
+            addr=${inet%/*}
+            netid=${inet#*/}
+            [ -z "$gw" ] && gw=$(calc_gw "$addr" "$netid")
+            arping -Dqc2 -Ieth0 "$addr" || continue
+            ip a add "$inet" brd + dev eth0
+            ip r add default via "$gw" dev eth0
+            echo -e "nameserver $gw" >> /etc/resolv.conf
+            break
+        done < /boot/eth.nodhcp
+
+        ip a show dev eth0 | grep inet > /dev/null || {
+            udhcpc -i eth0 -t 3 -T 1 -A 5 -b -p /run/udhcpc.eth0.pid &>/dev/null
+            ip a show dev eth0 | grep inet > /dev/null
+        } || {
+            inet=$RESERVE_INET
+            addr=${inet%/*}
+            ip a add "$inet" brd + dev eth0
+        } || exit 1
+    else
+        udhcpc -i eth0 -t 10 -T 1 -A 5 -b -p /run/udhcpc.eth0.pid &
+    fi
+}
+
+stop() {
+    [ ! -e "/run/udhcpc.eth0.pid" ] && exit 1
+    kill "$(cat /run/udhcpc.eth0.pid)"
+    rm /run/udhcpc.eth0.pid
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    restart|reload)
+        $0 stop
+        $0 start
+        ;;
+    *) exit 1 ;;
+esac
