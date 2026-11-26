@@ -1,15 +1,7 @@
 #!/bin/sh
-# Board, OLED and ATX initialization. HDMI is managed by lontium_hdmi.
+# Cube and PCIe factory board detection. HDMI is managed by lontium_hdmi.
 
-Alpha_OLED_RST_Pin=371
 Beta_OLED_RST_Pin=502
-Beta_OLED_SCL=595
-Beta_OLED_SDA=507
-WiFi_EN_Pin=506
-Alpha_PWR_LED_Pin=504
-Alpha_HDD_LED_Pin=505
-Alpha_PWR_KEY_Pin=503
-Alpha_RST_KEY_Pin=507
 Beta_PWR_LED_Pin=504
 Beta_PWR_KEY_Pin=503
 Beta_RST_KEY_Pin=505
@@ -20,43 +12,6 @@ init_csi_hw(){
   do
     devmem "$reg" 32 0x3 || return 1
   done
-}
-
-init_alpha_hw(){
-  devmem 0x030010D0 32 0x2  # I2C1_SCL
-  devmem 0x030010DC 32 0x2  # I2C1_SDA
-  devmem 0x030010D4 32 0x3  # OLED_RST
-  devmem 0x0300103C 32 0x3  # GPIOA15
-  devmem 0x03001050 32 0x3  # GPIOA22
-  devmem 0x0300105C 32 0x3  # GPIOA23
-  devmem 0x03001060 32 0x3  # GPIOA24
-  devmem 0x03001054 32 0x3  # GPIOA25
-  devmem 0x03001058 32 0x3  # GPIOA27
-
-	devmem 0x03001068 32 0x6  # GPIOA 18 UART1 RX
-	devmem 0x03001064 32 0x6  # GPIOA 19 UART1 TX
-	devmem 0x03001070 32 0x2  # GPIOA 28 UART2 TX
-	devmem 0x03001074 32 0x2  # GPIOA 29 UART2 RX
-
-  echo ${Alpha_OLED_RST_Pin} > /sys/class/gpio/export  # OLED_RST
-  echo out > /sys/class/gpio/gpio${Alpha_OLED_RST_Pin}/direction
-  echo 1 > /sys/class/gpio/gpio${Alpha_OLED_RST_Pin}/value
-
-  echo ${Alpha_PWR_LED_Pin} > /sys/class/gpio/export   # pwr led
-  echo ${Alpha_HDD_LED_Pin} > /sys/class/gpio/export   # hdd led
-  echo ${Alpha_PWR_KEY_Pin} > /sys/class/gpio/export   # pwr key
-  echo ${Alpha_RST_KEY_Pin} > /sys/class/gpio/export   # rst key
-
-  echo in > /sys/class/gpio/gpio${Alpha_PWR_LED_Pin}/direction     # pwr led
-  echo in > /sys/class/gpio/gpio${Alpha_HDD_LED_Pin}/direction     # hdd led
-  echo out > /sys/class/gpio/gpio${Alpha_PWR_KEY_Pin}/direction    # pwr key
-  echo out > /sys/class/gpio/gpio${Alpha_RST_KEY_Pin}/direction    # rst key
-
-  rmmod /mnt/system/ko/i2c-gpio.ko
-  rmmod /mnt/system/ko/i2c-algo-bit.ko
-
-  # rm /etc/init.d/S25wifimod
-  # rm /etc/init.d/S30wifi
 }
 
 init_beta_pcie_hw(){
@@ -99,112 +54,31 @@ init_beta_pcie_hw(){
 
 detect_beta_pcie_hw(){
   oled_scan=$(i2cdetect -ry 5 0x3c 0x3c) || return 1
-  case "$oled_scan" in
-    *" 3c"*) detected_hw=pcie ;;
-    *" --"*) detected_hw=beta ;;
+  oled_reply=$(printf '%s\n' "$oled_scan" | awk '$1 == "30:" && NF == 2 { print $2 }')
+  case "$oled_reply" in
+    3c) detected_hw=pcie ;;
+    --) detected_hw=beta ;;
     *) echo "Unexpected OLED probe result on I2C5 at 0x3c" >&2; return 1 ;;
   esac
-  if [ "$detected_hw" != "$1" ]; then
+  if [ "$detected_hw" != "$(cat /etc/kvm/hw 2>/dev/null)" ]; then
     hw_tmp=/etc/kvm/.hw.$$
     printf '%s\n' "$detected_hw" > "$hw_tmp" && mv -f "$hw_tmp" /etc/kvm/hw || {
       rm -f "$hw_tmp"
       return 1
     }
+    sync || return 1
   fi
-}
-
-kvm_hw_detect(){
-    mkdir -p /etc/kvm || return 1
-    devmem 0x0300104C 32 0x3  # GPIOA26 / WiFi_EN
-    echo ${WiFi_EN_Pin} > /sys/class/gpio/export  # WiFi_EN
-    echo out > /sys/class/gpio/gpio${WiFi_EN_Pin}/direction
-    echo 0 > /sys/class/gpio/gpio${WiFi_EN_Pin}/value
-
-    devmem 0x0300103C 32 0x3  # GPIOA15
-    devmem 0x03001050 32 0x3  # GPIOA22
-    devmem 0x0300105C 32 0x3  # GPIOA23
-    devmem 0x03001060 32 0x3  # GPIOA24
-    devmem 0x03001054 32 0x3  # GPIOA25
-    devmem 0x03001058 32 0x3  # GPIOA27
-
-    devmem 0x030010D0 32 0x2  # I2C1_SCL
-    devmem 0x030010DC 32 0x2  # I2C1_SDA
-    devmem 0x030010D4 32 0x3  # OLED_RST
-    echo ${Alpha_OLED_RST_Pin} > /sys/class/gpio/export  # OLED_RST
-    echo out > /sys/class/gpio/gpio${Alpha_OLED_RST_Pin}/direction
-    echo 1 > /sys/class/gpio/gpio${Alpha_OLED_RST_Pin}/value
-
-    kvm_tmp=$(i2cdetect -ry 1 0x3d 0x3d | grep 3d)
-    if [ -n "$kvm_tmp" ]
-    then
-      # alpha hw
-      echo "alpha" > /etc/kvm/hw || return 1
-    else
-      # beta/pcie hw
-      echo ${Alpha_OLED_RST_Pin} > /sys/class/gpio/unexport  # OLED_RST
-      echo ${Beta_OLED_RST_Pin} > /sys/class/gpio/export  # Beta_OLED_RST_Pin
-      echo out > /sys/class/gpio/gpio${Beta_OLED_RST_Pin}/direction
-      echo 1 > /sys/class/gpio/gpio${Beta_OLED_RST_Pin}/value
-
-      rmmod /mnt/system/ko/i2c-gpio.ko
-      rmmod /mnt/system/ko/i2c-algo-bit.ko
-      insmod /mnt/system/ko/i2c-algo-bit.ko
-      insmod /mnt/system/ko/i2c-gpio.ko
-
-      detect_beta_pcie_hw ""
-      probe_status=$?
-      echo 1 > /sys/class/gpio/gpio${WiFi_EN_Pin}/value
-      echo ${WiFi_EN_Pin} > /sys/class/gpio/unexport  # WiFi_EN
-      if [ "$probe_status" -ne 0 ]; then
-        init_beta_pcie_hw
-        return 1
-      fi
-      if [ "$detected_hw" = pcie ]; then
-        sync
-        reboot
-      fi
-    fi
-    sync
-}
-
-kvm_hw_init(){
-    init_csi_hw || return 1
-    FIND_FILE="/etc/kvm/hw"
-    if [ `grep -c "alpha" $FIND_FILE` -ne '0' ]
-    then
-        echo "hw = alpha!"
-        init_alpha_hw
-    fi
-    if [ `grep -c "beta" $FIND_FILE` -ne '0' ]
-    then
-        echo "hw = beta!"
-        init_beta_pcie_hw
-    fi
-    if [ `grep -c "pcie" $FIND_FILE` -ne '0' ]
-    then
-        echo "hw = pcie!"
-        init_beta_pcie_hw
-    fi
+  echo "hw = $detected_hw!"
 }
 
 case "$1" in
-  start)
-    cached_hw=$(cat /etc/kvm/hw 2>/dev/null)
-    case "$cached_hw" in
-      alpha) kvm_hw_init ;;
-      beta|pcie)
-        init_csi_hw || exit 1
-        init_beta_pcie_hw || exit 1
-        detect_beta_pcie_hw "$cached_hw" || exit 1
-        echo "hw = $detected_hw!"
-        ;;
-      *) kvm_hw_detect && kvm_hw_init ;;
-    esac
-  ;;
-  re-detect)
-    kvm_hw_detect && kvm_hw_init
+  start|re-detect)
+    mkdir -p /etc/kvm || exit 1
+    init_csi_hw || exit 1
+    init_beta_pcie_hw || exit 1
+    detect_beta_pcie_hw
   ;;
   re-init)
-    kvm_hw_init
+    init_csi_hw && init_beta_pcie_hw
   ;;
 esac

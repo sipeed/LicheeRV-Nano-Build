@@ -12,8 +12,17 @@ PIDFILE="/var/run/sshd.pid"
 umask 077
 
 startssh() {
-    # Generate SSH keys if they do not exist
-    [ ! -f /etc/ssh/ssh_host_rsa_key ] && /usr/bin/ssh-keygen -A
+    # Init and the factory runner can both start SSH on a fresh card.
+    (
+        flock 9 || exit 1
+        for type in ecdsa ed25519; do
+            key="/etc/ssh/ssh_host_${type}_key"
+            [ -s "$key" ] && continue
+            rm -f "$key.new" "$key.new.pub" || exit 1
+            /usr/bin/ssh-keygen -q -t "$type" -N '' -f "$key.new" || exit 1
+            mv -f "$key.new.pub" "$key.pub" && mv -f "$key.new" "$key" || exit 1
+        done
+    ) 9</etc/ssh || exit 1
 
         printf "Starting sshd: "
         /usr/sbin/sshd
