@@ -3019,7 +3019,9 @@ static void dwc2_hsotg_epint(struct dwc2_hsotg *hsotg, unsigned int idx,
 	u32 epctl_reg = dir_in ? DIEPCTL(idx) : DOEPCTL(idx);
 	u32 epsiz_reg = dir_in ? DIEPTSIZ(idx) : DOEPTSIZ(idx);
 	u32 ints;
+	u32 raw;
 
+	raw = dwc2_readl(hsotg, epint_reg);
 	ints = dwc2_gadget_read_ep_interrupts(hsotg, idx, dir_in);
 
 	/* Clear endpoint interrupts */
@@ -3171,6 +3173,10 @@ static void dwc2_hsotg_epint(struct dwc2_hsotg *hsotg, unsigned int idx,
 				dwc2_hsotg_trytx(hsotg, hs_ep);
 		}
 	}
+
+	if (dir_in && !hs_ep->isochronous && !hs_ep->req &&
+	    (raw & (DXEPINT_TXFEMP | DXEPINT_INTKNTXFEMP)))
+		dwc2_hsotg_ctrl_epint(hsotg, idx, dir_in, 0);
 }
 
 /**

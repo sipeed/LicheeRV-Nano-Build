@@ -39,7 +39,7 @@ start() {
 			then
 				new_rndismac=$(cat /boot/usb.rndis.mac)
 			else
-				new_rndismac=$(hex2mac 48da356f$(sha512sum /device_key_legacy | head -c 4))
+				new_rndismac=$(hex2mac 06$(sha512sum /device_key_legacy | head -c 10))
 			fi
 			ip link set $rndis_ifname address ${new_rndismac}
 			ifconfig $rndis_ifname up
@@ -85,7 +85,7 @@ start() {
 			then
 				new_mac=$(cat /boot/usb.ncm.mac)
 			else
-				new_mac=$(hex2mac 48da356e$(sha512sum /device_key_legacy | head -c 4))
+				new_mac=$(hex2mac 0a$(sha512sum /device_key_legacy | head -c 10))
 			fi
 			ip link set $rndis_ifname address ${new_mac}
 			ifconfig $rndis_ifname up
