@@ -1,0 +1,150 @@
+#!/bin/sh
+# 产测基础镜像专用 USB gadget：HID×3 + USB ADB（无 RNDIS/虚拟U盘）
+# 装了 app 之后由 app 自己的 S03usbdev 接管，本脚本会被产测程序删除。
+G=/sys/kernel/config/usb_gadget/g0
+
+start_usb_dev() {
+    grep -q configfs /proc/mounts || mount -t configfs none /sys/kernel/config 2>/dev/null
+    mkdir -p /dev/usb-ffs/adb
+    mkdir -p $G
+    cd $G || return 1
+    echo 0x3346 > idVendor
+    echo 0x1009 > idProduct
+    echo 0xEF > bDeviceClass
+    echo 0x02 > bDeviceSubClass
+    echo 0x01 > bDeviceProtocol
+    mkdir strings/0x409
+    echo '0123456789ABCDEF' > strings/0x409/serialnumber
+    echo 'sipeed' > strings/0x409/manufacturer
+    echo 'NanoKVM' > strings/0x409/product
+    mkdir configs/c.1
+    echo 0xE0 > configs/c.1/bmAttributes
+    echo 120 > configs/c.1/MaxPower
+    mkdir configs/c.1/strings/0x409
+    echo "NanoKVM" > configs/c.1/strings/0x409/configuration
+
+    if [ ! -e /boot/disable_hid ]
+    then
+        # keyboard
+        mkdir functions/hid.GS0
+        if [ -e /boot/BIOS ]
+        then
+            echo 1 > functions/hid.GS0/subclass
+        fi
+        if [ ! -e /boot/usb.notwakeup ]
+        then
+            echo 1 > functions/hid.GS0/wakeup_on_write
+        fi
+        echo 1 > functions/hid.GS0/protocol
+        echo 8 > functions/hid.GS0/report_length
+        echo -ne \\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\xE7\\x05\\x07\\x19\\x00\\x29\\xE7\\x81\\x00\\xc0 > functions/hid.GS0/report_desc
+        ln -s functions/hid.GS0 configs/c.1
+
+        # mouse
+        mkdir functions/hid.GS1
+        if [ -e /boot/BIOS ]
+        then
+            echo 1 > functions/hid.GS1/subclass
+        fi
+        if [ ! -e /boot/usb.notwakeup ]
+        then
+            echo 1 > functions/hid.GS1/wakeup_on_write
+        fi
+        echo 2 > functions/hid.GS1/protocol
+        echo 4 > functions/hid.GS1/report_length
+        echo -ne \\x5\\x1\\x9\\x2\\xa1\\x1\\x9\\x1\\xa1\\x0\\x5\\x9\\x19\\x1\\x29\\x3\\x15\\x0\\x25\\x1\\x95\\x3\\x75\\x1\\x81\\x2\\x95\\x1\\x75\\x5\\x81\\x3\\x5\\x1\\x9\\x30\\x9\\x31\\x9\\x38\\x15\\x81\\x25\\x7f\\x75\\x8\\x95\\x3\\x81\\x6\\xc0\\xc0 > functions/hid.GS1/report_desc
+        ln -s functions/hid.GS1 configs/c.1
+
+        # touchpad
+        mkdir functions/hid.GS2
+        if [ -e /boot/BIOS ]
+        then
+            echo 1 > functions/hid.GS2/subclass
+        fi
+        if [ ! -e /boot/usb.notwakeup ]
+        then
+            echo 1 > functions/hid.GS2/wakeup_on_write
+        fi
+        echo 2 > functions/hid.GS2/protocol
+        echo 6 > functions/hid.GS2/report_length
+        echo -ne \\x05\\x01\\x09\\x02\\xa1\\x01\\x09\\x01\\xa1\\x00\\x05\\x09\\x19\\x01\\x29\\x05\\x15\\x00\\x25\\x01\\x95\\x05\\x75\\x01\\x81\\x02\\x95\\x01\\x75\\x03\\x81\\x01\\x05\\x01\\x09\\x30\\x09\\x31\\x15\\x00\\x26\\xff\\x7f\\x35\\x00\\x46\\xff\\x7f\\x75\\x10\\x95\\x02\\x81\\x02\\x05\\x01\\x09\\x38\\x15\\x81\\x25\\x7f\\x35\\x00\\x45\\x00\\x75\\x08\\x95\\x01\\x81\\x06\\xc0\\xc0 > functions/hid.GS2/report_desc
+        ln -s functions/hid.GS2 configs/c.1
+    fi
+
+    mkdir functions/ffs.adb 2>/dev/null
+    mount -t functionfs adb /dev/usb-ffs/adb 2>/dev/null
+    ln -sf functions/ffs.adb configs/c.1/ 2>/dev/null
+    killall adbd 2>/dev/null
+    sleep 1
+    env PROP_ro.secure=0 PROP_ro.debuggable=1 PROP_ro.adb.secure=0 /usr/bin/adbd >/dev/null 2>&1 &
+    i=0
+    while [ $i -lt 50 ]
+    do
+        [ -e /dev/usb-ffs/adb/ep1 ] && [ -e /dev/usb-ffs/adb/ep2 ] && break
+        sleep 0.2
+        i=$((i+1))
+    done
+    echo device > /proc/cviusb/otg_role
+    i=0
+    while [ $i -lt 50 ]
+    do
+        [ -n "$(ls /sys/class/udc/ 2>/dev/null)" ] && break
+        sleep 0.2
+        i=$((i+1))
+    done
+    i=0
+    while [ $i -lt 20 ]
+    do
+        ls /sys/class/udc/ | cat > UDC 2>/dev/null
+        [ -s UDC ] && break
+        sleep 0.3
+        i=$((i+1))
+    done
+    if [ -x /opt/nanokvm-test/usb_guard.sh ] && ! pidof usb_guard.sh >/dev/null 2>&1
+    then
+        /opt/nanokvm-test/usb_guard.sh >/dev/null 2>&1 &
+    fi
+}
+
+stop_usb_dev() {
+    echo '' > $G/UDC 2>/dev/null
+    echo host > /proc/cviusb/otg_role
+    killall adbd 2>/dev/null
+}
+
+
+# USB ADB 自愈：gadget 被意外解绑（PHY 复位、adbd 崩溃等）时自动重新绑定。
+# 内联在这里，镜像不需要额外的 /opt 脚本。
+usb_guard() {
+    G=/sys/kernel/config/usb_gadget/g0
+    while true; do
+        sleep 2
+        [ -d "$G" ] || continue
+        if [ -z "$(cat "$G/UDC" 2>/dev/null)" ]; then
+            if ! pidof adbd >/dev/null 2>&1; then
+                env PROP_ro.secure=0 PROP_ro.debuggable=1 PROP_ro.adb.secure=0 \
+                    /usr/bin/adbd >/dev/null 2>&1 &
+                sleep 1
+            fi
+            if [ -e "$G/functions/ffs.adb" ] && [ ! -e "$G/configs/c.1/ffs.adb" ]; then
+                ln -sf functions/ffs.adb configs/c.1/ 2>/dev/null
+            fi
+            ls /sys/class/udc/ | cat > "$G/UDC" 2>/dev/null
+        fi
+    done
+}
+
+start_guard() {
+    if [ -e /run/usb_guard.pid ] && kill -0 "$(cat /run/usb_guard.pid 2>/dev/null)" 2>/dev/null; then
+        return 0
+    fi
+    usb_guard &
+    echo $! > /run/usb_guard.pid
+}
+
+case "$1" in
+  start) start_usb_dev; start_guard ;;
+  stop) stop_usb_dev ;;
+  restart) stop_usb_dev; sleep 1; start_usb_dev ;;
+esac
+exit 0

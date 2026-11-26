@@ -173,6 +173,11 @@
         /delete-property/ mute-gpio-r;
 };
 
+/*
+ * fb_reserved/cvi_fb 只在该板 memmap 预留了 framebuffer 时存在；SG200X 所有
+ * 板子的 dts 会共用同一个内核树编译，这里要按 CVIMMAP_FRAMEBUFFER_SIZE 保护。
+ */
+#if (CVIMMAP_FRAMEBUFFER_SIZE > 0)
 &fb_reserved {
         status = "okay";
 };
@@ -180,6 +185,7 @@
 &cvi_fb {
         status = "okay";
 };
+#endif
 
 &mipi_rx {
         snsr-reset = <&porte 1 GPIO_ACTIVE_LOW>;
