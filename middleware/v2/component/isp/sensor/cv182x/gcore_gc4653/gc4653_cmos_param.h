@@ -61,6 +61,47 @@ static const GC4653_MODE_S g_astGc4653_mode[GC4653_MODE_NUM] = {
 			.u32Step = 64,
 		},
 	},
+	[GC4653_MODE_1280X720P60] =  {
+		.name = "1280X720P30",
+		.astImg[0] = {
+			.stSnsSize = {
+				.u32Width = 1280,
+				.u32Height = 720,
+			},
+			.stWndRect = {
+				.s32X = 0,
+				.s32Y = 0,
+				.u32Width = 1280,
+				.u32Height = 720,
+			},
+			.stMaxSize = {
+				.u32Width = 1280,
+				.u32Height = 720,
+			},
+		},
+		.f32MaxFps = 60,
+		.f32MinFps = 2.75, /* 1500 * 30 / 16383  */
+		.u32HtsDef = 1500,
+		.u32VtsDef = 750,//650
+		.stExp[0] = {
+			.u16Min = 1,
+			.u16Max = 0x3fff,
+			.u16Def = 0x2000,
+			.u16Step = 1,
+		},
+		.stAgain[0] = {
+			.u32Min = 1024,
+			.u32Max = 77648,
+			.u32Def = 1024,
+			.u32Step = 1,
+		},
+		.stDgain[0] = {
+			.u32Min = 1024,
+			.u32Max = 16368,
+			.u32Def = 1024,
+			.u32Step = 64,
+		},
+	}
 };
 
 static ISP_CMOS_NOISE_CALIBRATION_S g_stIspNoiseCalibratio = {.CalibrationCoef = {
