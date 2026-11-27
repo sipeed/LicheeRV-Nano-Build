@@ -20,6 +20,7 @@ extern "C" {
 #include "dsi_jd9366ab.h"
 #include "dsi_nt35521.h"
 #include "dsi_st7701_d300fpc9307a.h"
+#include "dsi_st7701_rfa6400eawhmnn.h"
 #include "dsi_ota7290b.h"
 #include "dsi_ota7290b_1920.h"
 #include "dsi_st7701_dxq5d0019b480854.h"
